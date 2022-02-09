@@ -1,0 +1,15 @@
+anchor_version = "0.19.0"
+
+[programs.localnet]
+staking = "testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM"
+jobs = "testTfjx9bNFDdHQpk5iapa6YHkdRVhLT3cYkS2nVav"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.js --exit"
