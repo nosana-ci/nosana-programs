@@ -4,7 +4,7 @@ const assert = require('assert');
 const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const utils = require('./utils');
 
-describe('staking', () => {
+describe('jobs', () => {
 
   // local provider
   const provider = anchor.Provider.local();
@@ -116,16 +116,7 @@ describe('staking', () => {
   // initialize
   it('Get job', async () => {
 
-    // create the main token
-    await program.rpc.getJob(
-      {
-        accounts: {
-          authority: provider.wallet.publicKey,
-          job: job.publicKey,
-        },
-      }
-    );
+    const data = await program.account.job.fetch(job.publicKey);
 
-    await utils.assertBalances(provider, wallets, balances)
   });
 });

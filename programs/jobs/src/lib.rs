@@ -23,12 +23,4 @@ pub mod jobs {
     pub fn create_job(ctx: Context<CreateJob>, _bump: u8, amount: u64) -> ProgramResult {
         create_job::handler(ctx, _bump, amount)
     }
-
-    // pub fn list_jobs(ctx: Context<ListJobs>) -> ProgramResult {
-    //     list_jobs::handler(ctx)
-    // }
-    //
-    pub fn get_job(ctx: Context<GetJob>) -> ProgramResult {
-        get_job::handler(ctx)
-    }
 }

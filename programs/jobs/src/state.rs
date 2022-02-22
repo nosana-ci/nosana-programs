@@ -16,11 +16,6 @@ pub mod constants {
 #[account]
 pub struct Jobs {
     pub authority: Pubkey,
-    pub jobs: Vec<Pubkey>, // this should be Vec<Job>
-}
-
-#[event]
-pub struct JobsInfo {
     pub jobs: Vec<Pubkey>,
 }
 

@@ -39,7 +39,7 @@ pub fn handler(ctx: Context<CreateJob>, _bump: u8, amount: u64) -> ProgramResult
 
     let job : &mut Account<Job> = &mut ctx.accounts.job;
     job.job_status = JobStatus::Created as u8;
-    job.ipfs_link = 1;
+    job.ipfs_link = 1; // TODO: make ipfs link
     job.tokens = amount;
 
     // pre-pay for job
@@ -52,7 +52,7 @@ pub fn handler(ctx: Context<CreateJob>, _bump: u8, amount: u64) -> ProgramResult
         },
     ), amount)?;
 
-    // For now just push a number, TODO: this should be 'job' , update state
+    // we push the account of the job to the list
     jobs.jobs.push(ctx.accounts.job.key());
 
     // reload
