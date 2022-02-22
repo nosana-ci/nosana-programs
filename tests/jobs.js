@@ -78,7 +78,7 @@ describe('jobs', () => {
     await utils.assertBalances(provider, wallets, balances)
   });
 
-  // initialize
+  // create
   it('Create job', async () => {
 
 
@@ -113,10 +113,20 @@ describe('jobs', () => {
     await utils.assertBalances(provider, wallets, balances)
   });
 
-  // initialize
+  // list
+  it('List jobs', async () => {
+
+    const data = await program.account.jobs.fetch(jobs.publicKey);
+
+    console.log(data);
+
+  });
+  // get
   it('Get job', async () => {
 
     const data = await program.account.job.fetch(job.publicKey);
+
+    console.log(data);
 
   });
 });
