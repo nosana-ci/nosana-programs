@@ -14,6 +14,7 @@ describe('staking', () => {
 
   // Jobs account for the tests.
   const jobs = anchor.web3.Keypair.generate();
+  const job = anchor.web3.Keypair.generate();
 
   // globals variables
   const addressTokens = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
@@ -80,6 +81,7 @@ describe('staking', () => {
   // initialize
   it('Create job', async () => {
 
+
     // create the main token
     await program.rpc.createJob(
       bump,
@@ -90,6 +92,7 @@ describe('staking', () => {
 
           // jobs
           jobs: jobs.publicKey,
+          job: job.publicKey,
 
           // payment
           nos: spl.nos,
@@ -98,13 +101,31 @@ describe('staking', () => {
 
           // required
           tokenProgram: TOKEN_PROGRAM_ID,
-        }
+          systemProgram: anchor.web3.SystemProgram.programId,
+        },
+        signers: [job],
       }
     );
 
     // tests
     balances.user -= jobPrice
     balances.vault += jobPrice
+    await utils.assertBalances(provider, wallets, balances)
+  });
+
+  // initialize
+  it('Get job', async () => {
+
+    // create the main token
+    await program.rpc.getJob(
+      {
+        accounts: {
+          authority: provider.wallet.publicKey,
+          job: job.publicKey,
+        },
+      }
+    );
+
     await utils.assertBalances(provider, wallets, balances)
   });
 });

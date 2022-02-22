@@ -1,6 +1,6 @@
 use crate::*;
 
-use anchor_spl::token::{Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -9,6 +9,9 @@ pub struct CreateJob<'info> {
     #[account(mut, has_one = authority)]
     pub jobs: Account<'info, Jobs>,
     pub authority: Signer<'info>,
+
+    #[account(init, payer = authority, space = 48)] // TODO: make space size of Job
+    pub job: Account<'info, Job>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
     pub nos: Box<Account<'info, Mint>>,
@@ -26,15 +29,18 @@ pub struct CreateJob<'info> {
 
     /// required
     pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateJob>, bump: u8, amount: u64) -> ProgramResult {
+pub fn handler(ctx: Context<CreateJob>, _bump: u8, amount: u64) -> ProgramResult {
 
     // retrieve job list from account
     let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
 
-    // create Job struct to add to the list
-    let job : Job = Job::new(JobStatus::Created, 1, amount);
+    let job : &mut Account<Job> = &mut ctx.accounts.job;
+    job.job_status = JobStatus::Created as u8;
+    job.ipfs_link = 1;
+    job.tokens = amount;
 
     // pre-pay for job
     token::transfer(CpiContext::new(
@@ -46,9 +52,8 @@ pub fn handler(ctx: Context<CreateJob>, bump: u8, amount: u64) -> ProgramResult 
         },
     ), amount)?;
 
-
     // For now just push a number, TODO: this should be 'job' , update state
-    jobs.jobs.push(0);
+    jobs.jobs.push(ctx.accounts.job.key());
 
     // reload
     (&mut ctx.accounts.vault).reload()?;

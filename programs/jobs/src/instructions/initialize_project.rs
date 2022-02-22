@@ -6,7 +6,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 #[instruction(bump: u8)]
 pub struct InitializeProject<'info> {
 
-    #[account(init, payer = authority, space = 48)]
+    #[account(init, payer = authority, space = 4800)] // TODO make space size of pubkey list
     pub jobs: Account<'info, Jobs>,
     pub authority: Signer<'info>,
 
