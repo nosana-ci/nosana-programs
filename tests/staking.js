@@ -14,17 +14,15 @@ describe('staking', () => {
 
   // globals variables
   const addressTokens = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
-  const addressReward = 'test65Hm1uoXA4C7BgiWddh9PHUTvgmKPVXAn13fvHy';
   const mintSupply = 100_000_000;
-  const stakeAmount = 5_000_000;
-  const airdropAmount = 1_000_000;
+  const jobPrice = 5_000_000;
 
   // we'll set these later
-  let mintTokens, mintReward, bump;
+  let mintTokens, bump;
 
-  const wallets = {tokens: '', reward: '', vault: ''}
-  const spl = {tokens: '', reward: '', vault: ''}
-  const balances = {tokens: 0, reward: 0, vault: 0}
+  const wallets = {tokens: '', vault: ''}
+  const spl = {nos: '', vault: ''}
+  const balances = {tokens: 0, vault: 0}
 
   // initialize
   it('Create user', async () => {
@@ -37,13 +35,8 @@ describe('staking', () => {
       program.programId
     );
 
-    // create the stake token
-    mintReward = await utils.mintFromFile(addressReward, provider, wallets.vault);
-    assert.strictEqual(addressReward, mintReward.publicKey.toString());
-
     // set spl for later
-    spl.tokens = mintTokens.publicKey;
-    spl.reward = mintReward.publicKey;
+    spl.nos = mintTokens.publicKey;
     spl.vault = wallets.vault;
 
     // initialize
@@ -51,7 +44,7 @@ describe('staking', () => {
       bump,
       {
         accounts: {
-          nos: spl.tokens,
+          nos: spl.nos,
           vault: wallets.vault,
           payer: provider.wallet.publicKey,
 
@@ -62,5 +55,46 @@ describe('staking', () => {
         }
       }
     );
+  });
+
+  // mint
+  it(`Create user ATAs for Nosana tokens, mint ${mintSupply} tokens`, async () => {
+
+    // create associated token accounts
+    wallets.tokens = await mintTokens.createAssociatedTokenAccount(provider.wallet.publicKey);
+
+    // mint tokens
+    await utils.mintToAccount(provider, mintTokens.publicKey, wallets.tokens, mintSupply);
+
+    // tests
+    balances.tokens += mintSupply
+    await utils.assertBalances(provider, wallets, balances)
+  });
+
+  // initialize
+  it('Create job', async () => {
+
+    // create the main token
+    await program.rpc.createJob(
+      bump,
+      new anchor.BN(jobPrice),
+      {
+        accounts: {
+          payer: provider.wallet.publicKey,
+          nos: spl.nos,
+          vault: wallets.vault,
+
+          nosFrom: wallets.tokens,
+
+          // required
+          tokenProgram: TOKEN_PROGRAM_ID,
+        }
+      }
+    );
+
+    // tests
+    balances.tokens -= jobPrice
+    balances.vault += jobPrice
+    await utils.assertBalances(provider, wallets, balances)
   });
 });
