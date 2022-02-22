@@ -12,6 +12,9 @@ describe('staking', () => {
   // program to test
   const program = anchor.workspace.Jobs;
 
+  // Jobs account for the tests.
+  const jobs = anchor.web3.Keypair.generate();
+
   // globals variables
   const addressTokens = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
   const mintSupply = 100_000_000;
@@ -25,7 +28,7 @@ describe('staking', () => {
   const balances = {user: 0, vault: 0}
 
   // initialize
-  it('Create user', async () => {
+  it('Initialize project', async () => {
 
     // create the main token
     mintTokens = await utils.mintFromFile(addressTokens, provider, provider.wallet.publicKey);
@@ -39,19 +42,16 @@ describe('staking', () => {
     spl.nos = mintTokens.publicKey;
     spl.vault = wallets.vault;
 
-
-    // Counter for the tests.
-    const jobs = anchor.web3.Keypair.generate();
-
     // initialize
-    await program.rpc.createUser(
+    await program.rpc.initializeProject(
       bump,
       {
         accounts: {
-          nos: spl.nos,
-          vault: wallets.vault,
           authority: provider.wallet.publicKey,
           jobs: jobs.publicKey,
+
+          nos: spl.nos,
+          vault: wallets.vault,
 
           // required
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -86,10 +86,14 @@ describe('staking', () => {
       new anchor.BN(jobPrice),
       {
         accounts: {
-          payer: provider.wallet.publicKey,
+          authority: provider.wallet.publicKey,
+
+          // jobs
+          jobs: jobs.publicKey,
+
+          // payment
           nos: spl.nos,
           vault: wallets.vault,
-
           nosFrom: wallets.user,
 
           // required
