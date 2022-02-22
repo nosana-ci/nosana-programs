@@ -1,8 +1,7 @@
 anchor_version = "0.19.0"
 
 [programs.localnet]
-staking = "testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM"
-jobs = "testTfjx9bNFDdHQpk5iapa6YHkdRVhLT3cYkS2nVav"
+jobs = "testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM"
 
 [registry]
 url = "https://anchor.projectserum.com"

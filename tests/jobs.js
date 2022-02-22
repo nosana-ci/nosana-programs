@@ -10,7 +10,7 @@ describe('staking', () => {
   const provider = anchor.Provider.local();
 
   // program to test
-  const program = anchor.workspace.Staking;
+  const program = anchor.workspace.Jobs;
 
   // globals variables
   const addressTokens = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
@@ -20,9 +20,9 @@ describe('staking', () => {
   // we'll set these later
   let mintTokens, bump;
 
-  const wallets = {tokens: '', vault: ''}
+  const wallets = {user: '', vault: ''}
   const spl = {nos: '', vault: ''}
-  const balances = {tokens: 0, vault: 0}
+  const balances = {user: 0, vault: 0}
 
   // initialize
   it('Create user', async () => {
@@ -61,13 +61,13 @@ describe('staking', () => {
   it(`Create user ATAs for Nosana tokens, mint ${mintSupply} tokens`, async () => {
 
     // create associated token accounts
-    wallets.tokens = await mintTokens.createAssociatedTokenAccount(provider.wallet.publicKey);
+    wallets.user = await mintTokens.createAssociatedTokenAccount(provider.wallet.publicKey);
 
     // mint tokens
-    await utils.mintToAccount(provider, mintTokens.publicKey, wallets.tokens, mintSupply);
+    await utils.mintToAccount(provider, mintTokens.publicKey, wallets.user, mintSupply);
 
     // tests
-    balances.tokens += mintSupply
+    balances.user += mintSupply
     await utils.assertBalances(provider, wallets, balances)
   });
 
@@ -84,7 +84,7 @@ describe('staking', () => {
           nos: spl.nos,
           vault: wallets.vault,
 
-          nosFrom: wallets.tokens,
+          nosFrom: wallets.user,
 
           // required
           tokenProgram: TOKEN_PROGRAM_ID,
@@ -93,7 +93,7 @@ describe('staking', () => {
     );
 
     // tests
-    balances.tokens -= jobPrice
+    balances.user -= jobPrice
     balances.vault += jobPrice
     await utils.assertBalances(provider, wallets, balances)
   });

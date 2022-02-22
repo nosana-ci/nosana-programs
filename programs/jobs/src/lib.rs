@@ -14,7 +14,7 @@ use state::*;
 use utils::*;
 
 #[program]
-pub mod staking {
+pub mod jobs {
     use super::*;
 
     pub fn create_user(_ctx: Context<User>, _bump: u8) -> ProgramResult {
