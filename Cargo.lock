@@ -643,6 +643,7 @@ name = "jobs"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
+ "anchor-spl",
 ]
 
 [[package]]
@@ -1179,14 +1180,6 @@ dependencies = [
  "num_enum",
  "solana-program",
  "thiserror",
-]
-
-[[package]]
-name = "staking"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
 ]
 
 [[package]]

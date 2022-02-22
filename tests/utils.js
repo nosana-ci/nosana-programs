@@ -8,35 +8,11 @@ async function getTokenBalance(provider, wallet) {
 }
 
 async function assertBalances(provider, wallets, balances) {
-  for (const pool of ["tokens", "reward", "vault"]) {
+  for (const pool of ["user", "vault"]) {
     console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
-  assert.strictEqual(await getTokenBalance(provider, wallets.tokens), balances.tokens);
-  assert.strictEqual(await getTokenBalance(provider, wallets.reward), balances.reward);
+  assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
   assert.strictEqual(await getTokenBalance(provider, wallets.vault), balances.vault);
-}
-
-async function assertPrice(program, spl, balances) {
-
-  // rpc
-  const res = await program.simulate.emitPrice(
-    {
-      accounts: {
-        tokens: spl.tokens,
-        reward: spl.reward,
-        vault: spl.vault,
-      }
-    }
-  );
-
-  let price = res.events[0].data;
-
-  // inform user
-  console.log('        $ price NOS/xNOS: ', price.nosPerXnos);
-
-  // tests
-  assert.strictEqual((price.nosPerXnosE6 / 1e6).toString(), price.nosPerXnos)
-  assert.strictEqual(price.nosPerXnos.toString(), balances.reward === 0 ? '0' : (balances.vault / balances.reward).toString());
 }
 
 async function createMint(
@@ -115,6 +91,5 @@ async function mintToAccount(
 module.exports = {
   mintFromFile,
   mintToAccount,
-  assertPrice,
   assertBalances,
 };
