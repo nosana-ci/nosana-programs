@@ -13,26 +13,26 @@ pub mod constants {
 }
 
 #[derive(Accounts)]
-#[instruction(_nonce: u8)]
-pub struct Initialize<'info> {
+#[instruction(bump: u8)]
+pub struct User<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
     #[account(
         address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap(),
     )]
-    pub tokens: Box<Account<'info, Mint>>,
+    pub nos: Box<Account<'info, Mint>>,
 
     #[account(
         init,
-        payer = initializer,
-        token::mint = tokens,
+        payer = payer,
+        token::mint = nos,
         token::authority = vault,
         seeds = [ constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap().as_ref() ],
-        bump = _nonce,
+        bump = bump,
     )]
     /// the not-yet-created, derived token vault public key
     pub vault: Box<Account<'info, TokenAccount>>,
-
-    #[account(mut)]
-    pub initializer: Signer<'info>,
 
     /// required
     pub system_program: Program<'info, System>,
@@ -41,33 +41,30 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(nonce: u8)]
-pub struct Stake<'info> {
+#[instruction(bump: u8)]
+pub struct Job<'info> {
+
+    pub owner: Signer<'info>,
+
     #[account(
         address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap(),
     )]
-    pub tokens: Box<Account<'info, Mint>>,
+    pub nos: Box<Account<'info, Mint>>,
 
     #[account(
         mut,
-        address = constants::REWARD_PUBLIC_KEY.parse::<Pubkey>().unwrap(),
-    )]
-    pub reward: Box<Account<'info, Mint>>,
-
-    #[account(
-        mut,
-        seeds = [ tokens.key().as_ref() ],
-        bump = nonce,
+        seeds = [ nos.key().as_ref() ],
+        bump = bump,
     )]
     pub vault: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub from: Box<Account<'info, TokenAccount>>,
+    pub nos_from: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub to: Box<Account<'info, TokenAccount>>,
+    pub nos_to: Box<Account<'info, TokenAccount>>,
 
-    pub from_authority: Signer<'info>,
+    /// required
     pub token_program: Program<'info, Token>,
 }
 
