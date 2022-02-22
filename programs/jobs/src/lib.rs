@@ -17,11 +17,14 @@ use utils::*;
 pub mod jobs {
     use super::*;
 
-    pub fn create_user(_ctx: Context<User>, _bump: u8) -> ProgramResult {
+    pub fn create_user(ctx: Context<Initialize>, _bump: u8) -> ProgramResult {
+        let jobs = &mut ctx.accounts.jobs;
+        jobs.payer = *ctx.accounts.authority.key;
+        jobs.jobs = Vec::new();
         Ok(())
     }
 
-    pub fn create_job(ctx: Context<Job>, bump: u8, amount: u64) -> ProgramResult {
+    pub fn create_job(ctx: Context<Projects>, bump: u8, amount: u64) -> ProgramResult {
         create_job::handler(ctx, bump, amount)
     }
 }

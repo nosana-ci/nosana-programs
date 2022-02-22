@@ -39,6 +39,10 @@ describe('staking', () => {
     spl.nos = mintTokens.publicKey;
     spl.vault = wallets.vault;
 
+
+    // Counter for the tests.
+    const jobs = anchor.web3.Keypair.generate();
+
     // initialize
     await program.rpc.createUser(
       bump,
@@ -46,13 +50,15 @@ describe('staking', () => {
         accounts: {
           nos: spl.nos,
           vault: wallets.vault,
-          payer: provider.wallet.publicKey,
+          authority: provider.wallet.publicKey,
+          jobs: jobs.publicKey,
 
           // required
           systemProgram: anchor.web3.SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        }
+        },
+        signers: [jobs],
       }
     );
   });

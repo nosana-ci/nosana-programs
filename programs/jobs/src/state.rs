@@ -1,5 +1,7 @@
+use std::vec;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
+use borsh::{BorshDeserialize, BorshSerialize};
 
 #[cfg(feature = "prd")]
 pub mod constants {
@@ -10,28 +12,64 @@ pub mod constants {
     pub const TOKEN_PUBLIC_KEY: &str = "testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp";
 }
 
+#[repr(u8)]
+pub enum JobStatus {
+    Created,
+    Claimed,
+    // Errored,
+    Finished,
+}
+
+#[derive(Default, BorshSerialize, BorshDeserialize)]
+pub struct Job {
+    pub job_status: u8,
+    pub ipfs_link: u8,
+}
+
+impl Job {
+    pub fn new(job_status: JobStatus, ipfs_link: u8) -> Self {
+        Self { job_status: job_status as u8, ipfs_link }
+    }
+}
+
+#[account]
+pub struct Jobs {
+    pub payer: Pubkey,
+    pub jobs: Vec<u8>,
+}
+
+impl Jobs {
+    pub fn new(payer: Pubkey) -> Self {
+        Self { payer, jobs: Vec::new() }
+    }
+}
+
 #[derive(Accounts)]
 #[instruction(bump: u8)]
-pub struct User<'info> {
+pub struct Initialize<'info> {
 
-    #[account(mut)]
-    pub payer: Signer<'info>,
+    pub authority: Signer<'info>,
 
-    #[account(
-        address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap(),
-    )]
+    #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
     pub nos: Box<Account<'info, Mint>>,
 
     #[account(
         init,
-        payer = payer,
+        payer = authority,
         token::mint = nos,
         token::authority = vault,
         seeds = [ constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap().as_ref() ],
         bump = bump,
     )]
-    /// the not-yet-created, derived token vault public key
+    /// the not-yet-Created, derived token vault public key
     pub vault: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        init,
+        payer = authority,
+        space = 48
+    )]
+    pub jobs: Account<'info, Jobs>,
 
     /// required
     pub system_program: Program<'info, System>,
@@ -41,7 +79,7 @@ pub struct User<'info> {
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
-pub struct Job<'info> {
+pub struct Projects<'info> {
 
     pub payer: Signer<'info>,
 

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Transfer};
 
-use crate::state::Job;
+use crate::state::Projects;
 
 /// # Cross program invocations
 /// These methods provide context for invoking both the native token,
@@ -9,7 +9,7 @@ use crate::state::Job;
 
 /// Function to get cross-program-invocations context for transfer
 pub fn ctx_create_job<'a, 'b, 'c, 'info>(
-    job: &mut Job<'info>,
+    job: &mut Projects<'info>,
 ) -> CpiContext<'a, 'b, 'c, 'info, Transfer<'info>> {
     return CpiContext::new(
         job.token_program.to_account_info(),
