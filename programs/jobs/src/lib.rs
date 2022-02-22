@@ -6,12 +6,10 @@ use anchor_spl::token::{self};
 mod instructions;
 mod ids;
 mod state;
-mod utils;
 
 use instructions::*;
 use ids::*;
 use state::*;
-use utils::*;
 
 #[program]
 pub mod jobs {
