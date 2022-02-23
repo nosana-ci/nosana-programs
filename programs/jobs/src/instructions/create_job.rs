@@ -10,7 +10,7 @@ pub struct CreateJob<'info> {
     pub jobs: Account<'info, Jobs>,
     pub authority: Signer<'info>,
 
-    #[account(init, payer = authority, space = 48)] // TODO: make space size of Job
+    #[account(init, payer = authority, space = 4800)] // TODO: make space size of Job
     pub job: Account<'info, Job>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
@@ -37,9 +37,10 @@ pub fn handler(ctx: Context<CreateJob>, _bump: u8, amount: u64) -> ProgramResult
     // retrieve job list from account
     let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
 
+    // create the job
     let job : &mut Account<Job> = &mut ctx.accounts.job;
     job.job_status = JobStatus::Created as u8;
-    job.ipfs_link = 1; // TODO: make ipfs link
+    job.ipfs_job = 1; // TODO: make ipfs link
     job.tokens = amount;
 
     // pre-pay for job

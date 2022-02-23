@@ -121,7 +121,8 @@ describe('jobs', () => {
   // list
   it('List jobs', async () => {
     const data = await program.account.jobs.fetch(jobs.publicKey);
-    console.log(data);
+    assert.strictEqual(data.authority.toString(), provider.wallet.publicKey.toString());
+    assert.strictEqual(data.jobs[0].toString(), job.publicKey.toString());
   });
 
   // get
@@ -144,13 +145,16 @@ describe('jobs', () => {
         },
       }
     );
-
   });
 
   // get
   it('Check if job is claimed', async () => {
     const data = await program.account.job.fetch(job.publicKey);
+
     assert.strictEqual(data.jobStatus, jobStatus.claimed);
+    assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
+    assert.strictEqual(data.tokens.toString(), jobPrice.toString());
+
   });
   // claim
   it('Finish job', async () => {
@@ -160,13 +164,25 @@ describe('jobs', () => {
       bump,
       {
         accounts: {
+          //jobs
           authority: provider.wallet.publicKey,
           job: job.publicKey,
+
+          // wallets
+          nos: spl.nos,
+          vault: wallets.vault,
+          tokenTo: wallets.user,
+
+          // required
           systemProgram: anchor.web3.SystemProgram.programId,
+          tokenProgram: TOKEN_PROGRAM_ID,
         },
       }
     );
-
+    // tests
+    balances.user += jobPrice
+    balances.vault -= jobPrice
+    await utils.assertBalances(provider, wallets, balances)
   });
 
   // get

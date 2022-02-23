@@ -23,15 +23,11 @@ pub struct Jobs {
 /// Object that holds relevant information for a single Job
 #[account]
 pub struct Job {
+    pub node: Pubkey,
     pub job_status: u8,
-    pub ipfs_link: u8,
+    pub ipfs_job: u8,
+    pub ipfs_result: u8,
     pub tokens: u64,
-}
-
-impl Job {
-    pub fn new(job_status: JobStatus, ipfs_link: u8, tokens: u64) -> Self {
-        Self { job_status: job_status as u8, ipfs_link, tokens }
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, AnchorSerialize, AnchorDeserialize)]
