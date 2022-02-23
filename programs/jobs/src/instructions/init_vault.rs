@@ -4,10 +4,8 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
-pub struct InitializeProject<'info> {
+pub struct InitVault<'info> {
 
-    #[account(init, payer = authority, space = 4800)] // TODO make space size of pubkey list
-    pub jobs: Account<'info, Jobs>,
     pub authority: Signer<'info>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
@@ -30,9 +28,6 @@ pub struct InitializeProject<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<InitializeProject>, _bump: u8) -> ProgramResult {
-    let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
-    jobs.authority = *ctx.accounts.authority.key;
-    jobs.jobs = Vec::new();
+pub fn handler(_ctx: Context<InitVault>, _bump: u8) -> ProgramResult {
     Ok(())
 }

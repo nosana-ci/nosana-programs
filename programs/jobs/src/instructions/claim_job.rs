@@ -1,7 +1,6 @@
 use crate::*;
 
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct ClaimJob<'info> {
 
     #[account(mut)]
@@ -14,7 +13,7 @@ pub struct ClaimJob<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<ClaimJob>, _bump: u8) -> ProgramResult {
+pub fn handler(ctx: Context<ClaimJob>) -> ProgramResult {
 
     // set claimed
     let job = &mut ctx.accounts.job;

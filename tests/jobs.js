@@ -12,58 +12,81 @@ describe('jobs', () => {
   // program to test
   const program = anchor.workspace.Jobs;
 
+  // globals variables
+  const nosAddress = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
+  const mintSupply = 100_000_000;
+  const jobPrice = 5_000_000;
+
+  // we'll set these later
+  let nosMint, bump;
+  const ata = {user: '', vault: ''}
+  const spl = {nos: '', vault: program.programId}
+  const balances = {user: 0, vault: 0}
+
   // Jobs account for the tests.
   const jobs = anchor.web3.Keypair.generate();
   const job = anchor.web3.Keypair.generate();
 
-  // globals variables
-  const addressTokens = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
-  const mintSupply = 100_000_000;
-  const jobPrice = 5_000_000;
-
-  //
+  // status options for jobs
   const jobStatus = {
     created: 0,
     claimed: 1,
     finished: 2,
   }
-  // we'll set these later
-  let mintTokens, bump;
-
-  const wallets = {user: '', vault: ''}
-  const spl = {nos: '', vault: ''}
-  const balances = {user: 0, vault: 0}
 
   // initialize
-  it('Initialize project', async () => {
+  it('Mint $nos', async () => {
 
     // create the main token
-    mintTokens = await utils.mintFromFile(addressTokens, provider, provider.wallet.publicKey);
-    assert.strictEqual(addressTokens, mintTokens.publicKey.toString());
-    [wallets.vault, bump] = await anchor.web3.PublicKey.findProgramAddress(
-      [mintTokens.publicKey.toBuffer()],
-      program.programId
+    nosMint = await utils.mintFromFile(nosAddress, provider, provider.wallet.publicKey);
+
+    // get token address, and compare to file
+    spl.nos = nosMint.publicKey;
+
+    // get ATA of the vault, and the bump
+    [ata.vault, bump] = await anchor.web3.PublicKey.findProgramAddress(
+      [spl.nos.toBuffer()],
+      spl.vault
     );
 
-    // set spl for later
-    spl.nos = mintTokens.publicKey;
-    spl.vault = wallets.vault;
+    // tests
+    assert.strictEqual(nosAddress, spl.nos.toString());
+  });
+
+  // initialize
+  it('Initialize the vault', async () => {
 
     // initialize
-    await program.rpc.initializeProject(
+    await program.rpc.initVault(
       bump,
       {
         accounts: {
+          // signer
           authority: provider.wallet.publicKey,
-          jobs: jobs.publicKey,
 
+          // token program
           nos: spl.nos,
-          vault: wallets.vault,
+          vault: ata.vault,
 
           // required
           systemProgram: anchor.web3.SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        }
+      }
+    );
+  });
+
+  // initialize
+  it('Initialize project', async () => {
+
+    // initialize
+    await program.rpc.initProject(
+      {
+        accounts: {
+          authority: provider.wallet.publicKey,
+          jobs: jobs.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
         },
         signers: [jobs],
       }
@@ -74,14 +97,14 @@ describe('jobs', () => {
   it(`Create user ATAs for Nosana tokens, mint ${mintSupply} tokens`, async () => {
 
     // create associated token accounts
-    wallets.user = await mintTokens.createAssociatedTokenAccount(provider.wallet.publicKey);
+    ata.user = await nosMint.createAssociatedTokenAccount(provider.wallet.publicKey);
 
     // mint tokens
-    await utils.mintToAccount(provider, mintTokens.publicKey, wallets.user, mintSupply);
+    await utils.mintToAccount(provider, nosMint.publicKey, ata.user, mintSupply);
 
     // tests
     balances.user += mintSupply
-    await utils.assertBalances(provider, wallets, balances)
+    await utils.assertBalances(provider, ata, balances)
   });
 
   // create
@@ -101,8 +124,8 @@ describe('jobs', () => {
 
           // payment
           nos: spl.nos,
-          vault: wallets.vault,
-          nosFrom: wallets.user,
+          vault: ata.vault,
+          nosFrom: ata.user,
 
           // required
           tokenProgram: TOKEN_PROGRAM_ID,
@@ -115,7 +138,7 @@ describe('jobs', () => {
     // tests
     balances.user -= jobPrice
     balances.vault += jobPrice
-    await utils.assertBalances(provider, wallets, balances)
+    await utils.assertBalances(provider, ata, balances)
   });
 
   // list
@@ -136,7 +159,6 @@ describe('jobs', () => {
 
     // create the main token
     await program.rpc.claimJob(
-      bump,
       {
         accounts: {
           authority: provider.wallet.publicKey,
@@ -170,8 +192,8 @@ describe('jobs', () => {
 
           // wallets
           nos: spl.nos,
-          vault: wallets.vault,
-          tokenTo: wallets.user,
+          vault: ata.vault,
+          tokenTo: ata.user,
 
           // required
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -182,7 +204,7 @@ describe('jobs', () => {
     // tests
     balances.user += jobPrice
     balances.vault -= jobPrice
-    await utils.assertBalances(provider, wallets, balances)
+    await utils.assertBalances(provider, ata, balances)
   });
 
   // get
