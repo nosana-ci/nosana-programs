@@ -28,11 +28,16 @@ pub struct Job {
     pub tokens: u64,
 }
 
+impl Job {
+    pub fn new(job_status: JobStatus, ipfs_link: u8, tokens: u64) -> Self {
+        Self { job_status: job_status as u8, ipfs_link, tokens }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, AnchorSerialize, AnchorDeserialize)]
 #[repr(u8)]
 pub enum JobStatus {
-    Created,
-    // Claimed,
-    // Errored,
-    // Finished,
+    Created = 0,
+    Claimed = 1,
+    Finished = 2,
 }

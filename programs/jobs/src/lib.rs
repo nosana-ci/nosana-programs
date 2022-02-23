@@ -23,4 +23,12 @@ pub mod jobs {
     pub fn create_job(ctx: Context<CreateJob>, _bump: u8, amount: u64) -> ProgramResult {
         create_job::handler(ctx, _bump, amount)
     }
+
+    pub fn claim_job(ctx: Context<ClaimJob>, _bump: u8) -> ProgramResult {
+        claim_job::handler(ctx, _bump)
+    }
+
+    pub fn finish_job(ctx: Context<FinishJob>, _bump: u8) -> ProgramResult {
+        finish_job::handler(ctx, _bump)
+    }
 }

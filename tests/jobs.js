@@ -21,6 +21,12 @@ describe('jobs', () => {
   const mintSupply = 100_000_000;
   const jobPrice = 5_000_000;
 
+  //
+  const jobStatus = {
+    created: 0,
+    claimed: 1,
+    finished: 2,
+  }
   // we'll set these later
   let mintTokens, bump;
 
@@ -81,7 +87,6 @@ describe('jobs', () => {
   // create
   it('Create job', async () => {
 
-
     // create the main token
     await program.rpc.createJob(
       bump,
@@ -115,18 +120,58 @@ describe('jobs', () => {
 
   // list
   it('List jobs', async () => {
-
     const data = await program.account.jobs.fetch(jobs.publicKey);
-
     console.log(data);
+  });
+
+  // get
+  it('Check if job is created', async () => {
+    const data = await program.account.job.fetch(job.publicKey);
+    assert.strictEqual(data.jobStatus, jobStatus.created);
+  });
+
+  // claim
+  it('Claim job', async () => {
+
+    // create the main token
+    await program.rpc.claimJob(
+      bump,
+      {
+        accounts: {
+          authority: provider.wallet.publicKey,
+          job: job.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        },
+      }
+    );
 
   });
+
   // get
-  it('Get job', async () => {
-
+  it('Check if job is claimed', async () => {
     const data = await program.account.job.fetch(job.publicKey);
+    assert.strictEqual(data.jobStatus, jobStatus.claimed);
+  });
+  // claim
+  it('Finish job', async () => {
 
-    console.log(data);
+    // create the main token
+    await program.rpc.finishJob(
+      bump,
+      {
+        accounts: {
+          authority: provider.wallet.publicKey,
+          job: job.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        },
+      }
+    );
 
+  });
+
+  // get
+  it('Check if job is finished', async () => {
+    const data = await program.account.job.fetch(job.publicKey);
+    assert.strictEqual(data.jobStatus, jobStatus.finished);
   });
 });
