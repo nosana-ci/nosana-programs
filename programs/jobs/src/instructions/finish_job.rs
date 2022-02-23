@@ -1,13 +1,13 @@
 use crate::*;
 
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token::{Mint, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
 pub struct FinishJob<'info> {
 
     #[account(mut)]
-    pub authority: Signer<'info>,
+    pub node: Signer<'info>,
     pub project: AccountInfo<'info>,
 
     #[account(mut, has_one = project)]
@@ -27,7 +27,7 @@ pub struct FinishJob<'info> {
     pub nos: Box<Account<'info, Mint>>,
 
     #[account(mut)]
-    pub node: Box<Account<'info, TokenAccount>>,
+    pub token_to: Box<Account<'info, TokenAccount>>,
 
     /// required
     pub system_program: Program<'info, System>,
@@ -41,7 +41,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
     let job : &mut Account<Job> = &mut ctx.accounts.job;
 
     // check signature with node
-    if &job.node != ctx.accounts.authority.key {
+    if &job.node != ctx.accounts.node.key {
         return Err(ErrorCode::Unauthorized.into());
     }
 
@@ -55,11 +55,11 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
     let signer = &[&seeds[..]];
 
     //transfer from vault to node
-    let cpi_ctx = CpiContext::new_with_signer(
+    let cpi_ctx: CpiContext<Transfer> = CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),
         token::Transfer {
             from: ctx.accounts.vault.to_account_info(),
-            to: ctx.accounts.node.to_account_info(),
+            to: ctx.accounts.token_to.to_account_info(),
             authority: ctx.accounts.vault.to_account_info(),
         },
         signer,
@@ -68,7 +68,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
 
     // remove job from queue
     let job_key: &mut Pubkey =  &mut ctx.accounts.job.key();
-    let index = jobs.jobs.iter_mut().position(|x| x == job_key).unwrap();
+    let index: usize = jobs.jobs.iter_mut().position(|key: &mut Pubkey | key == job_key).unwrap();
     jobs.jobs.remove(index);
 
     //  reload balances

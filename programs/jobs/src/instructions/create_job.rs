@@ -6,7 +6,6 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 #[instruction(bump: u8)]
 pub struct CreateJob<'info> {
 
-    // pub authority: Signer<'info>,
     pub project: Signer<'info>,
 
     #[account(mut, has_one = project)]

@@ -84,7 +84,7 @@ describe('jobs', () => {
     await program.rpc.initProject(
       {
         accounts: {
-          authority: provider.wallet.publicKey,
+          project: provider.wallet.publicKey,
           jobs: jobs.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
         },
@@ -162,7 +162,7 @@ describe('jobs', () => {
     await program.rpc.claimJob(
       {
         accounts: {
-          authority: provider.wallet.publicKey,
+          node: provider.wallet.publicKey,
           job: job.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
         },
@@ -188,7 +188,7 @@ describe('jobs', () => {
       {
         accounts: {
           //jobs
-          authority: provider.wallet.publicKey,
+          node: provider.wallet.publicKey,
           job: job.publicKey,
           jobs: jobs.publicKey,
           project: provider.wallet.publicKey,
@@ -196,7 +196,7 @@ describe('jobs', () => {
           // token and ATAs
           nos: spl.nos,
           vault: ata.vault,
-          node: ata.user,
+          tokenTo: ata.user,
 
           // required
           systemProgram: anchor.web3.SystemProgram.programId,

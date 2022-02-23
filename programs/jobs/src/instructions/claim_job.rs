@@ -4,7 +4,7 @@ use crate::*;
 pub struct ClaimJob<'info> {
 
     #[account(mut)]
-    pub authority: Signer<'info>,
+    pub node: Signer<'info>,
 
     #[account(mut)]
     pub job: Account<'info, Job>,
@@ -18,7 +18,7 @@ pub fn handler(ctx: Context<ClaimJob>) -> ProgramResult {
     // set claimed
     let job = &mut ctx.accounts.job;
     job.job_status = JobStatus::Claimed as u8;
-    job.node = *ctx.accounts.authority.key;
+    job.node = *ctx.accounts.node.key;
 
     // finish
     Ok(())
