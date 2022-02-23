@@ -14,7 +14,7 @@ pub struct InitProject<'info> {
 
 pub fn handler(ctx: Context<InitProject>) -> ProgramResult {
     let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
-    jobs.authority = *ctx.accounts.authority.key;
+    jobs.project = *ctx.accounts.authority.key;
     jobs.jobs = Vec::new();
     Ok(())
 }

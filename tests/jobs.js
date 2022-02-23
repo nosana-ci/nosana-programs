@@ -116,7 +116,7 @@ describe('jobs', () => {
       new anchor.BN(jobPrice),
       {
         accounts: {
-          authority: provider.wallet.publicKey,
+          project: provider.wallet.publicKey,
 
           // jobs
           jobs: jobs.publicKey,
@@ -143,9 +143,10 @@ describe('jobs', () => {
 
   // list
   it('List jobs', async () => {
-    const data = await program.account.jobs.fetch(jobs.publicKey);
-    assert.strictEqual(data.authority.toString(), provider.wallet.publicKey.toString());
-    assert.strictEqual(data.jobs[0].toString(), job.publicKey.toString());
+    const dataJobs = await program.account.jobs.fetch(jobs.publicKey);
+    assert.strictEqual(dataJobs.project.toString(), provider.wallet.publicKey.toString());
+    assert.strictEqual(dataJobs.jobs[0].toString(), job.publicKey.toString());
+    assert.strictEqual(dataJobs.jobs.length, 1);
   });
 
   // get
@@ -189,11 +190,13 @@ describe('jobs', () => {
           //jobs
           authority: provider.wallet.publicKey,
           job: job.publicKey,
+          jobs: jobs.publicKey,
+          project: provider.wallet.publicKey,
 
-          // wallets
+          // token and ATAs
           nos: spl.nos,
           vault: ata.vault,
-          tokenTo: ata.user,
+          node: ata.user,
 
           // required
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -209,7 +212,10 @@ describe('jobs', () => {
 
   // get
   it('Check if job is finished', async () => {
-    const data = await program.account.job.fetch(job.publicKey);
-    assert.strictEqual(data.jobStatus, jobStatus.finished);
+    const dataJobs = await program.account.jobs.fetch(jobs.publicKey);
+    const dataJob = await program.account.job.fetch(job.publicKey);
+
+    assert.strictEqual(dataJob.jobStatus, jobStatus.finished);
+    assert.strictEqual(dataJobs.jobs.length, 0);
   });
 });

@@ -6,11 +6,13 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 #[instruction(bump: u8)]
 pub struct CreateJob<'info> {
 
-    #[account(mut, has_one = authority)]
-    pub jobs: Account<'info, Jobs>,
-    pub authority: Signer<'info>,
+    // pub authority: Signer<'info>,
+    pub project: Signer<'info>,
 
-    #[account(init, payer = authority, space = 4800)] // TODO: make space size of Job
+    #[account(mut, has_one = project)]
+    pub jobs: Account<'info, Jobs>,
+
+    #[account(init, payer = project, space = 4800)] // TODO: make space size of Job
     pub job: Account<'info, Job>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
@@ -49,7 +51,7 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64) -> ProgramResult {
         token::Transfer {
             from: ctx.accounts.nos_from.to_account_info(),
             to: ctx.accounts.vault.to_account_info(),
-            authority: ctx.accounts.authority.to_account_info(),
+            authority: ctx.accounts.project.to_account_info(),
         },
     ), amount)?;
 

@@ -8,6 +8,10 @@ pub struct FinishJob<'info> {
 
     #[account(mut)]
     pub authority: Signer<'info>,
+    pub project: AccountInfo<'info>,
+
+    #[account(mut, has_one = project)]
+    pub jobs: Account<'info, Jobs>,
 
     #[account(mut)]
     pub job: Account<'info, Job>,
@@ -23,8 +27,7 @@ pub struct FinishJob<'info> {
     pub nos: Box<Account<'info, Mint>>,
 
     #[account(mut)]
-    //the token account to send token
-    pub token_to: Box<Account<'info, TokenAccount>>,
+    pub node: Box<Account<'info, TokenAccount>>,
 
     /// required
     pub system_program: Program<'info, System>,
@@ -34,7 +37,8 @@ pub struct FinishJob<'info> {
 pub fn handler(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
 
     // get job
-    let job = &mut ctx.accounts.job;
+    let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
+    let job : &mut Account<Job> = &mut ctx.accounts.job;
 
     // check signature with node
     if &job.node != ctx.accounts.authority.key {
@@ -50,18 +54,24 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
     let seeds = &[token_mint_key.as_ref(), &[bump]];
     let signer = &[&seeds[..]];
 
-    //transfer from vault to user
+    //transfer from vault to node
     let cpi_ctx = CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),
         token::Transfer {
             from: ctx.accounts.vault.to_account_info(),
-            to: ctx.accounts.token_to.to_account_info(),
+            to: ctx.accounts.node.to_account_info(),
             authority: ctx.accounts.vault.to_account_info(),
         },
         signer,
     );
     token::transfer(cpi_ctx, job.tokens)?;
 
+    // remove job from queue
+    let job_key: &mut Pubkey =  &mut ctx.accounts.job.key();
+    let index = jobs.jobs.iter_mut().position(|x| x == job_key).unwrap();
+    jobs.jobs.remove(index);
+
+    //  reload balances
     (&mut ctx.accounts.vault).reload()?;
 
     // finish
