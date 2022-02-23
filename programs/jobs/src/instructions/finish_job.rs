@@ -33,8 +33,15 @@ pub struct FinishJob<'info> {
 
 pub fn handler(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
 
-    // set claimed
+    // get job
     let job = &mut ctx.accounts.job;
+
+    // check signature with node
+    if &job.node != ctx.accounts.authority.key {
+        return Err(ErrorCode::Unauthorized.into());
+    }
+
+    // finish job
     job.job_status = JobStatus::Finished as u8;
     job.ipfs_result = 1;
 

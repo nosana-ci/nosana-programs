@@ -1,4 +1,3 @@
-mod macros;
 mod instructions;
 mod ids;
 mod state;
