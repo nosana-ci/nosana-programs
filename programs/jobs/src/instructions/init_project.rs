@@ -1,7 +1,7 @@
 use crate::*;
 
 #[derive(Accounts)]
-pub struct InitializeProject<'info> {
+pub struct InitProject<'info> {
 
     pub authority: Signer<'info>,
 
@@ -12,7 +12,7 @@ pub struct InitializeProject<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<InitializeProject>) -> ProgramResult {
+pub fn handler(ctx: Context<InitProject>) -> ProgramResult {
     let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
     jobs.authority = *ctx.accounts.authority.key;
     jobs.jobs = Vec::new();

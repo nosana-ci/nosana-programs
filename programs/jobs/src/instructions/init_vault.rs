@@ -28,6 +28,6 @@ pub struct InitVault<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(_ctx: Context<InitVault>, _bump: u8) -> ProgramResult {
+pub fn handler() -> ProgramResult {
     Ok(())
 }

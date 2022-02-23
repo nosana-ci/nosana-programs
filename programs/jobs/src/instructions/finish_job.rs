@@ -45,6 +45,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
     job.job_status = JobStatus::Finished as u8;
     job.ipfs_result = 1;
 
+    // sign with the vault
     let token_mint_key = ctx.accounts.nos.key();
     let seeds = &[token_mint_key.as_ref(), &[bump]];
     let signer = &[&seeds[..]];
