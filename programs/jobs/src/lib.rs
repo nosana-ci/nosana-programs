@@ -23,15 +23,15 @@ pub mod jobs {
         init_project::handler(ctx)
     }
 
-    pub fn create_job(ctx: Context<CreateJob>, _bump: u8, amount: u64) -> ProgramResult {
-        create_job::handler(ctx, amount)
+    pub fn create_job(ctx: Context<CreateJob>, _bump: u8, amount: u64, data: [u8; 32]) -> ProgramResult {
+        create_job::handler(ctx, amount, data)
     }
 
     pub fn claim_job(ctx: Context<ClaimJob>) -> ProgramResult {
         claim_job::handler(ctx)
     }
 
-    pub fn finish_job(ctx: Context<FinishJob>, bump: u8) -> ProgramResult {
-        finish_job::handler(ctx, bump)
+    pub fn finish_job(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResult {
+        finish_job::handler(ctx, bump, data)
     }
 }

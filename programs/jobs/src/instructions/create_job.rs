@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Mint, Token, TokenAccount};
+use std::mem::size_of;
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -11,7 +12,7 @@ pub struct CreateJob<'info> {
     #[account(mut, has_one = project)]
     pub jobs: Account<'info, Jobs>,
 
-    #[account(init, payer = project, space = 4800)] // TODO: make space size of Job
+    #[account(init, payer = project, space = 8 + size_of::<Job>())] // TODO: make space size of Job
     pub job: Account<'info, Job>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
@@ -33,7 +34,7 @@ pub struct CreateJob<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateJob>, amount: u64) -> ProgramResult {
+pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> ProgramResult {
 
     // retrieve job list from account
     let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
@@ -41,7 +42,7 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64) -> ProgramResult {
     // create the job
     let job : &mut Account<Job> = &mut ctx.accounts.job;
     job.job_status = JobStatus::Created as u8;
-    job.ipfs_job = 1; // TODO: make ipfs link
+    job.ipfs_job = data;
     job.tokens = amount;
 
     // pre-pay for job

@@ -25,8 +25,8 @@ pub struct Jobs {
 pub struct Job {
     pub node: Pubkey,
     pub job_status: u8,
-    pub ipfs_job: u8,
-    pub ipfs_result: u8,
+    pub ipfs_job: [u8; 32],
+    pub ipfs_result: [u8; 32],
     pub tokens: u64,
 }
 
