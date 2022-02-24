@@ -3,6 +3,9 @@ anchor_version = "0.19.0"
 [programs.localnet]
 jobs = "testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM"
 
+[programs.devnet]
+jobs = "testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM"
+
 [registry]
 url = "https://anchor.projectserum.com"
 

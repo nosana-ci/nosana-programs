@@ -37,7 +37,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
         return Err(ErrorCode::Unauthorized.into());
     }
 
-    // update and finish job
+    // update and finish job account
     job.job_status = JobStatus::Finished as u8;
     job.ipfs_result = data;
 
@@ -59,9 +59,6 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
     let job_key: &mut Pubkey =  &mut ctx.accounts.job.key();
     let index: usize = jobs.jobs.iter_mut().position(|key: &mut Pubkey | key == job_key).unwrap();
     jobs.jobs.remove(index);
-
-    //  reload balances
-    (&mut ctx.accounts.ata_vault).reload()?;
 
     // finish
     Ok(())
