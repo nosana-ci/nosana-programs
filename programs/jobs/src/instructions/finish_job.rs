@@ -1,6 +1,6 @@
 use crate::*;
 
-use anchor_spl::token::{Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -37,28 +37,25 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
         return Err(ErrorCode::Unauthorized.into());
     }
 
-    // finish job
+    // update and finish job
     job.job_status = JobStatus::Finished as u8;
     job.ipfs_result = data;
 
-    // sign with the vault
-    let token_mint_key = ctx.accounts.mint.key();
-    let seeds = &[token_mint_key.as_ref(), &[bump]];
-    let signer = &[&seeds[..]];
-
     //transfer from vault to node
-    let cpi_ctx: CpiContext<Transfer> = CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        token::Transfer {
-            from: ctx.accounts.ata_vault.to_account_info(),
-            to: ctx.accounts.ata_to.to_account_info(),
-            authority: ctx.accounts.ata_vault.to_account_info(),
-        },
-        signer,
-    );
-    token::transfer(cpi_ctx, job.tokens)?;
+    token::transfer(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            token::Transfer {
+                from: ctx.accounts.ata_vault.to_account_info(),
+                to: ctx.accounts.ata_to.to_account_info(),
+                authority: ctx.accounts.ata_vault.to_account_info(),
+            },
+            &[&[ctx.accounts.mint.to_account_info().key.as_ref(), &[bump]]]
+        ),
+        job.tokens
+    )?;
 
-    // remove job from queue
+    // remove job from jobs list
     let job_key: &mut Pubkey =  &mut ctx.accounts.job.key();
     let index: usize = jobs.jobs.iter_mut().position(|key: &mut Pubkey | key == job_key).unwrap();
     jobs.jobs.remove(index);

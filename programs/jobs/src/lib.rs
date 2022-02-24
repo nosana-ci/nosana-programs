@@ -1,15 +1,18 @@
 mod instructions;
-mod ids;
 mod state;
 mod error;
+
+use instructions::*;
+use state::*;
+use error::*;
 
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self};
 
-use instructions::*;
-use ids::*;
-use state::*;
-use error::*;
+#[cfg(feature = "prd")]
+declare_id!("TBD");
+#[cfg(not(feature = "prd"))]
+declare_id!("testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM");
 
 #[program]
 pub mod jobs {

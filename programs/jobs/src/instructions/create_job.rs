@@ -51,9 +51,6 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> ProgramR
     // we push the account of the job to the list
     jobs.jobs.push(ctx.accounts.job.key());
 
-    // reload
-    (&mut ctx.accounts.ata_vault).reload()?;
-
     // finish
     Ok(())
 }
