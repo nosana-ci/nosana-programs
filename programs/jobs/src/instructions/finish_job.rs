@@ -29,7 +29,7 @@ pub struct FinishJob<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<FinishJob>, bump: u8, data: u8) -> ProgramResult {
+pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResult {
 
     // get job
     let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;

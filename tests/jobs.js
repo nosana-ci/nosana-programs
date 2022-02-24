@@ -3,6 +3,7 @@ const anchor = require('@project-serum/anchor');
 const assert = require('assert');
 const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const utils = require('./utils');
+const {buf2hex} = require("./utils");
 
 describe('jobs', () => {
 
@@ -14,7 +15,7 @@ describe('jobs', () => {
 
   // globals variables
   const nosAddress = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
-  const data = 2;
+  const ipfsData = Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex');
   const mintSupply = 100_000_000;
   const jobPrice = 5_000_000;
 
@@ -36,7 +37,7 @@ describe('jobs', () => {
   }
 
   // initialize
-  it('Mint $nos', async () => {
+  it('Mint $NOS', async () => {
 
     // create the main token
     nosMint = await utils.mintFromFile(nosAddress, provider, provider.wallet.publicKey);
@@ -115,7 +116,7 @@ describe('jobs', () => {
     await program.rpc.createJob(
       bump,
       new anchor.BN(jobPrice),
-      new anchor.BN(data),
+      ipfsData,
       {
         accounts: {
           authority: provider.wallet.publicKey,
@@ -154,7 +155,9 @@ describe('jobs', () => {
   // get
   it('Check if job is created', async () => {
     const data = await program.account.job.fetch(job.publicKey);
+
     assert.strictEqual(data.jobStatus, jobStatus.created);
+    assert.strictEqual(buf2hex(new Uint8Array(data.ipfsJob).buffer), ipfsData.toString('hex'));
   });
 
   // claim
@@ -187,7 +190,7 @@ describe('jobs', () => {
     // create the main token
     await program.rpc.finishJob(
       bump,
-      new anchor.BN(data),
+      ipfsData,
       {
         accounts: {
           //jobs
@@ -220,5 +223,6 @@ describe('jobs', () => {
 
     assert.strictEqual(dataJob.jobStatus, jobStatus.finished);
     assert.strictEqual(dataJobs.jobs.length, 0);
+    assert.strictEqual(buf2hex(new Uint8Array(dataJob.ipfsResult).buffer),ipfsData.toString('hex'));
   });
 });
