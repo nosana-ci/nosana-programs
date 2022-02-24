@@ -14,7 +14,7 @@ describe('jobs', () => {
 
   // globals variables
   const nosAddress = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
-  const data = Buffer.from('12207D5A99F603F231D53A4F39D1521F98D2E8BB279CF29BEBFD0687DC98458E7F89', 'hex');
+  const data = 2;
   const mintSupply = 100_000_000;
   const jobPrice = 5_000_000;
 
@@ -114,8 +114,8 @@ describe('jobs', () => {
     // create the main token
     await program.rpc.createJob(
       bump,
-      new anchor.BN(data),
       new anchor.BN(jobPrice),
+      new anchor.BN(data),
       {
         accounts: {
           project: provider.wallet.publicKey,
@@ -187,13 +187,14 @@ describe('jobs', () => {
     // create the main token
     await program.rpc.finishJob(
       bump,
+      new anchor.BN(data),
       {
         accounts: {
           //jobs
           node: provider.wallet.publicKey,
           job: job.publicKey,
           jobs: jobs.publicKey,
-          project: provider.wallet.publicKey,
+          // project: provider.wallet.publicKey,
 
           // token and ATAs
           nos: spl.nos,

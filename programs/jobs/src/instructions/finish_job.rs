@@ -8,9 +8,9 @@ pub struct FinishJob<'info> {
 
     #[account(mut)]
     pub node: Signer<'info>,
-    pub project: AccountInfo<'info>,
+    // pub project: AccountInfo<'info>,
 
-    #[account(mut, has_one = project)]
+    #[account(mut)]
     pub jobs: Account<'info, Jobs>,
 
     #[account(mut)]
@@ -34,7 +34,7 @@ pub struct FinishJob<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResult {
+pub fn handler(ctx: Context<FinishJob>, bump: u8, data: u8) -> ProgramResult {
 
     // get job
     let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
