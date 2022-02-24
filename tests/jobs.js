@@ -3,8 +3,9 @@ const anchor = require('@project-serum/anchor');
 const assert = require('assert');
 const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const utils = require('./utils');
+const {buf2hex} = require("./utils");
 
-describe('staking', () => {
+describe('jobs', () => {
 
   // local provider
   const provider = anchor.Provider.local();
@@ -12,53 +13,98 @@ describe('staking', () => {
   // program to test
   const program = anchor.workspace.Jobs;
 
-  // Jobs account for the tests.
-  const jobs = anchor.web3.Keypair.generate();
-
   // globals variables
-  const addressTokens = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
+  const nosAddress = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
+  const ipfsData = Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex');
   const mintSupply = 100_000_000;
-  const jobPrice = 5_000_000;
+  const jobPrice = 10;
+
+  // Jobs account for the tests.
+  const signers = {
+    jobs : anchor.web3.Keypair.generate(),
+    job : anchor.web3.Keypair.generate(),
+  }
+
+  // public keys
+  const accounts = {
+
+    // solana native
+    systemProgram: anchor.web3.SystemProgram.programId,
+    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+    tokenProgram: TOKEN_PROGRAM_ID,
+
+    // custom
+    user : provider.wallet.publicKey,
+    jobs : signers.jobs.publicKey,
+    job : signers.job.publicKey,
+  }
+
+  // status options for jobs
+  const jobStatus = {
+    created: 0,
+    claimed: 1,
+    finished: 2,
+  }
 
   // we'll set these later
-  let mintTokens, bump;
-
-  const wallets = {user: '', vault: ''}
-  const spl = {nos: '', vault: ''}
+  let mint, bump;
+  const ata = {user: '', vault: ''}
   const balances = {user: 0, vault: 0}
 
-  // initialize
-  it('Initialize project', async () => {
+  // mint
+  it('Mint $NOS', async () => {
 
     // create the main token
-    mintTokens = await utils.mintFromFile(addressTokens, provider, provider.wallet.publicKey);
-    assert.strictEqual(addressTokens, mintTokens.publicKey.toString());
-    [wallets.vault, bump] = await anchor.web3.PublicKey.findProgramAddress(
-      [mintTokens.publicKey.toBuffer()],
+    mint = await utils.mintFromFile(nosAddress, provider, provider.wallet.publicKey);
+
+    // get ATA of the vault, and the bump
+    [ata.vault, bump] = await anchor.web3.PublicKey.findProgramAddress(
+      [mint.publicKey.toBuffer()],
       program.programId
     );
 
-    // set spl for later
-    spl.nos = mintTokens.publicKey;
-    spl.vault = wallets.vault;
+    // tests
+    assert.strictEqual(nosAddress, mint.publicKey.toString());
+  });
 
-    // initialize
-    await program.rpc.initializeProject(
+  // initialize vault
+  it('Initialize the vault', async () => {
+    await program.rpc.initVault(
       bump,
       {
         accounts: {
-          authority: provider.wallet.publicKey,
-          jobs: jobs.publicKey,
 
-          nos: spl.nos,
-          vault: wallets.vault,
+          // vault parameters
+          mint: mint.publicKey,
+          ataVault: ata.vault,
+
+          // signer and payer
+          authority: accounts.user,
 
           // required
-          systemProgram: anchor.web3.SystemProgram.programId,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          systemProgram: accounts.systemProgram,
+          tokenProgram: accounts.tokenProgram,
+          rent: accounts.rent,
+        }
+      }
+    );
+  });
+
+  // initialize project
+  it('Initialize project', async () => {
+    await program.rpc.initProject(
+      {
+        accounts: {
+          // account to store jobs
+          jobs: accounts.jobs,
+
+          // signer and payer
+          authority: accounts.user,
+
+          // required
+          systemProgram: accounts.systemProgram,
         },
-        signers: [jobs],
+        signers: [signers.jobs],
       }
     );
   });
@@ -67,44 +113,127 @@ describe('staking', () => {
   it(`Create user ATAs for Nosana tokens, mint ${mintSupply} tokens`, async () => {
 
     // create associated token accounts
-    wallets.user = await mintTokens.createAssociatedTokenAccount(provider.wallet.publicKey);
+    ata.user = await mint.createAssociatedTokenAccount(provider.wallet.publicKey);
 
     // mint tokens
-    await utils.mintToAccount(provider, mintTokens.publicKey, wallets.user, mintSupply);
+    await utils.mintToAccount(provider, mint.publicKey, ata.user, mintSupply);
 
     // tests
     balances.user += mintSupply
-    await utils.assertBalances(provider, wallets, balances)
+    await utils.assertBalances(provider, ata, balances)
   });
 
-  // initialize
+  // create
   it('Create job', async () => {
-
-    // create the main token
     await program.rpc.createJob(
       bump,
       new anchor.BN(jobPrice),
+      ipfsData,
       {
         accounts: {
-          authority: provider.wallet.publicKey,
 
           // jobs
-          jobs: jobs.publicKey,
+          jobs: accounts.jobs,
+          job: accounts.job,
 
           // payment
-          nos: spl.nos,
-          vault: wallets.vault,
-          nosFrom: wallets.user,
+          mint: mint.publicKey,
+          ataVault: ata.vault,
+          ataFrom: ata.user,
+
+          // signer
+          authority: accounts.user,
 
           // required
-          tokenProgram: TOKEN_PROGRAM_ID,
-        }
+          systemProgram: accounts.systemProgram,
+          tokenProgram: accounts.tokenProgram,
+        },
+        signers: [signers.job],
       }
     );
 
     // tests
     balances.user -= jobPrice
     balances.vault += jobPrice
-    await utils.assertBalances(provider, wallets, balances)
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // list
+  it('List jobs', async () => {
+    const data = await program.account.jobs.fetch(accounts.jobs);
+    assert.strictEqual(data.authority.toString(), accounts.user.toString());
+    assert.strictEqual(data.jobs[0].toString(), accounts.job.toString());
+    assert.strictEqual(data.jobs.length, 1);
+  });
+
+  // get
+  it('Check if job is created', async () => {
+    const data = await program.account.job.fetch(accounts.job);
+    assert.strictEqual(data.jobStatus, jobStatus.created);
+    assert.strictEqual(buf2hex(new Uint8Array(data.ipfsJob).buffer), ipfsData.toString('hex'));
+  });
+
+  // claim
+  it('Claim job', async () => {
+    await program.rpc.claimJob(
+      {
+        accounts: {
+          authority: provider.wallet.publicKey,
+          job: accounts.job,
+          systemProgram: accounts.systemProgram,
+        },
+      }
+    );
+  });
+
+  // get
+  it('Check if job is claimed', async () => {
+    const data = await program.account.job.fetch(accounts.job);
+    assert.strictEqual(data.jobStatus, jobStatus.claimed);
+    assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
+    assert.strictEqual(data.tokens.toString(), jobPrice.toString());
+
+  });
+
+  // finish
+  it('Finish job', async () => {
+    await program.rpc.finishJob(
+      bump,
+      ipfsData,
+      {
+        accounts: {
+
+          //jobs
+          job: accounts.job,
+          jobs: accounts.jobs,
+
+          // token and ATAs
+          mint: mint.publicKey,
+          ataVault: ata.vault,
+          ataTo: ata.user,
+
+          // signer
+          authority: accounts.user,
+
+          // required
+          systemProgram: accounts.systemProgram,
+          tokenProgram: accounts.tokenProgram,
+        },
+      }
+    );
+    // tests
+    balances.user += jobPrice
+    balances.vault -= jobPrice
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // get
+  it('Check if job is finished', async () => {
+    const dataJobs = await program.account.jobs.fetch(accounts.jobs);
+    const dataJob = await program.account.job.fetch(accounts.job);
+
+    assert.strictEqual(dataJob.jobStatus, jobStatus.finished);
+    assert.strictEqual(dataJobs.jobs.length, 0);
+    assert.strictEqual(buf2hex(new Uint8Array(dataJob.ipfsResult).buffer), ipfsData.toString('hex'));
   });
 });
