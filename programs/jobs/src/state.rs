@@ -15,7 +15,7 @@ pub mod constants {
 /// - __jobs__ is list of Jobs
 #[account]
 pub struct Jobs {
-    pub project: Pubkey,
+    pub authority: Pubkey,
     pub jobs: Vec<Pubkey>,
 }
 

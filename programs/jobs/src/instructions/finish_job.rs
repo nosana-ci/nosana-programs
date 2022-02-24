@@ -7,8 +7,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount, Transfer};
 pub struct FinishJob<'info> {
 
     #[account(mut)]
-    pub node: Signer<'info>,
-    // pub project: AccountInfo<'info>,
+    pub authority: Signer<'info>,
 
     #[account(mut)]
     pub jobs: Account<'info, Jobs>,
@@ -16,11 +15,7 @@ pub struct FinishJob<'info> {
     #[account(mut)]
     pub job: Account<'info, Job>,
 
-    #[account(
-        mut,
-        seeds = [ nos.key().as_ref() ],
-        bump = bump,
-    )]
+    #[account(mut, seeds = [ nos.key().as_ref() ], bump = bump)]
     pub vault: Box<Account<'info, TokenAccount>>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
@@ -41,7 +36,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: u8) -> ProgramResult {
     let job : &mut Account<Job> = &mut ctx.accounts.job;
 
     // check signature with node
-    if &job.node != ctx.accounts.node.key {
+    if &job.node != ctx.accounts.authority.key {
         return Err(ErrorCode::Unauthorized.into());
     }
 

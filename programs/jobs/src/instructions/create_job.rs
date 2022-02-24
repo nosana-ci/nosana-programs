@@ -7,24 +7,19 @@ use std::mem::size_of;
 #[instruction(bump: u8)]
 pub struct CreateJob<'info> {
 
-    pub project: Signer<'info>,
+    pub authority: Signer<'info>,
 
-    #[account(mut, has_one = project)]
+    #[account(mut)]
     pub jobs: Account<'info, Jobs>,
 
-    #[account(init, payer = project, space = 8 + size_of::<Job>())] // TODO: make space size of Job
+    #[account(init, payer = authority, space = 8 + size_of::<Job>())]
     pub job: Account<'info, Job>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
     pub nos: Box<Account<'info, Mint>>,
 
-    #[account(
-        mut,
-        seeds = [ nos.key().as_ref() ],
-        bump = bump,
-    )]
+    #[account(mut, seeds = [ nos.key().as_ref() ], bump = bump)]
     pub vault: Box<Account<'info, TokenAccount>>,
-
 
     #[account(mut)]
     pub nos_from: Box<Account<'info, TokenAccount>>,
@@ -51,7 +46,7 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: u8) -> ProgramResult 
         token::Transfer {
             from: ctx.accounts.nos_from.to_account_info(),
             to: ctx.accounts.vault.to_account_info(),
-            authority: ctx.accounts.project.to_account_info(),
+            authority: ctx.accounts.authority.to_account_info(),
         },
     ), amount)?;
 

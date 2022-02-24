@@ -85,7 +85,7 @@ describe('jobs', () => {
     await program.rpc.initProject(
       {
         accounts: {
-          project: provider.wallet.publicKey,
+          authority: provider.wallet.publicKey,
           jobs: jobs.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
         },
@@ -118,7 +118,7 @@ describe('jobs', () => {
       new anchor.BN(data),
       {
         accounts: {
-          project: provider.wallet.publicKey,
+          authority: provider.wallet.publicKey,
 
           // jobs
           jobs: jobs.publicKey,
@@ -146,7 +146,7 @@ describe('jobs', () => {
   // list
   it('List jobs', async () => {
     const dataJobs = await program.account.jobs.fetch(jobs.publicKey);
-    assert.strictEqual(dataJobs.project.toString(), provider.wallet.publicKey.toString());
+    assert.strictEqual(dataJobs.authority.toString(), provider.wallet.publicKey.toString());
     assert.strictEqual(dataJobs.jobs[0].toString(), job.publicKey.toString());
     assert.strictEqual(dataJobs.jobs.length, 1);
   });
@@ -164,7 +164,7 @@ describe('jobs', () => {
     await program.rpc.claimJob(
       {
         accounts: {
-          node: provider.wallet.publicKey,
+          authority: provider.wallet.publicKey,
           job: job.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
         },
@@ -191,7 +191,7 @@ describe('jobs', () => {
       {
         accounts: {
           //jobs
-          node: provider.wallet.publicKey,
+          authority: provider.wallet.publicKey,
           job: job.publicKey,
           jobs: jobs.publicKey,
           // project: provider.wallet.publicKey,
