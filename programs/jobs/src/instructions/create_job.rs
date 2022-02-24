@@ -7,8 +7,6 @@ use std::mem::size_of;
 #[instruction(bump: u8)]
 pub struct CreateJob<'info> {
 
-    pub authority: Signer<'info>,
-
     #[account(mut)]
     pub jobs: Account<'info, Jobs>,
 
@@ -16,15 +14,15 @@ pub struct CreateJob<'info> {
     pub job: Account<'info, Job>,
 
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
-    pub nos: Box<Account<'info, Mint>>,
+    pub mint: Box<Account<'info, Mint>>,
 
-    #[account(mut, seeds = [ nos.key().as_ref() ], bump = bump)]
-    pub vault: Box<Account<'info, TokenAccount>>,
+    #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
+    pub ata_vault: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub nos_from: Box<Account<'info, TokenAccount>>,
+    pub ata_from: Box<Account<'info, TokenAccount>>,
 
-    /// required
+    pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
@@ -44,8 +42,8 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> ProgramR
     token::transfer(CpiContext::new(
         ctx.accounts.token_program.to_account_info(),
         token::Transfer {
-            from: ctx.accounts.nos_from.to_account_info(),
-            to: ctx.accounts.vault.to_account_info(),
+            from: ctx.accounts.ata_from.to_account_info(),
+            to: ctx.accounts.ata_vault.to_account_info(),
             authority: ctx.accounts.authority.to_account_info(),
         },
     ), amount)?;
@@ -54,7 +52,7 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> ProgramR
     jobs.jobs.push(ctx.accounts.job.key());
 
     // reload
-    (&mut ctx.accounts.vault).reload()?;
+    (&mut ctx.accounts.ata_vault).reload()?;
 
     // finish
     Ok(())

@@ -4,12 +4,9 @@ use crate::*;
 pub struct ClaimJob<'info> {
 
     #[account(mut)]
-    pub authority: Signer<'info>,
-
-    #[account(mut)]
     pub job: Account<'info, Job>,
 
-    /// required
+    pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 

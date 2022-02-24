@@ -7,24 +7,21 @@ use anchor_spl::token::{Mint, Token, TokenAccount, Transfer};
 pub struct FinishJob<'info> {
 
     #[account(mut)]
-    pub authority: Signer<'info>,
-
-    #[account(mut)]
     pub jobs: Account<'info, Jobs>,
 
     #[account(mut)]
     pub job: Account<'info, Job>,
 
-    #[account(mut, seeds = [ nos.key().as_ref() ], bump = bump)]
-    pub vault: Box<Account<'info, TokenAccount>>,
-
     #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
-    pub nos: Box<Account<'info, Mint>>,
+    pub mint: Box<Account<'info, Mint>>,
+
+    #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
+    pub ata_vault: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub token_to: Box<Account<'info, TokenAccount>>,
+    pub ata_to: Box<Account<'info, TokenAccount>>,
 
-    /// required
+    pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }
@@ -45,7 +42,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
     job.ipfs_result = data;
 
     // sign with the vault
-    let token_mint_key = ctx.accounts.nos.key();
+    let token_mint_key = ctx.accounts.mint.key();
     let seeds = &[token_mint_key.as_ref(), &[bump]];
     let signer = &[&seeds[..]];
 
@@ -53,9 +50,9 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
     let cpi_ctx: CpiContext<Transfer> = CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),
         token::Transfer {
-            from: ctx.accounts.vault.to_account_info(),
-            to: ctx.accounts.token_to.to_account_info(),
-            authority: ctx.accounts.vault.to_account_info(),
+            from: ctx.accounts.ata_vault.to_account_info(),
+            to: ctx.accounts.ata_to.to_account_info(),
+            authority: ctx.accounts.ata_vault.to_account_info(),
         },
         signer,
     );
@@ -67,7 +64,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
     jobs.jobs.remove(index);
 
     //  reload balances
-    (&mut ctx.accounts.vault).reload()?;
+    (&mut ctx.accounts.ata_vault).reload()?;
 
     // finish
     Ok(())
