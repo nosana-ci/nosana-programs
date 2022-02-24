@@ -1,0 +1,5 @@
+release:
+  image: registry.gitlab.com/nosana-ci/tools/containers/semver
+  script: release.sh
+  only:
+    - main
