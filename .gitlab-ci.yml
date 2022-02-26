@@ -31,6 +31,7 @@ test:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 .deploy:
+  stage: deploy
   script:
     - solana -u ${DEPLOY_NET} program deploy --program-id  ~/.config/solana/pid.json target/deploy/jobs.so
 
