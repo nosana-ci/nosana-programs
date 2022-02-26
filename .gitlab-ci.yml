@@ -7,7 +7,7 @@ stages:
   - post
 
 build:
-  stage: test
+  stage: build
   script:
     - yarn install
     - anchor build
