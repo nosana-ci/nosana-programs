@@ -1,5 +1,23 @@
+image: projectserum/build:v0.22.0
+
+stages:
+  - test
+  - build
+  - deploy
+  - post
+
+test:
+  stage: test
+  script:
+    - yarn install
+    - anchor test
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 release:
   image: registry.gitlab.com/nosana-ci/tools/containers/semver
   script: release.sh
-  only:
-    - main
+  stage: post
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

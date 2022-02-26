@@ -94,8 +94,7 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
     .join('');
 }
 
-async function getOrCreateAssociatedSPL (provider, mint) {
-  const owner = provider.wallet.publicKey
+async function getOrCreateAssociatedSPL (provider, owner, mint) {
   const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint.publicKey, owner, true)
   try {
     await serumCmn.getTokenAccount(provider, ata)

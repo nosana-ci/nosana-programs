@@ -7,11 +7,9 @@ const utils = require('./utils');
 
 describe('jobs', () => {
 
-  // local provider
+  // provider and program
   const provider = anchor.Provider.local();
-  let connection = provider.connection
-
-  // program to test
+  const connection = provider.connection;
   const program = anchor.workspace.Jobs;
 
   // globals variables
@@ -108,14 +106,14 @@ describe('jobs', () => {
 
     await Promise.all(users.map(async u => {
       await connection.confirmTransaction(await connection.requestAirdrop(u.publicKey, anchor.web3.LAMPORTS_PER_SOL))
-      u.ata = await utils.getOrCreateAssociatedSPL(u.provider, mint);
+      u.ata = await utils.getOrCreateAssociatedSPL(u.provider, u.publicKey, mint);
       await mint.mintTo(u.ata, provider.wallet.publicKey, [provider.wallet], userSupply)
       u.balance = userSupply
     }))
 
     await Promise.all(nodes.map(async n => {
       await connection.confirmTransaction(await connection.requestAirdrop(n.publicKey, anchor.web3.LAMPORTS_PER_SOL))
-      n.ata = await utils.getOrCreateAssociatedSPL(n.provider, mint);
+      n.ata = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, mint);
       n.balance = 0
     }))
 
