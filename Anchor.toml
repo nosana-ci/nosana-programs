@@ -1,10 +1,16 @@
 anchor_version = "0.19.0"
 
 [programs.localnet]
-jobs = "testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM"
+jobs = "nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR"
 
 [programs.devnet]
-jobs = "testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM"
+jobs = "nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR"
+
+[programs.testnet]
+jobs = "nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR"
+
+[programs.mainnet]
+jobs = "nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR"
 
 [registry]
 url = "https://anchor.projectserum.com"

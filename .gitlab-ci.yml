@@ -1,5 +1,65 @@
+image: projectserum/build:v0.22.0
+
+stages:
+  - build
+  - test
+  - deploy
+  - post
+
+before_script:
+  - echo $SOLANA_WALLET > ~/.config/solana/id.json
+  - echo $SOLANA_PROGRAM_ID > ~/.config/solana/pid.json
+
+build:
+  stage: build
+  script:
+    - anchor build
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  artifacts:
+    paths:
+      - target
+
+test:
+  stage: test
+  script:
+    - yarn install
+    - anchor test
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.deploy:
+  stage: deploy
+  script:
+    - solana -u ${DEPLOY_NET} program deploy --program-id  ~/.config/solana/pid.json target/deploy/jobs.so
+
+deploy devnet:
+  extends: .deploy
+  variables:
+    DEPLOY_NET: devnet
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+deploy testnet:
+  extends: .deploy
+  variables:
+    DEPLOY_NET: testnet
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+deploy mainnet:
+  extends: .deploy
+  variables:
+    DEPLOY_NET: mainnet
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 release:
   image: registry.gitlab.com/nosana-ci/tools/containers/semver
   script: release.sh
-  only:
-    - main
+  stage: post
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
