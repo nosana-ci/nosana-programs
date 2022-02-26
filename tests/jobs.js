@@ -8,7 +8,7 @@ const utils = require('./utils');
 describe('jobs', () => {
 
   // provider and program
-  const provider = anchor.Provider.local();
+  const provider = anchor.Provider.env();
   const connection = provider.connection;
   const program = anchor.workspace.Jobs;
 
