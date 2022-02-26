@@ -6,6 +6,9 @@ stages:
   - deploy
   - post
 
+before_script:
+  - echo $SOLANA_KEY > ~/.config/solana/id.json
+
 build:
   stage: build
   script:
