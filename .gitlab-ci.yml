@@ -6,13 +6,15 @@ stages:
   - deploy
   - post
 
+variables:
+  SOLANA_IDS_PATH: $HOME/.config/solana/
+
 before_script:
-  - echo $SOLANA_KEY > ~/.config/solana/id.json
+  - echo $SOLANA_WALLET > $SOLANA_IDS_PATH/id.json
 
 build:
   stage: build
   script:
-    - yarn install
     - anchor build
   rules:
     - if: $CI_MERGE_REQUEST_ID
@@ -26,6 +28,15 @@ test:
   script:
     - yarn install
     - anchor test
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+deploy:
+  stage: deploy
+  script:
+    - echo $SOLANA_PROGRAM_ID > $SOLANA_IDS_PATH/pid.json
+    - solana -u devnet program deploy --program-id $SOLANA_IDS_PATH/pid.json target/deploy/jobs.so
   rules:
     - if: $CI_MERGE_REQUEST_ID
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
