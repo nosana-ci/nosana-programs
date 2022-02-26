@@ -7,7 +7,7 @@ stages:
   - post
 
 variables:
-  SOLANA_IDS_PATH: $HOME/.config/solana/
+  SOLANA_IDS_PATH: ~/.config/solana/
 
 before_script:
   - echo $SOLANA_WALLET > $SOLANA_IDS_PATH/id.json
