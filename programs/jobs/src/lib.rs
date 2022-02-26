@@ -9,10 +9,7 @@ use error::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self};
 
-#[cfg(feature = "prd")]
-declare_id!("TBD");
-#[cfg(not(feature = "prd"))]
-declare_id!("testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM");
+declare_id!("nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR");
 
 #[program]
 pub mod jobs {

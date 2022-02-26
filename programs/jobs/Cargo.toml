@@ -13,8 +13,8 @@ no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
-#default = ["prd"]
-#prd = []
+default = []
+#mainnet = []
 
 [dependencies]
 anchor-lang = "0.19.0"

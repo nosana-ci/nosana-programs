@@ -3,11 +3,11 @@ use crate::*;
 #[derive(Accounts)]
 pub struct InitProject<'info> {
 
-    #[account(init, payer = authority, space = 4800)] // TODO make space size of pubkey list
+    #[account(init, payer = fee_payer, space = JOBS_SIZE)]
     pub jobs: Account<'info, Jobs>,
 
-    #[account(mut)]
     pub authority: Signer<'info>,
+    pub fee_payer: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 

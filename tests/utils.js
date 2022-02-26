@@ -1,6 +1,7 @@
 const anchor = require("@project-serum/anchor");
 const fs = require('fs');
-const {TOKEN_PROGRAM_ID, Token, MintLayout} = require("@solana/spl-token");
+const serumCmn = require("@project-serum/common");
+const {TOKEN_PROGRAM_ID, Token, MintLayout, ASSOCIATED_TOKEN_PROGRAM_ID} = require("@solana/spl-token");
 const assert = require("assert");
 
 async function getTokenBalance(provider, wallet) {
@@ -93,9 +94,38 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
     .join('');
 }
 
+async function getOrCreateAssociatedSPL (provider, mint) {
+  const owner = provider.wallet.publicKey
+  const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint.publicKey, owner, true)
+  try {
+    await serumCmn.getTokenAccount(provider, ata)
+  } catch (error) {
+    const tx = new anchor.web3.Transaction()
+    tx.add(Token.createAssociatedTokenAccountInstruction(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint.publicKey, ata, owner, owner))
+    await provider.send(tx, [], {})
+  }
+  return ata
+}
+
+function setupSolanaUser(connection) {
+  const user = anchor.web3.Keypair.generate();
+  const publicKey = user.publicKey
+  const wallet = new anchor.Wallet(user)
+  const provider = new anchor.Provider(connection, wallet)
+
+  const signers = {
+    jobs : anchor.web3.Keypair.generate(),
+    job : anchor.web3.Keypair.generate(),
+  }
+  return { user, publicKey, wallet, provider, signers }
+}
+
 module.exports = {
   mintFromFile,
   mintToAccount,
   assertBalances,
   buf2hex,
+  getOrCreateAssociatedSPL,
+  getTokenBalance,
+  setupSolanaUser,
 };

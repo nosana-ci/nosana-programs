@@ -1,7 +1,6 @@
 use crate::*;
 
 use anchor_spl::token::{Mint, Token, TokenAccount};
-use std::mem::size_of;
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -10,10 +9,10 @@ pub struct CreateJob<'info> {
     #[account(mut)]
     pub jobs: Account<'info, Jobs>,
 
-    #[account(init, payer = authority, space = 8 + size_of::<Job>())]
+    #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Account<'info, Job>,
 
-    #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
+    #[account(address = TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
     pub mint: Box<Account<'info, Mint>>,
 
     #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
@@ -23,6 +22,7 @@ pub struct CreateJob<'info> {
     pub ata_from: Box<Account<'info, TokenAccount>>,
 
     pub authority: Signer<'info>,
+    pub fee_payer: Signer<'info>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }

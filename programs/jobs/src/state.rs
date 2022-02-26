@@ -1,18 +1,18 @@
 use anchor_lang::prelude::*;
+// use anchor_lang::solana_program::pubkey;
 
-#[cfg(feature = "prd")]
-pub mod constants {
-    pub const TOKEN_PUBLIC_KEY: &str = "nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7";
-}
-#[cfg(not(feature = "prd"))]
-pub mod constants {
-    pub const TOKEN_PUBLIC_KEY: &str = "testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp";
-}
+#[cfg(feature = "mainnet")]
+pub const TOKEN_PUBLIC_KEY: &str = "nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7";
+#[cfg(not(feature = "mainnet"))]
+pub const TOKEN_PUBLIC_KEY:  &str = "testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp";
+
+pub const QUEUE_MAX: usize = 100;
 
 /// # Jobs
 /// Account for holding jobs of a certain Project
 /// - __authority__ is the payer and initial projects' creator
 /// - __jobs__ is list of Jobs
+pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Pubkey>() * QUEUE_MAX;
 #[account]
 pub struct Jobs {
     pub authority: Pubkey,
@@ -21,6 +21,7 @@ pub struct Jobs {
 
 /// # Job
 /// Object that holds relevant information for a single Job
+pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
 #[account]
 pub struct Job {
     pub node: Pubkey,

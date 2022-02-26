@@ -12,7 +12,7 @@ pub struct FinishJob<'info> {
     #[account(mut)]
     pub job: Account<'info, Job>,
 
-    #[account(address = constants::TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
+    #[account(address = TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
     pub mint: Box<Account<'info, Mint>>,
 
     #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
