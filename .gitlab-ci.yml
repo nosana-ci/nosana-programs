@@ -1,4 +1,4 @@
-image: projectserum/build:v0.20.1
+image: projectserum/build:v0.22.0
 
 stages:
   - build
@@ -26,9 +26,6 @@ test:
   rules:
     - if: $CI_MERGE_REQUEST_ID
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  artifacts:
-    paths:
-      - target
 
 release:
   image: registry.gitlab.com/nosana-ci/tools/containers/semver

@@ -22,6 +22,8 @@ pub struct CreateJob<'info> {
     pub ata_from: Box<Account<'info, TokenAccount>>,
 
     pub authority: Signer<'info>,
+
+    #[account(mut)]
     pub fee_payer: Signer<'info>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,

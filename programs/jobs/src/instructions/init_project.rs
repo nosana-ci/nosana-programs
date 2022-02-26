@@ -7,6 +7,8 @@ pub struct InitProject<'info> {
     pub jobs: Account<'info, Jobs>,
 
     pub authority: Signer<'info>,
+
+    #[account(mut)]
     pub fee_payer: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
