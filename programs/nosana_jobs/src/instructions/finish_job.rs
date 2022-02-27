@@ -1,6 +1,6 @@
 use crate::*;
 
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -12,7 +12,7 @@ pub struct FinishJob<'info> {
     #[account(mut)]
     pub job: Account<'info, Job>,
 
-    #[account(address = TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
+    #[account(address = nos_token::ID)]
     pub mint: Box<Account<'info, Mint>>,
 
     #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
@@ -29,19 +29,20 @@ pub struct FinishJob<'info> {
 pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResult {
 
     // get job
-    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
     let job: &mut Account<Job> = &mut ctx.accounts.job;
 
-    // check signature with node
-    if &job.node != ctx.accounts.authority.key {
-        return Err(ErrorCode::Unauthorized.into());
-    }
+    // check signature with node, and status of job
+    require!(&job.node == ctx.accounts.authority.key, Unauthorized);
+    require!(job.job_status == JobStatus::Claimed as u8, NotClaimable);
 
-    // update and finish job account
+    // get jobs
+    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
+
+    // update and finish job account, remove job from jobs list
     job.job_status = JobStatus::Finished as u8;
     job.ipfs_result = data;
 
-    //transfer from vault to node
+    // payout tokens from the vault to node
     token::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -55,10 +56,15 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
         job.tokens
     )?;
 
+    //  find job in queue
+    let job_key: &Pubkey = ctx.accounts.job.to_account_info().key;
+    let index: Option<usize> = jobs.jobs.iter().position(| key: &Pubkey | key == job_key);
+
+    // check if job is found
+    require!(!index.is_none(), JobQueueNotFound);
+
     // remove job from jobs list
-    let job_key: &mut Pubkey =  &mut ctx.accounts.job.key();
-    let index: usize = jobs.jobs.iter_mut().position(| key: &mut Pubkey | key == job_key).unwrap();
-    jobs.jobs.remove(index);
+    jobs.jobs.remove(index.unwrap());
 
     // finish
     Ok(())

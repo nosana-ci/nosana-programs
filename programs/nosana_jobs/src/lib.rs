@@ -1,15 +1,15 @@
 mod instructions;
 mod state;
 mod error;
+mod ids;
 
 use instructions::*;
 use state::*;
 use error::*;
+use ids::*;
 
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self};
-
-declare_id!("nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR");
+// use anchor_spl::token::{self};
 
 #[program]
 pub mod nosana_jobs {

@@ -12,10 +12,15 @@ pub struct ClaimJob<'info> {
 
 pub fn handler(ctx: Context<ClaimJob>) -> ProgramResult {
 
-    // set claimed
+    // get job
     let job: &mut Account<Job> = &mut ctx.accounts.job;
-    job.job_status = JobStatus::Claimed as u8;
+
+    // run checks
+    require!(job.job_status == JobStatus::Created as u8, NotClaimable);
+
+    // claim job
     job.node = *ctx.accounts.authority.key;
+    job.job_status = JobStatus::Claimed as u8;
 
     // finish
     Ok(())

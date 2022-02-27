@@ -1,6 +1,6 @@
 use crate::*;
 
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -12,7 +12,7 @@ pub struct CreateJob<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Account<'info, Job>,
 
-    #[account(address = TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
+    #[account(address = nos_token::ID)]
     pub mint: Box<Account<'info, Mint>>,
 
     #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]

@@ -1,10 +1,6 @@
 use anchor_lang::prelude::*;
 // use anchor_lang::solana_program::pubkey;
 
-#[cfg(feature = "mainnet")]
-pub const TOKEN_PUBLIC_KEY: &str = "nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7";
-#[cfg(not(feature = "mainnet"))]
-pub const TOKEN_PUBLIC_KEY:  &str = "testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp";
 
 pub const QUEUE_MAX: usize = 100;
 
