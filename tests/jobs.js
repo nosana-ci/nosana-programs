@@ -270,19 +270,6 @@ describe('Nosana Jobs', () => {
   });
 
   // claim
-  it('Claim job', async () => {
-    await program.rpc.claimJob(
-      {
-        accounts: {
-          authority: provider.wallet.publicKey,
-          job: accounts.job,
-          systemProgram: accounts.systemProgram,
-        },
-      }
-    );
-  });
-
-  // claim
   it('Claim jobs for all other nodes and users', async () => {
     await Promise.all([...Array(10).keys()].map(async i => {
 
