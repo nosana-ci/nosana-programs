@@ -6,7 +6,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 #[instruction(bump: u8)]
 pub struct InitVault<'info> {
 
-    #[account(address = TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
+    #[account(address = nos_token::ID)]
     pub mint: Box<Account<'info, Mint>>,
 
     #[account(
@@ -21,11 +21,12 @@ pub struct InitVault<'info> {
 
     #[account(mut)]
     pub authority: Signer<'info>,
+
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler() -> ProgramResult {
+pub fn handler() -> Result<()> {
     Ok(())
 }

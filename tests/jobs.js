@@ -1,19 +1,19 @@
 // imports
 const anchor = require('@project-serum/anchor');
 const assert = require('assert');
-const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const _ = require('lodash')
+const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const utils = require('./utils');
 
-describe('jobs', () => {
+describe('Nosana Jobs', () => {
 
   // provider and program
   const provider = anchor.Provider.env();
   const connection = provider.connection;
-  const program = anchor.workspace.Jobs;
+  const program = anchor.workspace.NosanaJobs;
 
   // globals variables
-  const nosAddress = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';
+  const nosAddress = "testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp";
   const ipfsData = Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex');
   const mintSupply = 100_000_000;
   const userSupply = 100;
@@ -267,6 +267,25 @@ describe('jobs', () => {
         },
       }
     );
+  });
+
+  // claim
+  it('Claim job that is already claimed', async () => {
+    let msg = ""
+    try {
+      await program.rpc.claimJob(
+        {
+          accounts: {
+            authority: provider.wallet.publicKey,
+            job: accounts.job,
+            systemProgram: accounts.systemProgram,
+          },
+        }
+      );
+    } catch (e) {
+      msg = e.msg
+    }
+    assert.strictEqual(msg, "Job cannot be claimed because it is already claimed or finished.");
   });
 
   // claim

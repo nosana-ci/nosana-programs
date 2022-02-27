@@ -1,18 +1,10 @@
 use anchor_lang::prelude::*;
-// use anchor_lang::solana_program::pubkey;
-
-#[cfg(feature = "mainnet")]
-pub const TOKEN_PUBLIC_KEY: &str = "nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7";
-#[cfg(not(feature = "mainnet"))]
-pub const TOKEN_PUBLIC_KEY:  &str = "testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp";
-
-pub const QUEUE_MAX: usize = 100;
 
 /// # Jobs
 /// Account for holding jobs of a certain Project
 /// - __authority__ is the payer and initial projects' creator
 /// - __jobs__ is list of Jobs
-pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Pubkey>() * QUEUE_MAX;
+pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Pubkey>() * 100;
 #[account]
 pub struct Jobs {
     pub authority: Pubkey,
@@ -21,6 +13,11 @@ pub struct Jobs {
 
 /// # Job
 /// Object that holds relevant information for a single Job
+/// - __node__ is the ID of the node that claims the Job
+/// - __job_status__ is the JobStatus the current Job
+/// - __ipfs_result__ is the IPFS hash pointing to the job instructions
+/// - __ipfs_result__ is the IPFS hash pointing to the job results
+/// - __tokens__ is amount of tokens
 pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
 #[account]
 pub struct Job {
@@ -31,6 +28,8 @@ pub struct Job {
     pub tokens: u64,
 }
 
+/// # JobStatus
+/// Enumeration for the different states a Job can have
 #[derive(Clone, Debug, PartialEq, AnchorSerialize, AnchorDeserialize)]
 #[repr(u8)]
 pub enum JobStatus {

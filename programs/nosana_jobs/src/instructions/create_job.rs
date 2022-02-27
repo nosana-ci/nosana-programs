@@ -1,6 +1,6 @@
 use crate::*;
 
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -12,7 +12,7 @@ pub struct CreateJob<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Account<'info, Job>,
 
-    #[account(address = TOKEN_PUBLIC_KEY.parse::<Pubkey>().unwrap())]
+    #[account(address = nos_token::ID)]
     pub mint: Box<Account<'info, Mint>>,
 
     #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
@@ -25,30 +25,34 @@ pub struct CreateJob<'info> {
 
     #[account(mut)]
     pub fee_payer: Signer<'info>,
+
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> ProgramResult {
+pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<()> {
 
     // retrieve job list from account
-    let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
+    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
 
     // create the job
-    let job : &mut Account<Job> = &mut ctx.accounts.job;
+    let job: &mut Account<Job> = &mut ctx.accounts.job;
     job.job_status = JobStatus::Created as u8;
     job.ipfs_job = data;
     job.tokens = amount;
 
     // pre-pay for job
-    token::transfer(CpiContext::new(
-        ctx.accounts.token_program.to_account_info(),
-        token::Transfer {
-            from: ctx.accounts.ata_from.to_account_info(),
-            to: ctx.accounts.ata_vault.to_account_info(),
-            authority: ctx.accounts.authority.to_account_info(),
-        },
-    ), amount)?;
+    token::transfer(
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            token::Transfer {
+                from: ctx.accounts.ata_from.to_account_info(),
+                to: ctx.accounts.ata_vault.to_account_info(),
+                authority: ctx.accounts.authority.to_account_info(),
+            },
+        ),
+        job.tokens
+    )?;
 
     // we push the account of the job to the list
     jobs.jobs.push(ctx.accounts.job.key());
