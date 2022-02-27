@@ -2,6 +2,7 @@
 name = "nosana_jobs"
 version = "0.1.0"
 description = "Created with Anchor"
+authors = ["nosana"]
 edition = "2018"
 
 [lib]
@@ -9,11 +10,7 @@ crate-type = ["cdylib", "lib"]
 name = "nosana_jobs"
 
 [features]
-no-entrypoint = []
-no-idl = []
-no-log-ix-name = []
-cpi = ["no-entrypoint"]
-default = []
+#default = ["mainnet"]
 mainnet = []
 
 [dependencies]

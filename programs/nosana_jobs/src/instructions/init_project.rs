@@ -6,10 +6,10 @@ pub struct InitProject<'info> {
     #[account(init, payer = fee_payer, space = JOBS_SIZE)]
     pub jobs: Account<'info, Jobs>,
 
-    pub authority: Signer<'info>,
-
     #[account(mut)]
     pub fee_payer: Signer<'info>,
+
+    pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 
