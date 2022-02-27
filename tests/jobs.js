@@ -13,7 +13,7 @@ describe('Nosana Jobs', () => {
   const program = anchor.workspace.NosanaJobs;
 
   // globals variables
-  const nosAddress = "testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp";
+  const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
   const ipfsData = Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex');
   const mintSupply = 100_000_000;
   const userSupply = 100;
@@ -56,10 +56,10 @@ describe('Nosana Jobs', () => {
   }
 
   const errors = {
-    Unauthorized: "You are not authorized to perform this action.",
-    NotClaimable: "Job cannot be claimed because it is already claimed or finished.",
-    NotFinishable: "Job cannot be finished because it is not in a Claimed state.",
-    JobQueueNotFound: "Job queue not found.",
+    Unauthorized: 'You are not authorized to perform this action.',
+    NotClaimable: 'Job cannot be claimed because it is already claimed or finished.',
+    NotFinishable: 'Job cannot be finished because it is not in a Claimed state.',
+    JobQueueNotFound: 'Job queue not found.',
   }
 
   // we'll set these later
@@ -71,7 +71,7 @@ describe('Nosana Jobs', () => {
   it('Mint $NOS', async () => {
 
     // create the main token
-    mint = await utils.mintFromFile(nosAddress, provider, provider.wallet.publicKey);
+    mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
 
     // get ATA of the vault, and the bump
     [ata.vault, bump] = await anchor.web3.PublicKey.findProgramAddress(
@@ -80,7 +80,7 @@ describe('Nosana Jobs', () => {
     );
 
     // tests
-    assert.strictEqual(nosAddress, mint.publicKey.toString());
+    assert.strictEqual(nosID.toString(), mint.publicKey.toString());
 
     accounts.mint = mint.publicKey;
     accounts.ataVault = ata.vault;
