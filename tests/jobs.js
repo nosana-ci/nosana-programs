@@ -1,11 +1,11 @@
 // imports
 const anchor = require('@project-serum/anchor');
 const assert = require('assert');
-const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const _ = require('lodash')
+const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const utils = require('./utils');
 
-describe('jobs', () => {
+describe('Nosana Jobs', () => {
 
   // provider and program
   const provider = anchor.Provider.env();

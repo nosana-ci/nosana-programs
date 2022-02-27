@@ -29,8 +29,8 @@ pub struct FinishJob<'info> {
 pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResult {
 
     // get job
-    let jobs : &mut Account<Jobs> = &mut ctx.accounts.jobs;
-    let job : &mut Account<Job> = &mut ctx.accounts.job;
+    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
+    let job: &mut Account<Job> = &mut ctx.accounts.job;
 
     // check signature with node
     if &job.node != ctx.accounts.authority.key {
@@ -57,7 +57,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
 
     // remove job from jobs list
     let job_key: &mut Pubkey =  &mut ctx.accounts.job.key();
-    let index: usize = jobs.jobs.iter_mut().position(|key: &mut Pubkey | key == job_key).unwrap();
+    let index: usize = jobs.jobs.iter_mut().position(| key: &mut Pubkey | key == job_key).unwrap();
     jobs.jobs.remove(index);
 
     // finish

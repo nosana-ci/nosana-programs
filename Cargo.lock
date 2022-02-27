@@ -639,14 +639,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aab8fc367588b89dcee83ab0fd66b72b50b72fa1904d7095045ace2b0c81c35"
 
 [[package]]
-name = "jobs"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
-]
-
-[[package]]
 name = "js-sys"
 version = "0.3.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -752,6 +744,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe3179b85e1fd8b14447cbebadb75e45a1002f541b925f0bfec366d56a81c56d"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "nosana_jobs"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
 ]
 
 [[package]]

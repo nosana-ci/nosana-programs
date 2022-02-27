@@ -6,9 +6,13 @@ stages:
   - deploy
   - post
 
-before_script:
-  - echo $SOLANA_WALLET > ~/.config/solana/id.json
-  - echo $SOLANA_PROGRAM_ID > ~/.config/solana/pid.json
+
+.anchor:
+  before_script:
+    - echo $SOLANA_WALLET > ~/.config/solana/id.json
+    - echo $SOLANA_PROGRAM_ID > ~/.config/solana/pid.json
+  after_script:
+    - rm  ~/.config/solana/*.json
 
 build:
   stage: build
@@ -22,6 +26,7 @@ build:
       - target
 
 test:
+  extends: .anchor
   stage: test
   script:
     - yarn install
@@ -31,6 +36,7 @@ test:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 .deploy:
+  extends: .anchor
   stage: deploy
   script:
     - solana -u ${DEPLOY_NET} program deploy --program-id  ~/.config/solana/pid.json target/deploy/jobs.so

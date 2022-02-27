@@ -12,7 +12,7 @@ use anchor_spl::token::{self};
 declare_id!("nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR");
 
 #[program]
-pub mod jobs {
+pub mod nosana_jobs {
     use super::*;
 
     pub fn init_vault(_ctx: Context<InitVault>, _bump: u8) -> ProgramResult {

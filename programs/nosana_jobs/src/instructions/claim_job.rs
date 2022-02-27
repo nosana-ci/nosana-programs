@@ -13,7 +13,7 @@ pub struct ClaimJob<'info> {
 pub fn handler(ctx: Context<ClaimJob>) -> ProgramResult {
 
     // set claimed
-    let job = &mut ctx.accounts.job;
+    let job: &mut Account<Job> = &mut ctx.accounts.job;
     job.job_status = JobStatus::Claimed as u8;
     job.node = *ctx.accounts.authority.key;
 
