@@ -33,10 +33,12 @@ build:
   extends: .anchor
   stage: deploy
   script:
-    - anchor upgrade $TARGET \
-        --program-id $SOLANA_PROGRAM_ID \
-        --provider.cluster $CLUSTER \
+    - |
+      anchor upgrade
+        --program-id $SOLANA_PROGRAM_ID
+        --provider.cluster $CLUSTER
         --provider.wallet ~/.config/solana/id.json
+        $TARGET
 
 deploy devnet:
   extends: .deploy
