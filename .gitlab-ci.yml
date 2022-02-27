@@ -31,7 +31,7 @@ build:
   extends: .anchor
   stage: build
   script:
-    - sed -i '' 's/#default/default/' programs/nosana_jobs/Cargo.toml
+    - sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
     - anchor build
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
