@@ -10,7 +10,7 @@ describe('Nosana Jobs', () => {
   // provider and program
   const provider = anchor.Provider.env();
   const connection = provider.connection;
-  const program = anchor.workspace.Jobs;
+  const program = anchor.workspace.NosanaJobs;
 
   // globals variables
   const nosAddress = 'testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp';

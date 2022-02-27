@@ -50,7 +50,8 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> ProgramR
                 to: ctx.accounts.ata_vault.to_account_info(),
                 authority: ctx.accounts.authority.to_account_info(),
             },
-        ), job.tokens
+        ),
+        job.tokens
     )?;
 
     // we push the account of the job to the list
