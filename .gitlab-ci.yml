@@ -33,7 +33,7 @@ build:
   extends: .anchor
   stage: deploy
   script:
-    - solana program deploy -u $DEPLOY_NET -k ~/.config/solana/id.json --program-id ~/.config/solana/pid.json $TARGET
+    - anchor upgrade $TARGET --program-id nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR --provider.cluster $DEPLOY_NET --provider.wallet ~/.config/solana/id.json
 
 deploy devnet:
   extends: .deploy
