@@ -20,28 +20,32 @@ describe('Nosana Jobs', () => {
   const jobPrice = 10;
 
   // setup users and nodes
-  const users = _.map(new Array(10), () => { return utils.setupSolanaUser(connection) });
+  const users = _.map(new Array(10), () => {
+    return utils.setupSolanaUser(connection)
+  });
   const [user1, user2, user3, user4, ...otherUsers] = users
-  const nodes = _.map(new Array(10), () => { return utils.setupSolanaUser(connection) });
+  const nodes = _.map(new Array(10), () => {
+    return utils.setupSolanaUser(connection)
+  });
 
   // Jobs account for the tests.
   const signers = {
-    jobs : anchor.web3.Keypair.generate(),
-    job : anchor.web3.Keypair.generate(),
+    jobs: anchor.web3.Keypair.generate(),
+    job: anchor.web3.Keypair.generate(),
   }
 
   // public keys
   const accounts = {
 
-    // solana native
     systemProgram: anchor.web3.SystemProgram.programId,
     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
     tokenProgram: TOKEN_PROGRAM_ID,
 
-    // custom
-    user : provider.wallet.publicKey,
-    jobs : signers.jobs.publicKey,
-    job : signers.job.publicKey,
+    authority: provider.wallet.publicKey,
+    feePayer: provider.wallet.publicKey,
+
+    jobs: signers.jobs.publicKey,
+    job: signers.job.publicKey,
   }
 
   // status options for jobs
@@ -49,6 +53,13 @@ describe('Nosana Jobs', () => {
     created: 0,
     claimed: 1,
     finished: 2,
+  }
+
+  const errors = {
+    Unauthorized: "You are not authorized to perform this action.",
+    NotClaimable: "Job cannot be claimed because it is already claimed or finished.",
+    NotFinishable: "Job cannot be finished because it is not in a Claimed state.",
+    JobQueueNotFound: "Job queue not found.",
   }
 
   // we'll set these later
@@ -70,29 +81,14 @@ describe('Nosana Jobs', () => {
 
     // tests
     assert.strictEqual(nosAddress, mint.publicKey.toString());
+
+    accounts.mint = mint.publicKey;
+    accounts.ataVault = ata.vault;
   });
 
   // initialize vault
   it('Initialize the vault', async () => {
-    await program.rpc.initVault(
-      bump,
-      {
-        accounts: {
-
-          // vault parameters
-          mint: mint.publicKey,
-          ataVault: ata.vault,
-
-          // signer and payer
-          authority: accounts.user,
-
-          // required
-          systemProgram: accounts.systemProgram,
-          tokenProgram: accounts.tokenProgram,
-          rent: accounts.rent,
-        }
-      }
-    );
+    await program.rpc.initVault(bump, {accounts});
   });
 
   // mint
@@ -117,6 +113,9 @@ describe('Nosana Jobs', () => {
       n.balance = 0
     }))
 
+    accounts.ataFrom = ata.user;
+    accounts.ataTo = ata.user;
+
     // tests
     balances.user += mintSupply
     await utils.assertBalances(provider, ata, balances)
@@ -124,22 +123,7 @@ describe('Nosana Jobs', () => {
 
   // initialize project
   it('Initialize project', async () => {
-    await program.rpc.initProject(
-      {
-        accounts: {
-          // account to store jobs
-          jobs: accounts.jobs,
-
-          // signer and payer
-          authority: accounts.user,
-          feePayer: accounts.user,
-
-          // required
-          systemProgram: accounts.systemProgram,
-        },
-        signers: [signers.jobs],
-      }
-    );
+    await program.rpc.initProject({accounts, signers: [signers.jobs]});
   });
 
   // initialize project
@@ -153,7 +137,7 @@ describe('Nosana Jobs', () => {
 
             // signer and payer
             authority: u.publicKey,
-            feePayer: accounts.user,
+            feePayer: accounts.feePayer,
 
             // required
             systemProgram: accounts.systemProgram,
@@ -166,33 +150,7 @@ describe('Nosana Jobs', () => {
 
   // create
   it('Create job', async () => {
-    await program.rpc.createJob(
-      bump,
-      new anchor.BN(jobPrice),
-      ipfsData,
-      {
-        accounts: {
-
-          // jobs
-          jobs: accounts.jobs,
-          job: accounts.job,
-
-          // payment
-          mint: mint.publicKey,
-          ataVault: ata.vault,
-          ataFrom: ata.user,
-
-          // signer
-          authority: accounts.user,
-          feePayer: accounts.user,
-
-          // required
-          systemProgram: accounts.systemProgram,
-          tokenProgram: accounts.tokenProgram,
-        },
-        signers: [signers.job],
-      }
-    );
+    await program.rpc.createJob(bump, new anchor.BN(jobPrice), ipfsData, {accounts, signers: [signers.job]});
 
     // tests
     balances.user -= jobPrice
@@ -209,23 +167,12 @@ describe('Nosana Jobs', () => {
         ipfsData,
         {
           accounts: {
-
+            ...accounts,
             // jobs
             jobs: u.signers.jobs.publicKey,
             job: u.signers.job.publicKey,
-
-            // payment
-            mint: mint.publicKey,
-            ataVault: ata.vault,
             ataFrom: u.ata,
-
-            // signer
             authority: u.publicKey,
-            feePayer: accounts.user,
-
-            // required
-            systemProgram: accounts.systemProgram,
-            tokenProgram: accounts.tokenProgram,
           },
           signers: [u.user, u.signers.job],
         }
@@ -244,7 +191,7 @@ describe('Nosana Jobs', () => {
   // list
   it('List jobs', async () => {
     const data = await program.account.jobs.fetch(accounts.jobs);
-    assert.strictEqual(data.authority.toString(), accounts.user.toString());
+    assert.strictEqual(data.authority.toString(), accounts.authority.toString());
     assert.strictEqual(data.jobs[0].toString(), accounts.job.toString());
     assert.strictEqual(data.jobs.length, 1);
   });
@@ -258,57 +205,42 @@ describe('Nosana Jobs', () => {
 
   // claim
   it('Claim job', async () => {
-    await program.rpc.claimJob(
-      {
-        accounts: {
-          authority: provider.wallet.publicKey,
-          job: accounts.job,
-          systemProgram: accounts.systemProgram,
-        },
-      }
-    );
+    await program.rpc.claimJob({accounts});
   });
 
   // claim
   it('Claim job that is already claimed', async () => {
     let msg = ""
     try {
-      await program.rpc.claimJob(
-        {
-          accounts: {
-            authority: provider.wallet.publicKey,
-            job: accounts.job,
-            systemProgram: accounts.systemProgram,
-          },
-        }
-      );
+      await program.rpc.claimJob({accounts});
     } catch (e) {
       msg = e.msg
     }
-    assert.strictEqual(msg, "Job cannot be claimed because it is already claimed or finished.");
+    assert.strictEqual(msg, errors.NotClaimable);
   });
 
   // claim
   it('Claim jobs for all other nodes and users', async () => {
     await Promise.all([...Array(10).keys()].map(async i => {
 
-      let user = users[i]
-      let node = nodes[i]
+        let user = users[i]
+        let node = nodes[i]
 
-      // store these temporary to get them easier later
-      node.job = user.signers.job.publicKey
-      node.jobs = user.signers.jobs.publicKey
+        // store these temporary to get them easier later
+        node.job = user.signers.job.publicKey
+        node.jobs = user.signers.jobs.publicKey
 
-      await program.rpc.claimJob(
-        {
-          accounts: {
-            authority: node.publicKey,
-            job: node.job,
-            systemProgram: accounts.systemProgram,
-          },
-          signers: [node.user],
-        }
-      )}
+        await program.rpc.claimJob(
+          {
+            accounts: {
+              authority: node.publicKey,
+              job: node.job,
+              systemProgram: accounts.systemProgram,
+            },
+            signers: [node.user],
+          }
+        )
+      }
     ))
   });
 
@@ -318,39 +250,61 @@ describe('Nosana Jobs', () => {
     assert.strictEqual(data.jobStatus, jobStatus.claimed);
     assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
     assert.strictEqual(data.tokens.toString(), jobPrice.toString());
+  });
 
+  // finish
+  it('Finish job in wrong queue', async () => {
+    let msg = ""
+    try {
+      await program.rpc.finishJob(bump, ipfsData, {
+        accounts: {
+          ...accounts,
+          jobs: user1.signers.jobs.publicKey
+        },
+      });
+    } catch (e) {
+      msg = e.msg
+    }
+    assert.strictEqual(msg, errors.JobQueueNotFound);
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // finish
+  it('Finish job from other node', async () => {
+    let msg = ""
+    try {
+      await program.rpc.finishJob(bump, ipfsData, {
+        accounts: {
+          ...accounts,
+          authority: user4.publicKey
+        },
+        signers: [user4.user],
+      });
+    } catch (e) {
+      msg = e.msg
+    }
+    assert.strictEqual(msg, errors.Unauthorized);
+    await utils.assertBalances(provider, ata, balances)
   });
 
   // finish
   it('Finish job', async () => {
-    await program.rpc.finishJob(
-      bump,
-      ipfsData,
-      {
-        accounts: {
-
-          //jobs
-          job: accounts.job,
-          jobs: accounts.jobs,
-
-          // token and ATAs
-          mint: mint.publicKey,
-          ataVault: ata.vault,
-          ataTo: ata.user,
-
-          // signer
-          authority: accounts.user,
-
-          // required
-          systemProgram: accounts.systemProgram,
-          tokenProgram: accounts.tokenProgram,
-        },
-      }
-    );
+    await program.rpc.finishJob(bump, ipfsData, {accounts});
     // tests
     balances.user += jobPrice
     balances.vault -= jobPrice
     await utils.assertBalances(provider, ata, balances)
+  });
+
+  // finish
+  it('Finish job that is already finished', async () => {
+    let msg = ""
+    try {
+      await program.rpc.finishJob(bump, ipfsData, {accounts});
+    } catch (e) {
+      msg = e.msg
+    }
+    assert.strictEqual(msg, errors.NotFinishable);
   });
 
   // finish
@@ -361,22 +315,11 @@ describe('Nosana Jobs', () => {
         ipfsData,
         {
           accounts: {
-
-            //jobs
+            ...accounts,
             job: n.job,
             jobs: n.jobs,
-
-            // token and ATAs
-            mint: mint.publicKey,
-            ataVault: ata.vault,
             ataTo: n.ata,
-
-            // signer
             authority: n.publicKey,
-
-            // required
-            systemProgram: accounts.systemProgram,
-            tokenProgram: accounts.tokenProgram,
           },
           signers: [n.user]
         }
