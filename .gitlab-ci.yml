@@ -6,26 +6,19 @@ stages:
   - deploy
   - post
 
+variables:
+  TARGET: target/deploy/nosana_jobs.so
+  PATH_WALLET: ~/.config/solana/id.json
+  PATH_PROGRAM_ID: ~/.config/solana/pid.json
 
 .anchor:
   before_script:
-    - echo $SOLANA_WALLET > ~/.config/solana/id.json
-    - echo $SOLANA_PROGRAM_ID > ~/.config/solana/pid.json
+    - echo $SOLANA_WALLET > $PATH_WALLET
+    - echo $SOLANA_PROGRAM_ID > $PATH_PROGRAM_ID
   after_script:
     - rm  ~/.config/solana/*.json
 
 build:
-  stage: build
-  script:
-    - anchor build
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  artifacts:
-    paths:
-      - target
-
-test:
   extends: .anchor
   stage: test
   script:
@@ -34,12 +27,15 @@ test:
   rules:
     - if: $CI_MERGE_REQUEST_ID
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  artifacts:
+    paths:
+      - $TARGET
 
 .deploy:
   extends: .anchor
   stage: deploy
   script:
-    - solana -u ${DEPLOY_NET} program deploy --program-id  ~/.config/solana/pid.json target/deploy/jobs.so
+    - solanaprogram deploy -u $DEPLOY_NET -k $PATH_WALLET $TARGET $PATH_PROGRAM_ID
 
 deploy devnet:
   extends: .deploy
