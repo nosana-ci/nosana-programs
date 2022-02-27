@@ -30,7 +30,7 @@ pub struct CreateJob<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> ProgramResult {
+pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<()> {
 
     // retrieve job list from account
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;

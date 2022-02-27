@@ -27,6 +27,6 @@ pub struct InitVault<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler() -> ProgramResult {
+pub fn handler() -> Result<()> {
     Ok(())
 }

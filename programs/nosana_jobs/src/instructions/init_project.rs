@@ -13,7 +13,7 @@ pub struct InitProject<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<InitProject>) -> ProgramResult {
+pub fn handler(ctx: Context<InitProject>) -> Result<()> {
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
     jobs.authority = *ctx.accounts.authority.key;
     jobs.jobs = Vec::new();

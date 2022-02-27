@@ -26,14 +26,14 @@ pub struct FinishJob<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResult {
+pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> {
 
     // get job
     let job: &mut Account<Job> = &mut ctx.accounts.job;
 
     // check signature with node, and status of job
-    require!(&job.node == ctx.accounts.authority.key, Unauthorized);
-    require!(job.job_status == JobStatus::Claimed as u8, NotClaimable);
+    require!(&job.node == ctx.accounts.authority.key, NosanaError::Unauthorized);
+    require!(job.job_status == JobStatus::Claimed as u8, NosanaError::NotClaimable);
 
     // get jobs
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
@@ -61,7 +61,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> ProgramResu
     let index: Option<usize> = jobs.jobs.iter().position(| key: &Pubkey | key == job_key);
 
     // check if job is found
-    require!(!index.is_none(), JobQueueNotFound);
+    require!(!index.is_none(), NosanaError::JobQueueNotFound);
 
     // remove job from jobs list
     jobs.jobs.remove(index.unwrap());

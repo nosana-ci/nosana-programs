@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
-#[error]
-pub enum ErrorCode {
+#[error_code]
+pub enum NosanaError {
     #[msg("Account not initialized.")]
     Uninitialized,
     #[msg("You are not authorized to perform this action.")]
