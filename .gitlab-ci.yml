@@ -8,13 +8,11 @@ stages:
 
 variables:
   TARGET: target/deploy/nosana_jobs.so
-  PATH_WALLET: ~/.config/solana/id.json
-  PATH_PROGRAM_ID: ~/.config/solana/pid.json
 
 .anchor:
   before_script:
-    - echo $SOLANA_WALLET > $PATH_WALLET
-    - echo $SOLANA_PROGRAM_ID > $PATH_PROGRAM_ID
+    - echo $SOLANA_WALLET > ~/.config/solana/id.json
+    - echo $SOLANA_PROGRAM_ID > ~/.config/solana/pid.json
   after_script:
     - rm  ~/.config/solana/*.json
 
@@ -35,7 +33,7 @@ build:
   extends: .anchor
   stage: deploy
   script:
-    - solanaprogram deploy -u $DEPLOY_NET -k $PATH_WALLET $TARGET $PATH_PROGRAM_ID
+    - solanaprogram deploy -u $DEPLOY_NET -k ~/.config/solana/id.json $TARGET ~/.config/solana/pid.json
 
 deploy devnet:
   extends: .deploy
