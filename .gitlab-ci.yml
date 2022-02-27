@@ -2,7 +2,6 @@ image: projectserum/build:v0.22.0
 
 stages:
   - build
-  - test
   - deploy
   - post
 
@@ -16,9 +15,9 @@ variables:
   after_script:
     - rm ~/.config/solana/id.json
 
-test:
+test build:
   extends: .anchor
-  stage: test
+  stage: build
   script:
     - yarn install
     - anchor test
@@ -40,7 +39,7 @@ build:
     paths:
       - $TARGET
 
-.upgrade:
+.deploy:
   extends: .anchor
   stage: deploy
   script:
