@@ -32,11 +32,8 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
     let job: &mut Account<Job> = &mut ctx.accounts.job;
 
     // check signature with node, and status of job
-    require!(&job.node == ctx.accounts.authority.key, NosanaError::Unauthorized);
-    require!(job.job_status == JobStatus::Claimed as u8, NosanaError::NotClaimable);
-
-    // get jobs
-    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
+    require!(job.node == *ctx.accounts.authority.key, NosanaError::Unauthorized);
+    require!(job.job_status == JobStatus::Claimed as u8, NosanaError::NotFinishable);
 
     // update and finish job account, remove job from jobs list
     job.job_status = JobStatus::Finished as u8;
@@ -55,6 +52,9 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
         ),
         job.tokens
     )?;
+
+    // get jobs
+    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
 
     //  find job in queue
     let job_key: &Pubkey = ctx.accounts.job.to_account_info().key;
