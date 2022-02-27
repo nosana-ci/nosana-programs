@@ -12,7 +12,7 @@ pub struct CreateJob<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Account<'info, Job>,
 
-    #[account(address = nos_token::ID)]
+    #[account(address = mint::ID)]
     pub mint: Box<Account<'info, Mint>>,
 
     #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
@@ -21,11 +21,10 @@ pub struct CreateJob<'info> {
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,
 
-    pub authority: Signer<'info>,
-
     #[account(mut)]
     pub fee_payer: Signer<'info>,
 
+    pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }

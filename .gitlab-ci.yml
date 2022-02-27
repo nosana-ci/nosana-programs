@@ -16,7 +16,7 @@ variables:
   after_script:
     - rm ~/.config/solana/id.json
 
-build:
+test:
   extends: .anchor
   stage: test
   script:
@@ -24,12 +24,23 @@ build:
     - anchor test
   rules:
     - if: $CI_MERGE_REQUEST_ID
+  artifacts:
+    paths:
+      - $TARGET
+
+build:
+  extends: .anchor
+  stage: build
+  script:
+    - sed -i '' 's/#default/default/' programs/nosana_jobs/Cargo.toml
+    - anchor build
+  rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   artifacts:
     paths:
       - $TARGET
 
-.deploy:
+.upgrade:
   extends: .anchor
   stage: deploy
   script:
@@ -37,7 +48,6 @@ build:
       anchor upgrade \
         --program-id $PROGRAM_ID \
         --provider.cluster $CLUSTER \
-        --provider.wallet ~/.config/solana/id.json \
         $TARGET
 
 deploy devnet:
