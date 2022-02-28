@@ -94,7 +94,7 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
     .join('');
 }
 
-async function getOrCreateAssociatedSPL (provider, owner, mint) {
+async function getOrCreateAssociatedSPL(provider, owner, mint) {
   const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint.publicKey, owner, true)
   try {
     await serumCmn.getTokenAccount(provider, ata)
@@ -113,10 +113,10 @@ function setupSolanaUser(connection) {
   const provider = new anchor.Provider(connection, wallet)
 
   const signers = {
-    jobs : anchor.web3.Keypair.generate(),
-    job : anchor.web3.Keypair.generate(),
+    jobs: anchor.web3.Keypair.generate(),
+    job: anchor.web3.Keypair.generate(),
   }
-  return { user, publicKey, wallet, provider, signers }
+  return {user, publicKey, wallet, provider, signers}
 }
 
 module.exports = {
