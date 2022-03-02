@@ -1,6 +1,7 @@
 image: projectserum/build:v0.22.0
 
 stages:
+  - test
   - build
   - deploy
   - post
@@ -15,7 +16,7 @@ variables:
   after_script:
     - rm ~/.config/solana/id.json
 
-test build:
+test:
   extends: .anchor
   stage: build
   script:
@@ -23,6 +24,7 @@ test build:
     - anchor test
   rules:
     - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   artifacts:
     paths:
       - $TARGET
@@ -34,7 +36,7 @@ build:
     - sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
     - anchor build
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
   artifacts:
     paths:
       - $TARGET
@@ -69,7 +71,7 @@ deploy mainnet:
     CLUSTER: mainnet
   when: manual
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
 
 release:
   image: registry.gitlab.com/nosana-ci/tools/containers/semver
