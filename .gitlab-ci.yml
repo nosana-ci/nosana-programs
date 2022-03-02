@@ -1,82 +1,13 @@
-image: projectserum/build:v0.22.1
-
-stages:
-  - test
-  - build
-  - deploy
-  - post
+include:
+  - project: nosana-ci/tools/cicd/gitlab-ci
+    file: anchor.yml
 
 variables:
   TARGET: target/deploy/nosana_jobs.so
   PROGRAM_ID: nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
-  BUILD_SCRIPT: sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
 
-.anchor:
-  before_script:
-    - echo $SOLANA_WALLET > ~/.config/solana/id.json
-  after_script:
-    - rm ~/.config/solana/id.json
-
-test:
-  extends: .anchor
-  stage: build
+build prd:
+  except: build
   script:
-    - yarn install
-    - anchor test
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  artifacts:
-    paths:
-      - $TARGET
-
-build:
-  extends: .anchor
-  stage: build
-  script:
-    - $BUILD_SCRIPT
+    - sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
     - anchor build
-  rules:
-    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
-  artifacts:
-    paths:
-      - $TARGET
-
-.deploy:
-  extends: .anchor
-  stage: deploy
-  script:
-    - |
-      anchor upgrade \
-        --program-id $PROGRAM_ID \
-        --provider.cluster $CLUSTER \
-        $TARGET
-
-deploy devnet:
-  extends: .deploy
-  variables:
-    CLUSTER: devnet
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
-
-deploy testnet:
-  extends: .deploy
-  variables:
-    CLUSTER: testnet
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
-deploy mainnet:
-  extends: .deploy
-  variables:
-    CLUSTER: mainnet
-  when: manual
-  rules:
-    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
-
-release:
-  image: registry.gitlab.com/nosana-ci/tools/containers/semver
-  script: release.sh
-  stage: post
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
