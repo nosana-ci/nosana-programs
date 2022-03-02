@@ -6,7 +6,7 @@ variables:
   TARGET: target/deploy/nosana_jobs.so
   PROGRAM_ID: nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
 
-build prd:
+build:
   extends: build
   script:
     - sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
