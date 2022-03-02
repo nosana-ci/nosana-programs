@@ -1,4 +1,4 @@
-image: projectserum/build:v0.22.0
+image: projectserum/build:v0.22.1
 
 stages:
   - test
@@ -9,6 +9,7 @@ stages:
 variables:
   TARGET: target/deploy/nosana_jobs.so
   PROGRAM_ID: nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
+  BUILD_SCRIPT: sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
 
 .anchor:
   before_script:
@@ -33,7 +34,7 @@ build:
   extends: .anchor
   stage: build
   script:
-    - sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
+    - $BUILD_SCRIPT
     - anchor build
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
