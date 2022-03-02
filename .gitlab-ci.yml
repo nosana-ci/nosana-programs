@@ -7,7 +7,7 @@ variables:
   PROGRAM_ID: nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
 
 build prd:
-  except: build
+  extends: build
   script:
     - sed -i 's/#default/default/' programs/nosana_jobs/Cargo.toml
     - anchor build
