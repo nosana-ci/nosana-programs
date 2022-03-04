@@ -36,4 +36,5 @@ pub enum JobStatus {
     Created = 0,
     Claimed = 1,
     Finished = 2,
+    Cancelled = 3,
 }

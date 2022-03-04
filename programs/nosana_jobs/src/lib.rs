@@ -34,4 +34,8 @@ pub mod nosana_jobs {
     pub fn finish_job(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> {
         finish_job::handler(ctx, bump, data)
     }
+
+    pub fn cancel_job(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
+        cancel_job::handler(ctx, bump)
+    }
 }
