@@ -59,6 +59,7 @@ describe('Nosana Jobs', () => {
     Unauthorized: 'You are not authorized to perform this action.',
     NotClaimable: 'Job cannot be claimed because it is already claimed or finished.',
     NotFinishable: 'Job cannot be finished because it is not in a Claimed state.',
+    NotCancelable: 'Job cannot be cancelled because it is in the wrong state.',
     JobQueueNotFound: 'Job queue not found.',
   }
 
@@ -66,6 +67,10 @@ describe('Nosana Jobs', () => {
   let mint, bump;
   const ata = {user: '', vault: ''}
   const balances = {user: 0, vault: 0}
+
+  // for later
+  let cancelJob = anchor.web3.Keypair.generate()
+  let cancelJobs = anchor.web3.Keypair.generate()
 
   // mint
   it('Mint $NOS', async () => {
@@ -352,5 +357,81 @@ describe('Nosana Jobs', () => {
       assert.strictEqual(dataJobs.jobs.length, 0);
       assert.strictEqual(utils.buf2hex(new Uint8Array(dataJob.ipfsResult).buffer), ipfsData.toString('hex'));
     }))
+  });
+
+  // create
+  it('Create new job and new project', async () => {
+    accounts.job = cancelJob.publicKey
+
+    await program.rpc.createJob(bump, new anchor.BN(jobPrice), ipfsData, {accounts, signers: [cancelJob]});
+
+    await program.rpc.initProject({
+      accounts: {
+        ...accounts,
+        jobs: cancelJobs.publicKey,
+      }, signers: [cancelJobs]
+    });
+
+    // tests
+    balances.user -= jobPrice
+    balances.vault += jobPrice
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // cancel
+  it('Cancel job in wrong queue', async () => {
+    let msg = ""
+    try {
+      await program.rpc.cancelJob(bump, {
+        accounts: {
+          ...accounts,
+          jobs: cancelJobs.publicKey
+        },
+      });
+    } catch (e) {
+      msg = e.msg
+    }
+    assert.strictEqual(msg, errors.JobQueueNotFound);
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // cancel
+  it('Cancel job from other user', async () => {
+    let msg = ""
+    try {
+      await program.rpc.cancelJob(bump, {
+        accounts: {
+          ...accounts,
+          authority: user4.publicKey
+        },
+        signers: [user4.user],
+      });
+    } catch (e) {
+      msg = e.msg
+    }
+    assert.strictEqual(msg, errors.Unauthorized);
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // cancel
+  it('Cancel job', async () => {
+    await program.rpc.cancelJob(bump, {accounts});
+
+    // tests
+    balances.user += jobPrice
+    balances.vault -= jobPrice
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // cancel
+  it('Cancel job in wrong state', async () => {
+    let msg = ""
+    try {
+      await program.rpc.cancelJob(bump, {accounts});
+    } catch (e) {
+      msg = e.msg
+    }
+    assert.strictEqual(msg, errors.NotCancelable);
+    await utils.assertBalances(provider, ata, balances)
   });
 });

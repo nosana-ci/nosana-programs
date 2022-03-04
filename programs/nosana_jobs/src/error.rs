@@ -8,6 +8,8 @@ pub enum NosanaError {
     NotClaimable,
     #[msg("Job cannot be finished because it is not in a Claimed state.")]
     NotFinishable,
+    #[msg("Job cannot be cancelled because it is in the wrong state.")]
+    NotCancelable,
     #[msg("Job queue not found.")]
     JobQueueNotFound,
 }
