@@ -193,6 +193,30 @@ describe('Nosana Jobs', () => {
     await utils.assertBalances(provider, ata, balances)
   });
 
+  /*
+  // create
+  it('Create max jobs', async () => {
+    for (let i = 0; i < 10; i++) {
+      console.log(i);
+      let job = anchor.web3.Keypair.generate();
+      await program.rpc.createJob(
+        bump,
+        new anchor.BN(jobPrice),
+        ipfsData,
+        {
+          accounts: {
+            ...accounts,
+            job: job.publicKey,
+          }, signers: [job]});
+      balances.user -= jobPrice
+      balances.vault += jobPrice
+    }
+
+    // tests
+    await utils.assertBalances(provider, ata, balances)
+  });
+  */
+
   // list
   it('List jobs', async () => {
     const data = await program.account.jobs.fetch(accounts.jobs);
@@ -240,6 +264,7 @@ describe('Nosana Jobs', () => {
             accounts: {
               authority: node.publicKey,
               job: node.job,
+              jobs: node.jobs,
               systemProgram: accounts.systemProgram,
             },
             signers: [node.user],
@@ -255,23 +280,6 @@ describe('Nosana Jobs', () => {
     assert.strictEqual(data.jobStatus, jobStatus.claimed);
     assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
     assert.strictEqual(data.tokens.toString(), jobPrice.toString());
-  });
-
-  // finish
-  it('Finish job in wrong queue', async () => {
-    let msg = ""
-    try {
-      await program.rpc.finishJob(bump, ipfsData, {
-        accounts: {
-          ...accounts,
-          jobs: user1.signers.jobs.publicKey
-        },
-      });
-    } catch (e) {
-      msg = e.msg
-    }
-    assert.strictEqual(msg, errors.JobQueueNotFound);
-    await utils.assertBalances(provider, ata, balances)
   });
 
   // finish

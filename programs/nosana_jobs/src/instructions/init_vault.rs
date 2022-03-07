@@ -5,7 +5,6 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 #[derive(Accounts)]
 #[instruction(bump: u8)]
 pub struct InitVault<'info> {
-
     #[account(address = mint::ID)]
     pub mint: Box<Account<'info, Mint>>,
 
