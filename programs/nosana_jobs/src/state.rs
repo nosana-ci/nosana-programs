@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 /// Account for holding jobs of a certain Project
 /// - __authority__ is the payer and initial projects' creator
 /// - __jobs__ is list of Jobs
-pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Pubkey>() * 100;
+pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Jobs>() + 32 * 100 + 16;
 #[account]
 pub struct Jobs {
     pub authority: Pubkey,

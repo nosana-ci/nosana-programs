@@ -193,6 +193,30 @@ describe('Nosana Jobs', () => {
     await utils.assertBalances(provider, ata, balances)
   });
 
+  /*
+  // create
+  it('Create max jobs', async () => {
+    for (let i = 0; i < 10; i++) {
+      console.log(i);
+      let job = anchor.web3.Keypair.generate();
+      await program.rpc.createJob(
+        bump,
+        new anchor.BN(jobPrice),
+        ipfsData,
+        {
+          accounts: {
+            ...accounts,
+            job: job.publicKey,
+          }, signers: [job]});
+      balances.user -= jobPrice
+      balances.vault += jobPrice
+    }
+
+    // tests
+    await utils.assertBalances(provider, ata, balances)
+  });
+  */
+
   // list
   it('List jobs', async () => {
     const data = await program.account.jobs.fetch(accounts.jobs);
