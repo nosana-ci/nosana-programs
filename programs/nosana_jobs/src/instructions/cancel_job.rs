@@ -26,12 +26,14 @@ pub struct CancelJob<'info> {
 }
 
 pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
-
     // get job
     let job: &mut Account<Job> = &mut ctx.accounts.job;
 
     // check status of job
-    require!(job.job_status == JobStatus::Created as u8, NosanaError::NotCancelable);
+    require!(
+        job.job_status == JobStatus::Created as u8,
+        NosanaError::NotCancelable
+    );
 
     // update and finish job account, remove job from jobs list
     job.cancel();
@@ -51,7 +53,10 @@ pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
 
     // check signature with authority
-    require!(jobs.authority == *ctx.accounts.authority.key, NosanaError::Unauthorized);
+    require!(
+        jobs.authority == *ctx.accounts.authority.key,
+        NosanaError::Unauthorized
+    );
 
     // get jobs
     return jobs.remove_job(ctx.accounts.job.to_account_info().key);
