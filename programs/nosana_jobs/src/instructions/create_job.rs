@@ -42,11 +42,12 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<(
     job.create(data, amount);
 
     // pre-pay for job
-    nos_spl::transfer(
+    utils::transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_from.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.authority.to_account_info(),
+        0, // skip signature
         job.tokens,
     )?;
 

@@ -36,7 +36,7 @@ pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
     job.cancel();
 
     // refund tokens to authority
-    nos_spl::transfer_sign(
+    utils::transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),
