@@ -1,6 +1,6 @@
 use crate::*;
 
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -11,10 +11,7 @@ pub struct CancelJob<'info> {
     #[account(mut)]
     pub job: Account<'info, Job>,
 
-    #[account(address = mint::ID)]
-    pub mint: Box<Account<'info, Mint>>,
-
-    #[account(mut, seeds = [ mint.key().as_ref() ], bump = bump)]
+    #[account(mut, seeds = [ mint::ID.as_ref() ], bump = bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
@@ -44,7 +41,6 @@ pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
-        ctx.accounts.mint.to_account_info().key.as_ref(),
         bump,
         job.tokens,
     )?;

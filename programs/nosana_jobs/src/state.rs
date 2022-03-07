@@ -90,6 +90,7 @@ pub enum JobStatus {
 // token
 
 pub mod nos_spl {
+    use crate::ids::mint;
     use anchor_lang::prelude::*;
     use anchor_spl::token::{self, Transfer};
 
@@ -114,7 +115,6 @@ pub mod nos_spl {
         from: AccountInfo<'info>,
         to: AccountInfo<'info>,
         authority: AccountInfo<'info>,
-        mint: &[u8],
         nonce: u8,
         amount: u64,
     ) -> Result<()> {
@@ -124,7 +124,7 @@ pub mod nos_spl {
             authority,
         };
         return token::transfer(
-            CpiContext::new_with_signer(program, accounts, &[&[mint, &[nonce]]]),
+            CpiContext::new_with_signer(program, accounts, &[&[&mint::ID.as_ref(), &[nonce]]]),
             amount,
         );
     }
