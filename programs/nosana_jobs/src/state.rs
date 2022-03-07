@@ -92,7 +92,7 @@ pub enum JobStatus {
 pub mod utils {
     use crate::ids::mint;
     use anchor_lang::prelude::*;
-    use anchor_spl::token::{self, Transfer};
+    use anchor_spl::token;
 
     pub fn transfer_tokens<'info>(
         program: AccountInfo<'info>,
