@@ -14,5 +14,5 @@ name = "nosana_jobs"
 mainnet = []
 
 [dependencies]
-anchor-lang = "0.22.0"
-anchor-spl = "0.22.0"
+anchor-lang = "0.22.1"
+anchor-spl = "0.22.1"
