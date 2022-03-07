@@ -89,28 +89,12 @@ pub enum JobStatus {
 
 // token
 
-pub mod nos_spl {
+pub mod utils {
     use crate::ids::mint;
     use anchor_lang::prelude::*;
     use anchor_spl::token::{self, Transfer};
 
-    pub fn transfer<'info>(
-        program: AccountInfo<'info>,
-        from: AccountInfo<'info>,
-        to: AccountInfo<'info>,
-        authority: AccountInfo<'info>,
-        amount: u64,
-    ) -> Result<()> {
-        let accounts = token::Transfer {
-            from,
-            to,
-            authority,
-        };
-        let ctx: CpiContext<Transfer> = CpiContext::new(program, accounts);
-        return token::transfer(ctx, amount);
-    }
-
-    pub fn transfer_sign<'info>(
+    pub fn transfer_tokens<'info>(
         program: AccountInfo<'info>,
         from: AccountInfo<'info>,
         to: AccountInfo<'info>,
@@ -123,9 +107,14 @@ pub mod nos_spl {
             to,
             authority,
         };
-        return token::transfer(
-            CpiContext::new_with_signer(program, accounts, &[&[&mint::ID.as_ref(), &[nonce]]]),
-            amount,
-        );
+
+        return if nonce == 0 {
+            token::transfer(CpiContext::new(program, accounts), amount)
+        } else {
+            token::transfer(
+                CpiContext::new_with_signer(program, accounts, &[&[&mint::ID.as_ref(), &[nonce]]]),
+                amount,
+            )
+        };
     }
 }
