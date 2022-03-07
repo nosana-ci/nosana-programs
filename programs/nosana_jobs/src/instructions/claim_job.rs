@@ -2,6 +2,8 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct ClaimJob<'info> {
+    #[account(mut)]
+    pub jobs: Account<'info, Jobs>,
 
     #[account(mut)]
     pub job: Account<'info, Job>,
@@ -19,9 +21,9 @@ pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
     require!(job.job_status == JobStatus::Created as u8, NosanaError::NotClaimable);
 
     // claim job
-    job.node = *ctx.accounts.authority.key;
-    job.job_status = JobStatus::Claimed as u8;
+    job.claim(*ctx.accounts.authority.key);
 
-    // finish
-    Ok(())
+    // get jobs
+    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
+    return jobs.remove_job(job.to_account_info().key);
 }

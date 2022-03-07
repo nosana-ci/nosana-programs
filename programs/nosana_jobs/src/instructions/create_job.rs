@@ -1,11 +1,10 @@
 use crate::*;
 
-use anchor_spl::token::{self, Mint, Token, TokenAccount};
+use anchor_spl::token::{Token, Mint, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
 pub struct CreateJob<'info> {
-
     #[account(mut)]
     pub jobs: Account<'info, Jobs>,
 
@@ -34,27 +33,23 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<(
     // retrieve job list from account
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
 
+    require!(jobs.authority == *ctx.accounts.authority.key, NosanaError::Unauthorized);
+
     // create the job
     let job: &mut Account<Job> = &mut ctx.accounts.job;
-    job.job_status = JobStatus::Created as u8;
-    job.ipfs_job = data;
-    job.tokens = amount;
+    job.create(data, amount);
 
     // pre-pay for job
-    token::transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            token::Transfer {
-                from: ctx.accounts.ata_from.to_account_info(),
-                to: ctx.accounts.ata_vault.to_account_info(),
-                authority: ctx.accounts.authority.to_account_info(),
-            },
-        ),
-        job.tokens
+    nos_spl::transfer(
+        ctx.accounts.token_program.to_account_info(),
+        ctx.accounts.ata_from.to_account_info(),
+        ctx.accounts.ata_vault.to_account_info(),
+        ctx.accounts.authority.to_account_info(),
+        job.tokens,
     )?;
 
     // we push the account of the job to the list
-    jobs.jobs.push(ctx.accounts.job.key());
+    jobs.add_job(ctx.accounts.job.key());
 
     // finish
     Ok(())

@@ -2,7 +2,6 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct InitProject<'info> {
-
     #[account(init, payer = fee_payer, space = JOBS_SIZE)]
     pub jobs: Account<'info, Jobs>,
 
@@ -15,7 +14,6 @@ pub struct InitProject<'info> {
 
 pub fn handler(ctx: Context<InitProject>) -> Result<()> {
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
-    jobs.authority = *ctx.accounts.authority.key;
-    jobs.jobs = Vec::new();
+    jobs.init(*ctx.accounts.authority.key);
     Ok(())
 }
