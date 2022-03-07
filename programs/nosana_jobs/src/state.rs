@@ -1,5 +1,5 @@
-use anchor_lang::prelude::*;
 use crate::NosanaError;
+use anchor_lang::prelude::*;
 
 /// # Jobs
 /// Account for holding jobs of a certain Project
@@ -24,7 +24,6 @@ impl Jobs {
     }
 
     pub fn remove_job(&mut self, job_key: &Pubkey) -> Result<()> {
-
         // find job in queue
         let index: Option<usize> = self.jobs.iter().position(|key: &Pubkey| key == job_key);
 
@@ -101,7 +100,11 @@ pub mod nos_spl {
         authority: AccountInfo<'info>,
         amount: u64,
     ) -> Result<()> {
-        let accounts = token::Transfer { from, to, authority };
+        let accounts = token::Transfer {
+            from,
+            to,
+            authority,
+        };
         let ctx: CpiContext<Transfer> = CpiContext::new(program, accounts);
         return token::transfer(ctx, amount);
     }
@@ -115,11 +118,14 @@ pub mod nos_spl {
         nonce: u8,
         amount: u64,
     ) -> Result<()> {
-        let accounts = token::Transfer { from, to, authority };
+        let accounts = token::Transfer {
+            from,
+            to,
+            authority,
+        };
         return token::transfer(
             CpiContext::new_with_signer(program, accounts, &[&[mint, &[nonce]]]),
             amount,
         );
     }
 }
-

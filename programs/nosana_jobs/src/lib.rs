@@ -1,12 +1,12 @@
-mod instructions;
-mod state;
 mod error;
 mod ids;
+mod instructions;
+mod state;
 
-use instructions::*;
-use state::*;
 use error::*;
 use ids::*;
+use instructions::*;
+use state::*;
 
 use anchor_lang::prelude::*;
 // use anchor_spl::token::{self};
@@ -23,7 +23,12 @@ pub mod nosana_jobs {
         init_project::handler(ctx)
     }
 
-    pub fn create_job(ctx: Context<CreateJob>, _bump: u8, amount: u64, data: [u8; 32]) -> Result<()> {
+    pub fn create_job(
+        ctx: Context<CreateJob>,
+        _bump: u8,
+        amount: u64,
+        data: [u8; 32],
+    ) -> Result<()> {
         create_job::handler(ctx, amount, data)
     }
 

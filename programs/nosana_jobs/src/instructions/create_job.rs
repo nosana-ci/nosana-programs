@@ -1,6 +1,6 @@
 use crate::*;
 
-use anchor_spl::token::{Token, Mint, TokenAccount};
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -29,11 +29,13 @@ pub struct CreateJob<'info> {
 }
 
 pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<()> {
-
     // retrieve job list from account
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
 
-    require!(jobs.authority == *ctx.accounts.authority.key, NosanaError::Unauthorized);
+    require!(
+        jobs.authority == *ctx.accounts.authority.key,
+        NosanaError::Unauthorized
+    );
 
     // create the job
     let job: &mut Account<Job> = &mut ctx.accounts.job;
