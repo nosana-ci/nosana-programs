@@ -155,7 +155,7 @@ describe('Nosana Jobs', () => {
 
   // create
   it('Create job', async () => {
-    await program.rpc.createJob(bump, new anchor.BN(jobPrice), ipfsData, {accounts, signers: [signers.job]});
+    await program.rpc.createJob(new anchor.BN(jobPrice), ipfsData, {accounts, signers: [signers.job]});
 
     // tests
     balances.user -= jobPrice
@@ -167,7 +167,6 @@ describe('Nosana Jobs', () => {
   it('Create jobs for other users', async () => {
     await Promise.all(users.map(async u => {
       await program.rpc.createJob(
-        bump,
         new anchor.BN(jobPrice),
         ipfsData,
         {
@@ -371,7 +370,7 @@ describe('Nosana Jobs', () => {
   it('Create new job and new project', async () => {
     accounts.job = cancelJob.publicKey
 
-    await program.rpc.createJob(bump, new anchor.BN(jobPrice), ipfsData, {accounts, signers: [cancelJob]});
+    await program.rpc.createJob(new anchor.BN(jobPrice), ipfsData, {accounts, signers: [cancelJob]});
 
     await program.rpc.initProject({
       accounts: {
