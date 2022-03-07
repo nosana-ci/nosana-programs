@@ -4,7 +4,7 @@ use anchor_lang::declare_id;
 declare_id!("nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR");
 
 // token ID
-pub mod mint {
+pub mod nos {
     use anchor_lang::declare_id;
     #[cfg(feature = "mainnet")]
     declare_id!("nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7");

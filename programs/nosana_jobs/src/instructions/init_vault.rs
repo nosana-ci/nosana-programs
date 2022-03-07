@@ -5,9 +5,10 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 #[derive(Accounts)]
 #[instruction(bump: u8)]
 pub struct InitVault<'info> {
-    #[account(address = mint::ID)]
+    #[account(address = nos::ID)]
     pub mint: Box<Account<'info, Mint>>,
-
+    #[account(mut)]
+    pub authority: Signer<'info>,
     #[account(
         init,
         payer = authority,
@@ -17,10 +18,6 @@ pub struct InitVault<'info> {
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-
-    #[account(mut)]
-    pub authority: Signer<'info>,
-
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,

@@ -5,13 +5,14 @@ use anchor_lang::prelude::*;
 /// Account for holding jobs of a certain Project
 /// - __authority__ is the payer and initial projects' creator
 /// - __jobs__ is list of Jobs
-pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Jobs>() + 32 * 100 + 16;
-
 #[account]
 pub struct Jobs {
     pub authority: Pubkey,
     pub jobs: Vec<Pubkey>,
 }
+
+// size of a jobs struct, in bytes
+pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Jobs>() + 32 * 100 + 16;
 
 impl Jobs {
     pub fn init(&mut self, authority: Pubkey) -> () {
@@ -43,8 +44,6 @@ impl Jobs {
 /// - __ipfs_result__ is the IPFS hash pointing to the job instructions
 /// - __ipfs_result__ is the IPFS hash pointing to the job results
 /// - __tokens__ is amount of tokens
-pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
-
 #[account]
 pub struct Job {
     pub node: Pubkey,
@@ -54,9 +53,12 @@ pub struct Job {
     pub tokens: u64,
 }
 
+// size of a job in bytes
+pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
+
 impl Job {
     pub fn create(&mut self, data: [u8; 32], amount: u64) -> () {
-        self.job_status = JobStatus::Created as u8;
+        self.job_status = JobStatus::Initialized as u8;
         self.ipfs_job = data;
         self.tokens = amount;
     }
@@ -78,43 +80,10 @@ impl Job {
 
 /// # JobStatus
 /// Enumeration for the different states a Job can have
-#[derive(Clone, Debug, PartialEq, AnchorSerialize, AnchorDeserialize)]
 #[repr(u8)]
 pub enum JobStatus {
-    Created = 0,
+    Initialized = 0,
     Claimed = 1,
     Finished = 2,
     Cancelled = 3,
-}
-
-// token
-
-pub mod utils {
-    use crate::ids::mint;
-    use anchor_lang::prelude::*;
-    use anchor_spl::token;
-
-    pub fn transfer_tokens<'info>(
-        program: AccountInfo<'info>,
-        from: AccountInfo<'info>,
-        to: AccountInfo<'info>,
-        authority: AccountInfo<'info>,
-        nonce: u8,
-        amount: u64,
-    ) -> Result<()> {
-        let accounts = token::Transfer {
-            from,
-            to,
-            authority,
-        };
-
-        return if nonce == 0 {
-            token::transfer(CpiContext::new(program, accounts), amount)
-        } else {
-            token::transfer(
-                CpiContext::new_with_signer(program, accounts, &[&[&mint::ID.as_ref(), &[nonce]]]),
-                amount,
-            )
-        };
-    }
 }
