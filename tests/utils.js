@@ -92,6 +92,10 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
     .join('');
 }
 
+function timeDelta(t1, t2) {
+  return t1.toNumber() * 1e3 - t2
+}
+
 async function getOrCreateAssociatedSPL(provider, owner, mint) {
   const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint.publicKey, owner, true)
   try {
@@ -122,6 +126,7 @@ module.exports = {
   mintToAccount,
   assertBalances,
   buf2hex,
+  timeDelta,
   getOrCreateAssociatedSPL,
   getTokenBalance,
   setupSolanaUser,

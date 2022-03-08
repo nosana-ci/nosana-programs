@@ -8,6 +8,7 @@ pub struct ClaimJob<'info> {
     pub job: Account<'info, Job>,
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
@@ -17,7 +18,10 @@ pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
         job.job_status == JobStatus::Initialized as u8,
         NosanaError::NotClaimable
     );
-    job.claim(*ctx.accounts.authority.key);
+    job.claim(
+        *ctx.accounts.authority.key,
+        ctx.accounts.clock.unix_timestamp,
+    );
 
     // get jobs and remove the job from the list
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;

@@ -1,9 +1,11 @@
 // imports
 const anchor = require('@project-serum/anchor');
-const assert = require('assert');
 const _ = require('lodash')
 const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
 const utils = require('./utils');
+const chai = require('chai');
+const assert = chai.assert;
+const expect = chai.expect;
 
 describe('Nosana Jobs', () => {
 
@@ -18,6 +20,7 @@ describe('Nosana Jobs', () => {
   const mintSupply = 100_000_000;
   const userSupply = 100;
   const jobPrice = 10;
+  const allowedClockDelta = 2000;
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
@@ -38,8 +41,9 @@ describe('Nosana Jobs', () => {
   const accounts = {
 
     systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
     tokenProgram: TOKEN_PROGRAM_ID,
+    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+    clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
 
     authority: provider.wallet.publicKey,
     feePayer: provider.wallet.publicKey,
@@ -64,7 +68,7 @@ describe('Nosana Jobs', () => {
   }
 
   // we'll set these later
-  let mint, bump;
+  let mint, bump, time;
   const ata = {user: '', vault: ''}
   const balances = {user: 0, vault: 0}
 
@@ -249,6 +253,7 @@ describe('Nosana Jobs', () => {
 
   // claim
   it('Claim jobs for all other nodes and users', async () => {
+    time = new Date();
     await Promise.all([...Array(10).keys()].map(async i => {
 
         let user = users[i]
@@ -264,6 +269,7 @@ describe('Nosana Jobs', () => {
               authority: node.publicKey,
               job: node.job,
               jobs: node.jobs,
+              clock: accounts.clock,
               systemProgram: accounts.systemProgram,
             },
             signers: [node.user],
@@ -276,6 +282,7 @@ describe('Nosana Jobs', () => {
   // get
   it('Check if job is claimed', async () => {
     const data = await program.account.job.fetch(accounts.job);
+    expect(utils.timeDelta(data.timeStart, time)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
     assert.strictEqual(data.jobStatus, jobStatus.claimed);
     assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
     assert.strictEqual(data.tokens.toString(), jobPrice.toString());
@@ -301,6 +308,7 @@ describe('Nosana Jobs', () => {
 
   // finish
   it('Finish job', async () => {
+    time = new Date();
     await program.rpc.finishJob(bump, ipfsData, {accounts});
     // tests
     balances.user += jobPrice
@@ -351,6 +359,7 @@ describe('Nosana Jobs', () => {
     const dataJobs = await program.account.jobs.fetch(accounts.jobs);
     const dataJob = await program.account.job.fetch(accounts.job);
 
+    expect(utils.timeDelta(dataJob.timeEnd, time)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
     assert.strictEqual(dataJob.jobStatus, jobStatus.finished);
     assert.strictEqual(dataJobs.jobs.length, 0);
     assert.strictEqual(utils.buf2hex(new Uint8Array(dataJob.ipfsResult).buffer), ipfsData.toString('hex'));
