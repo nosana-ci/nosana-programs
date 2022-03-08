@@ -1,10 +1,8 @@
 include:
   - project: nosana-ci/tools/cicd/gitlab-ci
-    ref: anchor-upgrade
     file: anchor.yaml
 
 variables:
   TARGET: target/deploy/nosana_jobs.so
-  PROGRAM_NAME: nosana_jobs
   PROGRAM_ID: nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
   BUILD_SCRIPT: scripts/build.sh
