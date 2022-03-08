@@ -6,4 +6,3 @@ variables:
   TARGET: target/deploy/nosana_jobs.so
   PROGRAM_LIB: programs/nosana-jobs/src/lib.rs
   PROGRAM_ID: nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
-  BUILD_SCRIPT: scripts/build.sh
