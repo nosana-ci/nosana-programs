@@ -1,5 +1,4 @@
 const anchor = require("@project-serum/anchor");
-const fs = require('fs');
 const serumCmn = require("@project-serum/common");
 const {TOKEN_PROGRAM_ID, Token, MintLayout, ASSOCIATED_TOKEN_PROGRAM_ID} = require("@solana/spl-token");
 const assert = require("assert");
@@ -62,8 +61,7 @@ async function createMint(
 }
 
 async function mintFromFile(key, provider, authority) {
-  let text = fs.readFileSync(`tests/keys/${key}.json`);
-  const keyData = JSON.parse(text.toString());
+  const keyData = require(`./keys/${key}.json`);
   const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData));
   return await createMint(keyPair, provider, authority, null, 6, TOKEN_PROGRAM_ID);
 }
