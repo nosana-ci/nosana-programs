@@ -1,0 +1,21 @@
+[package]
+name = "nosana-jobs"
+version = "1.1.6"
+description = "Nosana Jobs for decentralized CI/CD and computation."
+edition = "2021"
+homepage = "https://nosana.io/"
+authors = ["nosana"]
+license = "MIT"
+keywords = ["solana", "nosana", "cicd", "jobs", "anchor"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "nosana_jobs"
+
+[features]
+#default = ["mainnet"]
+mainnet = []
+
+[dependencies]
+anchor-lang = "0.22.1"
+anchor-spl = "0.22.1"

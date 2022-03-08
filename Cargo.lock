@@ -748,8 +748,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "nosana_jobs"
-version = "0.1.0"
+name = "nosana-jobs"
+version = "1.1.6"
 dependencies = [
  "anchor-lang",
  "anchor-spl",

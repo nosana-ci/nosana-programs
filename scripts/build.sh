@@ -29,4 +29,4 @@ log_std "Set version to ${GREEN}${tag}"
 sed -i "s/0.1.0/${tag:1}/" "${toml}"
 
 # regular build
-anchor build
+anchor build --verifiable

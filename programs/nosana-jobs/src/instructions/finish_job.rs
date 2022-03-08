@@ -16,7 +16,7 @@ pub struct FinishJob<'info> {
 }
 
 pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> {
-    // get job, verify signature with node, and status of job
+    // get job, verify signature and status, before finishing
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
         job.node == *ctx.accounts.authority.key,
@@ -26,8 +26,6 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
         job.job_status == JobStatus::Claimed as u8,
         NosanaError::NotFinishable
     );
-
-    // update and finish job account
     job.finish(data);
 
     //  pay out
