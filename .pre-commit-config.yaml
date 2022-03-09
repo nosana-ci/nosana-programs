@@ -1,0 +1,11 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0 # https://github.com/pre-commit/pre-commit-hooks/releases
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0 # https://github.com/doublify/pre-commit-rust
+    hooks:
+      - id: fmt
+      - id: cargo-check
