@@ -19,8 +19,8 @@ To get started, see the [guide](https://project-serum.github.io/anchor/getting-s
 
 ### Wallet
 
-The default wallet location is set be located in `~/.config/solana/id.json`. 
-When you like to use a different location use the flag `--provider.wallet`, and deo not change the `Anchor.toml`. 
+The default wallet location is set be located in `~/.config/solana/id.json`.
+When you like to use a different location use the flag `--provider.wallet`, and deo not change the `Anchor.toml`.
 
 ### Build
 
@@ -46,7 +46,7 @@ To verify the program deployed on Solana matches your local source code, change 
 verify, e.g., `cd program`, and run
 
 ```bash
-anchor verify -d projectserum/build:v0.22.1 --provider.cluster $CLUSTER nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR 
+anchor verify -d projectserum/build:v0.22.1 --provider.cluster $CLUSTER nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
 ```
 
 A list of build artifacts can be found in gitlab cicd.
