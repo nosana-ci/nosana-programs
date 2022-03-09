@@ -13,6 +13,7 @@ pub struct FinishJob<'info> {
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
+    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> {
@@ -26,7 +27,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
         job.job_status == JobStatus::Claimed as u8,
         NosanaError::NotFinishable
     );
-    job.finish(data);
+    job.finish(ctx.accounts.clock.unix_timestamp, data);
 
     //  pay out
     return utils::transfer_tokens(

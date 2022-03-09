@@ -48,6 +48,8 @@ impl Jobs {
 pub struct Job {
     pub node: Pubkey,
     pub job_status: u8,
+    pub time_start: i64,
+    pub time_end: i64,
     pub ipfs_job: [u8; 32],
     pub ipfs_result: [u8; 32],
     pub tokens: u64,
@@ -63,14 +65,16 @@ impl Job {
         self.tokens = amount;
     }
 
-    pub fn claim(&mut self, node: Pubkey) -> () {
+    pub fn claim(&mut self, node: Pubkey, time: i64) -> () {
         self.job_status = JobStatus::Claimed as u8;
         self.node = node;
+        self.time_start = time;
     }
 
-    pub fn finish(&mut self, data: [u8; 32]) -> () {
+    pub fn finish(&mut self, time: i64, data: [u8; 32]) -> () {
         self.job_status = JobStatus::Finished as u8;
         self.ipfs_result = data;
+        self.time_end = time;
     }
 
     pub fn cancel(&mut self) -> () {

@@ -20,4 +20,4 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "npx mocha -t 1000000 tests/"
+test = "npx mocha --require mocha-suppress-logs -t 1000000 tests/"
