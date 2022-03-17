@@ -46,7 +46,7 @@ To verify the program deployed on Solana matches your local source code, change 
 verify, e.g., `cd program`, and run
 
 ```bash
-anchor verify -d projectserum/build:v0.22.1 --provider.cluster $CLUSTER nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
+anchor verify -d projectserum/build:v0.22.1 --provider.cluster $CLUSTER nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
 ```
 
 A list of build artifacts can be found in gitlab cicd.
@@ -56,7 +56,7 @@ A list of build artifacts can be found in gitlab cicd.
 To deploy the program, configure your CLI to the desired network/wallet and run
 
 ```bash
-anchor upgrade --program-id nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR --provider.cluster $CLUSTER target/deploy/nosana_jobs.so
+anchor upgrade --program-id nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM --provider.cluster $CLUSTER target/deploy/nosana_jobs.so
 ```
 
 ### Initial Migration
