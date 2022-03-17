@@ -5,5 +5,5 @@ include:
 variables:
   TARGET: target/deploy/nosana_jobs.so
   IDL_PATH: target/idl/nosana_jobs.json
-  PROGRAM_ID: nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR
+  PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
   BUILD_SCRIPT: scripts/build.sh

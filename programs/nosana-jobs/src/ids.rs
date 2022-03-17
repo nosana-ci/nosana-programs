@@ -1,7 +1,7 @@
 use anchor_lang::declare_id;
 
 // program ID
-declare_id!("nosJwntQe4eEnFC2mCsY9J15qw7kRQCDqcjcPj6aPbR");
+declare_id!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
 
 // token ID
 pub mod nos {
