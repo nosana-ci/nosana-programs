@@ -75,6 +75,8 @@ publish:
   stage: post
   variables:
     CLUSTER: mainnet
+  services:
+    - docker:dind
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
   script:
