@@ -1,9 +1,89 @@
-include:
-  - project: nosana-ci/tools/cicd/gitlab-ci
-    file: anchor.yaml
-
 variables:
-  TARGET: target/deploy/nosana_jobs.so
-  IDL_PATH: target/idl/nosana_jobs.json
+  PROGRAM_NAME: nosana_jobs
   PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
   BUILD_SCRIPT: scripts/build.sh
+
+image: projectserum/build:v0.22.1
+
+stages:
+  - test
+  - build
+  - deploy
+  - post
+
+.wallet:
+  before_script:
+    - echo $SOLANA_WALLET > ~/.config/solana/id.json
+  after_script:
+    - rm ~/.config/solana/id.json
+
+rustfmt:
+  stage: test
+  script:
+    - rustfmt --check programs/*/src/**.rs
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+anchor:
+  extends: .wallet
+  stage: build
+  script:
+    - yarn install
+    - anchor test
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  artifacts:
+    paths:
+      -  target/deploy/$PROGRAM_NAME.so
+      -  target/idl/$PROGRAM_NAME.json
+
+build:
+  extends: .wallet
+  stage: build
+  script:
+    - if [[ -n $BUILD_SCRIPT ]]; then ./$BUILD_SCRIPT; else anchor build; fi
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
+  artifacts:
+    paths:
+      - target/deploy/$PROGRAM_NAME.so
+      - target/idl/$PROGRAM_NAME.json
+
+upgrade:
+  extends: .wallet
+  stage: deploy
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      variables:
+        CLUSTER: devnet
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        CLUSTER: testnet
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
+      variables:
+        CLUSTER: mainnet
+      when: manual
+  script:
+    - echo upgrading $PROGRAM_ID in $CLUSTER with target/deploy/$PROGRAM_NAME.so and target/idl/$PROGRAM_NAME.json
+    - anchor upgrade --provider.cluster $CLUSTER --program-id $PROGRAM_ID target/deploy/$PROGRAM_NAME.so
+    - anchor idl upgrade -f target/idl/$PROGRAM_NAME.json --provider.cluster $CLUSTER $PROGRAM_ID
+
+publish:
+  extends: .wallet
+  stage: post
+  variables:
+    CLUSTER: mainnet
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
+  script:
+    - echo publishing $PROGRAM_NAME in $CLUSTER
+    - anchor publish --provider.cluster $CLUSTER $PROGRAM_NAME
+
+release:
+  image: registry.gitlab.com/nosana-ci/tools/containers/semver
+  script: release.sh
+  stage: post
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
