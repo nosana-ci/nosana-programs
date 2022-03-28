@@ -3,7 +3,7 @@ variables:
   PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
   BUILD_SCRIPT: scripts/build.sh
 
-image: projectserum/build:v0.22.1
+image: registry.gitlab.com/nosana-ci/tools/containers/anchor
 
 stages:
   - test
