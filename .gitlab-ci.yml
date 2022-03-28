@@ -1,6 +1,6 @@
 include:
   - project: nosana-ci/tools/cicd/gitlab-ci
-    file: anchor.yml
+    file: anchor.yaml
 
 variables:
   PROGRAM_NAME: nosana_jobs
