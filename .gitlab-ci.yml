@@ -5,4 +5,4 @@ include:
 variables:
   PROGRAM_NAME: nosana_jobs
   PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
-  BUILD_SCRIPT: scripts/build.sh
+  PREPARE_SCRIPT: scripts/prepare.sh
