@@ -246,7 +246,7 @@ describe('Nosana Jobs', () => {
     try {
       await program.rpc.claimJob({accounts});
     } catch (e) {
-      msg = e.msg
+      msg = e.error.errorMessage
     }
     assert.strictEqual(msg, errors.NotClaimable);
   });
@@ -300,7 +300,7 @@ describe('Nosana Jobs', () => {
         signers: [user4.user],
       });
     } catch (e) {
-      msg = e.msg
+      msg = e.error.errorMessage
     }
     assert.strictEqual(msg, errors.Unauthorized);
     await utils.assertBalances(provider, ata, balances)
@@ -322,7 +322,7 @@ describe('Nosana Jobs', () => {
     try {
       await program.rpc.finishJob(bump, ipfsData, {accounts});
     } catch (e) {
-      msg = e.msg
+      msg = e.error.errorMessage
     }
     assert.strictEqual(msg, errors.NotFinishable);
   });
@@ -405,7 +405,7 @@ describe('Nosana Jobs', () => {
         },
       });
     } catch (e) {
-      msg = e.msg
+      msg = e.error.errorMessage
     }
     assert.strictEqual(msg, errors.JobQueueNotFound);
     await utils.assertBalances(provider, ata, balances)
@@ -423,7 +423,7 @@ describe('Nosana Jobs', () => {
         signers: [user4.user],
       });
     } catch (e) {
-      msg = e.msg
+      msg = e.error.errorMessage
     }
     assert.strictEqual(msg, errors.Unauthorized);
     await utils.assertBalances(provider, ata, balances)
@@ -445,7 +445,7 @@ describe('Nosana Jobs', () => {
     try {
       await program.rpc.cancelJob(bump, {accounts});
     } catch (e) {
-      msg = e.msg
+      msg = e.error.errorMessage
     }
     assert.strictEqual(msg, errors.NotCancelable);
     await utils.assertBalances(provider, ata, balances)
