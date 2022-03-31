@@ -1,4 +1,4 @@
-anchor_version = "0.22.1"
+anchor_version = "0.23.0"
 
 [programs.localnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"

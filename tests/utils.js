@@ -1,6 +1,6 @@
 const anchor = require("@project-serum/anchor");
 const serumCmn = require("@project-serum/common");
-const {TOKEN_PROGRAM_ID, Token, MintLayout, ASSOCIATED_TOKEN_PROGRAM_ID} = require("@solana/spl-token");
+const {TOKEN_PROGRAM_ID, createMint, getMinimumBalanceForRentExemptMint, createInitializeMintInstruction, createMintToInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, MintLayout, ASSOCIATED_TOKEN_PROGRAM_ID} = require("@solana/spl-token");
 const assert = require("assert");
 
 async function getTokenBalance(provider, wallet) {
@@ -15,55 +15,17 @@ async function assertBalances(provider, wallets, balances) {
   assert.strictEqual(await getTokenBalance(provider, wallets.vault), balances.vault);
 }
 
-async function createMint(
-  mintAccount,
-  provider,
-  mintAuthority,
-  freezeAuthority,
-  decimals,
-  programId,
-) {
-  const token = new Token(
-    provider.connection,
-    mintAccount.publicKey,
-    programId,
-    provider.wallet.payer,
-  );
-
-  // Allocate memory for the account
-  const balanceNeeded = await Token.getMinBalanceRentForExemptMint(
-    provider.connection,
-  );
-
-  const transaction = new anchor.web3.Transaction();
-  transaction.add(
-    anchor.web3.SystemProgram.createAccount({
-      fromPubkey: provider.wallet.payer.publicKey,
-      newAccountPubkey: mintAccount.publicKey,
-      lamports: balanceNeeded,
-      space: MintLayout.span,
-      programId,
-    }),
-  );
-
-  transaction.add(
-    Token.createInitMintInstruction(
-      programId,
-      mintAccount.publicKey,
-      decimals,
-      mintAuthority,
-      freezeAuthority,
-    ),
-  );
-
-  await provider.send(transaction, [mintAccount]);
-  return token;
-}
-
 async function mintFromFile(key, provider, authority) {
   const keyData = require(`./keys/${key}.json`);
   const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData));
-  return await createMint(keyPair, provider, authority, null, 6, TOKEN_PROGRAM_ID);
+  return await createMint(
+    provider.connection,
+    provider.wallet.payer,
+    authority,
+    null,
+    6,
+    keyPair
+  );
 }
 
 async function mintToAccount(
@@ -74,13 +36,13 @@ async function mintToAccount(
 ) {
   const tx = new anchor.web3.Transaction();
   tx.add(
-    Token.createMintToInstruction(
-      TOKEN_PROGRAM_ID,
+    createMintToInstruction(
       mint,
       destination,
       provider.wallet.publicKey,
+      amount,
       [],
-      amount
+      TOKEN_PROGRAM_ID,
     )
   );
   await provider.send(tx);
@@ -97,12 +59,12 @@ function timeDelta(t1, t2) {
 }
 
 async function getOrCreateAssociatedSPL(provider, owner, mint) {
-  const ata = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint.publicKey, owner, true)
+  const ata = await getAssociatedTokenAddress(mint, owner)
   try {
     await serumCmn.getTokenAccount(provider, ata)
   } catch (error) {
     const tx = new anchor.web3.Transaction()
-    tx.add(Token.createAssociatedTokenAccountInstruction(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint.publicKey, ata, owner, owner))
+    tx.add(createAssociatedTokenAccountInstruction(owner, ata, owner, mint))
     await provider.send(tx, [], {})
   }
   return ata

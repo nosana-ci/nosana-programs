@@ -1,7 +1,7 @@
 // imports
 const anchor = require('@project-serum/anchor');
 const _ = require('lodash')
-const {TOKEN_PROGRAM_ID} = require('@solana/spl-token');
+const {TOKEN_PROGRAM_ID, createAssociatedTokenAccount, mintTo} = require('@solana/spl-token');
 const utils = require('./utils');
 const chai = require('chai');
 const assert = chai.assert;
@@ -84,14 +84,14 @@ describe('Nosana Jobs', () => {
 
     // get ATA of the vault, and the bump
     [ata.vault, bump] = await anchor.web3.PublicKey.findProgramAddress(
-      [mint.publicKey.toBuffer()],
+      [mint.toBuffer()],
       program.programId
     );
 
     // tests
-    assert.strictEqual(nosID.toString(), mint.publicKey.toString());
+    assert.strictEqual(nosID.toString(), mint.toString());
 
-    accounts.mint = mint.publicKey;
+    accounts.mint = mint;
     accounts.ataVault = ata.vault;
   });
 
@@ -104,15 +104,27 @@ describe('Nosana Jobs', () => {
   it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply} tokens`, async () => {
 
     // create associated token accounts
-    ata.user = await mint.createAssociatedTokenAccount(provider.wallet.publicKey);
+    ata.user = await createAssociatedTokenAccount(
+      provider.connection,
+      provider.wallet.payer,
+      mint,
+      provider.wallet.publicKey,
+    );
 
     // mint tokens
-    await utils.mintToAccount(provider, mint.publicKey, ata.user, mintSupply);
+    await utils.mintToAccount(provider, mint, ata.user, mintSupply);
 
     await Promise.all(users.map(async u => {
       await connection.confirmTransaction(await connection.requestAirdrop(u.publicKey, anchor.web3.LAMPORTS_PER_SOL))
       u.ata = await utils.getOrCreateAssociatedSPL(u.provider, u.publicKey, mint);
-      await mint.mintTo(u.ata, provider.wallet.publicKey, [provider.wallet], userSupply)
+      await mintTo(
+        provider.connection,
+        provider.wallet.payer,
+        mint,
+        u.ata,
+        provider.wallet.publicKey,
+        userSupply
+      )
       u.balance = userSupply
     }))
 
