@@ -22,7 +22,7 @@ pub fn transfer_tokens<'info>(
             CpiContext::new_with_signer(
                 program,
                 accounts,
-                &[&[&crate::ids::nos::ID.as_ref(), &[nonce]]],
+                &[&[crate::ids::nos::ID.as_ref(), &[nonce]]],
             ),
             amount,
         )

@@ -15,12 +15,12 @@ pub struct Jobs {
 pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Jobs>() + 32 * 100 + 16;
 
 impl Jobs {
-    pub fn init(&mut self, authority: Pubkey) -> () {
+    pub fn init(&mut self, authority: Pubkey) {
         self.authority = authority;
         self.jobs = Vec::new();
     }
 
-    pub fn add_job(&mut self, job_key: Pubkey) -> () {
+    pub fn add_job(&mut self, job_key: Pubkey) {
         self.jobs.push(job_key);
     }
 
@@ -59,25 +59,25 @@ pub struct Job {
 pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
 
 impl Job {
-    pub fn create(&mut self, data: [u8; 32], amount: u64) -> () {
+    pub fn create(&mut self, data: [u8; 32], amount: u64) {
         self.job_status = JobStatus::Initialized as u8;
         self.ipfs_job = data;
         self.tokens = amount;
     }
 
-    pub fn claim(&mut self, node: Pubkey, time: i64) -> () {
+    pub fn claim(&mut self, node: Pubkey, time: i64) {
         self.job_status = JobStatus::Claimed as u8;
         self.node = node;
         self.time_start = time;
     }
 
-    pub fn finish(&mut self, time: i64, data: [u8; 32]) -> () {
+    pub fn finish(&mut self, time: i64, data: [u8; 32]) {
         self.job_status = JobStatus::Finished as u8;
         self.ipfs_result = data;
         self.time_end = time;
     }
 
-    pub fn cancel(&mut self) -> () {
+    pub fn cancel(&mut self) {
         self.job_status = JobStatus::Cancelled as u8;
     }
 }
