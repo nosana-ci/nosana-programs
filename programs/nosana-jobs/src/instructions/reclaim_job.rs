@@ -13,14 +13,14 @@ pub fn handler(ctx: Context<ReclaimJob>) -> Result<()> {
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
         job.job_status == JobStatus::Claimed as u8,
-        NosanaError::NotReclaimable
+        NosanaError::JobNotClaimed
     );
 
     // check time
     let clock: &Sysvar<Clock> = &mut ctx.accounts.clock;
     require!(
         clock.unix_timestamp.checked_sub(job.time_start).unwrap() >= state::TIMEOUT,
-        NosanaError::NotReclaimable
+        NosanaError::JobNotTimedOut
     );
 
     // claim it

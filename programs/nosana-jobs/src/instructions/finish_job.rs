@@ -24,7 +24,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
     );
     require!(
         job.job_status == JobStatus::Claimed as u8,
-        NosanaError::NotFinishable
+        NosanaError::JobNotClaimed
     );
     job.finish(ctx.accounts.clock.unix_timestamp, data);
 

@@ -2,16 +2,14 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum NosanaError {
-    #[msg("You are not authorized to perform this action.")]
-    Unauthorized,
-    #[msg("Job cannot be claimed because it is already claimed or finished.")]
-    NotClaimable,
-    #[msg("Job cannot be reclaimed because it is not in a Claimed state.")]
-    NotReclaimable,
-    #[msg("Job cannot be finished because it is not in a Claimed state.")]
-    NotFinishable,
-    #[msg("Job cannot be cancelled because it is in the wrong state.")]
-    NotCancelable,
-    #[msg("Job queue not found.")]
+    #[msg("NosanaError::JobNotClaimed - Job is not in the Claimed state.")]
+    JobNotClaimed,
+    #[msg("NosanaError::JobNotInitialized - Job is not in the Initialized state.")]
+    JobNotInitialized,
+    #[msg("NosanaError::JobNotTimedOut - Job is not timed out.")]
+    JobNotTimedOut,
+    #[msg("NosanaError::JobQueueNotFound - Job queue not found.")]
     JobQueueNotFound,
+    #[msg("NosanaError::Unauthorized - You are not authorized to perform this action.")]
+    Unauthorized,
 }

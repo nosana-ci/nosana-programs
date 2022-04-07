@@ -60,12 +60,11 @@ describe('Nosana Jobs', () => {
   }
 
   const errors = {
-    Unauthorized: 'You are not authorized to perform this action.',
-    NotClaimable: 'Job cannot be claimed because it is already claimed or finished.',
-    NotReclaimable: 'Job cannot be reclaimed because it is not in a Claimed state.',
-    NotFinishable: 'Job cannot be finished because it is not in a Claimed state.',
-    NotCancelable: 'Job cannot be cancelled because it is in the wrong state.',
-    JobQueueNotFound: 'Job queue not found.',
+    JobNotClaimed: 'NosanaError::JobNotClaimed - Job is not in the Claimed state.',
+    JobNotInitialized: 'NosanaError::JobNotInitialized - Job is not in the Initialized state.',
+    JobNotTimedOut: 'NosanaError::JobNotTimedOut - Job is not timed out.',
+    JobQueueNotFound: 'NosanaError::JobQueueNotFound - Job queue not found.',
+    Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
   }
 
   // we'll set these later
@@ -261,7 +260,7 @@ describe('Nosana Jobs', () => {
     } catch (e) {
       msg = e.error.errorMessage
     }
-    assert.strictEqual(msg, errors.NotClaimable);
+    assert.strictEqual(msg, errors.JobNotInitialized);
   });
 
   // reclaim
@@ -272,7 +271,7 @@ describe('Nosana Jobs', () => {
     } catch (e) {
       msg = e.error.errorMessage
     }
-    assert.strictEqual(msg, errors.NotReclaimable);
+    assert.strictEqual(msg, errors.JobNotTimedOut);
   });
 
   // claim
@@ -348,7 +347,7 @@ describe('Nosana Jobs', () => {
     } catch (e) {
       msg = e.error.errorMessage
     }
-    assert.strictEqual(msg, errors.NotFinishable);
+    assert.strictEqual(msg, errors.JobNotClaimed);
   });
 
   // finish
@@ -471,7 +470,7 @@ describe('Nosana Jobs', () => {
     } catch (e) {
       msg = e.error.errorMessage
     }
-    assert.strictEqual(msg, errors.NotCancelable);
+    assert.strictEqual(msg, errors.JobNotInitialized);
     await utils.assertBalances(provider, ata, balances)
   });
 });
