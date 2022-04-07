@@ -13,7 +13,6 @@ pub struct CancelJob<'info> {
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
     pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }
 
@@ -22,7 +21,7 @@ pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
         job.job_status == JobStatus::Initialized as u8,
-        NosanaError::NotCancelable
+        NosanaError::JobNotInitialized
     );
     job.cancel();
 

@@ -58,6 +58,9 @@ pub struct Job {
 // size of a job in bytes
 pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
 
+// timeout of a job in seconds
+pub const TIMEOUT: i64 = 60 * 60;
+
 impl Job {
     pub fn create(&mut self, data: [u8; 32], amount: u64) {
         self.job_status = JobStatus::Initialized as u8;

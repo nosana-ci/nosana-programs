@@ -7,7 +7,6 @@ pub struct ClaimJob<'info> {
     #[account(mut)]
     pub job: Account<'info, Job>,
     pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
     pub clock: Sysvar<'info, Clock>,
 }
 
@@ -16,7 +15,7 @@ pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
         job.job_status == JobStatus::Initialized as u8,
-        NosanaError::NotClaimable
+        NosanaError::JobNotInitialized
     );
     job.claim(
         *ctx.accounts.authority.key,

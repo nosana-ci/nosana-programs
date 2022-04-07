@@ -11,7 +11,6 @@ pub struct FinishJob<'info> {
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
     pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub clock: Sysvar<'info, Clock>,
 }
@@ -25,7 +24,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
     );
     require!(
         job.job_status == JobStatus::Claimed as u8,
-        NosanaError::NotFinishable
+        NosanaError::JobNotClaimed
     );
     job.finish(ctx.accounts.clock.unix_timestamp, data);
 
