@@ -31,6 +31,10 @@ pub mod nosana_jobs {
         claim_job::handler(ctx)
     }
 
+    pub fn reclaim_job(ctx: Context<ReclaimJob>) -> Result<()> {
+        reclaim_job::handler(ctx)
+    }
+
     pub fn finish_job(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> {
         finish_job::handler(ctx, bump, data)
     }

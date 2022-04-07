@@ -62,6 +62,7 @@ describe('Nosana Jobs', () => {
   const errors = {
     Unauthorized: 'You are not authorized to perform this action.',
     NotClaimable: 'Job cannot be claimed because it is already claimed or finished.',
+    NotReclaimable: 'Job cannot be reclaimed because it is not in a claimed state.',
     NotFinishable: 'Job cannot be finished because it is not in a Claimed state.',
     NotCancelable: 'Job cannot be cancelled because it is in the wrong state.',
     JobQueueNotFound: 'Job queue not found.',
@@ -257,6 +258,17 @@ describe('Nosana Jobs', () => {
     let msg = ""
     try {
       await program.rpc.claimJob({accounts});
+    } catch (e) {
+      msg = e.error.errorMessage
+    }
+    assert.strictEqual(msg, errors.NotClaimable);
+  });
+
+  // reclaim
+  it('Reclaim job too soon', async () => {
+    let msg = ""
+    try {
+      await program.rpc.reclaimJob({accounts});
     } catch (e) {
       msg = e.error.errorMessage
     }
