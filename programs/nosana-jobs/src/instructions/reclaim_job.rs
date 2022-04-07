@@ -21,7 +21,7 @@ pub fn handler(ctx: Context<ReclaimJob>) -> Result<()> {
     let clock: &Sysvar<Clock> = &mut ctx.accounts.clock;
     require!(
         clock.unix_timestamp.checked_sub(job.time_start).unwrap() >= state::TIMEOUT,
-        NosanaError::NotClaimable
+        NosanaError::NotReclaimable
     );
 
     // claim it

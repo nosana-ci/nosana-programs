@@ -6,7 +6,7 @@ pub enum NosanaError {
     Unauthorized,
     #[msg("Job cannot be claimed because it is already claimed or finished.")]
     NotClaimable,
-    #[msg("Job cannot be reclaimed because it is not in a claimed state.")]
+    #[msg("Job cannot be reclaimed because it is not in a Claimed state.")]
     NotReclaimable,
     #[msg("Job cannot be finished because it is not in a Claimed state.")]
     NotFinishable,
