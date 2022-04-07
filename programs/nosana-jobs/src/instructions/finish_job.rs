@@ -11,7 +11,6 @@ pub struct FinishJob<'info> {
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
     pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub clock: Sysvar<'info, Clock>,
 }

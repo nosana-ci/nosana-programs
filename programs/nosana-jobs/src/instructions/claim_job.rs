@@ -7,7 +7,6 @@ pub struct ClaimJob<'info> {
     #[account(mut)]
     pub job: Account<'info, Job>,
     pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
     pub clock: Sysvar<'info, Clock>,
 }
 
