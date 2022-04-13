@@ -1,6 +1,6 @@
 const anchor = require("@project-serum/anchor");
 const serumCmn = require("@project-serum/common");
-const {TOKEN_PROGRAM_ID, createMint, getMinimumBalanceForRentExemptMint, createInitializeMintInstruction, createMintToInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, MintLayout, ASSOCIATED_TOKEN_PROGRAM_ID} = require("@solana/spl-token");
+const {TOKEN_PROGRAM_ID, createMint, createMintToInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction} = require("@solana/spl-token");
 const assert = require("assert");
 
 async function getTokenBalance(provider, wallet) {
