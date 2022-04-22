@@ -45,7 +45,7 @@ async function mintToAccount(
       TOKEN_PROGRAM_ID,
     )
   );
-  await provider.send(tx);
+  await provider.sendAndConfirm(tx);
 }
 
 function buf2hex(buffer) { // buffer is an ArrayBuffer
@@ -65,7 +65,7 @@ async function getOrCreateAssociatedSPL(provider, owner, mint) {
   } catch (error) {
     const tx = new anchor.web3.Transaction()
     tx.add(createAssociatedTokenAccountInstruction(owner, ata, owner, mint))
-    await provider.send(tx, [], {})
+    await provider.sendAndConfirm(tx, [], {})
   }
   return ata
 }
@@ -74,7 +74,7 @@ function setupSolanaUser(connection) {
   const user = anchor.web3.Keypair.generate();
   const publicKey = user.publicKey
   const wallet = new anchor.Wallet(user)
-  const provider = new anchor.Provider(connection, wallet)
+  const provider = new anchor.AnchorProvider(connection, wallet)
 
   const signers = {
     jobs: anchor.web3.Keypair.generate(),

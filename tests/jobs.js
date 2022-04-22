@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe('Nosana Jobs', () => {
 
   // provider and program
-  const provider = anchor.Provider.env();
+  const provider = anchor.AnchorProvider.env();
   const connection = provider.connection;
   const program = anchor.workspace.NosanaJobs;
 
@@ -117,14 +117,7 @@ describe('Nosana Jobs', () => {
     await Promise.all(users.map(async u => {
       await connection.confirmTransaction(await connection.requestAirdrop(u.publicKey, anchor.web3.LAMPORTS_PER_SOL))
       u.ata = await utils.getOrCreateAssociatedSPL(u.provider, u.publicKey, mint);
-      await mintTo(
-        provider.connection,
-        provider.wallet.payer,
-        mint,
-        u.ata,
-        provider.wallet.publicKey,
-        userSupply
-      )
+      await utils.mintToAccount(provider, mint, u.ata, userSupply);
       u.balance = userSupply
     }))
 
