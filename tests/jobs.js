@@ -1,7 +1,7 @@
 // imports
 const anchor = require('@project-serum/anchor');
 const _ = require('lodash')
-const {TOKEN_PROGRAM_ID, createAssociatedTokenAccount, mintTo} = require('@solana/spl-token');
+const {TOKEN_PROGRAM_ID, createAssociatedTokenAccount} = require('@solana/spl-token');
 const utils = require('./utils');
 const chai = require('chai');
 const assert = chai.assert;
