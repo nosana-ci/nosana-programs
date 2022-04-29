@@ -29,7 +29,7 @@ impl Jobs {
         let index: Option<usize> = self.jobs.iter().position(|key: &Pubkey| key == job_key);
 
         // check if job is found
-        require!(!index.is_none(), NosanaError::JobQueueNotFound);
+        require!(index.is_some(), NosanaError::JobQueueNotFound);
 
         // remove job from jobs list
         self.jobs.remove(index.unwrap());

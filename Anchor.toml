@@ -2,15 +2,19 @@ anchor_version = "0.24.2"
 
 [programs.localnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 
 [programs.devnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 
 [programs.testnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 
 [programs.mainnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 
 [registry]
 url = "https://anchor.projectserum.com"
