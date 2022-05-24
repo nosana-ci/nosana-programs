@@ -8,7 +8,7 @@ pub struct CreateJob<'info> {
     pub job: Account<'info, Job>,
     #[account(mut)]
     pub jobs: Account<'info, Jobs>,
-    #[account(mut)]
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,

@@ -6,7 +6,7 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct FinishJob<'info> {
     #[account(mut)]
     pub job: Account<'info, Job>,
-    #[account(mut)]
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,

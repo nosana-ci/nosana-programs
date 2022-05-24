@@ -15,15 +15,11 @@ pub mod nosana_staking {
         init_vault::handler()
     }
 
-    pub fn stake(ctx: Context<Stake>, bump: u8, amount: u64) -> Result<()> {
-        stake::handler(ctx, bump, amount)
+    pub fn stake(ctx: Context<Stake>, amount: u64) -> Result<()> {
+        stake::handler(ctx, amount)
     }
 
     pub fn unstake(ctx: Context<Unstake>, bump: u8, amount: u64) -> Result<()> {
         unstake::handler(ctx, bump, amount)
-    }
-
-    pub fn emit_price(ctx: Context<EmitPrice>) -> Result<()> {
-        emit_price::handler(ctx)
     }
 }

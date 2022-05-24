@@ -28,23 +28,3 @@ pub fn transfer_tokens<'info>(
         )
     };
 }
-
-pub fn get_price(vault: u64, reward: u64) -> (u64, String) {
-    if reward == 0 {
-        return (0, String::from("0"));
-    }
-
-    let price_uint = calculate_reward(vault, 1_000_000, reward);
-    let price_float = (vault as f64) / (reward as f64);
-    (price_uint, price_float.to_string())
-}
-
-pub fn calculate_reward(amount: u64, mul: u64, div: u64) -> u64 {
-    (amount as u128)
-        .checked_mul(mul as u128)
-        .unwrap()
-        .checked_div(div as u128)
-        .unwrap()
-        .try_into()
-        .unwrap()
-}

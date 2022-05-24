@@ -12,15 +12,6 @@ pub mod nos {
     declare_id!("testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp");
 }
 
-// reward ID
-pub mod reward {
-    use anchor_lang::declare_id;
-    #[cfg(feature = "mainnet")]
-    declare_id!("nosR19VtudPQGH2FVAWDyDmjFaCHHV4r46AQcmvqoGh");
-    #[cfg(not(feature = "mainnet"))]
-    declare_id!("testzMFv8LK3mjsJdakJ2LQPGpWPPQhZ3QiriRWzJUM");
-}
-
 // jobs ID
 pub mod jobs {
     use anchor_lang::declare_id;
