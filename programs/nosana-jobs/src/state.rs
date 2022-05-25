@@ -47,6 +47,7 @@ impl Jobs {
 #[account]
 pub struct Job {
     pub node: Pubkey,
+    pub authority: Pubkey,
     pub job_status: u8,
     pub time_start: i64,
     pub time_end: i64,
