@@ -391,6 +391,25 @@ describe('Nosana Jobs', () => {
     }))
   });
 
+  // close
+  it('Close job', async () => {
+    const lamport_before = await connection.getBalance(accounts.authority);
+    await program.rpc.closeJob({accounts});
+    const lamport_after = await connection.getBalance(accounts.authority);
+    expect(lamport_before).to.be.lessThan(lamport_after);
+  });
+
+  // check that job does not exist anymore
+  it('Check that Job account does not exist anymore', async () => {
+    let msg = ""
+    try {
+      await program.rpc.finishJob(bump, ipfsData, {accounts});
+    } catch (e) {
+      msg = e.error.errorMessage
+    }
+    assert.strictEqual(msg,'The program expected this account to be already initialized');
+  });
+
   // create
   it('Create new job and new project', async () => {
     accounts.job = cancelJob.publicKey

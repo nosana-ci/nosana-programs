@@ -4,7 +4,7 @@ use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct FinishJob<'info> {
-    #[account(mut)]
+    #[account(mut, owner = ID.key())]
     pub job: Account<'info, Job>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,

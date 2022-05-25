@@ -2,7 +2,7 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct CloseJob<'info> {
-    #[account(mut, close = authority)]
+    #[account(mut, close = authority, owner = ID.key())]
     pub job: Account<'info, Job>,
     #[account(mut)]
     pub authority: Signer<'info>,

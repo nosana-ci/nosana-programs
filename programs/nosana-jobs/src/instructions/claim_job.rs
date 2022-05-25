@@ -2,9 +2,9 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct ClaimJob<'info> {
-    #[account(mut)]
+    #[account(mut, owner = ID.key())]
     pub jobs: Account<'info, Jobs>,
-    #[account(mut)]
+    #[account(mut, owner = ID.key())]
     pub job: Account<'info, Job>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
