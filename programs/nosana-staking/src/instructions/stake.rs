@@ -4,9 +4,9 @@ use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
-    #[account(mut)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

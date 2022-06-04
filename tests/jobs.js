@@ -173,6 +173,31 @@ describe('Nosana Jobs', () => {
   });
 
   // create
+  it('Create job in different ata', async () => {
+    let msg = ''
+    try {
+      const tempJob = anchor.web3.Keypair.generate()
+      await program.rpc.createJob(
+        new anchor.BN(jobPrice),
+        ipfsData,
+        {
+          accounts: {
+            ...accounts,
+            ataVault: accounts.ataFrom,
+            job: tempJob.publicKey,
+          },
+          signers: [tempJob]
+        },
+      );
+    } catch (e) {
+      msg = e.error.errorMessage
+    }
+
+    expect(msg).to.be.equal('A seeds constraint was violated')
+    await utils.assertBalances(provider, ata, balances)
+  });
+
+  // create
   it('Create jobs for other users', async () => {
     await Promise.all(users.map(async u => {
       await program.rpc.createJob(
@@ -247,7 +272,7 @@ describe('Nosana Jobs', () => {
 
   // claim
   it('Claim job that is already claimed', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.claimJob({accounts});
     } catch (e) {
@@ -258,7 +283,7 @@ describe('Nosana Jobs', () => {
 
   // reclaim
   it('Reclaim job too soon', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.reclaimJob({accounts});
     } catch (e) {
@@ -306,7 +331,7 @@ describe('Nosana Jobs', () => {
 
   // finish
   it('Finish job from other node', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.finishJob(bump, ipfsData, {
         accounts: {
@@ -334,7 +359,7 @@ describe('Nosana Jobs', () => {
 
   // finish
   it('Finish job that is already finished', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.finishJob(bump, ipfsData, {accounts});
     } catch (e) {
@@ -401,13 +426,13 @@ describe('Nosana Jobs', () => {
 
   // check that job does not exist anymore
   it('Check that Job account does not exist anymore', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.finishJob(bump, ipfsData, {accounts});
     } catch (e) {
       msg = e.error.errorMessage
     }
-    assert.strictEqual(msg,'The program expected this account to be already initialized');
+    assert.strictEqual(msg, 'The program expected this account to be already initialized');
   });
 
   // create
@@ -431,7 +456,7 @@ describe('Nosana Jobs', () => {
 
   // cancel
   it('Cancel job in wrong queue', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.cancelJob(bump, {
         accounts: {
@@ -448,7 +473,7 @@ describe('Nosana Jobs', () => {
 
   // cancel
   it('Cancel job from other user', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.cancelJob(bump, {
         accounts: {
@@ -476,7 +501,7 @@ describe('Nosana Jobs', () => {
 
   // cancel
   it('Cancel job in wrong state', async () => {
-    let msg = ""
+    let msg = ''
     try {
       await program.rpc.cancelJob(bump, {accounts});
     } catch (e) {
