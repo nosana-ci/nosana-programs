@@ -8,11 +8,22 @@ pub struct Stake<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,
+    #[account(init, payer = fee_payer, space = STAKE_SIZE)]
+    pub stake: Box<Account<'info, StakeAccount>>,
+    #[account(mut)]
+    pub fee_payer: Signer<'info>,
     pub authority: Signer<'info>,
+    pub clock: Sysvar<'info, Clock>,
+    pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Stake>, amount: u64) -> Result<()> {
+pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
+    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+    // require!(stake.authority == 0, NosanaError::StakeAlreadyInitialized);
+    require!(duration > 0, NosanaError::DurationNotLongEnough);
+    require!(amount > 0, NosanaError::AmountNotEnough);
+
     // transfer tokens
     utils::transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
@@ -22,6 +33,8 @@ pub fn handler(ctx: Context<Stake>, amount: u64) -> Result<()> {
         0, // skip signature
         amount,
     )?;
+
+    stake.stake(*ctx.accounts.authority.key, amount, duration);
 
     // finish
     Ok(())

@@ -1,29 +1,33 @@
-use crate::NosanaError;
 use anchor_lang::prelude::*;
+
+pub const STAKE_SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();
 
 /// # Stake
 #[account]
-pub struct Stake {
+pub struct StakeAccount {
     pub authority: Pubkey,
-    pub time_start: i64,
-    pub time_end: i64,
+    pub time: i64,
+    pub duration: u128,
     pub amount: u64,
 }
 
-impl Stake {
-    pub fn stake(&mut self, authority: Pubkey, amount: u64, time: i64) {
+impl StakeAccount {
+    pub fn stake(&mut self, authority: Pubkey, amount: u64, duration: u128) {
         self.authority = authority;
-        self.amount += amount;
-        self.time_start = time;
+        self.amount = amount;
+        self.duration = duration;
     }
-    pub fn unstake(&mut self, authority: Pubkey, amount: u64, time: i64) {
-        self.amount -= amount;
-        self.time_start = time;
+    pub fn unstake(&mut self, time: i64) {
+        self.time = time;
+    }
+    pub fn topup(&mut self, amount: u64) {
+        self.amount += amount;
     }
 }
 
-/// # JobStatus
-/// Enumeration for the different states a Job can have
+/*
+/// # StakeTier
+/// Enumeration for the different levels of stake
 #[repr(u8)]
 pub enum StakeTier {
     Level0 = 0,
@@ -32,3 +36,4 @@ pub enum StakeTier {
     Level3 = 3,
     Level4 = 4,
 }
+*/

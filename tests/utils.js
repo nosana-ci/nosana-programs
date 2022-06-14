@@ -8,11 +8,11 @@ async function getTokenBalance(provider, wallet) {
 }
 
 async function assertBalances(provider, wallets, balances) {
-  for (const pool of ["user", "vault"]) {
+  for (const pool of ['user', 'vaultJob']) {
     console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
-  assert.strictEqual(await getTokenBalance(provider, wallets.vault), balances.vault);
+  assert.strictEqual(await getTokenBalance(provider, wallets.vaultJob), balances.vaultJob);
 }
 
 async function mintFromFile(key, provider, authority) {

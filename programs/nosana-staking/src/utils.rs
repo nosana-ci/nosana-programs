@@ -28,3 +28,18 @@ pub fn transfer_tokens<'info>(
         )
     };
 }
+
+pub fn get_xnos(time: i64, time_unstake: i64, amount: u64, duration: u128) -> u128 {
+    let elapsed = u128::try_from(if time_unstake == 0 {
+        0
+    } else {
+        time.checked_sub(time_unstake).unwrap()
+    })
+    .unwrap();
+
+    duration
+        .checked_sub(elapsed)
+        .unwrap()
+        .checked_mul(u128::from(amount))
+        .unwrap()
+}
