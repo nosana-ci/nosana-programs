@@ -31,7 +31,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
                     .unwrap()
             )
             .unwrap(),
-        NosanaError::Locked
+        NosanaError::StakeLocked
     );
 
     // pay out

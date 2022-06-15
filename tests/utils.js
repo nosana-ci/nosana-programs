@@ -7,12 +7,20 @@ async function getTokenBalance(provider, wallet) {
   return parseInt((await provider.connection.getTokenAccountBalance(wallet)).value.amount);
 }
 
-async function assertBalances(provider, wallets, balances) {
+async function assertBalancesJobs(provider, wallets, balances) {
   for (const pool of ['user', 'vaultJob']) {
     console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
   assert.strictEqual(await getTokenBalance(provider, wallets.vaultJob), balances.vaultJob);
+}
+
+async function assertBalancesStaking(provider, wallets, balances) {
+  for (const pool of ['user', 'vaultStaking']) {
+    console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+  }
+  assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
+  assert.strictEqual(await getTokenBalance(provider, wallets.vaultStaking), balances.vaultStaking);
 }
 
 async function mintFromFile(key, provider, authority) {
@@ -79,6 +87,7 @@ function setupSolanaUser(connection) {
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
+    stake: anchor.web3.Keypair.generate(),
   }
   return {user, publicKey, wallet, provider, signers}
 }
@@ -86,7 +95,8 @@ function setupSolanaUser(connection) {
 module.exports = {
   mintFromFile,
   mintToAccount,
-  assertBalances,
+  assertBalancesJobs,
+  assertBalancesStaking,
   buf2hex,
   timeDelta,
   getOrCreateAssociatedSPL,

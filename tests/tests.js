@@ -18,10 +18,19 @@ describe('Nosana SPL', () => {
   // globals variables
   const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
   const ipfsData = Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex');
+
+  // tokens
   const mintSupply = 100_000_000;
   const userSupply = 100;
   const jobPrice = 10;
+  const stakeAmount = 10;
+
+  // time
   const allowedClockDelta = 2000;
+  const stakeMinDuration = 90 * 24 * 60 * 60;
+  const stakeMaxDuration = 365 * 24 * 60 * 60;
+  const stakeTooShortDuration = stakeMinDuration - 1;
+  const stakeTooLongDuration = stakeMaxDuration + 1;
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
@@ -36,6 +45,7 @@ describe('Nosana SPL', () => {
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
+    stake: anchor.web3.Keypair.generate(),
   }
 
   // public keys
@@ -55,7 +65,10 @@ describe('Nosana SPL', () => {
     job: signers.job.publicKey,
   }
 
-  const stakingAccounts = accounts
+  const stakingAccounts = {
+    ...accounts,
+    stake: signers.stake.publicKey,
+  }
 
   // status options for jobs
   const jobStatus = {
@@ -65,17 +78,26 @@ describe('Nosana SPL', () => {
   }
 
   const errors = {
+    Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
+
+    StakeAmountNotEnough: 'NosanaError::StakeAmountNotEnough - This amount is not enough.',
+    StakeAlreadyInitialized: 'NosanaError::StakeAlreadyInitialized - This stake is already running.',
+    StakeAlreadyStaked: 'NosanaError::StakeAlreadyStaked - This stake is already unstaked.',
+    StakeAlreadyUnstaked: 'NosanaError::StakeAlreadyUnstaked - This stake is already unstaked.',
+    StakeLocked: 'NosanaError::StakeLocked - This stake is still locked.',
+    StakeDurationNotLongEnough: 'NosanaError::StakeDurationNotLongEnough - This duration is not long enough.',
+    StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This duration is too long.',
+
     JobNotClaimed: 'NosanaError::JobNotClaimed - Job is not in the Claimed state.',
     JobNotInitialized: 'NosanaError::JobNotInitialized - Job is not in the Initialized state.',
     JobNotTimedOut: 'NosanaError::JobNotTimedOut - Job is not timed out.',
     JobQueueNotFound: 'NosanaError::JobQueueNotFound - Job queue not found.',
-    Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
   }
 
   // we'll set these later
   let mint, bumpJobs, bumpStaking, time;
   const ata = {user: '', vaultJob: '', vaultStaking: ''}
-  const balances = {user: 0, vaultJob: 0}
+  const balances = {user: 0, vaultJob: 0, vaultStaking: 0}
 
   // for later
   let cancelJob = anchor.web3.Keypair.generate()
@@ -87,39 +109,36 @@ describe('Nosana SPL', () => {
     it('Mint $NOS', async () => {
 
       // create the main token
-      mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
+      jobAccounts.mint = stakingAccounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
 
       // get ATA of the vault, and the bump
       [ata.vaultJob, bumpJobs] = await anchor.web3.PublicKey.findProgramAddress(
         [mint.toBuffer()],
         jobsProgram.programId
       );
+      jobAccounts.ataVault = ata.vaultJob;
 
       [ata.vaultStaking, bumpStaking] = await anchor.web3.PublicKey.findProgramAddress(
         [mint.toBuffer()],
         stakingProgram.programId
       );
+      stakingAccounts.ataVault = ata.vaultStaking;
 
       // tests
       assert.strictEqual(nosID.toString(), mint.toString());
-
-      jobAccounts.mint = mint;
-      jobAccounts.ataVault = ata.vaultJob;
-
-      stakingAccounts.mint = mint;
-      stakingAccounts.ataVault = ata.vaultStaking;
     });
 
     // mint
     it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply} tokens`, async () => {
 
       // create associated token accounts
-      ata.user = await createAssociatedTokenAccount(
-        provider.connection,
-        provider.wallet.payer,
-        mint,
-        provider.wallet.publicKey,
-      );
+      stakingAccounts.ataFrom = jobAccounts.ataFrom = stakingAccounts.ataTo = jobAccounts.ataTo = ata.user =
+        await createAssociatedTokenAccount(
+          provider.connection,
+          provider.wallet.payer,
+          mint,
+          provider.wallet.publicKey,
+        );
 
       // mint tokens
       await utils.mintToAccount(provider, mint, ata.user, mintSupply);
@@ -137,35 +156,107 @@ describe('Nosana SPL', () => {
         n.balance = 0
       }))
 
-      jobAccounts.ataFrom = ata.user;
-      jobAccounts.ataTo = ata.user;
-
       // tests
       balances.user += mintSupply
     });
   });
 
+  /*
+    NOSANA STAKING SECTION
+   */
   describe('Nosana Staking', () => {
 
     it('Initialize the staking vault', async () => {
       await stakingProgram.rpc.initVault(bumpJobs, {accounts: stakingAccounts});
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+    // too short stake
+    it('Create stake too short', async () => {
+      try {
+        await stakingProgram.rpc.stake(
+          new anchor.BN(stakeAmount),
+          new anchor.BN(stakeMinDuration - 1),
+          {
+            accounts: stakingAccounts,
+            signers: [signers.stake],
+          });
+      } catch (e) {
+        msg = e.error.errorMessage
+      }
+      expect(msg).to.be.equal(errors.StakeDurationNotLongEnough)
+      await utils.assertBalancesStaking(provider, ata, balances)
     });
 
 
+    // too long stake
+    it('Create stake too long', async () => {
+      try {
+        await stakingProgram.rpc.stake(
+          new anchor.BN(stakeAmount),
+          new anchor.BN(stakeMaxDuration + 1),
+          {
+            accounts: stakingAccounts,
+            signers: [signers.stake],
+          });
+      } catch (e) {
+        msg = e.error.errorMessage
+      }
 
+      expect(msg).to.be.equal(errors.StakeDurationTooLong)
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+    // min stake
+    it('Create stake minumum', async () => {
+      await stakingProgram.rpc.stake(
+        new anchor.BN(stakeAmount),
+        new anchor.BN(stakeMinDuration),
+        {
+          accounts: stakingAccounts,
+          signers: [signers.stake],
+        });
+      balances.user -= stakeAmount
+      balances.vaultStaking += stakeAmount
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+
+    // max stake
+    it('Create stake maximum', async () => {
+      const tempStake = anchor.web3.Keypair.generate()
+      await stakingProgram.rpc.stake(
+        new anchor.BN(stakeAmount),
+        new anchor.BN(stakeMaxDuration),
+        {
+          accounts: {
+            ...stakingAccounts,
+            stake: tempStake.publicKey
+          },
+          signers: [tempStake],
+        });
+      balances.user -= stakeAmount
+      balances.vaultStaking += stakeAmount
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
   });
 
+
+  /*
+    NOSANA JOBS SECTION
+   */
   describe('Nosana Jobs', () => {
 
     // initialize vaults
     it('Initialize the jobs vault', async () => {
       await jobsProgram.rpc.initVault(bumpJobs, {accounts: jobAccounts});
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // initialize project
     it('Initialize project', async () => {
       await jobsProgram.rpc.initProject({accounts: jobAccounts, signers: [signers.jobs]});
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // initialize project
@@ -200,7 +291,7 @@ describe('Nosana SPL', () => {
       // tests
       balances.user -= jobPrice
       balances.vaultJob += jobPrice
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // create
@@ -225,7 +316,7 @@ describe('Nosana SPL', () => {
       }
 
       expect(msg).to.be.equal('A seeds constraint was violated')
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // create
@@ -254,7 +345,7 @@ describe('Nosana SPL', () => {
       await Promise.all(users.map(async u => {
         assert.strictEqual(await utils.getTokenBalance(provider, u.ata), u.balance);
       }))
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     /*
@@ -277,7 +368,7 @@ describe('Nosana SPL', () => {
       }
 
       // tests
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
     */
 
@@ -375,7 +466,7 @@ describe('Nosana SPL', () => {
         msg = e.error.errorMessage
       }
       assert.strictEqual(msg, errors.Unauthorized);
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // finish
@@ -384,7 +475,7 @@ describe('Nosana SPL', () => {
       // tests
       balances.user += jobPrice
       balances.vaultJob -= jobPrice
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // finish
@@ -422,7 +513,7 @@ describe('Nosana SPL', () => {
       await Promise.all(nodes.map(async n => {
         assert.strictEqual(await utils.getTokenBalance(provider, n.ata), n.balance);
       }))
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // get
@@ -481,7 +572,7 @@ describe('Nosana SPL', () => {
       // tests
       balances.user -= jobPrice
       balances.vaultJob += jobPrice
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // cancel
@@ -498,7 +589,7 @@ describe('Nosana SPL', () => {
         msg = e.error.errorMessage
       }
       assert.strictEqual(msg, errors.JobQueueNotFound);
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // cancel
@@ -516,7 +607,7 @@ describe('Nosana SPL', () => {
         msg = e.error.errorMessage
       }
       assert.strictEqual(msg, errors.Unauthorized);
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // cancel
@@ -526,7 +617,7 @@ describe('Nosana SPL', () => {
       // tests
       balances.user += jobPrice
       balances.vaultJob -= jobPrice
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // cancel
@@ -538,7 +629,7 @@ describe('Nosana SPL', () => {
         msg = e.error.errorMessage
       }
       assert.strictEqual(msg, errors.JobNotInitialized);
-      await utils.assertBalances(provider, ata, balances)
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
   });
 

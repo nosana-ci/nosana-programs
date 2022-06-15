@@ -27,6 +27,10 @@ pub mod nosana_staking {
         unstake::handler(ctx)
     }
 
+    pub fn restake(ctx: Context<Restake>) -> Result<()> {
+        restake::handler(ctx)
+    }
+
     pub fn topup(ctx: Context<Topup>, amount: u64) -> Result<()> {
         topup::handler(ctx, amount)
     }

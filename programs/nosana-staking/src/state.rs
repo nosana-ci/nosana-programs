@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
 pub const STAKE_SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();
-pub const DURATION_MIN: u128 = 365 * 24 * 60 * 60; // 1 year
-pub const DURATION_MAX: u128 = 31 * 24 * 60 * 60; // 1 month
+pub const DURATION_MIN: u128 = 90 * 24 * 60 * 60; // 1 month TODO: determine minimum amount
+pub const DURATION_MAX: u128 = 365 * 24 * 60 * 60; // 1 year
 
 /// # Stake
 #[account]
@@ -18,6 +18,7 @@ impl StakeAccount {
         self.authority = authority;
         self.amount = amount;
         self.duration = duration;
+        self.time_unstake = 0;
     }
     pub fn unstake(&mut self, time: i64) {
         self.time_unstake = time;
@@ -47,10 +48,10 @@ pub const LEVEL4_MAX: u128 = u128::MAX;
 #[repr(u8)]
 pub enum StakeTier {
     Level0 = 0,
-    Level1 = 1,
-    Level2 = 2,
-    Level3 = 3,
-    Level4 = 4,
+    Level1 = 1, // Beaver
+    Level2 = 2, // Bull
+    Level3 = 3, // Shark
+    Level4 = 4, // Whale
 }
 
 #[event]
