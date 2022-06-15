@@ -188,7 +188,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-
     // too long stake
     it('Create stake too long', async () => {
       try {
@@ -221,7 +220,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-
     // max stake
     it('Create stake maximum', async () => {
       const tempStake = anchor.web3.Keypair.generate()
@@ -239,8 +237,19 @@ describe('Nosana SPL', () => {
       balances.vaultStaking += stakeAmount
       await utils.assertBalancesStaking(provider, ata, balances)
     });
-  });
 
+    // emit stake
+    it('Emit rank', async () => {
+      const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
+      const rank = result.events[0].data
+      const xnos = rank.xnos.toString()
+      const tier = rank.tier.toString()
+      expect(xnos).to.be.equal((stakeMinDuration * stakeAmount).toString())
+      expect(tier).to.be.equal((4).toString())
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+  });
 
   /*
     NOSANA JOBS SECTION
