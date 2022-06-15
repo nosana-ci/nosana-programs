@@ -1,8 +1,5 @@
-use crate::StakeTier::{Level0, Level1, Level2, Level3, Level4};
-use crate::{
-    StakeTier, LEVEL0_MAX, LEVEL0_MIN, LEVEL1_MAX, LEVEL1_MIN, LEVEL2_MAX, LEVEL2_MIN, LEVEL3_MAX,
-    LEVEL3_MIN, LEVEL4_MAX, LEVEL4_MIN,
-};
+use crate::state::*;
+use crate::StakeTier::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token;
 
@@ -35,6 +32,7 @@ pub fn transfer_tokens<'info>(
 }
 
 pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duration: u128) -> u128 {
+    // determine elapsed time in seconds since unstake, 0 if not unstaked
     let elapsed = u128::try_from(if time_unstake == 0 {
         0
     } else {
@@ -42,6 +40,7 @@ pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duratio
     })
     .unwrap();
 
+    // return boost in xnos
     duration
         .checked_sub(elapsed)
         .unwrap()

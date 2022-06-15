@@ -27,6 +27,10 @@ pub mod nosana_staking {
         unstake::handler(ctx)
     }
 
+    pub fn topup(ctx: Context<Topup>, amount: u64) -> Result<()> {
+        topup::handler(ctx, amount)
+    }
+
     pub fn claim(ctx: Context<Claim>, bump: u8) -> Result<()> {
         claim::handler(ctx, bump)
     }
