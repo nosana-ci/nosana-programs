@@ -19,18 +19,38 @@ describe('Nosana SPL', () => {
   const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
   const ipfsData = Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex');
 
-  // tokens
-  const mintSupply = 100_000_000;
-  const userSupply = 100;
-  const jobPrice = 10;
-  const stakeAmount = 10;
-
   // time
   const allowedClockDelta = 2000;
-  const stakeMinDuration = 90 * 24 * 60 * 60;
-  const stakeMaxDuration = 365 * 24 * 60 * 60;
-  const stakeTooShortDuration = stakeMinDuration - 1;
-  const stakeTooLongDuration = stakeMaxDuration + 1;
+  const secondsPerDay = 24 * 60 * 60;
+  const stakeMinDuration = 90 * secondsPerDay;
+  const stakeMaxDuration = 4 * stakeMinDuration;
+  const timeDiv = secondsPerDay;
+
+  const stakeRanks = {
+    level0: 0,
+    level1: 1e3 * 1e6 * stakeMinDuration / timeDiv,
+    level2: 1e4 * 1e6 * stakeMinDuration * 2 / timeDiv,
+    level3: 1e5 * 1e6 * stakeMinDuration * 3 / timeDiv,
+    level4: 1e6 * 1e6 * stakeMaxDuration / timeDiv,
+  }
+
+  function get_rank(xnos) {
+    switch (true) {
+      case xnos >= stakeRanks.level4: return 4
+      case xnos >= stakeRanks.level3: return 3
+      case xnos >= stakeRanks.level2: return 2
+      case xnos >= stakeRanks.level1: return 1
+      case xnos >= stakeRanks.level0: return 0
+      default: return -1
+    }
+  }
+
+  // tokens
+  const decimals = 1e6
+  const mintSupply = 1e7 * decimals;
+  const userSupply = 1e2 * decimals;
+  const jobPrice = decimals;
+  const stakeAmount = 1e3 * decimals;
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
@@ -85,7 +105,7 @@ describe('Nosana SPL', () => {
     StakeAlreadyStaked: 'NosanaError::StakeAlreadyStaked - This stake is already unstaked.',
     StakeAlreadyUnstaked: 'NosanaError::StakeAlreadyUnstaked - This stake is already unstaked.',
     StakeLocked: 'NosanaError::StakeLocked - This stake is still locked.',
-    StakeDurationNotLongEnough: 'NosanaError::StakeDurationNotLongEnough - This duration is not long enough.',
+    StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This duration is not long enough.',
     StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This duration is too long.',
 
     JobNotClaimed: 'NosanaError::JobNotClaimed - Job is not in the Claimed state.',
@@ -129,7 +149,7 @@ describe('Nosana SPL', () => {
     });
 
     // mint
-    it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply} tokens`, async () => {
+    it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply / decimals} tokens`, async () => {
 
       // create associated token accounts
       stakingAccounts.ataFrom = jobAccounts.ataFrom = stakingAccounts.ataTo = jobAccounts.ataTo = ata.user =
@@ -184,7 +204,7 @@ describe('Nosana SPL', () => {
       } catch (e) {
         msg = e.error.errorMessage
       }
-      expect(msg).to.be.equal(errors.StakeDurationNotLongEnough)
+      expect(msg).to.be.equal(errors.StakeDurationTooShort)
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
@@ -207,7 +227,7 @@ describe('Nosana SPL', () => {
     });
 
     // min stake
-    it('Create stake minumum', async () => {
+    it('Create stake minimum', async () => {
       await stakingProgram.rpc.stake(
         new anchor.BN(stakeAmount),
         new anchor.BN(stakeMinDuration),
@@ -242,10 +262,10 @@ describe('Nosana SPL', () => {
     it('Emit rank', async () => {
       const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
       const rank = result.events[0].data
-      const xnos = rank.xnos.toString()
-      const tier = rank.tier.toString()
-      expect(xnos).to.be.equal((stakeMinDuration * stakeAmount).toString())
-      expect(tier).to.be.equal((4).toString())
+      const xnos = parseInt(rank.xnos.toString())
+      const tier = rank.tier
+      expect(xnos).to.be.equal(stakeMinDuration * stakeAmount / timeDiv)
+      expect(tier).to.be.equal(get_rank(xnos));
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 

@@ -42,6 +42,8 @@ pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duratio
 
     // return boost in xnos
     duration
+        .checked_div(TIME_DIV)
+        .unwrap()
         .checked_sub(elapsed)
         .unwrap()
         .checked_mul(u128::from(amount))

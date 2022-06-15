@@ -14,8 +14,8 @@ pub enum NosanaError {
     StakeAlreadyUnstaked,
     #[msg("NosanaError::StakeLocked - This stake is still locked.")]
     StakeLocked,
-    #[msg("NosanaError::StakeDurationNotLongEnough - This duration is not long enough.")]
-    StakeDurationNotLongEnough,
+    #[msg("NosanaError::StakeDurationTooShort - This duration is not long enough.")]
+    StakeDurationTooShort,
     #[msg("NosanaError::StakeDurationTooLong - This duration is too long.")]
     StakeDurationTooLong,
 }

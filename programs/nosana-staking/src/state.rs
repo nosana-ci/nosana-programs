@@ -1,8 +1,11 @@
 use anchor_lang::prelude::*;
 
 pub const STAKE_SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();
-pub const DURATION_MIN: u128 = 90 * 24 * 60 * 60; // 1 month TODO: determine minimum amount
-pub const DURATION_MAX: u128 = 365 * 24 * 60 * 60; // 1 year
+pub const NOS_DECIMALS: u128 = 1_000_000;
+pub const SECONDS_PER_DAY: u128 = 24 * 60 * 60;
+pub const DURATION_MIN: u128 = 90 * SECONDS_PER_DAY; // ~3 months
+pub const DURATION_MAX: u128 = 4 * DURATION_MIN; // ~1 year
+pub const TIME_DIV: u128 = SECONDS_PER_DAY;
 
 /// # Stake
 #[account]
@@ -31,16 +34,16 @@ impl StakeAccount {
 pub const LEVEL0_MIN: u128 = u128::MIN;
 pub const LEVEL0_MAX: u128 = LEVEL1_MIN - 1;
 
-pub const LEVEL1_MIN: u128 = 1e2 as u128;
+pub const LEVEL1_MIN: u128 = 1_000 * NOS_DECIMALS * DURATION_MIN / TIME_DIV;
 pub const LEVEL1_MAX: u128 = LEVEL2_MIN - 1;
 
-pub const LEVEL2_MIN: u128 = 1e3 as u128;
+pub const LEVEL2_MIN: u128 = 10_000 * NOS_DECIMALS * DURATION_MIN * 2 / TIME_DIV;
 pub const LEVEL2_MAX: u128 = LEVEL3_MIN - 1;
 
-pub const LEVEL3_MIN: u128 = 1e4 as u128;
+pub const LEVEL3_MIN: u128 = 100_000 * NOS_DECIMALS * DURATION_MIN * 3 / TIME_DIV;
 pub const LEVEL3_MAX: u128 = LEVEL4_MIN - 1;
 
-pub const LEVEL4_MIN: u128 = 1e5 as u128;
+pub const LEVEL4_MIN: u128 = 1_000_000 * NOS_DECIMALS * DURATION_MAX / TIME_DIV;
 pub const LEVEL4_MAX: u128 = u128::MAX;
 
 /// # StakeTier
