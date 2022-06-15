@@ -31,7 +31,7 @@ pub mod nosana_staking {
         claim::handler(ctx, bump)
     }
 
-    pub fn get_xnos(ctx: Context<GetXnos>) -> Result<()> {
-        get_xnos::handler(ctx)
+    pub fn emit_rank(ctx: Context<EmitRank>) -> Result<()> {
+        emit_rank::handler(ctx)
     }
 }

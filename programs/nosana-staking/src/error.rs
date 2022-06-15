@@ -14,4 +14,6 @@ pub enum NosanaError {
     Locked,
     #[msg("NosanaError::DurationNotLongEnough - This duration is not long enough.")]
     DurationNotLongEnough,
+    #[msg("NosanaError::DurationTooLong - This duration is too long.")]
+    DurationTooLong,
 }

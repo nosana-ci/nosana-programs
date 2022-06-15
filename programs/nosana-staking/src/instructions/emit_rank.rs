@@ -1,23 +1,27 @@
 use crate::*;
 
 #[derive(Accounts)]
-pub struct GetXnos<'info> {
+pub struct EmitRank<'info> {
     #[account()]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
 }
 
-pub fn handler(ctx: Context<GetXnos>) -> Result<()> {
+pub fn handler(ctx: Context<EmitRank>) -> Result<()> {
     let stake = &ctx.accounts.stake;
 
-    // clock time for unstake
-    utils::get_xnos(
+    // determine xnos and tier
+    let xnos = utils::calculate_xnos(
         ctx.accounts.clock.unix_timestamp,
         stake.time,
         stake.amount,
         stake.duration,
     );
+    let tier = utils::get_tier(xnos) as u8;
+
+    // emit rank
+    emit!(Rank { xnos, tier });
 
     // finish
     Ok(())
