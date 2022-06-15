@@ -26,31 +26,38 @@ describe('Nosana SPL', () => {
   const stakeMaxDuration = 4 * stakeMinDuration;
   const timeDiv = secondsPerDay;
 
-  const stakeRanks = {
-    level0: 0,
-    level1: 1e3 * 1e6 * stakeMinDuration / timeDiv,
-    level2: 1e4 * 1e6 * stakeMinDuration * 2 / timeDiv,
-    level3: 1e5 * 1e6 * stakeMinDuration * 3 / timeDiv,
-    level4: 1e6 * 1e6 * stakeMaxDuration / timeDiv,
-  }
-
-  function get_rank(xnos) {
-    switch (true) {
-      case xnos >= stakeRanks.level4: return 4
-      case xnos >= stakeRanks.level3: return 3
-      case xnos >= stakeRanks.level2: return 2
-      case xnos >= stakeRanks.level1: return 1
-      case xnos >= stakeRanks.level0: return 0
-      default: return -1
-    }
-  }
-
   // tokens
   const decimals = 1e6
   const mintSupply = 1e7 * decimals;
   const userSupply = 1e2 * decimals;
   const jobPrice = decimals;
   const stakeAmount = 1e3 * decimals;
+
+  // ranks
+  const stakeRanks = {
+    level0: 0,
+    level1: 1e3 * decimals * stakeMinDuration / timeDiv,
+    level2: 1e4 * decimals * stakeMinDuration / timeDiv * 2,
+    level3: 1e5 * decimals * stakeMinDuration / timeDiv * 3,
+    level4: 1e6 * decimals * stakeMaxDuration / timeDiv,
+  }
+
+  function get_rank(xnos) {
+    switch (true) {
+      case xnos >= stakeRanks.level4:
+        return 4
+      case xnos >= stakeRanks.level3:
+        return 3
+      case xnos >= stakeRanks.level2:
+        return 2
+      case xnos >= stakeRanks.level1:
+        return 1
+      case xnos >= stakeRanks.level0:
+        return 0
+      default:
+        return -1
+    }
+  }
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
