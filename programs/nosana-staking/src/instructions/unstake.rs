@@ -14,7 +14,7 @@ pub fn handler(ctx: Context<Unstake>) -> Result<()> {
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
-    require!(stake.time == 0, NosanaError::StakeAlreadyUnstaked);
+    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
 
     // clock time for unstake
     stake.unstake(ctx.accounts.clock.unix_timestamp);

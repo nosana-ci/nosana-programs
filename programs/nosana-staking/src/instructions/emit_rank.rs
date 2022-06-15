@@ -14,7 +14,7 @@ pub fn handler(ctx: Context<EmitRank>) -> Result<()> {
     // determine xnos and tier
     let xnos = utils::calculate_xnos(
         ctx.accounts.clock.unix_timestamp,
-        stake.time,
+        stake.time_unstake,
         stake.amount,
         stake.duration,
     );

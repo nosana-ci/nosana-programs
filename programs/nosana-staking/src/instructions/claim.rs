@@ -27,7 +27,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
                 ctx.accounts
                     .clock
                     .unix_timestamp
-                    .checked_sub(stake.time)
+                    .checked_sub(stake.time_unstake)
                     .unwrap()
             )
             .unwrap(),

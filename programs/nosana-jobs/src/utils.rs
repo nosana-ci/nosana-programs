@@ -15,7 +15,7 @@ pub fn transfer_tokens<'info>(
         authority,
     };
 
-    return if nonce == 0 {
+    if nonce == 0 {
         token::transfer(CpiContext::new(program, accounts), amount)
     } else {
         token::transfer(
@@ -26,5 +26,5 @@ pub fn transfer_tokens<'info>(
             ),
             amount,
         )
-    };
+    }
 }

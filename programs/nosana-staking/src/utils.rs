@@ -20,7 +20,7 @@ pub fn transfer_tokens<'info>(
         authority,
     };
 
-    return if nonce == 0 {
+    if nonce == 0 {
         token::transfer(CpiContext::new(program, accounts), amount)
     } else {
         token::transfer(
@@ -31,14 +31,14 @@ pub fn transfer_tokens<'info>(
             ),
             amount,
         )
-    };
+    }
 }
 
-pub fn calculate_xnos(time: i64, time_unstake: i64, amount: u64, duration: u128) -> u128 {
+pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duration: u128) -> u128 {
     let elapsed = u128::try_from(if time_unstake == 0 {
         0
     } else {
-        time.checked_sub(time_unstake).unwrap()
+        time_current.checked_sub(time_unstake).unwrap()
     })
     .unwrap();
 

@@ -8,7 +8,7 @@ pub const DURATION_MAX: u128 = 31 * 24 * 60 * 60; // 1 month
 #[account]
 pub struct StakeAccount {
     pub authority: Pubkey,
-    pub time: i64,
+    pub time_unstake: i64,
     pub duration: u128,
     pub amount: u64,
 }
@@ -20,14 +20,14 @@ impl StakeAccount {
         self.duration = duration;
     }
     pub fn unstake(&mut self, time: i64) {
-        self.time = time;
+        self.time_unstake = time;
     }
     pub fn topup(&mut self, amount: u64) {
         self.amount += amount;
     }
 }
 
-pub const LEVEL0_MIN: u128 = 0;
+pub const LEVEL0_MIN: u128 = u128::MIN;
 pub const LEVEL0_MAX: u128 = LEVEL1_MIN - 1;
 
 pub const LEVEL1_MIN: u128 = 1e2 as u128;
