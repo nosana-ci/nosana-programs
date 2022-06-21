@@ -1,5 +1,4 @@
-use crate::state::*;
-use crate::StakeTier::*;
+use crate::state;
 use anchor_lang::prelude::*;
 use anchor_spl::token;
 
@@ -42,20 +41,10 @@ pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duratio
 
     // return boost in xnos
     duration
-        .checked_div(TIME_DIV)
-        .unwrap()
         .checked_sub(elapsed)
         .unwrap()
         .checked_mul(u128::from(amount))
         .unwrap()
-}
-
-pub fn get_tier(xnos: u128) -> StakeTier {
-    match xnos {
-        LEVEL0_MIN..=LEVEL0_MAX => Level0,
-        LEVEL1_MIN..=LEVEL1_MAX => Level1,
-        LEVEL2_MIN..=LEVEL2_MAX => Level2,
-        LEVEL3_MIN..=LEVEL3_MAX => Level3,
-        LEVEL4_MIN..=LEVEL4_MAX => Level4,
-    }
+        .checked_div(state::SECONDS_PER_MONTH)
+        .unwrap()
 }

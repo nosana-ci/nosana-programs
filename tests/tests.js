@@ -21,42 +21,20 @@ describe('Nosana SPL', () => {
 
   // time
   const allowedClockDelta = 2000;
-  const secondsPerDay = 24 * 60 * 60;
-  const stakeMinDuration = 90 * secondsPerDay;
-  const stakeMaxDuration = 4 * stakeMinDuration;
-  const timeDiv = secondsPerDay;
+  const secondsPerMonth = 365 * 24 * 60 * 60 / 12;
+  const stakeDurationMonth = secondsPerMonth;
+  const stakeDurationYear = 12 * secondsPerMonth;
 
   // tokens
-  const decimals = 1e6
+  const decimals = 1e6;
   const mintSupply = 1e7 * decimals;
-  const userSupply = 1e2 * decimals;
+  const userSupply = 1e4 * decimals;
   const jobPrice = decimals;
   const stakeAmount = 1e3 * decimals;
 
-  // ranks
-  const stakeRanks = {
-    level0: 0,
-    level1: 1e3 * decimals * stakeMinDuration / timeDiv,
-    level2: 1e4 * decimals * stakeMinDuration / timeDiv * 2,
-    level3: 1e5 * decimals * stakeMinDuration / timeDiv * 3,
-    level4: 1e6 * decimals * stakeMaxDuration / timeDiv,
-  }
-
-  function get_rank(xnos) {
-    switch (true) {
-      case xnos >= stakeRanks.level4:
-        return 4
-      case xnos >= stakeRanks.level3:
-        return 3
-      case xnos >= stakeRanks.level2:
-        return 2
-      case xnos >= stakeRanks.level1:
-        return 1
-      case xnos >= stakeRanks.level0:
-        return 0
-      default:
-        return -1
-    }
+  function calculateXnos(unstakeTime, currentTime, duration, amount) {
+    const elapsed = unstakeTime === 0 ? 0 : currentTime - unstakeTime;
+    return (duration - elapsed) * amount / secondsPerMonth;
   }
 
   // setup users and nodes
@@ -203,7 +181,7 @@ describe('Nosana SPL', () => {
       try {
         await stakingProgram.rpc.stake(
           new anchor.BN(stakeAmount),
-          new anchor.BN(stakeMinDuration - 1),
+          new anchor.BN(stakeDurationMonth - 1),
           {
             accounts: stakingAccounts,
             signers: [signers.stake],
@@ -217,10 +195,11 @@ describe('Nosana SPL', () => {
 
     // too long stake
     it('Create stake too long', async () => {
+      let msg = ''
       try {
         await stakingProgram.rpc.stake(
           new anchor.BN(stakeAmount),
-          new anchor.BN(stakeMaxDuration + 1),
+          new anchor.BN(stakeDurationYear + 1),
           {
             accounts: stakingAccounts,
             signers: [signers.stake],
@@ -237,7 +216,7 @@ describe('Nosana SPL', () => {
     it('Create stake minimum', async () => {
       await stakingProgram.rpc.stake(
         new anchor.BN(stakeAmount),
-        new anchor.BN(stakeMinDuration),
+        new anchor.BN(stakeDurationMonth),
         {
           accounts: stakingAccounts,
           signers: [signers.stake],
@@ -252,7 +231,7 @@ describe('Nosana SPL', () => {
       const tempStake = anchor.web3.Keypair.generate()
       await stakingProgram.rpc.stake(
         new anchor.BN(stakeAmount),
-        new anchor.BN(stakeMaxDuration),
+        new anchor.BN(stakeDurationYear),
         {
           accounts: {
             ...stakingAccounts,
@@ -265,14 +244,65 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
+    it('Initialize stake for other users', async () => {
+      await Promise.all(users.map(async u => {
+        await stakingProgram.rpc.stake(
+          new anchor.BN(stakeAmount),
+          new anchor.BN(3 * stakeDurationMonth),
+          {
+            accounts: {
+              ...stakingAccounts,
+
+              ataFrom: u.ata,
+              authority: u.publicKey,
+              stake: u.signers.stake.publicKey,
+              feePayer: stakingAccounts.feePayer,
+            },
+            signers: [u.user, u.signers.stake],
+          }
+        );
+        // update balances
+        balances.vaultStaking += stakeAmount
+        u.balance -= stakeAmount
+      }))
+      await Promise.all(users.map(async u => {
+        assert.strictEqual(await utils.getTokenBalance(provider, u.ata), u.balance);
+      }))
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
     // emit stake
     it('Emit rank', async () => {
       const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
       const rank = result.events[0].data
       const xnos = parseInt(rank.xnos.toString())
-      const tier = rank.tier
-      expect(xnos).to.be.equal(stakeMinDuration * stakeAmount / timeDiv)
-      expect(tier).to.be.equal(get_rank(xnos));
+      expect(xnos).to.be.equal(calculateXnos(0, Date.now(), stakeDurationMonth, stakeAmount))
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+    // unstake
+    it('Unstake from other account', async () => {
+      let msg = ''
+      try {
+        await stakingProgram.rpc.unstake(
+          {
+            accounts: {
+              ...stakingAccounts,
+              authority: user4.publicKey
+            },
+            signers: [user4.user]
+          });
+      } catch (e) {
+        msg = e.error.errorMessage
+      }
+
+      expect(msg).to.be.equal(errors.Unauthorized)
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+    // unstake
+    it('Unstake', async () => {
+      await stakingProgram.rpc.unstake({accounts: stakingAccounts});
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
@@ -315,6 +345,7 @@ describe('Nosana SPL', () => {
           }
         );
       }))
+      await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // create

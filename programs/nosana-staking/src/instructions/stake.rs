@@ -21,9 +21,15 @@ pub struct Stake<'info> {
 pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     // require!(stake.authority == 0, NosanaError::StakeAlreadyInitialized);
-    require!(duration >= DURATION_MIN, NosanaError::StakeDurationTooShort);
-    require!(duration <= DURATION_MAX, NosanaError::StakeDurationTooLong);
-    require!(amount > 0, NosanaError::StakeAmountNotEnough);
+    require!(
+        duration >= DURATION_MONTH,
+        NosanaError::StakeDurationTooShort
+    );
+    require!(duration <= DURATION_YEAR, NosanaError::StakeDurationTooLong);
+    require!(
+        amount as u128 > NOS_DECIMALS,
+        NosanaError::StakeAmountNotEnough
+    );
 
     // transfer tokens
     utils::transfer_tokens(
