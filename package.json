@@ -14,7 +14,7 @@
         "typescript": "4.7.4"
     },
     "scripts": {
-        "lint": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
-        "lint:fix": "eslint --ext \".js,.vue\" --ignore-path .gitignore . --fix"
+        "lint": "eslint --ignore-path .gitignore .",
+        "lint:fix": "eslint --ignore-path .gitignore . --fix"
     }
 }
