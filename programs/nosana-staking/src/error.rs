@@ -8,14 +8,16 @@ pub enum NosanaError {
     StakeAmountNotEnough,
     #[msg("NosanaError::StakeAlreadyInitialized - This stake is already running.")]
     StakeAlreadyInitialized,
-    #[msg("NosanaError::StakeAlreadyStaked - This stake is already unstaked.")]
+    #[msg("NosanaError::StakeAlreadyClaimed - This stake is already claimed.")]
+    StakeAlreadyClaimed,
+    #[msg("NosanaError::StakeAlreadyStaked - This stake is already staked.")]
     StakeAlreadyStaked,
     #[msg("NosanaError::StakeAlreadyUnstaked - This stake is already unstaked.")]
     StakeAlreadyUnstaked,
     #[msg("NosanaError::StakeLocked - This stake is still locked.")]
     StakeLocked,
-    #[msg("NosanaError::StakeDurationTooShort - This duration is not long enough.")]
+    #[msg("NosanaError::StakeDurationTooShort - This stake duration is not long enough.")]
     StakeDurationTooShort,
-    #[msg("NosanaError::StakeDurationTooLong - This duration is too long.")]
+    #[msg("NosanaError::StakeDurationTooLong - This stake duration is too long.")]
     StakeDurationTooLong,
 }

@@ -40,11 +40,15 @@ pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duratio
     .unwrap();
 
     // return boost in xnos
-    duration
-        .checked_sub(elapsed)
-        .unwrap()
-        .checked_mul(u128::from(amount))
-        .unwrap()
-        .checked_div(state::SECONDS_PER_MONTH)
-        .unwrap()
+    if elapsed >= duration {
+        0
+    } else {
+        duration
+            .checked_sub(elapsed)
+            .unwrap()
+            .checked_mul(u128::from(amount))
+            .unwrap()
+            .checked_div(state::SECONDS_PER_MONTH)
+            .unwrap()
+    }
 }

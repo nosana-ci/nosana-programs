@@ -98,6 +98,7 @@ function calculateXnos(unstakeTime, currentTime, duration, amount) {
   return Math.floor((duration - elapsed) * amount / secondsPerMonth);
 }
 
+const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 module.exports = {
   mintFromFile,
@@ -110,4 +111,5 @@ module.exports = {
   getOrCreateAssociatedSPL,
   getTokenBalance,
   setupSolanaUser,
+  sleep,
 };

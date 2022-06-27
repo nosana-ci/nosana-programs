@@ -21,6 +21,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
+    require!(stake.amount != 0, NosanaError::StakeAlreadyClaimed);
     require!(
         stake.duration
             >= u128::try_from(
@@ -34,7 +35,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
         NosanaError::StakeLocked
     );
 
-    // pay out
+    // return tokens, the stake account is closed so no need to update it.
     utils::transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),

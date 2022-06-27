@@ -88,8 +88,8 @@ describe('Nosana SPL', () => {
     StakeAlreadyStaked: 'NosanaError::StakeAlreadyStaked - This stake is already unstaked.',
     StakeAlreadyUnstaked: 'NosanaError::StakeAlreadyUnstaked - This stake is already unstaked.',
     StakeLocked: 'NosanaError::StakeLocked - This stake is still locked.',
-    StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This duration is not long enough.',
-    StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This duration is too long.',
+    StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This stake duration is not long enough.',
+    StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This stake duration is too long.',
 
     Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
   }
@@ -326,14 +326,14 @@ describe('Nosana SPL', () => {
 
     // emit stake
     it('Check that xnos decreases after unstake', async () => {
-
+      await utils.sleep(3000);
       const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
       const rank = result.events[0].data
       const xnos = parseInt(rank.xnos.toString())
       expect(xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, stakeAmount))
       expect(xnos).to.be.closeTo(
         utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, stakeAmount),
-        250,
+        500,
         'Xnos differs too much'
       )
     });
