@@ -32,11 +32,6 @@ describe('Nosana SPL', () => {
   const jobPrice = decimals;
   const stakeAmount = 1e3 * decimals;
 
-  function calculateXnos(unstakeTime, currentTime, duration, amount) {
-    const elapsed = unstakeTime === 0 ? 0 : currentTime - unstakeTime;
-    return (duration - elapsed) * amount / secondsPerMonth;
-  }
-
   // setup users and nodes
   const users = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection)
@@ -83,7 +78,10 @@ describe('Nosana SPL', () => {
   }
 
   const errors = {
-    Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
+    JobNotClaimed: 'NosanaError::JobNotClaimed - Job is not in the Claimed state.',
+    JobNotInitialized: 'NosanaError::JobNotInitialized - Job is not in the Initialized state.',
+    JobNotTimedOut: 'NosanaError::JobNotTimedOut - Job is not timed out.',
+    JobQueueNotFound: 'NosanaError::JobQueueNotFound - Job queue not found.',
 
     StakeAmountNotEnough: 'NosanaError::StakeAmountNotEnough - This amount is not enough.',
     StakeAlreadyInitialized: 'NosanaError::StakeAlreadyInitialized - This stake is already running.',
@@ -93,14 +91,11 @@ describe('Nosana SPL', () => {
     StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This duration is not long enough.',
     StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This duration is too long.',
 
-    JobNotClaimed: 'NosanaError::JobNotClaimed - Job is not in the Claimed state.',
-    JobNotInitialized: 'NosanaError::JobNotInitialized - Job is not in the Initialized state.',
-    JobNotTimedOut: 'NosanaError::JobNotTimedOut - Job is not timed out.',
-    JobQueueNotFound: 'NosanaError::JobQueueNotFound - Job queue not found.',
+    Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
   }
 
   // we'll set these later
-  let mint, bumpJobs, bumpStaking, time;
+  let mint, bumpJobs, bumpStaking, claimTime, unstakeTime;
   const ata = {user: '', vaultJob: '', vaultStaking: ''}
   const balances = {user: 0, vaultJob: 0, vaultStaking: 0}
 
@@ -276,7 +271,7 @@ describe('Nosana SPL', () => {
       const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
       const rank = result.events[0].data
       const xnos = parseInt(rank.xnos.toString())
-      expect(xnos).to.be.equal(calculateXnos(0, Date.now(), stakeDurationMonth, stakeAmount))
+      expect(xnos).to.be.equal(utils.calculateXnos(0, Date.now(), stakeDurationMonth, stakeAmount))
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
@@ -302,10 +297,46 @@ describe('Nosana SPL', () => {
 
     // unstake
     it('Unstake', async () => {
+      unstakeTime = parseInt(Date.now() / 1e3)
       await stakingProgram.rpc.unstake({accounts: stakingAccounts});
+      const data = await stakingProgram.account.stakeAccount.fetch(stakingAccounts.stake);
+      expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(0, 1, 'Unstake time does not align with blockchain')
+      await utils.assertBalancesStaking(provider, ata, balances);
+    });
+
+    it('Unstake for other users', async () => {
+      await Promise.all(users.map(async u => {
+        await stakingProgram.rpc.unstake(
+          {
+            accounts: {
+              ...stakingAccounts,
+              authority: u.publicKey,
+              stake: u.signers.stake.publicKey,
+            },
+            signers: [u.user],
+          }
+        );
+      }))
+      await Promise.all(users.map(async u => {
+        assert.strictEqual(await utils.getTokenBalance(provider, u.ata), u.balance);
+      }))
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
+
+    // emit stake
+    it('Check that xnos decreases after unstake', async () => {
+
+      const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
+      const rank = result.events[0].data
+      const xnos = parseInt(rank.xnos.toString())
+      expect(xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, stakeAmount))
+      expect(xnos).to.be.closeTo(
+        utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, stakeAmount),
+        250,
+        'Xnos differs too much'
+      )
+    });
   });
 
   /*
@@ -483,7 +514,7 @@ describe('Nosana SPL', () => {
 
     // claim
     it('Claim jobs for all other nodes and users', async () => {
-      time = new Date();
+      claimTime = new Date();
       await Promise.all([...Array(10).keys()].map(async i => {
 
           let user = users[i]
@@ -512,7 +543,7 @@ describe('Nosana SPL', () => {
     // get
     it('Check if job is claimed', async () => {
       const data = await jobsProgram.account.job.fetch(jobAccounts.job);
-      expect(utils.timeDelta(data.timeStart, time)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
+      expect(utils.timeDelta(data.timeStart, claimTime)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
       assert.strictEqual(data.jobStatus, jobStatus.claimed);
       assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
       assert.strictEqual(data.tokens.toString(), jobPrice.toString());
@@ -588,7 +619,7 @@ describe('Nosana SPL', () => {
       const dataJobs = await jobsProgram.account.jobs.fetch(jobAccounts.jobs);
       const dataJob = await jobsProgram.account.job.fetch(jobAccounts.job);
 
-      expect(utils.timeDelta(dataJob.timeEnd, time)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
+      expect(utils.timeDelta(dataJob.timeEnd, claimTime)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
       assert.strictEqual(dataJob.jobStatus, jobStatus.finished);
       assert.strictEqual(dataJobs.jobs.length, 0);
       assert.strictEqual(utils.buf2hex(new Uint8Array(dataJob.ipfsResult).buffer), ipfsData.toString('hex'));
