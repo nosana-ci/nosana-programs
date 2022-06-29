@@ -332,12 +332,18 @@ describe('Nosana SPL', () => {
     it('Check that xnos decreases after unstake', async () => {
       await utils.sleep(3000);
       const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
-      const rank = result.events[0].data
-      const xnos = parseInt(rank.xnos.toString())
-      expect(xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, stakeAmount))
-      expect(xnos).to.be.closeTo(
+      const data = result.events[0].data
+      const rank = {}
+      for (const type of ['xnos', 'amount', 'duration', 'timeUnstake'])
+        rank[type] = parseInt(data[type].toString())
+
+      expect(rank.amount).to.be.equal(stakeAmount)
+      expect(rank.duration).to.be.equal(stakeDurationMonth)
+      expect(rank.timeUnstake).to.be.closeTo(unstakeTime, 1)
+      expect(rank.xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, stakeAmount))
+      expect(rank.xnos).to.be.closeTo(
         utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, stakeAmount),
-        500,
+        1000,
         'Xnos differs too much'
       )
     });
