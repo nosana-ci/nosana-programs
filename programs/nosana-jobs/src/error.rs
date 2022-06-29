@@ -10,6 +10,8 @@ pub enum NosanaError {
     JobNotTimedOut,
     #[msg("NosanaError::JobQueueNotFound - Job queue not found.")]
     JobQueueNotFound,
+    #[msg("NosanaError::NodeNotVerified - Node does not qualify.")]
+    NodeNotVerified,
     #[msg("NosanaError::Unauthorized - You are not authorized to perform this action.")]
     Unauthorized,
 }

@@ -1,9 +1,12 @@
 // imports
-const anchor = require('@project-serum/anchor');
-const _ = require('lodash')
-const {TOKEN_PROGRAM_ID, createAssociatedTokenAccount} = require('@solana/spl-token');
-const utils = require('./utils');
-const chai = require('chai');
+import * as anchor from '@project-serum/anchor';
+import * as chai from 'chai';
+import * as _ from 'lodash';
+import * as utils from './utils';
+import {TOKEN_PROGRAM_ID, createAssociatedTokenAccount} from '@solana/spl-token';
+import {NosanaStaking} from '../target/types/nosana_staking';
+import {NosanaJobs} from '../target/types/nosana_jobs';
+
 const assert = chai.assert;
 const expect = chai.expect;
 
@@ -12,8 +15,8 @@ describe('Nosana SPL', () => {
   // provider and program
   const provider = anchor.AnchorProvider.env();
   const connection = provider.connection;
-  const jobsProgram = anchor.workspace.NosanaJobs;
-  const stakingProgram = anchor.workspace.NosanaStaking;
+  const jobsProgram = anchor.workspace.NosanaJobs as anchor.Program<NosanaJobs>;
+  const stakingProgram = anchor.workspace.NosanaStaking as anchor.Program<NosanaStaking>;
 
   // globals variables
   const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
@@ -63,10 +66,16 @@ describe('Nosana SPL', () => {
     authority: provider.wallet.publicKey,
     feePayer: provider.wallet.publicKey,
 
-    // solana accounts for cicd and staking
+    // Solana accounts for ci/cd and staking
     jobs: signers.jobs.publicKey,
     job: signers.job.publicKey,
     stake: signers.stake.publicKey,
+
+    // token and ATAs (tbd)
+    mint: undefined,
+    ataVault: undefined,
+    ataFrom: undefined,
+    ataTo: undefined,
   }
 
   // status options for jobs
@@ -95,7 +104,7 @@ describe('Nosana SPL', () => {
 
   // we'll set these later
   let mint, bumpJobs, bumpStaking, claimTime, unstakeTime;
-  const ata = {user: '', vaultJob: '', vaultStaking: ''}
+  const ata = {user: undefined, vaultJob: undefined, vaultStaking: undefined}
   const balances = {user: 0, vaultJob: 0, vaultStaking: 0}
 
   // for later
@@ -104,30 +113,22 @@ describe('Nosana SPL', () => {
 
   describe('Initialization', () => {
 
-    // mint
     it('Mint $NOS', async () => {
-
-      // create the main token
+      // create mint
       accounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
-
-      // get ATA of the vault, and the bump
+      // get ATA and bumps of the vaults
       [ata.vaultJob, bumpJobs] = await anchor.web3.PublicKey.findProgramAddress(
         [mint.toBuffer()],
         jobsProgram.programId
       );
-
       [ata.vaultStaking, bumpStaking] = await anchor.web3.PublicKey.findProgramAddress(
         [mint.toBuffer()],
         stakingProgram.programId
       );
-
-      // tests
-      assert.strictEqual(nosID.toString(), mint.toString());
+      expect(nosID.toString()).to.equal(mint.toString());
     });
 
-    // mint
     it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply / decimals} tokens`, async () => {
-
       // create associated token accounts
       accounts.ataFrom = accounts.ataTo = ata.user =
         await createAssociatedTokenAccount(
@@ -167,41 +168,37 @@ describe('Nosana SPL', () => {
 
     it('Initialize the staking vault', async () => {
       accounts.ataVault = ata.vaultStaking;
-      await stakingProgram.rpc.initVault(bumpJobs, {accounts});
+      await stakingProgram.methods
+        .initVault(bumpJobs)
+        .accounts(accounts)
+        .rpc();
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // too short stake
     it('Create stake too short', async () => {
-      try {
-        await stakingProgram.rpc.stake(
-          new anchor.BN(stakeAmount),
-          new anchor.BN(stakeDurationMonth - 1),
-          {accounts, signers: [signers.stake]});
-      } catch (e) {
-        msg = e.error.errorMessage
-      }
-      expect(msg).to.be.equal(errors.StakeDurationTooShort)
+      let msg = ''
+      await stakingProgram.methods
+        .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth - 1))
+        .accounts(accounts)
+        .signers([signers.stake])
+        .rpc()
+        .catch(e => msg = e.error.errorMessage);
+      expect(msg).to.equal(errors.StakeDurationTooShort)
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // too long stake
     it('Create stake too long', async () => {
       let msg = ''
-      try {
-        await stakingProgram.rpc.stake(
-          new anchor.BN(stakeAmount),
-          new anchor.BN(stakeDurationYear + 1),
-          {accounts, signers: [signers.stake]});
-      } catch (e) {
-        msg = e.error.errorMessage
-      }
-
-      expect(msg).to.be.equal(errors.StakeDurationTooLong)
+      await stakingProgram.methods
+        .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear + 1))
+        .accounts(accounts)
+        .signers([signers.stake])
+        .rpc()
+        .catch(e => msg = e.error.errorMessage);
+      expect(msg).to.equal(errors.StakeDurationTooLong)
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // min stake
     it('Create stake minimum', async () => {
       await stakingProgram.rpc.stake(
         new anchor.BN(stakeAmount),
@@ -212,7 +209,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // max stake
     it('Create stake maximum', async () => {
       const tempStake = anchor.web3.Keypair.generate()
       await stakingProgram.rpc.stake(
@@ -255,7 +251,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // emit stake
     it('Emit rank', async () => {
       const result = await stakingProgram.simulate.emitRank({accounts});
       const rank = result.events[0].data
@@ -264,7 +259,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // unstake
     it('Unstake from other account', async () => {
       let msg = ''
       try {
@@ -284,7 +278,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // topup
     it('Top Up', async () => {
       await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts});
       balances.user -= stakeAmount
@@ -292,20 +285,21 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // unstake
     it('Unstake', async () => {
-      unstakeTime = parseInt(Date.now() / 1e3)
-      await stakingProgram.rpc.unstake({accounts});
+      unstakeTime = Date.now() / 1e3
+      await stakingProgram.methods
+        .unstake()
+        .accounts(accounts)
+        .rpc();
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(
         0,
-        1,
+        2,
         'Unstake time does not align with blockchain'
       );
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
-    // topup
     it('Top Up after unstake', async () => {
       let msg = ''
       try {
@@ -317,28 +311,31 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // restake
     it('Restake', async () => {
       await stakingProgram.rpc.restake({accounts});
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // topup
     it('Top Up', async () => {
-      await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts});
+      await stakingProgram.methods
+        .topup(new anchor.BN(stakeAmount))
+        .accounts(accounts)
+        .rpc();
       balances.user -= stakeAmount
       balances.vaultStaking += stakeAmount
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // unstake
-    it('Unstake', async () => {
-      unstakeTime = parseInt(Date.now() / 1e3)
-      await stakingProgram.rpc.unstake({accounts});
+    it('Unstake second time', async () => {
+      unstakeTime = Date.now() / 1e3
+      await stakingProgram.methods
+        .unstake()
+        .accounts(accounts)
+        .rpc();
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(
         0,
-        1,
+        2,
         'Unstake time does not align with blockchain'
       );
       await utils.assertBalancesStaking(provider, ata, balances);
@@ -346,29 +343,25 @@ describe('Nosana SPL', () => {
 
     it('Unstake for other users', async () => {
       await Promise.all(users.map(async u => {
-        await stakingProgram.rpc.unstake(
-          {
-            accounts: {
-              ...accounts,
-              authority: u.publicKey,
-              stake: u.signers.stake.publicKey,
-            },
-            signers: [u.user],
-          }
-        );
-      }))
-      await Promise.all(users.map(async u => {
-        assert.strictEqual(await utils.getTokenBalance(provider, u.ata), u.balance);
+        await stakingProgram.methods
+          .unstake()
+          .accounts({
+            ...accounts,
+            authority: u.publicKey,
+            stake: u.signers.stake.publicKey,
+          })
+          .signers([u.user])
+          .rpc();
+        expect(await utils.getTokenBalance(provider, u.ata)).to.equal(u.balance);
       }))
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-    // emit stake
     it('Check that xnos decreases after unstake', async () => {
       await utils.sleep(3000);
       const result = await stakingProgram.simulate.emitRank({accounts});
       const data = result.events[0].data
-      const rank = {}
+      const rank = {};
       for (const type of ['xnos', 'amount', 'duration', 'timeUnstake'])
         rank[type] = parseInt(data[type].toString())
 
@@ -379,7 +372,7 @@ describe('Nosana SPL', () => {
       expect(rank.xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, userStake))
       expect(rank.xnos).to.be.closeTo(
         utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, userStake),
-        1e4, //TODO make smaller
+        1000,
         'Xnos differs too much'
       )
     });
@@ -430,47 +423,35 @@ describe('Nosana SPL', () => {
     // create
     it('Create job in different ata', async () => {
       let msg = ''
-      try {
-        const tempJob = anchor.web3.Keypair.generate()
-        await jobsProgram.rpc.createJob(
-          new anchor.BN(jobPrice),
-          ipfsData,
-          {
-            accounts: {
-              ...accounts,
-              ataVault: accounts.ataFrom,
-              job: tempJob.publicKey,
-            },
-            signers: [tempJob]
-          },
-        );
-      } catch (e) {
-        msg = e.error.errorMessage
-      }
-
-      expect(msg).to.be.equal('A seeds constraint was violated')
+      const tempJob = anchor.web3.Keypair.generate()
+      await jobsProgram.methods
+        .createJob(new anchor.BN(jobPrice), ipfsData)
+        .accounts({
+            ...accounts,
+            ataVault: accounts.ataFrom,
+            job: tempJob.publicKey,
+          }
+        ).signers([tempJob])
+        .rpc()
+        .catch(e => msg = e.error.errorMessage);
+      expect(msg).to.equal('A seeds constraint was violated')
       await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // create
     it('Create jobs for other users', async () => {
       await Promise.all(users.map(async u => {
-        await jobsProgram.rpc.createJob(
-          new anchor.BN(jobPrice),
-          ipfsData,
-          {
-            accounts: {
-              ...accounts,
-              // jobs
-              jobs: u.signers.jobs.publicKey,
-              job: u.signers.job.publicKey,
-              ataFrom: u.ata,
-              authority: u.publicKey,
-            },
-            signers: [u.user, u.signers.job],
-          }
-        );
-
+        await jobsProgram.methods
+          .createJob(new anchor.BN(jobPrice), ipfsData)
+          .accounts({
+            ...accounts,
+            jobs: u.signers.jobs.publicKey,
+            job: u.signers.job.publicKey,
+            ataFrom: u.ata,
+            authority: u.publicKey,
+          })
+          .signers([u.user, u.signers.job])
+          .rpc();
         // update balances
         balances.vaultJob += jobPrice
         u.balance -= jobPrice
@@ -522,30 +503,33 @@ describe('Nosana SPL', () => {
 
     // claim
     it('Claim job', async () => {
-      await jobsProgram.rpc.claimJob({accounts});
+      await jobsProgram.methods
+        .claimJob()
+        .accounts(accounts)
+        .rpc();
       await utils.assertBalancesJobs(provider, ata, balances);
     });
 
     // claim
     it('Claim job that is already claimed', async () => {
       let msg = ''
-      try {
-        await jobsProgram.rpc.claimJob({accounts});
-      } catch (e) {
-        msg = e.error.errorMessage
-      }
-      assert.strictEqual(msg, errors.JobNotInitialized);
+      await jobsProgram.methods
+        .claimJob()
+        .accounts(accounts)
+        .rpc()
+        .catch(e => msg = e.error.errorMessage);
+      expect(msg).to.equal(errors.JobNotInitialized);
     });
 
     // reclaim
     it('Reclaim job too soon', async () => {
       let msg = ''
-      try {
-        await jobsProgram.rpc.reclaimJob({accounts});
-      } catch (e) {
-        msg = e.error.errorMessage
-      }
-      assert.strictEqual(msg, errors.JobNotTimedOut);
+      await jobsProgram.methods
+        .reclaimJob()
+        .accounts(accounts)
+        .rpc()
+        .catch(e => msg = e.error.errorMessage);
+      expect(msg).to.equal(errors.JobNotTimedOut);
     });
 
     // claim
@@ -560,16 +544,17 @@ describe('Nosana SPL', () => {
           node.job = user.signers.job.publicKey
           node.jobs = user.signers.jobs.publicKey
 
-          await jobsProgram.rpc.claimJob({
-              accounts: {
+          await jobsProgram.methods
+            .claimJob()
+            .accounts({
                 ...accounts,
                 authority: node.publicKey,
                 job: node.job,
                 jobs: node.jobs,
-              },
-              signers: [node.user],
-            }
-          )
+              }
+            )
+            .signers([node.user])
+            .rpc();
         }
       ))
     });

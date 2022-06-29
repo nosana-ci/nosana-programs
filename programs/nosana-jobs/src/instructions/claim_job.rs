@@ -16,22 +16,23 @@ pub struct ClaimJob<'info> {
 }
 
 pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
-    // get job and claim it
+    // get job and check if it's not initialized
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
         job.job_status == JobStatus::Initialized as u8,
         NosanaError::JobNotInitialized
     );
 
-    // get rank
-    let cpi_program = ctx.accounts.staking_program.to_account_info();
-    let cpi_accounts = EmitRank {
-        clock: ctx.accounts.clock.to_account_info(),
-        authority: ctx.accounts.authority.to_account_info(),
-        stake: ctx.accounts.stake.to_account_info(),
-    };
-    let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-    let _rank = nosana_staking::cpi::emit_rank(cpi_ctx);
+    // verify node
+    let _rank = nosana_staking::cpi::emit_rank(CpiContext::new(
+        ctx.accounts.staking_program.to_account_info(),
+        EmitRank {
+            clock: ctx.accounts.clock.to_account_info(),
+            authority: ctx.accounts.authority.to_account_info(),
+            stake: ctx.accounts.stake.to_account_info(),
+        },
+    ));
+    // require!(rank.xnos > 100, NosanaError::NodeNotVerified);
 
     // claim
     job.claim(
