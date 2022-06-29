@@ -1,6 +1,6 @@
 import * as anchor from '@project-serum/anchor';
-import * as assert from 'assert';
 import * as serumCmn from '@project-serum/common';
+import { expect } from 'chai';
 import {
   TOKEN_PROGRAM_ID,
   createMint,
@@ -17,16 +17,16 @@ async function assertBalancesJobs(provider, wallets, balances) {
   for (const pool of ['user', 'vaultJob']) {
     console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
-  assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
-  assert.strictEqual(await getTokenBalance(provider, wallets.vaultJob), balances.vaultJob);
+  expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
+  expect(await getTokenBalance(provider, wallets.vaultJob)).to.equal(balances.vaultJob);
 }
 
 async function assertBalancesStaking(provider, wallets, balances) {
   for (const pool of ['user', 'vaultStaking']) {
     console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
-  assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
-  assert.strictEqual(await getTokenBalance(provider, wallets.vaultStaking), balances.vaultStaking);
+  expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
+  expect(await getTokenBalance(provider, wallets.vaultStaking)).to.equal(balances.vaultStaking);
 }
 
 async function mintFromFile(key, provider, authority) {
@@ -43,7 +43,7 @@ async function mintToAccount(provider, mint, destination, amount) {
 
 function buf2hex(buffer) {
   // buffer is an ArrayBuffer
-  return [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  return [...new Uint8Array(buffer)].map((x) => x.toString().padStart(2, '0')).join('');
 }
 
 function timeDelta(t1, t2) {

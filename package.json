@@ -18,7 +18,7 @@
   },
   "scripts": {
     "test": "anchor test",
-    "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint:fix": "prettier */*.js \"{migrations,tests}/**/*{.js,.ts}\" -w",
+    "lint": "prettier */*.js \"{migrations,tests}/**/*{.js,.ts}\" --check"
   }
 }

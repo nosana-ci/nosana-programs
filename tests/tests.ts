@@ -1,14 +1,11 @@
 // imports
 import * as anchor from '@project-serum/anchor';
-import * as chai from 'chai';
 import * as _ from 'lodash';
 import * as utils from './utils';
+import { expect } from 'chai';
 import { TOKEN_PROGRAM_ID, createAssociatedTokenAccount } from '@solana/spl-token';
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { NosanaJobs } from '../target/types/nosana_jobs';
-
-const assert = chai.assert;
-const expect = chai.expect;
 
 describe('Nosana SPL', () => {
   // provider and program
@@ -19,7 +16,7 @@ describe('Nosana SPL', () => {
 
   // globals variables
   const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
-  const ipfsData = Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex');
+  const ipfsData = [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')];
 
   // time
   const allowedClockDelta = 2000;
@@ -38,7 +35,7 @@ describe('Nosana SPL', () => {
   const users = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection);
   });
-  const [user1, user2, user3, user4, ...otherUsers] = users;
+  const [user1, user2, user3] = users;
   const nodes = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection);
   });
@@ -133,7 +130,8 @@ describe('Nosana SPL', () => {
         ata.user =
           await createAssociatedTokenAccount(
             provider.connection,
-            provider.wallet.payer,
+            // @ts-ignore
+            provider.wallet.payer, // ts complains about the payer not existing
             mint,
             provider.wallet.publicKey
           );
@@ -237,14 +235,14 @@ describe('Nosana SPL', () => {
             .rpc();
           balances.vaultStaking += stakeAmount;
           u.balance -= stakeAmount;
-          assert.strictEqual(await utils.getTokenBalance(provider, u.ata), u.balance);
+          expect(await utils.getTokenBalance(provider, u.ata)).to.equal(u.balance);
         })
       );
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
     it('Emit rank', async () => {
-      const result = await stakingProgram.simulate.emitRank({ accounts });
+      const result = await stakingProgram.methods.emitRank().accounts(accounts).simulate();
       const rank = result.events[0].data;
       const xnos = parseInt(rank.xnos.toString());
       expect(xnos).to.equal(utils.calculateXnos(0, Date.now(), stakeDurationMonth, stakeAmount));
@@ -290,7 +288,7 @@ describe('Nosana SPL', () => {
     });
 
     it('Re-stake', async () => {
-      await stakingProgram.rpc.restake({ accounts });
+      await stakingProgram.methods.restake().accounts(accounts).rpc();
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
@@ -329,10 +327,10 @@ describe('Nosana SPL', () => {
 
     it('Check that xnos decreases after unstake', async () => {
       await utils.sleep(3000);
-      const result = await stakingProgram.simulate.emitRank({ accounts });
+      const result = await stakingProgram.methods.emitRank().accounts(accounts).simulate();
       const data = result.events[0].data;
-      const rank = {};
-      for (const type of ['xnos', 'amount', 'duration', 'timeUnstake']) rank[type] = parseInt(data[type].toString());
+      const rank = { xnos: 0, amount: 0, duration: 0, timeUnstake: 0 };
+      for (const type of Object.keys(rank)) rank[type] = parseInt(data[type].toString());
 
       const userStake = stakeAmount * 3; // stake + topup + topup
       const xnos = utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, userStake);
@@ -425,7 +423,7 @@ describe('Nosana SPL', () => {
       );
       await Promise.all(
         users.map(async (u) => {
-          assert.strictEqual(await utils.getTokenBalance(provider, u.ata), u.balance);
+          expect(await utils.getTokenBalance(provider, u.ata)).to.equal(u.balance);
         })
       );
       await utils.assertBalancesJobs(provider, ata, balances);
@@ -457,15 +455,15 @@ describe('Nosana SPL', () => {
 
     it('List jobs', async () => {
       const data = await jobsProgram.account.jobs.fetch(accounts.jobs);
-      assert.strictEqual(data.authority.toString(), accounts.authority.toString());
-      assert.strictEqual(data.jobs[0].toString(), accounts.job.toString());
-      assert.strictEqual(data.jobs.length, 1);
+      expect(data.authority.toString()).to.equal(accounts.authority.toString());
+      expect(data.jobs[0].toString()).to.equal(accounts.job.toString());
+      expect(data.jobs.length).to.equal(1);
     });
 
     it('Check if job is created', async () => {
       const data = await jobsProgram.account.job.fetch(accounts.job);
-      assert.strictEqual(data.jobStatus, jobStatus.created);
-      assert.strictEqual(utils.buf2hex(new Uint8Array(data.ipfsJob).buffer), ipfsData.toString('hex'));
+      expect(data.jobStatus).to.equal(jobStatus.created);
+      expect(utils.buf2hex(new Uint8Array(data.ipfsJob))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
     });
 
     it('Claim job', async () => {
@@ -521,9 +519,9 @@ describe('Nosana SPL', () => {
     it('Check if job is claimed', async () => {
       const data = await jobsProgram.account.job.fetch(accounts.job);
       expect(utils.timeDelta(data.timeStart, claimTime)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
-      assert.strictEqual(data.jobStatus, jobStatus.claimed);
-      assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
-      assert.strictEqual(data.tokens.toString(), jobPrice.toString());
+      expect(data.jobStatus).to.equal(jobStatus.claimed);
+      expect(data.node.toString()).to.equal(provider.wallet.publicKey.toString());
+      expect(data.tokens.toString()).to.equal(jobPrice.toString());
     });
 
     it('Finish job from other node', async () => {
@@ -532,9 +530,9 @@ describe('Nosana SPL', () => {
         .finishJob(bumpJobs, ipfsData)
         .accounts({
           ...accounts,
-          authority: user4.publicKey,
+          authority: user2.publicKey,
         })
-        .signers([user4.user])
+        .signers([user2.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(errors.Unauthorized);
@@ -566,7 +564,6 @@ describe('Nosana SPL', () => {
             .accounts({
               ...accounts,
               job: n.job,
-              jobs: n.jobs,
               ataTo: n.ata,
               authority: n.publicKey,
             })
@@ -575,7 +572,7 @@ describe('Nosana SPL', () => {
           // update balances
           balances.vaultJob -= jobPrice;
           n.balance += jobPrice;
-          assert.strictEqual(await utils.getTokenBalance(provider, n.ata), n.balance);
+          expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
         })
       );
       await utils.assertBalancesJobs(provider, ata, balances);
@@ -588,7 +585,7 @@ describe('Nosana SPL', () => {
       expect(utils.timeDelta(dataJob.timeEnd, claimTime)).to.be.closeTo(0, allowedClockDelta);
       expect(dataJob.jobStatus).to.equal(jobStatus.finished);
       expect(dataJobs.jobs.length).to.equal(0);
-      expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult).buffer)).to.equal(ipfsData.toString('hex'));
+      expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
 
       await Promise.all(
         nodes.map(async (n) => {
@@ -597,7 +594,7 @@ describe('Nosana SPL', () => {
 
           expect(dataJob.jobStatus).to.equal(jobStatus.finished);
           expect(dataJobs.jobs.length).to.equal(0);
-          expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult).buffer)).to.equal(ipfsData.toString('hex'));
+          expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
         })
       );
     });
@@ -654,8 +651,8 @@ describe('Nosana SPL', () => {
       let msg = '';
       await jobsProgram.methods
         .cancelJob(bumpJobs)
-        .accounts({ ...accounts, authority: user4.publicKey })
-        .signers([user4.user])
+        .accounts({ ...accounts, authority: user1.publicKey })
+        .signers([user1.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(errors.Unauthorized);
