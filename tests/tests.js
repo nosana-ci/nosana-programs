@@ -328,6 +328,33 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
+    // restake
+    it('Restake', async () => {
+      await stakingProgram.rpc.restake({accounts: stakingAccounts});
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+    // topup
+    it('Top Up', async () => {
+      await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts: stakingAccounts});
+      balances.user -= stakeAmount
+      balances.vaultStaking += stakeAmount
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
+    // unstake
+    it('Unstake', async () => {
+      unstakeTime = parseInt(Date.now() / 1e3)
+      await stakingProgram.rpc.unstake({accounts: stakingAccounts});
+      const data = await stakingProgram.account.stakeAccount.fetch(stakingAccounts.stake);
+      expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(
+        0,
+        1,
+        'Unstake time does not align with blockchain'
+      );
+      await utils.assertBalancesStaking(provider, ata, balances);
+    });
+
     it('Unstake for other users', async () => {
       await Promise.all(users.map(async u => {
         await stakingProgram.rpc.unstake(
@@ -356,14 +383,14 @@ describe('Nosana SPL', () => {
       for (const type of ['xnos', 'amount', 'duration', 'timeUnstake'])
         rank[type] = parseInt(data[type].toString())
 
-      const userStake = stakeAmount * 2
+      const userStake = stakeAmount * 3 // stake + topup + topup
       expect(rank.amount).to.be.equal(userStake)
       expect(rank.duration).to.be.equal(stakeDurationMonth)
       expect(rank.timeUnstake).to.be.closeTo(unstakeTime, 1)
       expect(rank.xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, userStake))
       expect(rank.xnos).to.be.closeTo(
         utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, userStake),
-        1000,
+        1e4, //TODO make smaller
         'Xnos differs too much'
       )
     });
