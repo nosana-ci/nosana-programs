@@ -295,6 +295,14 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
+    // topup
+    it('Top Up', async () => {
+      await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts: stakingAccounts});
+      balances.user -= stakeAmount
+      balances.vaultStaking += stakeAmount
+      await utils.assertBalancesStaking(provider, ata, balances)
+    });
+
     // unstake
     it('Unstake', async () => {
       unstakeTime = parseInt(Date.now() / 1e3)
@@ -306,6 +314,18 @@ describe('Nosana SPL', () => {
         'Unstake time does not align with blockchain'
       );
       await utils.assertBalancesStaking(provider, ata, balances);
+    });
+
+    // topup
+    it('Top Up after unstake', async () => {
+      let msg = ''
+      try {
+        await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts: stakingAccounts});
+      } catch (e) {
+        msg = e.error.errorMessage
+      }
+      expect(msg).to.be.equal(errors.StakeAlreadyUnstaked)
+      await utils.assertBalancesStaking(provider, ata, balances)
     });
 
     it('Unstake for other users', async () => {
@@ -327,7 +347,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
-
     // emit stake
     it('Check that xnos decreases after unstake', async () => {
       await utils.sleep(3000);
@@ -337,12 +356,13 @@ describe('Nosana SPL', () => {
       for (const type of ['xnos', 'amount', 'duration', 'timeUnstake'])
         rank[type] = parseInt(data[type].toString())
 
-      expect(rank.amount).to.be.equal(stakeAmount)
+      const userStake = stakeAmount * 2
+      expect(rank.amount).to.be.equal(userStake)
       expect(rank.duration).to.be.equal(stakeDurationMonth)
       expect(rank.timeUnstake).to.be.closeTo(unstakeTime, 1)
-      expect(rank.xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, stakeAmount))
+      expect(rank.xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, userStake))
       expect(rank.xnos).to.be.closeTo(
-        utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, stakeAmount),
+        utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, userStake),
         1000,
         'Xnos differs too much'
       )
