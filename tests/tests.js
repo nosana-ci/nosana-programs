@@ -300,7 +300,11 @@ describe('Nosana SPL', () => {
       unstakeTime = parseInt(Date.now() / 1e3)
       await stakingProgram.rpc.unstake({accounts: stakingAccounts});
       const data = await stakingProgram.account.stakeAccount.fetch(stakingAccounts.stake);
-      expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(0, 1, 'Unstake time does not align with blockchain')
+      expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(
+        0,
+        1,
+        'Unstake time does not align with blockchain'
+      );
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 

@@ -20,7 +20,11 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
-    require!(amount > 0, NosanaError::StakeAmountNotEnough);
+    require!(
+        amount as u128 > nos::DECIMALS,
+        NosanaError::StakeAmountNotEnough
+    );
+    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
 
     // transfer tokens
     utils::transfer_tokens(

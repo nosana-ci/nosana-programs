@@ -8,6 +8,14 @@ pub struct EmitRank<'info> {
     pub clock: Sysvar<'info, Clock>,
 }
 
+#[event]
+pub struct Rank {
+    pub xnos: u128,
+    pub time_unstake: i64,
+    pub duration: u128,
+    pub amount: u64,
+}
+
 pub fn handler(ctx: Context<EmitRank>) -> Result<()> {
     let stake = &ctx.accounts.stake;
 
@@ -18,7 +26,10 @@ pub fn handler(ctx: Context<EmitRank>) -> Result<()> {
             stake.time_unstake,
             stake.amount,
             stake.duration,
-        )
+        ),
+        time_unstake: stake.time_unstake,
+        duration: stake.duration,
+        amount: stake.amount,
     });
 
     // finish

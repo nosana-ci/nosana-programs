@@ -48,7 +48,7 @@ pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duratio
             .unwrap()
             .checked_mul(u128::from(amount))
             .unwrap()
-            .checked_div(state::SECONDS_PER_MONTH)
+            .checked_div(state::duration::SECONDS_PER_MONTH)
             .unwrap()
     }
 }
