@@ -7,7 +7,7 @@ mod utils;
 use error::*;
 use ids::*;
 use instructions::*;
-use state::*;
+pub use state::*; // expose stake for cpi
 
 use anchor_lang::prelude::*;
 

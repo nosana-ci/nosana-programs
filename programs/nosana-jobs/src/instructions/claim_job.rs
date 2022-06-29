@@ -1,5 +1,7 @@
 use crate::*;
+use nosana_staking::cpi::accounts::EmitRank;
 use nosana_staking::program::NosanaStaking;
+use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct ClaimJob<'info> {
@@ -7,6 +9,7 @@ pub struct ClaimJob<'info> {
     pub jobs: Account<'info, Jobs>,
     #[account(mut, owner = ID.key())]
     pub job: Account<'info, Job>,
+    pub stake: Box<Account<'info, StakeAccount>>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
     pub staking_program: Program<'info, NosanaStaking>,
@@ -19,6 +22,18 @@ pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
         job.job_status == JobStatus::Initialized as u8,
         NosanaError::JobNotInitialized
     );
+
+    // get rank
+    let cpi_program = ctx.accounts.staking_program.to_account_info();
+    let cpi_accounts = EmitRank {
+        clock: ctx.accounts.clock.to_account_info(),
+        authority: ctx.accounts.authority.to_account_info(),
+        stake: ctx.accounts.stake.to_account_info(),
+    };
+    let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+    let _rank = nosana_staking::cpi::emit_rank(cpi_ctx);
+
+    // claim
     job.claim(
         *ctx.accounts.authority.key,
         ctx.accounts.clock.unix_timestamp,

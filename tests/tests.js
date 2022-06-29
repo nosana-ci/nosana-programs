@@ -50,24 +50,22 @@ describe('Nosana SPL', () => {
 
   // public keys
   const accounts = {
+    // program ids
     systemProgram: anchor.web3.SystemProgram.programId,
     tokenProgram: TOKEN_PROGRAM_ID,
+    stakingProgram: stakingProgram.programId,
+
+    // sys vars
     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
     clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
 
+    // main user
     authority: provider.wallet.publicKey,
     feePayer: provider.wallet.publicKey,
-  }
 
-  const jobAccounts = {
-    ...accounts,
+    // solana accounts for cicd and staking
     jobs: signers.jobs.publicKey,
     job: signers.job.publicKey,
-    stakingProgram: stakingProgram.programId,
-  }
-
-  const stakingAccounts = {
-    ...accounts,
     stake: signers.stake.publicKey,
   }
 
@@ -110,20 +108,18 @@ describe('Nosana SPL', () => {
     it('Mint $NOS', async () => {
 
       // create the main token
-      jobAccounts.mint = stakingAccounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
+      accounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
 
       // get ATA of the vault, and the bump
       [ata.vaultJob, bumpJobs] = await anchor.web3.PublicKey.findProgramAddress(
         [mint.toBuffer()],
         jobsProgram.programId
       );
-      jobAccounts.ataVault = ata.vaultJob;
 
       [ata.vaultStaking, bumpStaking] = await anchor.web3.PublicKey.findProgramAddress(
         [mint.toBuffer()],
         stakingProgram.programId
       );
-      stakingAccounts.ataVault = ata.vaultStaking;
 
       // tests
       assert.strictEqual(nosID.toString(), mint.toString());
@@ -133,7 +129,7 @@ describe('Nosana SPL', () => {
     it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply / decimals} tokens`, async () => {
 
       // create associated token accounts
-      stakingAccounts.ataFrom = jobAccounts.ataFrom = stakingAccounts.ataTo = jobAccounts.ataTo = ata.user =
+      accounts.ataFrom = accounts.ataTo = ata.user =
         await createAssociatedTokenAccount(
           provider.connection,
           provider.wallet.payer,
@@ -144,6 +140,7 @@ describe('Nosana SPL', () => {
       // mint tokens
       await utils.mintToAccount(provider, mint, ata.user, mintSupply);
 
+      // fund users
       await Promise.all(users.map(async u => {
         await connection.confirmTransaction(await connection.requestAirdrop(u.publicKey, anchor.web3.LAMPORTS_PER_SOL))
         u.ata = await utils.getOrCreateAssociatedSPL(u.provider, u.publicKey, mint);
@@ -151,6 +148,7 @@ describe('Nosana SPL', () => {
         u.balance = userSupply
       }))
 
+      // fund nodes
       await Promise.all(nodes.map(async n => {
         await connection.confirmTransaction(await connection.requestAirdrop(n.publicKey, anchor.web3.LAMPORTS_PER_SOL))
         n.ata = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, mint);
@@ -168,7 +166,8 @@ describe('Nosana SPL', () => {
   describe('Nosana Staking', () => {
 
     it('Initialize the staking vault', async () => {
-      await stakingProgram.rpc.initVault(bumpJobs, {accounts: stakingAccounts});
+      accounts.ataVault = ata.vaultStaking;
+      await stakingProgram.rpc.initVault(bumpJobs, {accounts});
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
@@ -178,10 +177,7 @@ describe('Nosana SPL', () => {
         await stakingProgram.rpc.stake(
           new anchor.BN(stakeAmount),
           new anchor.BN(stakeDurationMonth - 1),
-          {
-            accounts: stakingAccounts,
-            signers: [signers.stake],
-          });
+          {accounts, signers: [signers.stake]});
       } catch (e) {
         msg = e.error.errorMessage
       }
@@ -196,10 +192,7 @@ describe('Nosana SPL', () => {
         await stakingProgram.rpc.stake(
           new anchor.BN(stakeAmount),
           new anchor.BN(stakeDurationYear + 1),
-          {
-            accounts: stakingAccounts,
-            signers: [signers.stake],
-          });
+          {accounts, signers: [signers.stake]});
       } catch (e) {
         msg = e.error.errorMessage
       }
@@ -213,10 +206,7 @@ describe('Nosana SPL', () => {
       await stakingProgram.rpc.stake(
         new anchor.BN(stakeAmount),
         new anchor.BN(stakeDurationMonth),
-        {
-          accounts: stakingAccounts,
-          signers: [signers.stake],
-        });
+        {accounts, signers: [signers.stake]});
       balances.user -= stakeAmount
       balances.vaultStaking += stakeAmount
       await utils.assertBalancesStaking(provider, ata, balances)
@@ -230,7 +220,7 @@ describe('Nosana SPL', () => {
         new anchor.BN(stakeDurationYear),
         {
           accounts: {
-            ...stakingAccounts,
+            ...accounts,
             stake: tempStake.publicKey
           },
           signers: [tempStake],
@@ -247,12 +237,10 @@ describe('Nosana SPL', () => {
           new anchor.BN(3 * stakeDurationMonth),
           {
             accounts: {
-              ...stakingAccounts,
-
+              ...accounts,
               ataFrom: u.ata,
               authority: u.publicKey,
               stake: u.signers.stake.publicKey,
-              feePayer: stakingAccounts.feePayer,
             },
             signers: [u.user, u.signers.stake],
           }
@@ -269,7 +257,7 @@ describe('Nosana SPL', () => {
 
     // emit stake
     it('Emit rank', async () => {
-      const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
+      const result = await stakingProgram.simulate.emitRank({accounts});
       const rank = result.events[0].data
       const xnos = parseInt(rank.xnos.toString())
       expect(xnos).to.be.equal(utils.calculateXnos(0, Date.now(), stakeDurationMonth, stakeAmount))
@@ -283,7 +271,7 @@ describe('Nosana SPL', () => {
         await stakingProgram.rpc.unstake(
           {
             accounts: {
-              ...stakingAccounts,
+              ...accounts,
               authority: user4.publicKey
             },
             signers: [user4.user]
@@ -298,7 +286,7 @@ describe('Nosana SPL', () => {
 
     // topup
     it('Top Up', async () => {
-      await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts: stakingAccounts});
+      await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts});
       balances.user -= stakeAmount
       balances.vaultStaking += stakeAmount
       await utils.assertBalancesStaking(provider, ata, balances)
@@ -307,8 +295,8 @@ describe('Nosana SPL', () => {
     // unstake
     it('Unstake', async () => {
       unstakeTime = parseInt(Date.now() / 1e3)
-      await stakingProgram.rpc.unstake({accounts: stakingAccounts});
-      const data = await stakingProgram.account.stakeAccount.fetch(stakingAccounts.stake);
+      await stakingProgram.rpc.unstake({accounts});
+      const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(
         0,
         1,
@@ -321,7 +309,7 @@ describe('Nosana SPL', () => {
     it('Top Up after unstake', async () => {
       let msg = ''
       try {
-        await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts: stakingAccounts});
+        await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts});
       } catch (e) {
         msg = e.error.errorMessage
       }
@@ -331,13 +319,13 @@ describe('Nosana SPL', () => {
 
     // restake
     it('Restake', async () => {
-      await stakingProgram.rpc.restake({accounts: stakingAccounts});
+      await stakingProgram.rpc.restake({accounts});
       await utils.assertBalancesStaking(provider, ata, balances)
     });
 
     // topup
     it('Top Up', async () => {
-      await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts: stakingAccounts});
+      await stakingProgram.rpc.topup(new anchor.BN(stakeAmount), {accounts});
       balances.user -= stakeAmount
       balances.vaultStaking += stakeAmount
       await utils.assertBalancesStaking(provider, ata, balances)
@@ -346,8 +334,8 @@ describe('Nosana SPL', () => {
     // unstake
     it('Unstake', async () => {
       unstakeTime = parseInt(Date.now() / 1e3)
-      await stakingProgram.rpc.unstake({accounts: stakingAccounts});
-      const data = await stakingProgram.account.stakeAccount.fetch(stakingAccounts.stake);
+      await stakingProgram.rpc.unstake({accounts});
+      const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(
         0,
         1,
@@ -361,7 +349,7 @@ describe('Nosana SPL', () => {
         await stakingProgram.rpc.unstake(
           {
             accounts: {
-              ...stakingAccounts,
+              ...accounts,
               authority: u.publicKey,
               stake: u.signers.stake.publicKey,
             },
@@ -378,7 +366,7 @@ describe('Nosana SPL', () => {
     // emit stake
     it('Check that xnos decreases after unstake', async () => {
       await utils.sleep(3000);
-      const result = await stakingProgram.simulate.emitRank({accounts: stakingAccounts});
+      const result = await stakingProgram.simulate.emitRank({accounts});
       const data = result.events[0].data
       const rank = {}
       for (const type of ['xnos', 'amount', 'duration', 'timeUnstake'])
@@ -404,31 +392,25 @@ describe('Nosana SPL', () => {
 
     // initialize vaults
     it('Initialize the jobs vault', async () => {
-      await jobsProgram.rpc.initVault(bumpJobs, {accounts: jobAccounts});
+      accounts.ataVault = ata.vaultJob;
+      await jobsProgram.rpc.initVault(bumpJobs, {accounts});
       await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // initialize project
     it('Initialize project', async () => {
-      await jobsProgram.rpc.initProject({accounts: jobAccounts, signers: [signers.jobs]});
+      await jobsProgram.rpc.initProject({accounts, signers: [signers.jobs]});
       await utils.assertBalancesJobs(provider, ata, balances)
     });
 
     // initialize project
     it('Initialize project for other users', async () => {
       await Promise.all(users.map(async u => {
-        await jobsProgram.rpc.initProject(
-          {
+        await jobsProgram.rpc.initProject({
             accounts: {
-              // account to store jobs
-              jobs: u.signers.jobs.publicKey,
-
-              // signer and payer
+              ...accounts,
               authority: u.publicKey,
-              feePayer: jobAccounts.feePayer,
-
-              // required
-              systemProgram: jobAccounts.systemProgram,
+              jobs: u.signers.jobs.publicKey,
             },
             signers: [u.user, u.signers.jobs],
           }
@@ -439,12 +421,7 @@ describe('Nosana SPL', () => {
 
     // create
     it('Create job', async () => {
-      await jobsProgram.rpc.createJob(new anchor.BN(jobPrice), ipfsData, {
-        accounts: jobAccounts,
-        signers: [signers.job]
-      });
-
-      // tests
+      await jobsProgram.rpc.createJob(new anchor.BN(jobPrice), ipfsData, {accounts, signers: [signers.job]});
       balances.user -= jobPrice
       balances.vaultJob += jobPrice
       await utils.assertBalancesJobs(provider, ata, balances)
@@ -460,8 +437,8 @@ describe('Nosana SPL', () => {
           ipfsData,
           {
             accounts: {
-              ...jobAccounts,
-              ataVault: jobAccounts.ataFrom,
+              ...accounts,
+              ataVault: accounts.ataFrom,
               job: tempJob.publicKey,
             },
             signers: [tempJob]
@@ -483,7 +460,7 @@ describe('Nosana SPL', () => {
           ipfsData,
           {
             accounts: {
-              ...jobAccounts,
+              ...accounts,
               // jobs
               jobs: u.signers.jobs.publicKey,
               job: u.signers.job.publicKey,
@@ -530,29 +507,30 @@ describe('Nosana SPL', () => {
 
     // list
     it('List jobs', async () => {
-      const data = await jobsProgram.account.jobs.fetch(jobAccounts.jobs);
-      assert.strictEqual(data.authority.toString(), jobAccounts.authority.toString());
-      assert.strictEqual(data.jobs[0].toString(), jobAccounts.job.toString());
+      const data = await jobsProgram.account.jobs.fetch(accounts.jobs);
+      assert.strictEqual(data.authority.toString(), accounts.authority.toString());
+      assert.strictEqual(data.jobs[0].toString(), accounts.job.toString());
       assert.strictEqual(data.jobs.length, 1);
     });
 
     // get
     it('Check if job is created', async () => {
-      const data = await jobsProgram.account.job.fetch(jobAccounts.job);
+      const data = await jobsProgram.account.job.fetch(accounts.job);
       assert.strictEqual(data.jobStatus, jobStatus.created);
       assert.strictEqual(utils.buf2hex(new Uint8Array(data.ipfsJob).buffer), ipfsData.toString('hex'));
     });
 
     // claim
     it('Claim job', async () => {
-      await jobsProgram.rpc.claimJob({accounts: jobAccounts});
+      await jobsProgram.rpc.claimJob({accounts});
+      await utils.assertBalancesJobs(provider, ata, balances);
     });
 
     // claim
     it('Claim job that is already claimed', async () => {
       let msg = ''
       try {
-        await jobsProgram.rpc.claimJob({accounts: jobAccounts});
+        await jobsProgram.rpc.claimJob({accounts});
       } catch (e) {
         msg = e.error.errorMessage
       }
@@ -563,7 +541,7 @@ describe('Nosana SPL', () => {
     it('Reclaim job too soon', async () => {
       let msg = ''
       try {
-        await jobsProgram.rpc.reclaimJob({accounts: jobAccounts});
+        await jobsProgram.rpc.reclaimJob({accounts});
       } catch (e) {
         msg = e.error.errorMessage
       }
@@ -582,15 +560,12 @@ describe('Nosana SPL', () => {
           node.job = user.signers.job.publicKey
           node.jobs = user.signers.jobs.publicKey
 
-          await jobsProgram.rpc.claimJob(
-            {
+          await jobsProgram.rpc.claimJob({
               accounts: {
+                ...accounts,
                 authority: node.publicKey,
                 job: node.job,
                 jobs: node.jobs,
-                clock: jobAccounts.clock,
-                systemProgram: jobAccounts.systemProgram,
-                stakingProgram: stakingProgram.programId,
               },
               signers: [node.user],
             }
@@ -601,7 +576,7 @@ describe('Nosana SPL', () => {
 
     // get
     it('Check if job is claimed', async () => {
-      const data = await jobsProgram.account.job.fetch(jobAccounts.job);
+      const data = await jobsProgram.account.job.fetch(accounts.job);
       expect(utils.timeDelta(data.timeStart, claimTime)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
       assert.strictEqual(data.jobStatus, jobStatus.claimed);
       assert.strictEqual(data.node.toString(), provider.wallet.publicKey.toString());
@@ -614,7 +589,7 @@ describe('Nosana SPL', () => {
       try {
         await jobsProgram.rpc.finishJob(bumpJobs, ipfsData, {
           accounts: {
-            ...jobAccounts,
+            ...accounts,
             authority: user4.publicKey
           },
           signers: [user4.user],
@@ -628,7 +603,7 @@ describe('Nosana SPL', () => {
 
     // finish
     it('Finish job', async () => {
-      await jobsProgram.rpc.finishJob(bumpJobs, ipfsData, {accounts: jobAccounts});
+      await jobsProgram.rpc.finishJob(bumpJobs, ipfsData, {accounts});
       // tests
       balances.user += jobPrice
       balances.vaultJob -= jobPrice
@@ -639,7 +614,7 @@ describe('Nosana SPL', () => {
     it('Finish job that is already finished', async () => {
       let msg = ''
       try {
-        await jobsProgram.rpc.finishJob(bumpJobs, ipfsData, {accounts: jobAccounts});
+        await jobsProgram.rpc.finishJob(bumpJobs, ipfsData, {accounts});
       } catch (e) {
         msg = e.error.errorMessage
       }
@@ -654,7 +629,7 @@ describe('Nosana SPL', () => {
           ipfsData,
           {
             accounts: {
-              ...jobAccounts,
+              ...accounts,
               job: n.job,
               jobs: n.jobs,
               ataTo: n.ata,
@@ -675,8 +650,8 @@ describe('Nosana SPL', () => {
 
     // get
     it('Check if job is finished', async () => {
-      const dataJobs = await jobsProgram.account.jobs.fetch(jobAccounts.jobs);
-      const dataJob = await jobsProgram.account.job.fetch(jobAccounts.job);
+      const dataJobs = await jobsProgram.account.jobs.fetch(accounts.jobs);
+      const dataJob = await jobsProgram.account.job.fetch(accounts.job);
 
       expect(utils.timeDelta(dataJob.timeEnd, claimTime)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
       assert.strictEqual(dataJob.jobStatus, jobStatus.finished);
@@ -696,9 +671,9 @@ describe('Nosana SPL', () => {
 
     // close
     it('Close job', async () => {
-      const lamport_before = await connection.getBalance(jobAccounts.authority);
-      await jobsProgram.rpc.closeJob({accounts: jobAccounts});
-      const lamport_after = await connection.getBalance(jobAccounts.authority);
+      const lamport_before = await connection.getBalance(accounts.authority);
+      await jobsProgram.rpc.closeJob({accounts});
+      const lamport_after = await connection.getBalance(accounts.authority);
       expect(lamport_before).to.be.lessThan(lamport_after);
     });
 
@@ -706,7 +681,7 @@ describe('Nosana SPL', () => {
     it('Check that Job account does not exist anymore', async () => {
       let msg = ''
       try {
-        await jobsProgram.rpc.finishJob(bumpJobs, ipfsData, {accounts: jobAccounts});
+        await jobsProgram.rpc.finishJob(bumpJobs, ipfsData, {accounts});
       } catch (e) {
         msg = e.error.errorMessage
       }
@@ -715,13 +690,13 @@ describe('Nosana SPL', () => {
 
     // create
     it('Create new job and new project', async () => {
-      jobAccounts.job = cancelJob.publicKey
+      accounts.job = cancelJob.publicKey
 
-      await jobsProgram.rpc.createJob(new anchor.BN(jobPrice), ipfsData, {accounts: jobAccounts, signers: [cancelJob]});
+      await jobsProgram.rpc.createJob(new anchor.BN(jobPrice), ipfsData, {accounts, signers: [cancelJob]});
 
       await jobsProgram.rpc.initProject({
         accounts: {
-          ...jobAccounts,
+          ...accounts,
           jobs: cancelJobs.publicKey,
         }, signers: [cancelJobs]
       });
@@ -738,7 +713,7 @@ describe('Nosana SPL', () => {
       try {
         await jobsProgram.rpc.cancelJob(bumpJobs, {
           accounts: {
-            ...jobAccounts,
+            ...accounts,
             jobs: cancelJobs.publicKey
           },
         });
@@ -755,7 +730,7 @@ describe('Nosana SPL', () => {
       try {
         await jobsProgram.rpc.cancelJob(bumpJobs, {
           accounts: {
-            ...jobAccounts,
+            ...accounts,
             authority: user4.publicKey
           },
           signers: [user4.user],
@@ -769,7 +744,7 @@ describe('Nosana SPL', () => {
 
     // cancel
     it('Cancel job', async () => {
-      await jobsProgram.rpc.cancelJob(bumpJobs, {accounts: jobAccounts});
+      await jobsProgram.rpc.cancelJob(bumpJobs, {accounts});
 
       // tests
       balances.user += jobPrice
@@ -781,7 +756,7 @@ describe('Nosana SPL', () => {
     it('Cancel job in wrong state', async () => {
       let msg = ''
       try {
-        await jobsProgram.rpc.cancelJob(bumpJobs, {accounts: jobAccounts});
+        await jobsProgram.rpc.cancelJob(bumpJobs, {accounts});
       } catch (e) {
         msg = e.error.errorMessage
       }

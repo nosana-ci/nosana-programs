@@ -2,7 +2,6 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct EmitRank<'info> {
-    #[account()]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
