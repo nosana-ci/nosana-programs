@@ -1,81 +1,49 @@
-import * as anchor from "@project-serum/anchor";
-import * as assert from "assert";
-import * as serumCmn from "@project-serum/common";
+import * as anchor from '@project-serum/anchor';
+import * as assert from 'assert';
+import * as serumCmn from '@project-serum/common';
 import {
   TOKEN_PROGRAM_ID,
   createMint,
   createMintToInstruction,
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
+} from '@solana/spl-token';
 
 async function getTokenBalance(provider, wallet) {
-  return parseInt(
-    (await provider.connection.getTokenAccountBalance(wallet)).value.amount
-  );
+  return parseInt((await provider.connection.getTokenAccountBalance(wallet)).value.amount);
 }
 
 async function assertBalancesJobs(provider, wallets, balances) {
-  for (const pool of ["user", "vaultJob"]) {
+  for (const pool of ['user', 'vaultJob']) {
     console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
-  assert.strictEqual(
-    await getTokenBalance(provider, wallets.user),
-    balances.user
-  );
-  assert.strictEqual(
-    await getTokenBalance(provider, wallets.vaultJob),
-    balances.vaultJob
-  );
+  assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
+  assert.strictEqual(await getTokenBalance(provider, wallets.vaultJob), balances.vaultJob);
 }
 
 async function assertBalancesStaking(provider, wallets, balances) {
-  for (const pool of ["user", "vaultStaking"]) {
+  for (const pool of ['user', 'vaultStaking']) {
     console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
-  assert.strictEqual(
-    await getTokenBalance(provider, wallets.user),
-    balances.user
-  );
-  assert.strictEqual(
-    await getTokenBalance(provider, wallets.vaultStaking),
-    balances.vaultStaking
-  );
+  assert.strictEqual(await getTokenBalance(provider, wallets.user), balances.user);
+  assert.strictEqual(await getTokenBalance(provider, wallets.vaultStaking), balances.vaultStaking);
 }
 
 async function mintFromFile(key, provider, authority) {
   const keyData = require(`./keys/${key}.json`);
   const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData));
-  return await createMint(
-    provider.connection,
-    provider.wallet.payer,
-    authority,
-    null,
-    6,
-    keyPair
-  );
+  return await createMint(provider.connection, provider.wallet.payer, authority, null, 6, keyPair);
 }
 
 async function mintToAccount(provider, mint, destination, amount) {
   const tx = new anchor.web3.Transaction();
-  tx.add(
-    createMintToInstruction(
-      mint,
-      destination,
-      provider.wallet.publicKey,
-      amount,
-      [],
-      TOKEN_PROGRAM_ID
-    )
-  );
+  tx.add(createMintToInstruction(mint, destination, provider.wallet.publicKey, amount, [], TOKEN_PROGRAM_ID));
   await provider.sendAndConfirm(tx);
 }
 
 function buf2hex(buffer) {
   // buffer is an ArrayBuffer
-  return [...new Uint8Array(buffer)]
-    .map((x) => x.toString(16).padStart(2, "0"))
-    .join("");
+  return [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, '0')).join('');
 }
 
 function timeDelta(t1, t2) {
