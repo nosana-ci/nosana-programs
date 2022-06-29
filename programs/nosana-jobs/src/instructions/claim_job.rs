@@ -1,4 +1,5 @@
 use crate::*;
+use nosana_staking::program::NosanaStaking;
 
 #[derive(Accounts)]
 pub struct ClaimJob<'info> {
@@ -8,6 +9,7 @@ pub struct ClaimJob<'info> {
     pub job: Account<'info, Job>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
+    pub staking_program: Program<'info, NosanaStaking>,
 }
 
 pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {

@@ -63,6 +63,7 @@ describe('Nosana SPL', () => {
     ...accounts,
     jobs: signers.jobs.publicKey,
     job: signers.job.publicKey,
+    stakingProgram: stakingProgram.programId,
   }
 
   const stakingAccounts = {
@@ -589,6 +590,7 @@ describe('Nosana SPL', () => {
                 jobs: node.jobs,
                 clock: jobAccounts.clock,
                 systemProgram: jobAccounts.systemProgram,
+                stakingProgram: stakingProgram.programId,
               },
               signers: [node.user],
             }

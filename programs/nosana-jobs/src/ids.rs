@@ -11,3 +11,8 @@ pub mod nos {
     #[cfg(not(feature = "mainnet"))]
     declare_id!("testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp");
 }
+
+pub mod staking {
+    use anchor_lang::declare_id;
+    declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
+}

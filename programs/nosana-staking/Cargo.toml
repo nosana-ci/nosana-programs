@@ -15,6 +15,8 @@ name = "nosana_staking"
 [features]
 #default = ["mainnet"]
 mainnet = []
+no-entrypoint = []
+cpi = ["no-entrypoint"]
 
 [dependencies]
 anchor-lang = "0.24.2"
