@@ -1,6 +1,5 @@
 use crate::*;
-use nosana_staking::cpi::accounts::EmitRank;
-use nosana_staking::program::NosanaStaking;
+// use anchor_spl::token::Mint;
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
@@ -9,31 +8,36 @@ pub struct ClaimJob<'info> {
     pub jobs: Account<'info, Jobs>,
     #[account(mut, owner = ID.key())]
     pub job: Account<'info, Job>,
-    pub stake: Box<Account<'info, StakeAccount>>,
+    #[account(owner = staking::ID.key())]
+    pub stake: Account<'info, StakeAccount>,
+    // #[account(address = nos::ID)]
+    // pub nft: Box<Account<'info, Mint>>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
-    #[account(address = staking::ID.key())]
-    pub staking_program: Program<'info, NosanaStaking>,
 }
 
 pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
-    // get job and check if it's not initialized
+    // get job and check if it's initialized
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
         job.job_status == JobStatus::Initialized as u8,
         NosanaError::JobNotInitialized
     );
 
-    // verify node
-    let _rank = nosana_staking::cpi::emit_rank(CpiContext::new(
-        ctx.accounts.staking_program.to_account_info(),
-        EmitRank {
-            clock: ctx.accounts.clock.to_account_info(),
-            authority: ctx.accounts.authority.to_account_info(),
-            stake: ctx.accounts.stake.to_account_info(),
-        },
-    ));
-    // require!(rank.xnos > 100, NosanaError::NodeNotVerified);
+    // verify node has enough stake
+    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
+    require!(
+        stake.authority == *ctx.accounts.authority.key,
+        NosanaError::Unauthorized
+    );
+    require!(
+        stake.amount >= nos::STAKE_MINIMUM,
+        NosanaError::NodeUnqualifiedStakeAmount
+    );
+    require!(
+        stake.time_unstake == 0_i64,
+        NosanaError::NodeUnqualifiedUnstaked
+    );
 
     // claim
     job.claim(

@@ -24,7 +24,10 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
         amount as u128 > nos::DECIMALS,
         NosanaError::StakeAmountNotEnough
     );
-    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
+    require!(
+        stake.time_unstake == 0_i64,
+        NosanaError::StakeAlreadyUnstaked
+    );
 
     // transfer tokens
     utils::transfer_tokens(

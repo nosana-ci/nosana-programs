@@ -30,6 +30,7 @@ describe('Nosana SPL', () => {
   const userSupply = 1e4 * decimals;
   const jobPrice = decimals;
   const stakeAmount = 1e3 * decimals;
+  const minimumNodeStake = 1e3 * decimals;
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
@@ -39,6 +40,7 @@ describe('Nosana SPL', () => {
   const nodes = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection);
   });
+  const [node1, node2, ...otherNodes] = nodes;
 
   // Jobs account for the tests.
   const signers = {
@@ -93,6 +95,9 @@ describe('Nosana SPL', () => {
     StakeLocked: 'NosanaError::StakeLocked - This stake is still locked.',
     StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This stake duration is not long enough.',
     StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This stake duration is too long.',
+
+    NodeUnqualifiedUnstaked: "NosanaError::NodeUnqualifiedUnstaked - Node's stake has been unstaked.",
+    NodeUnqualifiedStakeAmount: 'NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.',
 
     Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
   };
@@ -160,7 +165,8 @@ describe('Nosana SPL', () => {
             await connection.requestAirdrop(n.publicKey, anchor.web3.LAMPORTS_PER_SOL)
           );
           n.ata = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, mint);
-          n.balance = 0;
+          await utils.mintToAccount(provider, mint, n.ata, userSupply);
+          n.balance = userSupply;
           [n.stake] = await anchor.web3.PublicKey.findProgramAddress(
             [anchor.utils.bytes.utf8.encode('stake'), n.publicKey.toBuffer()],
             stakingProgram.programId
@@ -229,22 +235,64 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
-    it('Initialize stake for other users', async () => {
+    it('Create stake too low for node 1', async () => {
+      let amount = minimumNodeStake - 1;
+      await stakingProgram.methods
+        .stake(new anchor.BN(amount), new anchor.BN(stakeDurationMonth))
+        .accounts({
+          ...accounts,
+          ataFrom: node1.ata,
+          authority: node1.publicKey,
+          stake: node1.stake,
+        })
+        .signers([node1.user])
+        .rpc();
+      node1.balance -= amount;
+      balances.vaultStaking += amount;
+      await utils.assertBalancesStaking(provider, ata, balances);
+    });
+
+    it('Create stake for node 2, and unstake', async () => {
+      await stakingProgram.methods
+        .stake(new anchor.BN(minimumNodeStake), new anchor.BN(stakeDurationMonth))
+        .accounts({
+          ...accounts,
+          ataFrom: node2.ata,
+          authority: node2.publicKey,
+          stake: node2.stake,
+        })
+        .signers([node2.user])
+        .rpc();
+      await stakingProgram.methods
+        .unstake()
+        .accounts({
+          ...accounts,
+          authority: node2.publicKey,
+          stake: node2.stake,
+        })
+        .signers([node2.user])
+        .rpc();
+      node2.balance -= minimumNodeStake;
+      balances.vaultStaking += minimumNodeStake;
+      await utils.assertBalancesStaking(provider, ata, balances);
+    });
+
+    it('Initialize stake for other nodes', async () => {
       await Promise.all(
-        otherUsers.map(async (u) => {
+        otherNodes.map(async (n) => {
           await stakingProgram.methods
             .stake(new anchor.BN(stakeAmount), new anchor.BN(3 * stakeDurationMonth))
             .accounts({
               ...accounts,
-              ataFrom: u.ata,
-              authority: u.publicKey,
-              stake: u.stake,
+              ataFrom: n.ata,
+              authority: n.publicKey,
+              stake: n.stake,
             })
-            .signers([u.user])
+            .signers([n.user])
             .rpc();
           balances.vaultStaking += stakeAmount;
-          u.balance -= stakeAmount;
-          expect(await utils.getTokenBalance(provider, u.ata)).to.equal(u.balance);
+          n.balance -= stakeAmount;
+          expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
         })
       );
       await utils.assertBalancesStaking(provider, ata, balances);
@@ -315,24 +363,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
-    it('Unstake for other users', async () => {
-      await Promise.all(
-        otherUsers.map(async (u) => {
-          await stakingProgram.methods
-            .unstake()
-            .accounts({
-              ...accounts,
-              authority: u.publicKey,
-              stake: u.stake,
-            })
-            .signers([u.user])
-            .rpc();
-          expect(await utils.getTokenBalance(provider, u.ata)).to.equal(u.balance);
-        })
-      );
-      await utils.assertBalancesStaking(provider, ata, balances);
-    });
-
     it('Check that xnos decreases after unstake', async () => {
       await utils.sleep(3000);
       const result = await stakingProgram.methods.emitRank().accounts(accounts).simulate();
@@ -347,6 +377,11 @@ describe('Nosana SPL', () => {
       expect(rank.timeUnstake).to.be.closeTo(unstakeTime, 1);
       expect(rank.xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, userStake));
       expect(rank.xnos).to.be.closeTo(xnos, 1000);
+    });
+
+    it('Final re-stake', async () => {
+      await stakingProgram.methods.restake().accounts(accounts).rpc();
+      await utils.assertBalancesStaking(provider, ata, balances);
     });
   });
 
@@ -510,16 +545,23 @@ describe('Nosana SPL', () => {
           node.job = user.signers.job.publicKey;
           node.jobs = user.signers.jobs.publicKey;
 
+          let msg = '';
           await jobsProgram.methods
             .claimJob()
             .accounts({
               ...accounts,
               authority: node.publicKey,
+              stake: node.stake,
               job: node.job,
               jobs: node.jobs,
             })
             .signers([node.user])
-            .rpc();
+            .rpc()
+            .catch((e) => (msg = e.error.errorMessage));
+
+          if (i === 0) expect(msg).to.equal(errors.NodeUnqualifiedStakeAmount);
+          else if (i === 1) expect(msg).to.equal(errors.NodeUnqualifiedUnstaked);
+          else expect(msg).to.equal('');
         })
       );
     });
@@ -566,7 +608,7 @@ describe('Nosana SPL', () => {
 
     it('Finish job for all nodes', async () => {
       await Promise.all(
-        nodes.map(async (n) => {
+        otherNodes.map(async (n) => {
           await jobsProgram.methods
             .finishJob(bumpJobs, ipfsData)
             .accounts({
@@ -591,12 +633,12 @@ describe('Nosana SPL', () => {
       const dataJob = await jobsProgram.account.job.fetch(accounts.job);
 
       expect(utils.timeDelta(dataJob.timeEnd, claimTime)).to.be.closeTo(0, allowedClockDelta);
-      expect(dataJob.jobStatus).to.equal(jobStatus.finished);
-      expect(dataJobs.jobs.length).to.equal(0);
+      expect(dataJob.jobStatus).to.equal(jobStatus.finished, 'job status does not match');
+      expect(dataJobs.jobs.length).to.equal(0, 'number of jobs do not match');
       expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
 
       await Promise.all(
-        nodes.map(async (n) => {
+        otherNodes.map(async (n) => {
           const dataJobs = await jobsProgram.account.jobs.fetch(n.jobs);
           const dataJob = await jobsProgram.account.job.fetch(n.job);
 
