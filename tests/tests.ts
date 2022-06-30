@@ -137,11 +137,20 @@ describe('Nosana SPL', () => {
 
     it('Mint NFTs', async () => {
       // create NFT
-      const { nft } = await metaplex.nfts().create({
+      const collection = anchor.web3.Keypair.generate();
+      const nftConfig = 
+      {
         uri: "https://arweave.net/123",
-      });
-      console.log(nft);
-      expect(nft).to.equal(nft);
+        name: 'Test NFT #1',
+        collection: {
+          verified: false,
+          key: collection.publicKey,
+        },
+      }
+      const { nft } = await metaplex.nfts().create(nftConfig);
+
+      expect(nft.name).to.equal(nftConfig.name);
+      expect(nft.collection.key.toString()).to.equal(nftConfig.collection.key.toString());
     });
 
     it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply / decimals} tokens`, async () => {
