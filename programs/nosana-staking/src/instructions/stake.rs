@@ -8,7 +8,13 @@ pub struct Stake<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,
-    #[account(init, payer = fee_payer, space = STAKE_SIZE)]
+    #[account(
+        init,
+        payer = fee_payer,
+        space = STAKE_SIZE,
+        seeds = [b"stake", authority.key().as_ref()],
+        bump
+    )]
     pub stake: Box<Account<'info, StakeAccount>>,
     #[account(mut)]
     pub fee_payer: Signer<'info>,

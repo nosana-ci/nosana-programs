@@ -71,10 +71,10 @@ function setupSolanaUser(connection) {
   const ata = undefined;
   const jobs = undefined;
   const job = undefined;
+  const stake = undefined;
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
-    stake: anchor.web3.Keypair.generate(),
   };
   return {
     user,
@@ -86,6 +86,7 @@ function setupSolanaUser(connection) {
     ata,
     job,
     jobs,
+    stake,
   };
 }
 

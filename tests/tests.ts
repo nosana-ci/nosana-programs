@@ -35,7 +35,7 @@ describe('Nosana SPL', () => {
   const users = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection);
   });
-  const [user1, user2, user3] = users;
+  const [user1, user2, user3, user4, ...otherUsers] = users;
   const nodes = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection);
   });
@@ -44,7 +44,6 @@ describe('Nosana SPL', () => {
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
-    stake: anchor.web3.Keypair.generate(),
   };
 
   // public keys
@@ -65,7 +64,7 @@ describe('Nosana SPL', () => {
     // Solana accounts for ci/cd and staking
     jobs: signers.jobs.publicKey,
     job: signers.job.publicKey,
-    stake: signers.stake.publicKey,
+    stake: undefined,
 
     // token and ATAs (tbd)
     mint: undefined,
@@ -120,6 +119,10 @@ describe('Nosana SPL', () => {
         [mint.toBuffer()],
         stakingProgram.programId
       );
+      [accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode('stake'), provider.wallet.publicKey.toBuffer()],
+        stakingProgram.programId
+      );
       expect(nosID.toString()).to.equal(mint.toString());
     });
 
@@ -145,6 +148,10 @@ describe('Nosana SPL', () => {
           u.ata = await utils.getOrCreateAssociatedSPL(u.provider, u.publicKey, mint);
           await utils.mintToAccount(provider, mint, u.ata, userSupply);
           u.balance = userSupply;
+          [u.stake] = await anchor.web3.PublicKey.findProgramAddress(
+            [anchor.utils.bytes.utf8.encode('stake'), u.publicKey.toBuffer()],
+            stakingProgram.programId
+          );
         })
       );
       await Promise.all(
@@ -154,6 +161,10 @@ describe('Nosana SPL', () => {
           );
           n.ata = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, mint);
           n.balance = 0;
+          [n.stake] = await anchor.web3.PublicKey.findProgramAddress(
+            [anchor.utils.bytes.utf8.encode('stake'), n.publicKey.toBuffer()],
+            stakingProgram.programId
+          );
         })
       );
       balances.user += mintSupply;
@@ -175,7 +186,6 @@ describe('Nosana SPL', () => {
       await stakingProgram.methods
         .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth - 1))
         .accounts(accounts)
-        .signers([signers.stake])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(errors.StakeDurationTooShort);
@@ -187,7 +197,6 @@ describe('Nosana SPL', () => {
       await stakingProgram.methods
         .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear + 1))
         .accounts(accounts)
-        .signers([signers.stake])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(errors.StakeDurationTooLong);
@@ -198,7 +207,6 @@ describe('Nosana SPL', () => {
       await stakingProgram.methods
         .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth))
         .accounts(accounts)
-        .signers([signers.stake])
         .rpc();
       balances.user -= stakeAmount;
       balances.vaultStaking += stakeAmount;
@@ -206,32 +214,33 @@ describe('Nosana SPL', () => {
     });
 
     it('Create stake maximum', async () => {
-      const tempStake = anchor.web3.Keypair.generate();
       await stakingProgram.methods
         .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear))
         .accounts({
           ...accounts,
-          stake: tempStake.publicKey,
+          ataFrom: user4.ata,
+          authority: user4.publicKey,
+          stake: user4.stake,
         })
-        .signers([tempStake])
+        .signers([user4.user])
         .rpc();
-      balances.user -= stakeAmount;
+      user4.balance -= stakeAmount;
       balances.vaultStaking += stakeAmount;
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
     it('Initialize stake for other users', async () => {
       await Promise.all(
-        users.map(async (u) => {
+        otherUsers.map(async (u) => {
           await stakingProgram.methods
             .stake(new anchor.BN(stakeAmount), new anchor.BN(3 * stakeDurationMonth))
             .accounts({
               ...accounts,
               ataFrom: u.ata,
               authority: u.publicKey,
-              stake: u.signers.stake.publicKey,
+              stake: u.stake,
             })
-            .signers([u.user, u.signers.stake])
+            .signers([u.user])
             .rpc();
           balances.vaultStaking += stakeAmount;
           u.balance -= stakeAmount;
@@ -269,10 +278,9 @@ describe('Nosana SPL', () => {
     });
 
     it('Unstake', async () => {
-      unstakeTime = Date.now() / 1e3;
       await stakingProgram.methods.unstake().accounts(accounts).rpc();
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(0, 1);
+      expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
@@ -300,22 +308,22 @@ describe('Nosana SPL', () => {
     });
 
     it('Unstake second time', async () => {
-      unstakeTime = Date.now() / 1e3;
       await stakingProgram.methods.unstake().accounts(accounts).rpc();
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(unstakeTime - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
+      expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
+      unstakeTime = data.timeUnstake.toNumber();
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
     it('Unstake for other users', async () => {
       await Promise.all(
-        users.map(async (u) => {
+        otherUsers.map(async (u) => {
           await stakingProgram.methods
             .unstake()
             .accounts({
               ...accounts,
               authority: u.publicKey,
-              stake: u.signers.stake.publicKey,
+              stake: u.stake,
             })
             .signers([u.user])
             .rpc();

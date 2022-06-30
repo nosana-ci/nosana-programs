@@ -12,6 +12,7 @@ pub struct ClaimJob<'info> {
     pub stake: Box<Account<'info, StakeAccount>>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
+    #[account(address = staking::ID.key())]
     pub staking_program: Program<'info, NosanaStaking>,
 }
 
