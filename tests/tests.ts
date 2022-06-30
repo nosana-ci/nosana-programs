@@ -6,13 +6,17 @@ import { expect } from 'chai';
 import { TOKEN_PROGRAM_ID, createAssociatedTokenAccount } from '@solana/spl-token';
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { NosanaJobs } from '../target/types/nosana_jobs';
+import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
 
 describe('Nosana SPL', () => {
   // provider and program
   const provider = anchor.AnchorProvider.env();
   const connection = provider.connection;
+  const wallet = provider.wallet;
   const jobsProgram = anchor.workspace.NosanaJobs as anchor.Program<NosanaJobs>;
   const stakingProgram = anchor.workspace.NosanaStaking as anchor.Program<NosanaStaking>;
+  const metaplex = Metaplex.make(connection)
+    .use(walletOrGuestIdentity(wallet))
 
   // globals variables
   const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
@@ -129,6 +133,15 @@ describe('Nosana SPL', () => {
         stakingProgram.programId
       );
       expect(nosID.toString()).to.equal(mint.toString());
+    });
+
+    it('Mint NFTs', async () => {
+      // create NFT
+      const { nft } = await metaplex.nfts().create({
+        uri: "https://arweave.net/123",
+      });
+      console.log(nft);
+      expect(nft).to.equal(nft);
     });
 
     it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply / decimals} tokens`, async () => {
