@@ -3,16 +3,27 @@ import * as anchor from '@project-serum/anchor';
 import * as _ from 'lodash';
 import * as utils from './utils';
 import { expect } from 'chai';
-import { TOKEN_PROGRAM_ID, createAssociatedTokenAccount } from '@solana/spl-token';
+import {
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccount,
+  getAssociatedTokenAddress,
+  transfer,
+  getOrCreateAssociatedTokenAccount,
+} from '@solana/spl-token';
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { NosanaJobs } from '../target/types/nosana_jobs';
+import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
 
 describe('Nosana SPL', () => {
   // provider and program
   const provider = anchor.AnchorProvider.env();
   const connection = provider.connection;
+  const wallet = provider.wallet;
+  // @ts-ignore
+  const payer = wallet.payer as anchor.web3.Signer;
   const jobsProgram = anchor.workspace.NosanaJobs as anchor.Program<NosanaJobs>;
   const stakingProgram = anchor.workspace.NosanaStaking as anchor.Program<NosanaStaking>;
+  const metaplex = Metaplex.make(connection).use(walletOrGuestIdentity(wallet));
 
   // globals variables
   const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
@@ -48,6 +59,17 @@ describe('Nosana SPL', () => {
     job: anchor.web3.Keypair.generate(),
   };
 
+  const collection = anchor.web3.Keypair.generate().publicKey;
+  const nftConfig = {
+    uri: 'https://arweave.net/123',
+    name: 'Test NFT',
+    symbol: 'NOS-NFT',
+    collection: {
+      verified: false,
+      key: collection,
+    },
+  };
+
   // public keys
   const accounts = {
     // program ids
@@ -73,6 +95,7 @@ describe('Nosana SPL', () => {
     ataVault: undefined,
     ataFrom: undefined,
     ataTo: undefined,
+    ataNft: undefined,
   };
 
   // status options for jobs
@@ -104,7 +127,7 @@ describe('Nosana SPL', () => {
 
   // we'll set these later
   let mint, bumpJobs, bumpStaking, claimTime, unstakeTime;
-  const ata = { user: undefined, vaultJob: undefined, vaultStaking: undefined };
+  const ata = { user: undefined, vaultJob: undefined, vaultStaking: undefined, nft: undefined };
   const balances = { user: 0, vaultJob: 0, vaultStaking: 0 };
 
   // for later
@@ -131,18 +154,12 @@ describe('Nosana SPL', () => {
       expect(nosID.toString()).to.equal(mint.toString());
     });
 
-    it(`Create users, ATAs for Nosana tokens, and mint ${mintSupply / decimals} tokens`, async () => {
+    it(`Create users ATAs and mint NOS tokens`, async () => {
       // create associated token accounts
       accounts.ataFrom =
         accounts.ataTo =
         ata.user =
-          await createAssociatedTokenAccount(
-            provider.connection,
-            // @ts-ignore
-            provider.wallet.payer, // ts complains about the payer not existing
-            mint,
-            provider.wallet.publicKey
-          );
+          await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
       // fund users
       await utils.mintToAccount(provider, mint, ata.user, mintSupply);
       await Promise.all(
@@ -174,6 +191,31 @@ describe('Nosana SPL', () => {
         })
       );
       balances.user += mintSupply;
+    });
+
+    it('Mint NFTs', async () => {
+      const { nft } = await metaplex.nfts().create(nftConfig);
+      accounts.ataNft = await getAssociatedTokenAddress(nft.mint, wallet.publicKey);
+      expect(await utils.getTokenBalance(provider, accounts.ataNft)).to.equal(1);
+
+      await Promise.all(
+        nodes.map(async (n) => {
+          const { nft } = await metaplex.nfts().create(nftConfig);
+          n.ataNft = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, nft.mint);
+          await transfer(
+            connection,
+            payer,
+            await getAssociatedTokenAddress(nft.mint, wallet.publicKey),
+            n.ataNft,
+            payer,
+            1
+          );
+
+          expect(await utils.getTokenBalance(provider, n.ataNft)).to.equal(1);
+          expect(nft.name).to.equal(nftConfig.name);
+          expect(nft.collection.key.toString()).to.equal(collection.toString());
+        })
+      );
     });
   });
 
@@ -554,6 +596,7 @@ describe('Nosana SPL', () => {
               stake: node.stake,
               job: node.job,
               jobs: node.jobs,
+              ataNft: node.ataNft,
             })
             .signers([node.user])
             .rpc()
