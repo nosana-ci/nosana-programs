@@ -1,5 +1,5 @@
 use crate::*;
-// use anchor_spl::token::Mint;
+use anchor_spl::token::TokenAccount;
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
@@ -11,7 +11,7 @@ pub struct ClaimJob<'info> {
     #[account(owner = staking::ID.key())]
     pub stake: Account<'info, StakeAccount>,
     // #[account(address = nos::ID)]
-    // pub nft: Box<Account<'info, Mint>>,
+    pub ata_nft: Box<Account<'info, TokenAccount>>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
 }
@@ -37,6 +37,17 @@ pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
     require!(
         stake.time_unstake == 0_i64,
         NosanaError::NodeUnqualifiedUnstaked
+    );
+
+    // verify node has NFT
+    let ata_nft = &ctx.accounts.ata_nft;
+    require!(
+        ata_nft.owner == *ctx.accounts.authority.key,
+        NosanaError::Unauthorized
+    );
+    require!(
+        ata_nft.amount == 1_u64,
+        NosanaError::NodeUnqualifiedStakeAmount
     );
 
     // claim

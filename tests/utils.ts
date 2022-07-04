@@ -72,6 +72,7 @@ function setupSolanaUser(connection) {
   const jobs = undefined;
   const job = undefined;
   const stake = undefined;
+  const ataNft = undefined;
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
@@ -84,6 +85,7 @@ function setupSolanaUser(connection) {
     signers,
     balance,
     ata,
+    ataNft,
     job,
     jobs,
     stake,
