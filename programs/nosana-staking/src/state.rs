@@ -6,6 +6,29 @@ pub mod duration {
     pub const DURATION_YEAR: u128 = 12 * SECONDS_PER_MONTH;
 }
 
+/// # Vault
+
+pub const VAULT_SIZE: usize = 8 + std::mem::size_of::<VaultAccount>();
+
+#[account]
+pub struct VaultAccount {
+    pub xnos: u128,
+}
+
+impl VaultAccount {
+    pub fn init(&mut self) {
+        self.xnos = 0;
+    }
+
+    pub fn add(&mut self, amount: u128) {
+        self.xnos += amount;
+    }
+
+    pub fn sub(&mut self, amount: u128) {
+        self.xnos -= amount;
+    }
+}
+
 /// # Stake
 
 pub const STAKE_SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();

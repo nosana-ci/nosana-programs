@@ -93,6 +93,7 @@ describe('Nosana SPL', () => {
     // token and ATAs (tbd)
     mint: undefined,
     ataVault: undefined,
+    xnosVault: undefined,
     ataFrom: undefined,
     ataTo: undefined,
     ataNft: undefined,
@@ -144,7 +145,11 @@ describe('Nosana SPL', () => {
         jobsProgram.programId
       );
       [ata.vaultStaking, bumpStaking] = await anchor.web3.PublicKey.findProgramAddress(
-        [mint.toBuffer()],
+        [anchor.utils.bytes.utf8.encode('nos'), mint.toBuffer()],
+        stakingProgram.programId
+      );
+      [accounts.xnosVault] = await anchor.web3.PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode('xnos'), mint.toBuffer()],
         stakingProgram.programId
       );
       [accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
