@@ -12,7 +12,7 @@ pub struct Stake<'info> {
         init,
         payer = fee_payer,
         space = STAKE_SIZE,
-        seeds = [b"stake", authority.key().as_ref(), duration],
+        seeds = [b"stake", authority.key().as_ref()],
         bump
     )]
     pub stake: Box<Account<'info, StakeAccount>>,
