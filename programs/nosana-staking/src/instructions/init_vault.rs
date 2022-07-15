@@ -21,11 +21,11 @@ pub struct InitVault<'info> {
     #[account(
         init,
         payer = authority,
-        space = VAULT_SIZE,
-        seeds = [ b"xnos", mint.key().as_ref() ],
+        space = STATS_SIZE,
+        seeds = [ b"stats", mint.key().as_ref() ],
         bump
     )]
-    pub xnos_vault: Box<Account<'info, VaultAccount>>,
+    pub stats: Box<Account<'info, StatsAccount>>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
@@ -33,8 +33,7 @@ pub struct InitVault<'info> {
 
 pub fn handler(ctx: Context<InitVault>) -> Result<()> {
     // init xnos vault
-    let xnos_vault = &mut ctx.accounts.xnos_vault;
-    xnos_vault.init();
-
+    let stats = &mut ctx.accounts.stats;
+    stats.init(*ctx.bumps.get("stats").unwrap());
     Ok(())
 }

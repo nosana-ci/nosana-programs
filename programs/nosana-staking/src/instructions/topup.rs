@@ -6,8 +6,8 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct Topup<'info> {
     #[account(mut, seeds = [ b"stake", authority.key().as_ref() ], bump)]
     pub stake: Box<Account<'info, StakeAccount>>,
-    #[account(mut, seeds = [ b"xnos", nos::ID.key().as_ref() ], bump)]
-    pub xnos_vault: Box<Account<'info, VaultAccount>>,
+    #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
+    pub stats: Box<Account<'info, StatsAccount>>,
     #[account(mut, seeds = [ b"nos", nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
@@ -43,8 +43,8 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
 
     stake.topup(amount);
 
-    let xnos_vault = &mut ctx.accounts.xnos_vault;
-    xnos_vault.add(utils::calculate_xnos(0, 0, amount, stake.duration));
+    let stats = &mut ctx.accounts.stats;
+    stats.add(utils::calculate_xnos(0, 0, amount, stake.duration));
 
     // finish
     Ok(())

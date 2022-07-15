@@ -8,16 +8,18 @@ pub mod duration {
 
 /// # Vault
 
-pub const VAULT_SIZE: usize = 8 + std::mem::size_of::<VaultAccount>();
+pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
 
 #[account]
-pub struct VaultAccount {
+pub struct StatsAccount {
     pub xnos: u128,
+    pub bump: u8,
 }
 
-impl VaultAccount {
-    pub fn init(&mut self) {
+impl StatsAccount {
+    pub fn init(&mut self, bump: u8) {
         self.xnos = 0;
+        self.bump = bump;
     }
 
     pub fn add(&mut self, amount: u128) {
@@ -39,6 +41,7 @@ pub struct StakeAccount {
     pub time_unstake: i64,
     pub duration: u128,
     pub amount: u64,
+    pub bump: u8,
 }
 
 impl StakeAccount {

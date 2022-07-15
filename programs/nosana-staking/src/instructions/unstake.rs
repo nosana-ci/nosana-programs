@@ -2,10 +2,10 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
-    #[account(mut, seeds = [ b"stake", authority.key().as_ref() ], bump)]
+    #[account(mut, seeds = [ b"stake", authority.key().as_ref() ], bump = stake.bump)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, seeds = [ b"xnos", nos::ID.key().as_ref() ], bump)]
-    pub xnos_vault: Box<Account<'info, VaultAccount>>,
+    #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
+    pub stats: Box<Account<'info, StatsAccount>>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
 }
@@ -21,8 +21,8 @@ pub fn handler(ctx: Context<Unstake>) -> Result<()> {
     // clock time for unstake
     stake.unstake(ctx.accounts.clock.unix_timestamp);
 
-    let xnos_vault = &mut ctx.accounts.xnos_vault;
-    xnos_vault.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    let stats = &mut ctx.accounts.stats;
+    stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
 
     // finish
     Ok(())

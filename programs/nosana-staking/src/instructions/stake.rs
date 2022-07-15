@@ -4,8 +4,8 @@ use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
-    #[account(mut, seeds = [ b"xnos", nos::ID.key().as_ref() ], bump)]
-    pub xnos_vault: Box<Account<'info, VaultAccount>>,
+    #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
+    pub stats: Box<Account<'info, StatsAccount>>,
     #[account(mut, seeds = [ b"nos", nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
@@ -53,9 +53,10 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
 
     stake.stake(*ctx.accounts.authority.key, amount, duration);
 
-    let xnos_vault = &mut ctx.accounts.xnos_vault;
-    xnos_vault.add(utils::calculate_xnos(0, 0, amount, duration));
+    let stats = &mut ctx.accounts.stats;
+    stats.add(utils::calculate_xnos(0, 0, amount, duration));
 
     // finish
+    stake.bump = *ctx.bumps.get("stake").unwrap();
     Ok(())
 }
