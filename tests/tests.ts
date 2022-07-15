@@ -124,6 +124,7 @@ describe('Nosana SPL', () => {
     NodeUnqualifiedStakeAmount: 'NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.',
 
     Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
+    SeedsConstraint: 'A seeds constraint was violated',
   };
 
   // we'll set these later
@@ -361,7 +362,7 @@ describe('Nosana SPL', () => {
         .signers([user3.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.Unauthorized);
+      expect(msg).to.equal(errors.SeedsConstraint);
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
