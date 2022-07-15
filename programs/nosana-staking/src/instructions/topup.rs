@@ -4,7 +4,11 @@ use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Topup<'info> {
-    #[account(mut, seeds = [ b"stake", authority.key().as_ref() ], bump)]
+    #[account(
+        mut,
+        seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
+        bump = stake.bump
+    )]
     pub stake: Box<Account<'info, StakeAccount>>,
     #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
     pub stats: Box<Account<'info, StatsAccount>>,

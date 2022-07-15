@@ -154,7 +154,7 @@ describe('Nosana SPL', () => {
         stakingProgram.programId
       );
       [accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
-        [anchor.utils.bytes.utf8.encode('stake'), provider.wallet.publicKey.toBuffer()],
+        [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), provider.wallet.publicKey.toBuffer()],
         stakingProgram.programId
       );
       expect(nosID.toString()).to.equal(mint.toString());
@@ -177,7 +177,7 @@ describe('Nosana SPL', () => {
           await utils.mintToAccount(provider, mint, u.ata, userSupply);
           u.balance = userSupply;
           [u.stake] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('stake'), u.publicKey.toBuffer()],
+            [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), u.publicKey.toBuffer()],
             stakingProgram.programId
           );
         })
@@ -191,7 +191,7 @@ describe('Nosana SPL', () => {
           await utils.mintToAccount(provider, mint, n.ata, userSupply);
           n.balance = userSupply;
           [n.stake] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('stake'), n.publicKey.toBuffer()],
+            [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), n.publicKey.toBuffer()],
             stakingProgram.programId
           );
         })

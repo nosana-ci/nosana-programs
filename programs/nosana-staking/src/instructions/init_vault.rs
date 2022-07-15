@@ -23,7 +23,7 @@ pub struct InitVault<'info> {
         payer = authority,
         space = STATS_SIZE,
         seeds = [ b"stats", mint.key().as_ref() ],
-        bump
+        bump,
     )]
     pub stats: Box<Account<'info, StatsAccount>>,
     pub system_program: Program<'info, System>,

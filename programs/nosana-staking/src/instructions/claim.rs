@@ -6,7 +6,12 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct Claim<'info> {
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(mut, close = authority, seeds = [ b"stake", authority.key().as_ref() ], bump)]
+    #[account(
+        mut,
+        close = authority,
+        seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
+        bump = stake.bump
+    )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
