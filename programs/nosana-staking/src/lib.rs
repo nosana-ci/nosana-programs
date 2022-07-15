@@ -38,8 +38,4 @@ pub mod nosana_staking {
     pub fn claim(ctx: Context<Claim>, bump: u8) -> Result<()> {
         claim::handler(ctx, bump)
     }
-
-    pub fn emit_rank(ctx: Context<EmitRank>) -> Result<()> {
-        emit_rank::handler(ctx)
-    }
 }
