@@ -373,6 +373,10 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
+    it('Can extend a stake', async () => {
+      await stakingProgram.methods.extend(new anchor.BN(stakeDurationMonth)).accounts(accounts).rpc();
+    });
+
     it('Unstake', async () => {
       await stakingProgram.methods.unstake().accounts(accounts).rpc();
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
