@@ -45,10 +45,13 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
         amount,
     )?;
 
+    let old_xnos = utils::calculate_xnos(0, 0, stake.amount, stake.duration);
+
     stake.topup(amount);
 
     let stats = &mut ctx.accounts.stats;
-    stats.add(utils::calculate_xnos(0, 0, amount, stake.duration));
+    stats.sub(old_xnos);
+    stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
 
     // finish
     Ok(())
