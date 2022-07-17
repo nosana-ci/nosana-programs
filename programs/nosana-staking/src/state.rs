@@ -57,4 +57,7 @@ impl StakeAccount {
     pub fn topup(&mut self, amount: u64) {
         self.amount += amount;
     }
+    pub fn extend(&mut self, duration: u128) {
+        self.duration += duration;
+    }
 }

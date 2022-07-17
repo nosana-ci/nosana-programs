@@ -3,7 +3,7 @@ use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
-pub struct Topup<'info> {
+pub struct Extend<'info> {
     #[account(
         mut,
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
@@ -20,34 +20,30 @@ pub struct Topup<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
+pub fn handler(ctx: Context<Topup>, duration: u128) -> Result<()> {
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
-    require!(
-        amount as u128 > nos::DECIMALS,
-        NosanaError::StakeAmountNotEnough
-    );
-    require!(
-        stake.time_unstake == 0_i64,
-        NosanaError::StakeAlreadyUnstaked
-    );
-
-    // transfer tokens
-    utils::transfer_tokens(
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.ata_from.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        ctx.accounts.authority.to_account_info(),
-        0, // skip signature
-        amount,
-    )?;
 
     let old_xnos = utils::calculate_xnos(0, 0, stake.amount, stake.duration);
+    let old_duration = stake.duration;
 
-    stake.topup(amount);
+    stake.extend(duration);
+
+    require!(
+        stake.duration > old_duration,
+        NosanaError::StakeDurationTooShort
+    );
+    require!(
+        stake.duration >= duration::DURATION_MONTH,
+        NosanaError::StakeDurationTooShort
+    );
+    require!(
+        stake.duration <= duration::DURATION_YEAR,
+        NosanaError::StakeDurationTooLong
+    );
 
     let stats = &mut ctx.accounts.stats;
     stats.sub(old_xnos);

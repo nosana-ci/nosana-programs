@@ -35,6 +35,10 @@ pub mod nosana_staking {
         topup::handler(ctx, amount)
     }
 
+    pub fn extend(ctx: Context<Topup>, duration: u128) -> Result<()> {
+        extend::handler(ctx, duration)
+    }
+
     pub fn claim(ctx: Context<Claim>, bump: u8) -> Result<()> {
         claim::handler(ctx, bump)
     }
