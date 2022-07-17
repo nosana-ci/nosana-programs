@@ -6,7 +6,12 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct Claim<'info> {
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(mut, close = authority)]
+    #[account(
+        mut,
+        close = authority,
+        seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
+        bump = stake.bump
+    )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
@@ -21,7 +26,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
-    require!(stake.amount != 0, NosanaError::StakeAlreadyClaimed);
+    require!(stake.amount != 0_u64, NosanaError::StakeAlreadyClaimed);
     require!(
         stake.duration
             >= u128::try_from(

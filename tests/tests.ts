@@ -93,6 +93,7 @@ describe('Nosana SPL', () => {
     // token and ATAs (tbd)
     mint: undefined,
     ataVault: undefined,
+    stats: undefined,
     ataFrom: undefined,
     ataTo: undefined,
     ataNft: undefined,
@@ -123,6 +124,7 @@ describe('Nosana SPL', () => {
     NodeUnqualifiedStakeAmount: 'NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.',
 
     Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
+    SeedsConstraint: 'A seeds constraint was violated',
   };
 
   // we'll set these later
@@ -144,11 +146,15 @@ describe('Nosana SPL', () => {
         jobsProgram.programId
       );
       [ata.vaultStaking, bumpStaking] = await anchor.web3.PublicKey.findProgramAddress(
-        [mint.toBuffer()],
+        [anchor.utils.bytes.utf8.encode('nos'), mint.toBuffer()],
+        stakingProgram.programId
+      );
+      [accounts.stats] = await anchor.web3.PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode('stats'), mint.toBuffer()],
         stakingProgram.programId
       );
       [accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
-        [anchor.utils.bytes.utf8.encode('stake'), provider.wallet.publicKey.toBuffer()],
+        [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), provider.wallet.publicKey.toBuffer()],
         stakingProgram.programId
       );
       expect(nosID.toString()).to.equal(mint.toString());
@@ -171,7 +177,7 @@ describe('Nosana SPL', () => {
           await utils.mintToAccount(provider, mint, u.ata, userSupply);
           u.balance = userSupply;
           [u.stake] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('stake'), u.publicKey.toBuffer()],
+            [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), u.publicKey.toBuffer()],
             stakingProgram.programId
           );
         })
@@ -185,7 +191,7 @@ describe('Nosana SPL', () => {
           await utils.mintToAccount(provider, mint, n.ata, userSupply);
           n.balance = userSupply;
           [n.stake] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('stake'), n.publicKey.toBuffer()],
+            [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), n.publicKey.toBuffer()],
             stakingProgram.programId
           );
         })
@@ -356,7 +362,7 @@ describe('Nosana SPL', () => {
         .signers([user3.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.Unauthorized);
+      expect(msg).to.equal(errors.SeedsConstraint);
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
