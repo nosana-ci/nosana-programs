@@ -346,14 +346,6 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
-    it('Emit rank', async () => {
-      const result = await stakingProgram.methods.emitRank().accounts(accounts).simulate();
-      const rank = result.events[0].data;
-      const xnos = parseInt(rank.xnos.toString());
-      expect(xnos).to.equal(utils.calculateXnos(0, Date.now(), stakeDurationMonth, stakeAmount));
-      await utils.assertBalancesStaking(provider, ata, balances);
-    });
-
     it('Unstake from other account', async () => {
       let msg = '';
       await stakingProgram.methods
@@ -409,22 +401,6 @@ describe('Nosana SPL', () => {
       expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
       unstakeTime = data.timeUnstake.toNumber();
       await utils.assertBalancesStaking(provider, ata, balances);
-    });
-
-    it('Check that xnos decreases after unstake', async () => {
-      await utils.sleep(3000);
-      const result = await stakingProgram.methods.emitRank().accounts(accounts).simulate();
-      const data = result.events[0].data;
-      const rank = { xnos: 0, amount: 0, duration: 0, timeUnstake: 0 };
-      for (const type of Object.keys(rank)) rank[type] = parseInt(data[type].toString());
-
-      const userStake = stakeAmount * 3; // stake + topup + topup
-      const xnos = utils.calculateXnos(unstakeTime, Date.now() / 1e3, stakeDurationMonth, userStake);
-      expect(rank.amount).to.equal(userStake);
-      expect(rank.duration).to.equal(stakeDurationMonth);
-      expect(rank.timeUnstake).to.be.closeTo(unstakeTime, 1);
-      expect(rank.xnos).to.be.lessThan(utils.calculateXnos(0, 1, stakeDurationMonth, userStake));
-      expect(rank.xnos).to.be.closeTo(xnos, 1000);
     });
 
     it('Final re-stake', async () => {
