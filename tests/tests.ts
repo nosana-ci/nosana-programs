@@ -365,6 +365,26 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
+    it('Extend a stake with invalid duration', async () => {
+      let msg = '';
+      await stakingProgram.methods
+        .extend(new anchor.BN(-1))
+        .accounts(accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal('This should not be possible');
+    });
+
+    it('Extend a stake too far', async () => {
+      let msg = '';
+      await stakingProgram.methods
+        .extend(new anchor.BN(stakeDurationYear))
+        .accounts(accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(errors.StakeDurationTooLong);
+    });
+
     it('Can extend a stake', async () => {
       await stakingProgram.methods.extend(new anchor.BN(stakeDurationMonth)).accounts(accounts).rpc();
     });
