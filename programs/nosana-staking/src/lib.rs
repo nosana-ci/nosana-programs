@@ -10,6 +10,17 @@ use instructions::*;
 pub use state::*; // expose stake for cpi
 
 use anchor_lang::prelude::*;
+use solana_security_txt::security_txt;
+
+security_txt! {
+    name: "Nosana Staking",
+    project_url: "http://nosana.io",
+    contacts: "email:team@nosana.io,link:https://nosana.io/security,discord:nosana#security",
+    policy: "https://github.com/solana-labs/solana/blob/master/SECURITY.md",
+    preferred_languages: "en",
+    source_code: "https://github.com/nosana-ci/nosana-programs",
+    auditors: "TBD"
+}
 
 #[program]
 pub mod nosana_staking {
