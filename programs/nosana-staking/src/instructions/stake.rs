@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
+use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
@@ -36,13 +37,10 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
         duration <= duration::DURATION_YEAR,
         NosanaError::StakeDurationTooLong
     );
-    require!(
-        amount as u128 > nos::DECIMALS,
-        NosanaError::StakeAmountNotEnough
-    );
+    require!(amount > nos::DECIMALS, NosanaError::StakeAmountNotEnough);
 
     // transfer tokens
-    utils::transfer_tokens(
+    transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_from.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),

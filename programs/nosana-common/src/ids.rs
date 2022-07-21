@@ -1,9 +1,13 @@
-use anchor_lang::declare_id;
+pub mod staking {
+    use anchor_lang::declare_id;
+    declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
+}
 
-// program ID
-declare_id!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
+pub mod jobs {
+    use anchor_lang::declare_id;
+    declare_id!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
+}
 
-// token ID
 pub mod nos {
     use anchor_lang::declare_id;
 
@@ -14,9 +18,4 @@ pub mod nos {
 
     pub const DECIMALS: u64 = 1_000_000;
     pub const STAKE_MINIMUM: u64 = 1_000 * DECIMALS;
-}
-
-pub mod staking {
-    use anchor_lang::declare_id;
-    declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
 }

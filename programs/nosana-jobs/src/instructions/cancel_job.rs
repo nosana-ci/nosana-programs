@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
+use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct CancelJob<'info> {
@@ -26,7 +27,7 @@ pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
     job.cancel();
 
     // refund tokens
-    utils::transfer_tokens(
+    transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),

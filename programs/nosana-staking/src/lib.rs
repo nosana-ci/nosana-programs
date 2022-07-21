@@ -1,15 +1,12 @@
-mod error;
-mod ids;
 mod instructions;
 mod state;
 mod utils;
 
-use error::*;
-use ids::*;
-use instructions::*;
 pub use state::*; // expose stake for cpi
+use instructions::*;
 
 use anchor_lang::prelude::*;
+use nosana_common::staking;
 use solana_security_txt::security_txt;
 
 security_txt! {
@@ -21,6 +18,8 @@ security_txt! {
     source_code: "https://github.com/nosana-ci/nosana-programs",
     auditors: "TBD"
 }
+
+declare_id!(staking::ID);
 
 #[program]
 pub mod nosana_staking {

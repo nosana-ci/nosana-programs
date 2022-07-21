@@ -749,11 +749,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "nosana-common"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+]
+
+[[package]]
 name = "nosana-jobs"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "nosana-common",
  "nosana-staking",
 ]
 
@@ -763,6 +772,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "nosana-common",
  "solana-security-txt",
 ]
 

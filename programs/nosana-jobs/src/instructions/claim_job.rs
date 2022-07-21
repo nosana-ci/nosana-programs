@@ -1,5 +1,6 @@
 use crate::*;
 use anchor_spl::token::TokenAccount;
+use nosana_common::{nos, staking, NosanaError};
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]

@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
+use nosana_common::{nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct Extend<'info> {

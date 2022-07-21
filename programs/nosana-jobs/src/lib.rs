@@ -1,15 +1,13 @@
-mod error;
-mod ids;
 mod instructions;
 mod state;
-mod utils;
 
-use error::*;
-use ids::*;
 use instructions::*;
 use state::*;
 
 use anchor_lang::prelude::*;
+use nosana_common::jobs;
+
+declare_id!(jobs::ID);
 
 #[program]
 pub mod nosana_jobs {

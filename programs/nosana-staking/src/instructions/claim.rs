@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
+use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -41,7 +42,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
     );
 
     // return tokens, the stake account is closed so no need to update it.
-    utils::transfer_tokens(
+    transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),

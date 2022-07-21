@@ -1,4 +1,5 @@
 use crate::*;
+use nosana_common::{nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
