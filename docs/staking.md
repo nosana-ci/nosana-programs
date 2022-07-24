@@ -1,4 +1,4 @@
-oThe staking program allows users to stake NOS tokens for a variable amount of time.
+The staking program allows users to stake NOS tokens for a variable amount of time.
 There are 2 values associated with a users stake:
 
 - Staked NOS
