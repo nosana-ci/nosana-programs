@@ -378,12 +378,13 @@ describe('Nosana SPL', () => {
 
     it('Extend a stake with negative duration', async () => {
       const accountBefore = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      await stakingProgram.methods
-        .extend(new anchor.BN(-7))
-        .accounts(accounts)
-        .rpc();
+      await stakingProgram.methods.extend(new anchor.BN(-7)).accounts(accounts).rpc();
       const accountAfter = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       expect(accountAfter.duration.toNumber()).to.equal(accountBefore.duration.toNumber() + 7);
+
+      xnos -= calculateXnos(0, 0, stakeDurationMonth, accountAfter.amount.toNumber());
+      xnos += calculateXnos(0, 0, stakeDurationMonth + 7, accountAfter.amount.toNumber());
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Extend a stake too far', async () => {
@@ -401,11 +402,11 @@ describe('Nosana SPL', () => {
 
       // check stake
       const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(stake.duration.toNumber()).to.be.closeTo(stakeDurationMonth * 2, 1);
+      expect(stake.duration.toNumber()).to.equal(stakeDurationMonth * 2 + 7);
       expect(stake.amount.toNumber()).to.equal(stakeAmount * 2);
 
       // update xnos
-      xnos -= calculateXnos(0, 0, stakeDurationMonth, stake.amount.toNumber());
+      xnos -= calculateXnos(0, 0, stakeDurationMonth + 7, stake.amount.toNumber());
       xnos += calculateXnos(0, 0, stake.duration.toNumber(), stake.amount.toNumber());
 
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
@@ -416,7 +417,7 @@ describe('Nosana SPL', () => {
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
       await utils.assertBalancesStaking(provider, ata, balances);
-      xnos -= calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 2);
+      xnos -= calculateXnos(0, 0, stakeDurationMonth * 2 + 7, stakeAmount * 2);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
@@ -434,7 +435,7 @@ describe('Nosana SPL', () => {
     it('Re-stake', async () => {
       await stakingProgram.methods.restake().accounts(accounts).rpc();
       await utils.assertBalancesStaking(provider, ata, balances);
-      xnos += calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 2);
+      xnos += calculateXnos(0, 0, stakeDurationMonth * 2 + 7, stakeAmount * 2);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
@@ -444,7 +445,7 @@ describe('Nosana SPL', () => {
       balances.vaultStaking += stakeAmount;
       await utils.assertBalancesStaking(provider, ata, balances);
 
-      xnos += calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount);
+      xnos += calculateXnos(0, 0, stakeDurationMonth * 2 + 7, stakeAmount);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
@@ -455,7 +456,7 @@ describe('Nosana SPL', () => {
       unstakeTime = data.timeUnstake.toNumber();
       await utils.assertBalancesStaking(provider, ata, balances);
 
-      xnos -= calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 3);
+      xnos -= calculateXnos(0, 0, stakeDurationMonth * 2 + 7, stakeAmount * 3);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
@@ -463,7 +464,7 @@ describe('Nosana SPL', () => {
       await stakingProgram.methods.restake().accounts(accounts).rpc();
       await utils.assertBalancesStaking(provider, ata, balances);
 
-      xnos += calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 3);
+      xnos += calculateXnos(0, 0, stakeDurationMonth * 2 + 7, stakeAmount * 3);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
   });
