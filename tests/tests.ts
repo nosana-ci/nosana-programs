@@ -13,6 +13,7 @@ import {
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { NosanaJobs } from '../target/types/nosana_jobs';
 import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
+import { calculateXnos } from './utils';
 
 describe('Nosana SPL', () => {
   // provider and program
@@ -129,10 +130,9 @@ describe('Nosana SPL', () => {
 
   // we'll set these later
   let mint, bumpJobs, bumpStaking, claimTime, unstakeTime;
+  let xnos = 0;
   const ata = { user: undefined, vaultJob: undefined, vaultStaking: undefined, nft: undefined };
   const balances = { user: 0, vaultJob: 0, vaultStaking: 0 };
-
-  // for later
   let cancelJob = anchor.web3.Keypair.generate();
   let cancelJobs = anchor.web3.Keypair.generate();
 
@@ -255,6 +255,7 @@ describe('Nosana SPL', () => {
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(errors.StakeDurationTooLong);
       await utils.assertBalancesStaking(provider, ata, balances);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Create stake minimum', async () => {
@@ -265,6 +266,8 @@ describe('Nosana SPL', () => {
       balances.user -= stakeAmount;
       balances.vaultStaking += stakeAmount;
       await utils.assertBalancesStaking(provider, ata, balances);
+      xnos += calculateXnos(0, 0, stakeDurationMonth, stakeAmount);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Create stake maximum', async () => {
@@ -281,6 +284,8 @@ describe('Nosana SPL', () => {
       user4.balance -= stakeAmount;
       balances.vaultStaking += stakeAmount;
       await utils.assertBalancesStaking(provider, ata, balances);
+      xnos += calculateXnos(0, 0, stakeDurationYear, stakeAmount);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Create stake too low for node 1', async () => {
@@ -298,6 +303,8 @@ describe('Nosana SPL', () => {
       node1.balance -= amount;
       balances.vaultStaking += amount;
       await utils.assertBalancesStaking(provider, ata, balances);
+      xnos += calculateXnos(0, 0, stakeDurationMonth, amount);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Create stake for node 2, and unstake', async () => {
@@ -323,6 +330,7 @@ describe('Nosana SPL', () => {
       node2.balance -= minimumNodeStake;
       balances.vaultStaking += minimumNodeStake;
       await utils.assertBalancesStaking(provider, ata, balances);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Initialize stake for other nodes', async () => {
@@ -340,10 +348,12 @@ describe('Nosana SPL', () => {
             .rpc();
           balances.vaultStaking += stakeAmount;
           n.balance -= stakeAmount;
+          xnos += calculateXnos(0, 0, stakeDurationMonth * 3, stakeAmount);
           expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
         })
       );
       await utils.assertBalancesStaking(provider, ata, balances);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Unstake from other account', async () => {
@@ -362,6 +372,7 @@ describe('Nosana SPL', () => {
       await stakingProgram.methods.topup(new anchor.BN(stakeAmount)).accounts(accounts).rpc();
       balances.user -= stakeAmount;
       balances.vaultStaking += stakeAmount;
+      xnos += calculateXnos(0, 0, stakeDurationMonth, stakeAmount);
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
@@ -387,6 +398,17 @@ describe('Nosana SPL', () => {
 
     it('Can extend a stake', async () => {
       await stakingProgram.methods.extend(new anchor.BN(stakeDurationMonth)).accounts(accounts).rpc();
+
+      // check stake
+      const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+      expect(stake.duration.toNumber()).to.be.closeTo(stakeDurationMonth * 2, 1);
+      expect(stake.amount.toNumber()).to.equal(stakeAmount * 2);
+
+      // update xnos
+      xnos -= calculateXnos(0, 0, stakeDurationMonth, stake.amount.toNumber());
+      xnos += calculateXnos(0, 0, stake.duration.toNumber(), stake.amount.toNumber());
+
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Unstake', async () => {
@@ -394,6 +416,8 @@ describe('Nosana SPL', () => {
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
       await utils.assertBalancesStaking(provider, ata, balances);
+      xnos -= calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 2);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Top Up after unstake', async () => {
@@ -410,6 +434,8 @@ describe('Nosana SPL', () => {
     it('Re-stake', async () => {
       await stakingProgram.methods.restake().accounts(accounts).rpc();
       await utils.assertBalancesStaking(provider, ata, balances);
+      xnos += calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 2);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Top Up again', async () => {
@@ -417,6 +443,9 @@ describe('Nosana SPL', () => {
       balances.user -= stakeAmount;
       balances.vaultStaking += stakeAmount;
       await utils.assertBalancesStaking(provider, ata, balances);
+
+      xnos += calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Unstake second time', async () => {
@@ -425,11 +454,17 @@ describe('Nosana SPL', () => {
       expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
       unstakeTime = data.timeUnstake.toNumber();
       await utils.assertBalancesStaking(provider, ata, balances);
+
+      xnos -= calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 3);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
 
     it('Final re-stake', async () => {
       await stakingProgram.methods.restake().accounts(accounts).rpc();
       await utils.assertBalancesStaking(provider, ata, balances);
+
+      xnos += calculateXnos(0, 0, stakeDurationMonth * 2, stakeAmount * 3);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
   });
 

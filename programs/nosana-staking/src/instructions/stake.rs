@@ -31,11 +31,11 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
-        duration >= constants::DURATION_MONTH,
+        u128::from(duration) >= constants::DURATION_MONTH,
         NosanaError::StakeDurationTooShort
     );
     require!(
-        duration <= constants::DURATION_YEAR,
+        u128::from(duration) <= constants::DURATION_YEAR,
         NosanaError::StakeDurationTooLong
     );
     require!(

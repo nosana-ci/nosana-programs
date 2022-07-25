@@ -95,7 +95,7 @@ function setupSolanaUser(connection) {
 function calculateXnos(unstakeTime, currentTime, duration, amount) {
   const secondsPerMonth = (365 * 24 * 60 * 60) / 12;
   const elapsed = unstakeTime === 0 ? 0 : currentTime - unstakeTime;
-  return Math.floor(((duration - elapsed) * amount) / secondsPerMonth);
+  return Math.floor((Math.floor(((duration - elapsed) * 1_000) / secondsPerMonth / 4 + 1_000) * amount) / 1_000);
 }
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));

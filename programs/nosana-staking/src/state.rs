@@ -6,9 +6,11 @@ pub mod constants {
     use nosana_common::nos;
 
     pub const STAKE_MINIMUM: u64 = 1_000 * nos::DECIMALS;
-    pub const SECONDS_PER_MONTH: u64 = 2_628_000; // 365 * 24 * 60 * 60 / 12
-    pub const DURATION_MONTH: u64 = SECONDS_PER_MONTH;
-    pub const DURATION_YEAR: u64 = 12 * SECONDS_PER_MONTH;
+    pub const SECONDS_PER_MONTH: u128 = 2_628_000; // 365 * 24 * 60 * 60 / 12
+    pub const DURATION_MONTH: u128 = SECONDS_PER_MONTH;
+    pub const DURATION_YEAR: u128 = 12 * SECONDS_PER_MONTH;
+    pub const XNOS_PRECISION: u128 = 1_000;
+    pub const XNOS_GROWTH_DENOMINATOR: u128 = 4; // 0.25
 }
 
 /// # Stats

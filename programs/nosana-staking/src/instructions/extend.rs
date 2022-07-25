@@ -33,7 +33,7 @@ pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
     );
     require!(duration > 0_u64, NosanaError::StakeDurationTooShort);
 
-    // update stats
+    // update stats and stake
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
     stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
     stake.extend(duration);
@@ -41,11 +41,11 @@ pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
 
     // verify new duration is conform minimum and maximum allowed time
     require!(
-        stake.duration >= constants::DURATION_MONTH,
+        u128::from(stake.duration) >= constants::DURATION_MONTH,
         NosanaError::StakeDurationTooShort
     );
     require!(
-        stake.duration <= constants::DURATION_YEAR,
+        u128::from(stake.duration) <= constants::DURATION_YEAR,
         NosanaError::StakeDurationTooLong
     );
 
