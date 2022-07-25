@@ -21,8 +21,7 @@ pub struct Extend<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Topup>, duration: u64) -> Result<()> {
-    // get and check stake
+pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
         stake.authority == *ctx.accounts.authority.key,
