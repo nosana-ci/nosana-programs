@@ -14,7 +14,7 @@ pub struct Claim<'info> {
     pub ata_to: Box<Account<'info, TokenAccount>>,
     #[account(owner = staking_program.key())]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, close = authority, seeds = [ b"reward", authority.key().as_ref()], bump)]
+    #[account(mut, close = authority, seeds = [ b"reward", authority.key().as_ref()], bump = reward.bump)]
     pub reward: Box<Account<'info, RewardAccount>>,
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -30,7 +30,22 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
 
     // check that the stake is still active, and that the stake has
     // not not decreased.
+
     // TODO: use xNOS instead of stake.amount
+
+    // TODO: claim should not close the reward account, but instead just reset
+    // it as fresh enter. as claim + enter is inefficient (and 2 transactions)
+
+    // TODO: do a CPI to support a claim + topup + enter scheme
+
+    // TODO: if someone unstaked before claiming, we should allow anyone to
+    // close their reward account. the accumulated rewards will be distributed
+    // to everyone.
+
+    // TODO: it should not be possible to decrease stake ever. but we check that
+    // anyways just to be sure. if stake ever decreases we should allow closing
+    // of the reward account. else we end up with "ghost" accounts gaining
+    // rewards.
     require!(stake.time_unstake == 0, NosanaError::AlreadyUnstaked);
     require!(u128::from(stake.amount) >= reward.t_owned, NosanaError::StakeDecreased);
 

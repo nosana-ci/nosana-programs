@@ -10,7 +10,7 @@ use nosana_staking::StakeAccount;
 use instructions::*;
 pub use state::*; // expose stake for cpi
 
-declare_id!("8Ca1NWKayrZxiDhmLQyxZnBTCqGRb6V39yiKiKNRfQy1");
+declare_id!("nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp");
 
 pub mod nos {
     use anchor_lang::declare_id;
