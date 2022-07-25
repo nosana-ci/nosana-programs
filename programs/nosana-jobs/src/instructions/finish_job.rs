@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
+use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct FinishJob<'info> {
@@ -29,7 +30,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
     job.finish(ctx.accounts.clock.unix_timestamp, data);
 
     //  pay out
-    return utils::transfer_tokens(
+    return transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),

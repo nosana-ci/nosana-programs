@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
+use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct CreateJob<'info> {
@@ -32,7 +33,7 @@ pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<(
     job.create(ctx.accounts.authority.key(), data, amount);
 
     // transfer tokens
-    utils::transfer_tokens(
+    transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_from.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),

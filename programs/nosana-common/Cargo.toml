@@ -1,0 +1,18 @@
+[package]
+name = "nosana-common"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "nosana_common"
+
+[features]
+#default = ["mainnet"]
+mainnet = []
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+
+[dependencies]
+anchor-lang = "0.24.2"
+anchor-spl = "0.24.2"
