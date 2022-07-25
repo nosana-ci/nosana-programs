@@ -2,8 +2,8 @@ mod instructions;
 mod state;
 mod utils;
 
-pub use state::*; // expose stake for cpi
 use instructions::*;
+pub use state::*; // expose stake for cpi
 
 use anchor_lang::prelude::*;
 use nosana_common::staking;
