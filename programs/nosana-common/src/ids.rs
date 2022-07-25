@@ -1,11 +1,21 @@
-pub mod staking {
+pub mod common {
     use anchor_lang::declare_id;
-    declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
+    declare_id!("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 }
 
 pub mod jobs {
     use anchor_lang::declare_id;
     declare_id!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
+}
+
+pub mod rewards {
+    use anchor_lang::declare_id;
+    declare_id!("nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp");
+}
+
+pub mod staking {
+    use anchor_lang::declare_id;
+    declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
 }
 
 pub mod nos {
