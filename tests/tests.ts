@@ -365,14 +365,14 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
-    it('Extend a stake with invalid duration', async () => {
-      let msg = '';
+    it('Extend a stake with negative duration', async () => {
+      const accountBefore = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
       await stakingProgram.methods
-        .extend(new anchor.BN(-1))
+        .extend(new anchor.BN(-7))
         .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal('This should not be possible');
+        .rpc();
+      const accountAfter = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+      expect(accountAfter.duration.toNumber()).to.equal(accountBefore.duration.toNumber() + 7);
     });
 
     it('Extend a stake too far', async () => {
