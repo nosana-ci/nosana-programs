@@ -21,3 +21,4 @@ cpi = ["no-entrypoint"]
 [dependencies]
 anchor-lang = "0.24.2"
 anchor-spl = "0.24.2"
+solana-security-txt = "1.0.1"
