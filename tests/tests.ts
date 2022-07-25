@@ -231,7 +231,7 @@ describe('Nosana SPL', () => {
   describe('Nosana Staking', () => {
     it('Initialize the staking vault', async () => {
       accounts.ataVault = ata.vaultStaking;
-      await stakingProgram.methods.initVault(bumpJobs).accounts(accounts).rpc();
+      await stakingProgram.methods.initVault().accounts(accounts).rpc();
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 

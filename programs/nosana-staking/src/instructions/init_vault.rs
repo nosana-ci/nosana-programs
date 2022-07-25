@@ -4,7 +4,6 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 use nosana_common::nos;
 
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct InitVault<'info> {
     #[account(address = nos::ID)]
     pub mint: Box<Account<'info, Mint>>,

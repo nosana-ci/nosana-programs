@@ -25,7 +25,7 @@ declare_id!(staking::ID);
 pub mod nosana_staking {
     use super::*;
 
-    pub fn init_vault(ctx: Context<InitVault>, _bump: u8) -> Result<()> {
+    pub fn init_vault(ctx: Context<InitVault>) -> Result<()> {
         init_vault::handler(ctx)
     }
 
@@ -49,7 +49,7 @@ pub mod nosana_staking {
         extend::handler(ctx, duration)
     }
 
-    pub fn claim(ctx: Context<Claim>, bump: u8) -> Result<()> {
-        claim::handler(ctx, bump)
+    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+        claim::handler(ctx)
     }
 }

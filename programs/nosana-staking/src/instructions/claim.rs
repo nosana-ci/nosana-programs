@@ -21,7 +21,7 @@ pub struct Claim<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
+pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
@@ -43,6 +43,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
     );
 
     // return tokens, the stake account is closed so no need to update it.
+    let bump: u8 =  *ctx.bumps.get("ata_vault").unwrap();
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
