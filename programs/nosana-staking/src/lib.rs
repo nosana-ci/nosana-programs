@@ -15,7 +15,7 @@ use anchor_lang::prelude::*;
 pub mod nosana_staking {
     use super::*;
 
-    pub fn init_vault(ctx: Context<InitVault>, _bump: u8) -> Result<()> {
+    pub fn init_vault(ctx: Context<InitVault>) -> Result<()> {
         init_vault::handler(ctx)
     }
 

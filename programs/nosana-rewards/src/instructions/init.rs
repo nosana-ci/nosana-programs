@@ -3,7 +3,7 @@ use crate::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
-pub struct InitVault<'info> {
+pub struct Init<'info> {
     #[account(address = nos::ID)]
     pub mint: Box<Account<'info, Mint>>,
     #[account(mut)]
@@ -13,7 +13,7 @@ pub struct InitVault<'info> {
         payer = authority,
         token::mint = mint,
         token::authority = ata_vault,
-        seeds = [ b"nos", mint.key().as_ref() ],
+        seeds = [ nos::ID.key().as_ref() ],
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
@@ -21,7 +21,7 @@ pub struct InitVault<'info> {
         init,
         payer = authority,
         space = STATS_SIZE,
-        seeds = [ b"stats", mint.key().as_ref() ],
+        seeds = [ b"stats" ],
         bump,
     )]
     pub stats: Box<Account<'info, StatsAccount>>,
@@ -30,9 +30,11 @@ pub struct InitVault<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<InitVault>) -> Result<()> {
-    // init xnos vault
+pub fn handler(ctx: Context<Init>) -> Result<()> {
     let stats = &mut ctx.accounts.stats;
-    stats.init(*ctx.bumps.get("stats").unwrap());
+    stats.bump = *ctx.bumps.get("stats").unwrap();
+    stats.r_total = 0;
+    stats.t_total = 0;
+    stats.rate = INITIAL_RATE;
     Ok(())
 }
