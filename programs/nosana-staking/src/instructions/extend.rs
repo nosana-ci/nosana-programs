@@ -21,34 +21,34 @@ pub struct Extend<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Topup>, duration: u128) -> Result<()> {
+pub fn handler(ctx: Context<Topup>, duration: u64) -> Result<()> {
+    // get and check stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
+    require!(
+        stake.time_unstake == 0_i64,
+        NosanaError::StakeAlreadyUnstaked
+    );
+    require!(duration > 0_u64, NosanaError::StakeDurationTooShort);
 
-    let old_xnos = utils::calculate_xnos(0, 0, stake.amount, stake.duration);
-    let old_duration = stake.duration;
-
+    // update stats
+    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
     stake.extend(duration);
+    stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
 
+    // verify new duration is conform minimum and maximum allowed time
     require!(
-        stake.duration > old_duration,
+        stake.duration >= constants::DURATION_MONTH,
         NosanaError::StakeDurationTooShort
     );
     require!(
-        stake.duration >= duration::DURATION_MONTH,
-        NosanaError::StakeDurationTooShort
-    );
-    require!(
-        stake.duration <= duration::DURATION_YEAR,
+        stake.duration <= constants::DURATION_YEAR,
         NosanaError::StakeDurationTooLong
     );
-
-    let stats = &mut ctx.accounts.stats;
-    stats.sub(old_xnos);
-    stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
 
     // finish
     Ok(())

@@ -1,6 +1,6 @@
 use crate::state;
 
-pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duration: u128) -> u128 {
+pub fn calculate_xnos(time_current: u64, time_unstake: u64, amount: u64, duration: u64) -> u128 {
     // determine elapsed time in seconds since unstake, 0 if not unstaked
     let elapsed = u128::try_from(if time_unstake == 0 {
         0
@@ -9,16 +9,16 @@ pub fn calculate_xnos(time_current: i64, time_unstake: i64, amount: u64, duratio
     })
     .unwrap();
 
-    // return boost in xnos
-    if elapsed >= duration {
+    // return xnos
+    if elapsed >= u128::from(duration) {
         0
     } else {
-        duration
+        u128::from(duration)
             .checked_sub(elapsed)
             .unwrap()
             .checked_mul(u128::from(amount))
             .unwrap()
-            .checked_div(state::duration::SECONDS_PER_MONTH)
+            .checked_div(u128::from(state::constants::SECONDS_PER_MONTH))
             .unwrap()
     }
 }

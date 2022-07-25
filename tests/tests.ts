@@ -38,10 +38,10 @@ describe('Nosana SPL', () => {
   // tokens
   const decimals = 1e6;
   const mintSupply = 1e7 * decimals;
-  const userSupply = 1e4 * decimals;
+  const userSupply = 1e5 * decimals;
   const jobPrice = decimals;
-  const stakeAmount = 1e3 * decimals;
-  const minimumNodeStake = 1e3 * decimals;
+  const stakeAmount = 1e4 * decimals;
+  const minimumNodeStake = 1e4 * decimals;
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {

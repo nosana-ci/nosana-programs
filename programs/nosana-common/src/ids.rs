@@ -27,5 +27,4 @@ pub mod nos {
     declare_id!("testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp");
 
     pub const DECIMALS: u64 = 1_000_000;
-    pub const STAKE_MINIMUM: u64 = 1_000 * DECIMALS;
 }

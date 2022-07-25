@@ -22,6 +22,7 @@ pub struct Claim<'info> {
 }
 
 pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
+    // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
         stake.authority == *ctx.accounts.authority.key,
@@ -30,7 +31,7 @@ pub fn handler(ctx: Context<Claim>, bump: u8) -> Result<()> {
     require!(stake.amount != 0_u64, NosanaError::StakeAlreadyClaimed);
     require!(
         stake.duration
-            >= u128::try_from(
+            >= u64::try_from(
                 ctx.accounts
                     .clock
                     .unix_timestamp

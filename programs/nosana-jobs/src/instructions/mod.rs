@@ -1,4 +1,4 @@
-//! Instructions for Nosana.
+//! Instructions for Nosana Jobs.
 
 pub mod cancel_job;
 pub mod claim_job;

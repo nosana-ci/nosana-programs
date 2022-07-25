@@ -32,7 +32,7 @@ pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
         NosanaError::Unauthorized
     );
     require!(
-        stake.amount >= nos::STAKE_MINIMUM,
+        stake.amount >= 10_000 * nos::DECIMALS,
         NosanaError::NodeUnqualifiedStakeAmount
     );
     require!(

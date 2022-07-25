@@ -27,19 +27,23 @@ pub struct Stake<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
+pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
+    // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
-        duration >= duration::DURATION_MONTH,
+        duration >= constants::DURATION_MONTH,
         NosanaError::StakeDurationTooShort
     );
     require!(
-        duration <= duration::DURATION_YEAR,
+        duration <= constants::DURATION_YEAR,
         NosanaError::StakeDurationTooLong
     );
-    require!(amount > nos::DECIMALS, NosanaError::StakeAmountNotEnough);
+    require!(
+        amount > constants::STAKE_MINIMUM,
+        NosanaError::StakeAmountNotEnough
+    );
 
-    // transfer tokens
+    // transfer tokens to vault
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_from.to_account_info(),
@@ -49,12 +53,18 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
         amount,
     )?;
 
-    stake.stake(*ctx.accounts.authority.key, amount, duration);
+    // initialize the stake
+    stake.stake(
+        *ctx.accounts.authority.key,
+        amount,
+        *ctx.bumps.get("stake").unwrap(),
+        duration,
+    );
 
-    let stats = &mut ctx.accounts.stats;
+    // add xnos to stats
+    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
     stats.add(utils::calculate_xnos(0, 0, amount, duration));
 
     // finish
-    stake.bump = *ctx.bumps.get("stake").unwrap();
     Ok(())
 }

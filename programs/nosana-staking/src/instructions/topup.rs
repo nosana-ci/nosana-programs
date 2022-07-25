@@ -22,18 +22,18 @@ pub struct Topup<'info> {
 }
 
 pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
+    // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
-    require!(amount > nos::DECIMALS, NosanaError::StakeAmountNotEnough);
     require!(
         stake.time_unstake == 0_i64,
         NosanaError::StakeAlreadyUnstaked
     );
 
-    // transfer tokens
+    // transfer tokens to the vault
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_from.to_account_info(),
@@ -43,12 +43,10 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
         amount,
     )?;
 
-    let old_xnos = utils::calculate_xnos(0, 0, stake.amount, stake.duration);
-
+    // update stats and stake
+    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
     stake.topup(amount);
-
-    let stats = &mut ctx.accounts.stats;
-    stats.sub(old_xnos);
     stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
 
     // finish

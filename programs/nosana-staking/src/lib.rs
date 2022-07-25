@@ -29,7 +29,7 @@ pub mod nosana_staking {
         init_vault::handler(ctx)
     }
 
-    pub fn stake(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
+    pub fn stake(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
         stake::handler(ctx, amount, duration)
     }
 
@@ -45,7 +45,7 @@ pub mod nosana_staking {
         topup::handler(ctx, amount)
     }
 
-    pub fn extend(ctx: Context<Topup>, duration: u128) -> Result<()> {
+    pub fn extend(ctx: Context<Topup>, duration: u64) -> Result<()> {
         extend::handler(ctx, duration)
     }
 
