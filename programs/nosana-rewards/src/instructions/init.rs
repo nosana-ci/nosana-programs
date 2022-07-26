@@ -2,6 +2,8 @@ use crate::*;
 
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
+use nosana_common::{nos, NosanaError};
+
 #[derive(Accounts)]
 pub struct Init<'info> {
     #[account(address = nos::ID)]

@@ -3,6 +3,7 @@ use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
 
 use nosana_staking::program::NosanaStaking;
+use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -30,7 +31,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
 
     // check that the stake is still active, and that the stake has
     // not decreased.
-    require!(stake.time_unstake == 0, NosanaError::AlreadyUnstaked);
+    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
     require!(u128::from(stake.xnos) >= reward.t_owned, NosanaError::StakeDecreased);
 
     let rowned: u128 = stats.tokens_to_reflection(reward.t_owned);
@@ -48,7 +49,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
 
     let reward_amount: u64 = u64::try_from(earned_fees).ok().unwrap();
 
-    utils::transfer_tokens(
+    transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),

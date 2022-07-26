@@ -1,5 +1,7 @@
 use crate::*;
 
+use nosana_common::{NosanaError};
+
 #[derive(Accounts)]
 pub struct Enter<'info> {
     #[account(mut, owner=ID.key(), seeds = [ b"stats" ], bump = stats.bump)]
@@ -29,7 +31,7 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
     reward.bump = *ctx.bumps.get("reward").unwrap();
     reward.authority = *ctx.accounts.authority.key;
 
-    require!(stake.time_unstake == 0, NosanaError::AlreadyUnstaked);
+    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
 
     let tnos: u128 = u128::from(stake.xnos);
     let rnos: u128 = stats.tokens_to_reflection(tnos);

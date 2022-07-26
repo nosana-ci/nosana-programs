@@ -1,5 +1,3 @@
-mod utils;
-
 mod instructions;
 mod state;
 
@@ -9,25 +7,9 @@ use nosana_staking::program::NosanaStaking;
 use nosana_staking::StakeAccount;
 use instructions::*;
 pub use state::*; // expose stake for cpi
+use nosana_common::rewards;
 
-declare_id!("nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp");
-
-pub mod nos {
-    use anchor_lang::declare_id;
-
-    #[cfg(feature = "mainnet")]
-    declare_id!("TSTntXiYheDFtAdQ1pNBM2QQncA22PCFLLRr53uBa8i");
-    #[cfg(not(feature = "mainnet"))]
-    declare_id!("testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp");
-
-    pub const DECIMALS: u128 = 1_000_000;
-}
-
-#[error_code]
-pub enum NosanaError {
-    AlreadyUnstaked,
-    StakeDecreased
-}
+declare_id!(rewards::ID);
 
 #[program]
 pub mod nosana_rewards {
