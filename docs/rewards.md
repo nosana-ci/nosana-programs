@@ -39,6 +39,7 @@ This are some of the properties of the rewards program:
   - Add tests for edge cases
   - Add more complicated scenario tests
   - Add tests for extreme (large / small / fractional) numbers
-- Make sure we can run both test files using `anchor test` (the staking and jobs tests are disabled atm)
-- Add an option to close a reward account (currently a rewards account is
-  bricked when: a user unstakes, a user decreases his stake)
+- Make sure we can run both test files using `anchor test` (the staking and jobs
+  tests are disabled atm)
+- We should also close a reward if the corresponding stake does not exist (after
+  it's closed). Is this possible?
