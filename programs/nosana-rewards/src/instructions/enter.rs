@@ -1,12 +1,10 @@
 use crate::*;
 
-use anchor_spl::token::{Token, TokenAccount};
-
 #[derive(Accounts)]
 pub struct Enter<'info> {
     #[account(mut, owner=ID.key(), seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(owner = staking_program.key())]
+    #[account(owner = staking_program.key(), has_one = authority)]
     pub stake: Account<'info, StakeAccount>,
     #[account(
         init,
