@@ -14,19 +14,21 @@ This are some of the properties of the rewards program:
   for "live" as they come in and no loops necessary.
 - Anyone can send in new fees to be distrubted using `add_fees`.
 - You can `claim` your earned rewards at any time (does not require an
-  unstake). Claiming rewards also exits you from the rewards program (this is a
-  convenience thing as it's trivial to claim and re-enter at once).
-- If you `unstake` your reward account is voided. It is _very_ important that you
-  claim rewards before unstaking.
+  unstake).
+- If you `unstake` your reward account is voided. It is _very_ important that
+  you claim rewards before unstaking.
 - If you `upstake` or `extend` a stake your rewards program is not updated. You
-  will have to `claim` en re `enter` the program to make use of your new xNOS
-  score.
+  will have to `claim` upate your reward to make use of your new xNOS score.
 - A user can only have 1 active rewards entry at a time
 - The rewards a user earns are automatically added to the percentage of rewards
   he receives. Earned rewards are basically added to his xNOS score (with
   multiplier 1) - but can be claimed without any delay. This gives them a small
   advantage but is also a nice feature. Also it should be easy to `upstake` your
   rewards directly to get a higher multiplier for them.
+- One can always close their own reward account. If the account has any
+  unclaimed rewards they will be voided (distributed to all other participants).
+- If a user unstaked anyone is allowed to close their reward account. This way
+  there will not be "ghosts" accounts accumulating rewards.
 
 ## Todo
 

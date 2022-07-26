@@ -170,6 +170,7 @@ describe('Nosana Rewards', () => {
     await stake(bob, 7500);
     await stake(alice, 2500);
     await stake(carol, 16000);
+    bob.xnos = calculateXnos(0, stakeDurationMonth, 7500 * decimals);
   });
 
   beforeEach(() => {
@@ -194,10 +195,8 @@ describe('Nosana Rewards', () => {
 
     const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
 
-    let xnos = calculateXnos(0,stakeDurationMonth,7500);
-
-    expect(account.rTotal.eq(bn(xnos).mul(bn(initialRate)).mul(bn(decimals)))).to.be.true;
-    expect(account.tTotal.eq(bn(xnos).mul(bn(decimals)))).to.be.true;
+    expect(account.rTotal.eq(bn(bob.xnos).mul(bn(initialRate)))).to.be.true;
+    expect(account.tTotal.eq(bn(bob.xnos))).to.be.true;
   });
 
   it('can add fees to the pool', async () => {
@@ -229,15 +228,27 @@ describe('Nosana Rewards', () => {
     const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
     const nosAfter = await getbal(bob.ata);
 
-    // pool is empty now
-    expect(account.rTotal.eq(bn(0))).to.be.true;
-    expect(account.tTotal.eq(bn(0))).to.be.true;
+    // pool is reset to user stake
+    expect(account.rTotal.eq(bn(bob.xnos).mul(bn(initialRate)))).to.be.true;
+    expect(account.tTotal.eq(bn(bob.xnos))).to.be.true;
     expect(account.rate.eq(bn(initialRate))).to.be.true;
 
     // and bob received the 600 in fees
     expect(nosAfter).to.equal(nosBefore + 600 * decimals);
   });
 
+  it('can close rewards', async () => {
+    await rewardsProgram.methods.close()
+      .accounts({...accounts, authority: bob.publicKey,reward: bob.reward})
+      .signers([bob.user])
+      .rpc();
+
+    // stats are reset
+    const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
+    expect(account.rTotal.toNumber()).to.eq(0);
+    expect(account.tTotal.toNumber()).to.eq(0);
+    expect(account.rate.toNumber()).to.eq(initialRate);
+  });
 
   // We'll first let 2 users enter the reward pool:
   //
@@ -246,7 +257,7 @@ describe('Nosana Rewards', () => {
   //
   // => Add 600 NOS in fees.
   // ==> Now: Bob + 450 and Alice + 150
-  it('split rewards between 3 parties', async () => {
+  it('can split rewards between 3 parties', async () => {
     let bobNosBefore, aliceNosBefore, carolNosBefore, bobNosAfter, aliceNosAfter, carolNosAfter = 0;
 
     [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
@@ -263,9 +274,7 @@ describe('Nosana Rewards', () => {
     expect(bobNosAfter).to.equal(bobNosBefore + (450 * decimals));
     expect(aliceNosAfter).to.equal(aliceNosBefore + (150 * decimals));
 
-    // Let 2 users enter again with 600 rewards. Then enter a 3rd with
-    await enterRewards(bob);
-    await enterRewards(alice);
+    // Distribute the 600 again, then enter a 3rd with
     await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
     await enterRewards(carol);
 

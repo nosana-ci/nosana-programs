@@ -14,7 +14,7 @@ pub struct Claim<'info> {
     pub ata_to: Box<Account<'info, TokenAccount>>,
     #[account(owner = staking_program.key())]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, close = authority, seeds = [ b"reward", authority.key().as_ref()], bump = reward.bump)]
+    #[account(mut, seeds = [ b"reward", authority.key().as_ref()], bump = reward.bump)]
     pub reward: Box<Account<'info, RewardAccount>>,
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -29,23 +29,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let bump: u8 =  *ctx.bumps.get("ata_vault").unwrap();
 
     // check that the stake is still active, and that the stake has
-    // not not decreased.
-
-    // TODO: use xNOS instead of stake.amount
-
-    // TODO: claim should not close the reward account, but instead just reset
-    // it as fresh enter. as claim + enter is inefficient (and 2 transactions)
-
-    // TODO: do a CPI to support a claim + topup + enter scheme
-
-    // TODO: if someone unstaked before claiming, we should allow anyone to
-    // close their reward account. the accumulated rewards will be distributed
-    // to everyone.
-
-    // TODO: it should not be possible to decrease stake ever. but we check that
-    // anyways just to be sure. if stake ever decreases we should allow closing
-    // of the reward account. else we end up with "ghost" accounts gaining
-    // rewards.
+    // not decreased.
     require!(stake.time_unstake == 0, NosanaError::AlreadyUnstaked);
     require!(u128::from(stake.xnos) >= reward.t_owned, NosanaError::StakeDecreased);
 
@@ -72,6 +56,17 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         bump, // we're signing the vault PDA
         reward_amount
     )?;
+
+    // re-enter
+    let tnos: u128 = u128::from(stake.xnos);
+    let rnos: u128 = stats.tokens_to_reflection(tnos);
+
+    stats.r_total = stats.r_total.checked_add(rnos).unwrap();
+    stats.t_total = stats.t_total.checked_add(tnos).unwrap();
+    stats.update_rate();
+
+    reward.t_owned = tnos;
+    reward.r_owned = rnos;
 
     Ok(())
 }

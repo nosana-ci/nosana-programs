@@ -48,4 +48,8 @@ pub mod nosana_rewards {
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         claim::handler(ctx)
     }
+
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        close::handler(ctx)
+    }
 }
