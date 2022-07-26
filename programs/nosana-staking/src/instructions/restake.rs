@@ -29,7 +29,7 @@ pub fn handler(ctx: Context<Restake>) -> Result<()> {
 
     // re-add xnos to stats
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    stats.add(stake.xnos);
 
     // finish
     Ok(())

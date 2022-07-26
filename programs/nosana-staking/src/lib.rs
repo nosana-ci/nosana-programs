@@ -1,6 +1,5 @@
 mod instructions;
 mod state;
-mod utils;
 
 use instructions::*;
 pub use state::*; // expose stake for cpi

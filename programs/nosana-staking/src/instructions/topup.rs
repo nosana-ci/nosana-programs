@@ -45,9 +45,9 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
 
     // update stats and stake
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    stats.sub(stake.xnos);
     stake.topup(amount);
-    stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    stats.add(stake.xnos);
 
     // finish
     Ok(())

@@ -49,26 +49,49 @@ pub struct StakeAccount {
     pub bump: u8,
     pub duration: u64,
     pub time_unstake: i64,
+    pub xnos: u128,
 }
 
 impl StakeAccount {
-    pub fn stake(&mut self, authority: Pubkey, amount: u64, bump: u8, duration: u64) {
+    pub fn stake(&mut self, amount: u64, authority: Pubkey, bump: u8, duration: u64) {
         self.amount = amount;
         self.authority = authority;
         self.bump = bump;
         self.duration = duration;
         self.time_unstake = 0;
+        self.update_xnos();
     }
 
     pub fn unstake(&mut self, time: i64) {
         self.time_unstake = time;
+        self.update_xnos();
     }
 
     pub fn topup(&mut self, amount: u64) {
         self.amount += amount;
+        self.update_xnos();
     }
 
     pub fn extend(&mut self, duration: u64) {
         self.duration += duration;
+        self.update_xnos();
+    }
+
+    fn update_xnos(&mut self) {
+        self.xnos = if self.time_unstake != 0 {
+            0
+        } else {
+            u128::from(self.duration)
+                .checked_mul(constants::XNOS_PRECISION)
+                .unwrap()
+                .checked_div(constants::XNOS_DIV)
+                .unwrap()
+                .checked_add(constants::XNOS_PRECISION)
+                .unwrap()
+                .checked_mul(u128::from(self.amount))
+                .unwrap()
+                .checked_div(constants::XNOS_PRECISION)
+                .unwrap()
+        }
     }
 }
