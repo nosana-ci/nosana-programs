@@ -1,0 +1,23 @@
+[package]
+name = "nosana-common"
+version = "0.1.0"
+description = "Nosana Common for decentralized CI/CD and computation."
+edition = "2021"
+homepage = "https://nosana.io/"
+authors = ["nosana"]
+license = "MIT"
+keywords = ["solana", "nosana", "cicd", "common", "anchor"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "nosana_common"
+
+[features]
+#default = ["mainnet"]
+mainnet = []
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+
+[dependencies]
+anchor-lang = "0.24.2"
+anchor-spl = "0.24.2"

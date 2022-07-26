@@ -1,4 +1,5 @@
 use crate::*;
+use nosana_common::{nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
@@ -15,18 +16,23 @@ pub struct Unstake<'info> {
 }
 
 pub fn handler(ctx: Context<Unstake>) -> Result<()> {
+    // get and check stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
-    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
+    require!(
+        stake.time_unstake == 0_i64,
+        NosanaError::StakeAlreadyUnstaked
+    );
+
+    // remove xnos from stats
+    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    stats.sub(stake.xnos);
 
     // clock time for unstake
     stake.unstake(ctx.accounts.clock.unix_timestamp);
-
-    let stats = &mut ctx.accounts.stats;
-    stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
 
     // finish
     Ok(())

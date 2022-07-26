@@ -4,6 +4,7 @@ use anchor_lang::prelude::*;
 pub enum NosanaError {
     #[msg("NosanaError::Unauthorized - You are not authorized to perform this action.")]
     Unauthorized,
+
     #[msg("NosanaError::StakeAmountNotEnough - This amount is not enough.")]
     StakeAmountNotEnough,
     #[msg("NosanaError::StakeAlreadyInitialized - This stake is already running.")]
@@ -20,4 +21,17 @@ pub enum NosanaError {
     StakeDurationTooShort,
     #[msg("NosanaError::StakeDurationTooLong - This stake duration is too long.")]
     StakeDurationTooLong,
+
+    #[msg("NosanaError::JobNotClaimed - Job is not in the Claimed state.")]
+    JobNotClaimed,
+    #[msg("NosanaError::JobNotInitialized - Job is not in the Initialized state.")]
+    JobNotInitialized,
+    #[msg("NosanaError::JobNotTimedOut - Job is not timed out.")]
+    JobNotTimedOut,
+    #[msg("NosanaError::JobQueueNotFound - Job queue not found.")]
+    JobQueueNotFound,
+    #[msg("NosanaError::NodeUnqualifiedUnstaked - Node's stake has been unstaked.")]
+    NodeUnqualifiedUnstaked,
+    #[msg("NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.")]
+    NodeUnqualifiedStakeAmount,
 }

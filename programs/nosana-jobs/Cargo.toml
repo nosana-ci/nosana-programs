@@ -13,8 +13,6 @@ crate-type = ["cdylib", "lib"]
 name = "nosana_jobs"
 
 [features]
-#default = ["mainnet"]
-mainnet = []
 no-entrypoint = []
 cpi = ["no-entrypoint"]
 
@@ -22,3 +20,4 @@ cpi = ["no-entrypoint"]
 anchor-lang = "0.24.2"
 anchor-spl = "0.24.2"
 nosana-staking = { path = "../nosana-staking", features = ["cpi"]}
+nosana-common = { path = "../nosana-common", features = ["cpi"]}

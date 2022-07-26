@@ -1,6 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Mint, Token, TokenAccount};
+use nosana_common::nos;
 
 #[derive(Accounts)]
 pub struct InitVault<'info> {
@@ -31,8 +32,10 @@ pub struct InitVault<'info> {
 }
 
 pub fn handler(ctx: Context<InitVault>) -> Result<()> {
-    // init xnos vault
-    let stats = &mut ctx.accounts.stats;
+    // init stats account
+    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
     stats.init(*ctx.bumps.get("stats").unwrap());
+
+    // finish
     Ok(())
 }

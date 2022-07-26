@@ -13,11 +13,11 @@ crate-type = ["cdylib", "lib"]
 name = "nosana_staking"
 
 [features]
-#default = ["mainnet"]
-mainnet = []
 no-entrypoint = []
 cpi = ["no-entrypoint"]
 
 [dependencies]
 anchor-lang = "0.24.2"
 anchor-spl = "0.24.2"
+solana-security-txt = "1.0.1"
+nosana-common = { path = "../nosana-common", features = ["cpi"]}

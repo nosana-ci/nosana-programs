@@ -1,4 +1,5 @@
 use crate::*;
+use nosana_common::{nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct Restake<'info> {
@@ -15,6 +16,7 @@ pub struct Restake<'info> {
 }
 
 pub fn handler(ctx: Context<Restake>) -> Result<()> {
+    // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     require!(
         stake.authority == *ctx.accounts.authority.key,
@@ -22,11 +24,12 @@ pub fn handler(ctx: Context<Restake>) -> Result<()> {
     );
     require!(stake.time_unstake != 0_i64, NosanaError::StakeAlreadyStaked);
 
-    // NULL time for unstake
+    // reset the unstake clock
     stake.unstake(0);
 
-    let stats = &mut ctx.accounts.stats;
-    stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    // re-add xnos to stats
+    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    stats.add(stake.xnos);
 
     // finish
     Ok(())

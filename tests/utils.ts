@@ -92,10 +92,13 @@ function setupSolanaUser(connection) {
   };
 }
 
-function calculateXnos(unstakeTime, currentTime, duration, amount) {
-  const secondsPerMonth = (365 * 24 * 60 * 60) / 12;
-  const elapsed = unstakeTime === 0 ? 0 : currentTime - unstakeTime;
-  return Math.floor(((duration - elapsed) * amount) / secondsPerMonth);
+function calculateXnos(unstakeTime, duration, amount) {
+  const xnosDiv = (365 * 24 * 60 * 60) / 12 * 4;
+  const precision = 1_000_000;
+  if (unstakeTime !== 0) {
+    return 0;
+  }
+  return Math.floor((Math.floor((duration * precision) / xnosDiv + precision) * amount) / precision);
 }
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
