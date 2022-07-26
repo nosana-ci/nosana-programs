@@ -33,8 +33,7 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
 
     require!(stake.time_unstake == 0, NosanaError::AlreadyUnstaked);
 
-    // TODO: tnos should be based on xnos instead of amount
-    let tnos: u128 = u128::from(stake.amount);
+    let tnos: u128 = u128::from(stake.xnos);
     let rnos: u128 = stats.tokens_to_reflection(tnos);
 
     stats.r_total = stats.r_total.checked_add(rnos).unwrap();

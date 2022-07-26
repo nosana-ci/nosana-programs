@@ -2,6 +2,7 @@
 import * as anchor from '@project-serum/anchor';
 import * as _ from 'lodash';
 import * as utils from './utils';
+import { calculateXnos } from './utils';
 import { expect } from 'chai';
 import {
   TOKEN_PROGRAM_ID,
@@ -38,7 +39,7 @@ describe('Nosana Rewards', () => {
   // tokens
   const decimals = 1e6;
   const mintSupply = 1e7 * decimals;
-  const userSupply = 1e4 * decimals;
+  const userSupply = 10e4 * decimals;
   const stakeAmount = 1e3 * decimals;
   const minimumNodeStake = 1e3 * decimals;
 
@@ -90,7 +91,7 @@ describe('Nosana Rewards', () => {
   //======
   const stake = async (u, amount) => {
     await stakingProgram.methods
-      .stake(bn(amount * decimals), bn(stakeDurationMonth))
+      .stake(bn(amount).mul(bn(decimals)), bn(stakeDurationMonth))
       .accounts({
         ...accounts,
         ataFrom: u.ata,
@@ -166,9 +167,9 @@ describe('Nosana Rewards', () => {
 
     // init staking
     await stakingProgram.methods.initVault().accounts({...accounts, ataVault: ata.vaultStaking, stats: statsStaking}).rpc();
-    await stake(bob, 750);
-    await stake(alice, 250);
-    await stake(carol, 1600);
+    await stake(bob, 7500);
+    await stake(alice, 2500);
+    await stake(carol, 16000);
   });
 
   beforeEach(() => {
@@ -193,8 +194,10 @@ describe('Nosana Rewards', () => {
 
     const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
 
-    expect(account.rTotal.eq(bn(750).mul(bn(initialRate)).mul(bn(decimals)))).to.be.true;
-    expect(account.tTotal.eq(bn(750 * decimals))).to.be.true;
+    let xnos = calculateXnos(0,stakeDurationMonth,7500);
+
+    expect(account.rTotal.eq(bn(xnos).mul(bn(initialRate)).mul(bn(decimals)))).to.be.true;
+    expect(account.tTotal.eq(bn(xnos).mul(bn(decimals)))).to.be.true;
   });
 
   it('can add fees to the pool', async () => {
@@ -203,6 +206,9 @@ describe('Nosana Rewards', () => {
   });
 
   const getbal = async (ata) => { return await utils.getTokenBalance(provider, ata) };
+  const getbals = async (atas) => { return await Promise.all(
+    atas.map(async (ata) => { return await getbal(ata); })
+  )};
 
   it('can claim all rewards alone', async () => {
     const nosBefore = await getbal(bob.ata);
@@ -242,7 +248,8 @@ describe('Nosana Rewards', () => {
   // ==> Now: Bob + 450 and Alice + 150
   it('split rewards between 3 parties', async () => {
     let bobNosBefore, aliceNosBefore, carolNosBefore, bobNosAfter, aliceNosAfter, carolNosAfter = 0;
-    bobNosBefore = await getbal(bob.ata); aliceNosBefore = await getbal(alice.ata); carolNosBefore = await getbal(carol.ata);
+
+    [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
 
     // Let 2 users enter with 600 rewards
     await enterRewards(bob);
@@ -252,7 +259,7 @@ describe('Nosana Rewards', () => {
     // Check the 600 is split correctly
     await claimRewards(bob);
     await claimRewards(alice);
-    bobNosAfter = await getbal(bob.ata); aliceNosAfter = await getbal(alice.ata); carolNosAfter = await getbal(carol.ata);
+    [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
     expect(bobNosAfter).to.equal(bobNosBefore + (450 * decimals));
     expect(aliceNosAfter).to.equal(aliceNosBefore + (150 * decimals));
 
@@ -263,21 +270,26 @@ describe('Nosana Rewards', () => {
     await enterRewards(carol);
 
     // Now tOwned:
-    // - bob: 750 + 450 = 1200   (= 0.375)
-    // - alice: 250 + 150 = 400  (= 0.125)
-    // - carol: 1600             (= 0.5)
+    // - bob:    750*1.25 + 450   = 1350   (= 0.362903225806)
+    // - alice:  250*1.25 + 150   = 450    (= 0.12097)
+    // - carol: 1600*1.25         = 1920   (= 0.51613)
     // Now add 1000 fees
+    let [bob1, alice1, carol1] = [ 7500 * 1.25 + 450,
+                                   2500 * 1.25 + 150,
+                                   16000 * 1.25];
+    let tot = bob1 + alice1 + carol1;
+    let [bobShare, aliceShare, carolShare] = [bob1 / tot, alice1 / tot, carol1 / tot];
 
-    bobNosBefore = await getbal(bob.ata); aliceNosBefore = await getbal(alice.ata); carolNosBefore = await getbal(carol.ata);
+    [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
     await rewardsProgram.methods.addFee(bn(1000 * decimals)).accounts(accounts).rpc();
     await claimRewards(bob);
     await claimRewards(alice);
     await claimRewards(carol);
 
     // Check the the 600 is split between 2, and the 1000 between 3
-    bobNosAfter = await getbal(bob.ata); aliceNosAfter = await getbal(alice.ata); carolNosAfter = await getbal(carol.ata);
-    expect(bobNosAfter).to.equal(bobNosBefore + (450 * decimals) + (375 * decimals));
-    expect(aliceNosAfter).to.equal(aliceNosBefore + (150 * decimals) + (125 * decimals));
-    expect(carolNosAfter).to.equal(carolNosBefore + (500 * decimals));
+    [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
+    expect(bobNosAfter).to.equal(Math.round(bobNosBefore + (450 * decimals) + (bobShare * 1000 * decimals)));
+    expect(aliceNosAfter).to.equal(Math.round(aliceNosBefore + (150 * decimals) + (aliceShare * 1000 * decimals)));
+    expect(carolNosAfter).to.equal(Math.round(carolNosBefore + (carolShare * 1000 * decimals)));
   });
 });

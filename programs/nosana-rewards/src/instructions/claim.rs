@@ -47,7 +47,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // of the reward account. else we end up with "ghost" accounts gaining
     // rewards.
     require!(stake.time_unstake == 0, NosanaError::AlreadyUnstaked);
-    require!(u128::from(stake.amount) >= reward.t_owned, NosanaError::StakeDecreased);
+    require!(u128::from(stake.xnos) >= reward.t_owned, NosanaError::StakeDecreased);
 
     let rowned: u128 = stats.tokens_to_reflection(reward.t_owned);
     let towed: u128 = reward.r_owned.checked_div(stats.rate).unwrap();
