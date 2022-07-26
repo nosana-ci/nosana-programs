@@ -13,8 +13,6 @@ crate-type = ["cdylib", "lib"]
 name = "nosana_jobs"
 
 [features]
-#default = ["mainnet"]
-mainnet = []
 no-entrypoint = []
 cpi = ["no-entrypoint"]
 

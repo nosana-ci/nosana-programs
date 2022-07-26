@@ -13,8 +13,6 @@ crate-type = ["cdylib", "lib"]
 name = "nosana_staking"
 
 [features]
-#default = ["mainnet"]
-mainnet = []
 no-entrypoint = []
 cpi = ["no-entrypoint"]
 

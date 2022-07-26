@@ -8,7 +8,7 @@ pub use utils::*;
 
 use anchor_lang::prelude::*;
 
-declare_id!(common::ID);
+declare_id!("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
 #[program]
 pub mod nosana_common {}

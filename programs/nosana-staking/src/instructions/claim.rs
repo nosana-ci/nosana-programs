@@ -43,7 +43,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     );
 
     // return tokens, the stake account is closed so no need to update it.
-    let bump: u8 =  *ctx.bumps.get("ata_vault").unwrap();
+    let bump: u8 = *ctx.bumps.get("ata_vault").unwrap();
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),

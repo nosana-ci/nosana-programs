@@ -9,8 +9,8 @@ pub mod constants {
     pub const SECONDS_PER_MONTH: u128 = 2_628_000; // 365 * 24 * 60 * 60 / 12
     pub const DURATION_MONTH: u128 = SECONDS_PER_MONTH;
     pub const DURATION_YEAR: u128 = 12 * SECONDS_PER_MONTH;
-    pub const XNOS_PRECISION: u128 = 1_000;
-    pub const XNOS_GROWTH_DENOMINATOR: u128 = 4; // 0.25
+    pub const XNOS_PRECISION: u128 = nos::DECIMALS as u128;
+    pub const XNOS_DIV: u128 = 10_512_000; // SECONDS_PER_MONTH x 4
 }
 
 /// # Stats
