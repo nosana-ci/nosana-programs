@@ -35,9 +35,9 @@ pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
 
     // update stats and stake
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    stats.sub(stake.xnos);
     stake.extend(duration);
-    stats.add(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    stats.add(stake.xnos);
 
     // verify new duration is conform minimum and maximum allowed time
     require!(

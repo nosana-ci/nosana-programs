@@ -27,12 +27,12 @@ pub fn handler(ctx: Context<Unstake>) -> Result<()> {
         NosanaError::StakeAlreadyUnstaked
     );
 
-    // clock time for unstake
-    stake.unstake(ctx.accounts.clock.unix_timestamp);
-
     // remove xnos from stats
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.sub(utils::calculate_xnos(0, 0, stake.amount, stake.duration));
+    stats.sub(stake.xnos);
+
+    // clock time for unstake
+    stake.unstake(ctx.accounts.clock.unix_timestamp);
 
     // finish
     Ok(())

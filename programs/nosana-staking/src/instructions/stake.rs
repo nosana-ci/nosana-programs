@@ -55,15 +55,15 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
 
     // initialize the stake
     stake.stake(
-        *ctx.accounts.authority.key,
         amount,
+        *ctx.accounts.authority.key,
         *ctx.bumps.get("stake").unwrap(),
         duration,
     );
 
     // add xnos to stats
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.add(utils::calculate_xnos(0, 0, amount, duration));
+    stats.add(stake.xnos);
 
     // finish
     Ok(())
