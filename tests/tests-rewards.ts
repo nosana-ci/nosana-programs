@@ -176,7 +176,8 @@ describe('Nosana Rewards', () => {
   beforeEach(() => {
     accounts.stats = statsRewards;
     accounts.stakingProgram = stakingProgram._programId;
-    accounts.ataVault = ata.vaultRewards
+    accounts.ataVault = ata.vaultRewards;
+    accounts.staker = provider.wallet.publicKey;
   });
 
   //======
@@ -237,68 +238,84 @@ describe('Nosana Rewards', () => {
     expect(nosAfter).to.equal(nosBefore + 600 * decimals);
   });
 
-  it('can close rewards', async () => {
-    await rewardsProgram.methods.close()
-      .accounts({...accounts, authority: bob.publicKey,reward: bob.reward})
-      .signers([bob.user])
-      .rpc();
+  describe('closing', async () => {
+    it('can not close others rewards', async () => {
+      let msg = '';
+      await rewardsProgram.methods.close()
+        .accounts({...accounts, authority: alice.publicKey, reward: bob.reward, staker: bob.publicKey, stake: bob.stake})
+        .signers([alice.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(errors.Unauthorized);
+    });
 
-    // stats are reset
-    const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
-    expect(account.rTotal.toNumber()).to.eq(0);
-    expect(account.tTotal.toNumber()).to.eq(0);
-    expect(account.rate.toNumber()).to.eq(initialRate);
+    it('can close own rewards', async () => {
+      let msg = '';
+      await rewardsProgram.methods.close()
+        .accounts({...accounts, authority: bob.publicKey, reward: bob.reward, stake: bob.stake, staker: bob.publicKey})
+        .signers([bob.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+
+      // stats are reset
+      const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
+      expect(account.rTotal.toNumber()).to.eq(0);
+      expect(account.tTotal.toNumber()).to.eq(0);
+      expect(account.rate.toNumber()).to.eq(initialRate);
+    });
   });
 
-  // We'll first let 2 users enter the reward pool:
-  //
-  // - Bob: 750 xNOS (75%)
-  // - Alice: 250 xNOS (25%)
-  //
-  // => Add 600 NOS in fees.
-  // ==> Now: Bob + 450 and Alice + 150
-  it('can split rewards between 3 parties', async () => {
-    let bobNosBefore, aliceNosBefore, carolNosBefore, bobNosAfter, aliceNosAfter, carolNosAfter = 0;
+  describe('claiming', async () => {
+    // We'll first let 2 users enter the reward pool:
+    //
+    // - Bob: 750 xNOS (75%)
+    // - Alice: 250 xNOS (25%)
+    //
+    // => Add 600 NOS in fees.
+    // ==> Now: Bob + 450 and Alice + 150
+    it('can split rewards between 3 parties', async () => {
+      let bobNosBefore, aliceNosBefore, carolNosBefore, bobNosAfter, aliceNosAfter, carolNosAfter = 0;
 
-    [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
+      [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
 
-    // Let 2 users enter with 600 rewards
-    await enterRewards(bob);
-    await enterRewards(alice);
-    await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
+      // Let 2 users enter with 600 rewards
+      await enterRewards(bob);
+      await enterRewards(alice);
+      await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
 
-    // Check the 600 is split correctly
-    await claimRewards(bob);
-    await claimRewards(alice);
-    [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
-    expect(bobNosAfter).to.equal(bobNosBefore + (450 * decimals));
-    expect(aliceNosAfter).to.equal(aliceNosBefore + (150 * decimals));
+      // Check the 600 is split correctly
+      await claimRewards(bob);
+      await claimRewards(alice);
+      [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
+      expect(bobNosAfter).to.equal(bobNosBefore + (450 * decimals));
+      expect(aliceNosAfter).to.equal(aliceNosBefore + (150 * decimals));
 
-    // Distribute the 600 again, then enter a 3rd with
-    await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
-    await enterRewards(carol);
+      // Distribute the 600 again, then enter a 3rd with
+      await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
+      await enterRewards(carol);
 
-    // Now tOwned:
-    // - bob:    750*1.25 + 450   = 1350   (= 0.362903225806)
-    // - alice:  250*1.25 + 150   = 450    (= 0.12097)
-    // - carol: 1600*1.25         = 1920   (= 0.51613)
-    // Now add 1000 fees
-    let [bob1, alice1, carol1] = [ 7500 * 1.25 + 450,
-                                   2500 * 1.25 + 150,
-                                   16000 * 1.25];
-    let tot = bob1 + alice1 + carol1;
-    let [bobShare, aliceShare, carolShare] = [bob1 / tot, alice1 / tot, carol1 / tot];
+      // Now tOwned:
+      // - bob:    750*1.25 + 450   = 1350   (= 0.362903225806)
+      // - alice:  250*1.25 + 150   = 450    (= 0.12097)
+      // - carol: 1600*1.25         = 1920   (= 0.51613)
+      // Now add 1000 fees
+      let [bob1, alice1, carol1] = [ 7500 * 1.25 + 450,
+                                     2500 * 1.25 + 150,
+                                     16000 * 1.25];
+      let tot = bob1 + alice1 + carol1;
+      let [bobShare, aliceShare, carolShare] = [bob1 / tot, alice1 / tot, carol1 / tot];
 
-    [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
-    await rewardsProgram.methods.addFee(bn(1000 * decimals)).accounts(accounts).rpc();
-    await claimRewards(bob);
-    await claimRewards(alice);
-    await claimRewards(carol);
+      [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
+      await rewardsProgram.methods.addFee(bn(1000 * decimals)).accounts(accounts).rpc();
+      await claimRewards(bob);
+      await claimRewards(alice);
+      await claimRewards(carol);
 
-    // Check the the 600 is split between 2, and the 1000 between 3
-    [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
-    expect(bobNosAfter).to.equal(Math.round(bobNosBefore + (450 * decimals) + (bobShare * 1000 * decimals)));
-    expect(aliceNosAfter).to.equal(Math.round(aliceNosBefore + (150 * decimals) + (aliceShare * 1000 * decimals)));
-    expect(carolNosAfter).to.equal(Math.round(carolNosBefore + (carolShare * 1000 * decimals)));
+      // Check the the 600 is split between 2, and the 1000 between 3
+      [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
+      expect(bobNosAfter).to.equal(Math.round(bobNosBefore + (450 * decimals) + (bobShare * 1000 * decimals)));
+      expect(aliceNosAfter).to.equal(Math.round(aliceNosBefore + (150 * decimals) + (aliceShare * 1000 * decimals)));
+      expect(carolNosAfter).to.equal(Math.round(carolNosBefore + (carolShare * 1000 * decimals)));
+    });
   });
 });

@@ -34,7 +34,6 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
     require!(u128::from(stake.xnos) >= reward.t_owned, NosanaError::StakeDecreased);
 
-    let rowned: u128 = stats.tokens_to_reflection(reward.t_owned);
     let towed: u128 = reward.r_owned.checked_div(stats.rate).unwrap();
     let earned_fees: u128 = towed.checked_sub(reward.t_owned).unwrap();
 
