@@ -3,13 +3,7 @@ import * as anchor from '@project-serum/anchor';
 import * as _ from 'lodash';
 import * as utils from './utils';
 import { expect } from 'chai';
-import {
-  TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccount,
-  getAssociatedTokenAddress,
-  transfer,
-  getOrCreateAssociatedTokenAccount,
-} from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { NosanaJobs } from '../target/types/nosana_jobs';
 import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
@@ -65,6 +59,7 @@ describe('Nosana SPL', () => {
     uri: 'https://arweave.net/123',
     name: 'Test NFT',
     symbol: 'NOS-NFT',
+    sellerFeeBasisPoints: 0,
     collection: {
       verified: false,
       key: collection,
