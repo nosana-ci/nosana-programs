@@ -1,16 +1,16 @@
 [package]
-name = "nosana-jobs"
+name = "nosana-staking"
 version = "0.1.0"
-description = "Nosana Jobs for decentralized CI/CD and computation."
+description = "Nosana Staking for decentralized CI/CD and computation."
 edition = "2021"
 homepage = "https://nosana.io/"
 authors = ["nosana"]
 license = "MIT"
-keywords = ["solana", "nosana", "cicd", "jobs", "anchor"]
+keywords = ["solana", "nosana", "cicd", "staking", "anchor"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "nosana_jobs"
+name = "nosana_staking"
 
 [features]
 no-entrypoint = []
@@ -19,6 +19,6 @@ cpi = ["no-entrypoint"]
 [dependencies]
 anchor-lang = "0.25.0"
 anchor-spl = "0.25.0"
+solana-security-txt = "1.0.1"
 spl-associated-token-account = "1.0.5"
-nosana-staking = { path = "../nosana-staking", features = ["cpi"]}
 nosana-common = { path = "../nosana-common", features = ["cpi"]}

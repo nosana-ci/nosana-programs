@@ -1,5 +1,5 @@
-use crate::NosanaError;
 use anchor_lang::prelude::*;
+use nosana_common::NosanaError;
 
 /// # Jobs
 /// Account for holding jobs of a certain Project
@@ -29,7 +29,7 @@ impl Jobs {
         let index: Option<usize> = self.jobs.iter().position(|key: &Pubkey| key == job_key);
 
         // check if job is found
-        require!(!index.is_none(), NosanaError::JobQueueNotFound);
+        require!(index.is_some(), NosanaError::JobQueueNotFound);
 
         // remove job from jobs list
         self.jobs.remove(index.unwrap());
@@ -46,6 +46,7 @@ impl Jobs {
 /// - __tokens__ is amount of tokens
 #[account]
 pub struct Job {
+    pub authority: Pubkey,
     pub node: Pubkey,
     pub job_status: u8,
     pub time_start: i64,
@@ -62,7 +63,8 @@ pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
 pub const TIMEOUT: i64 = 60 * 60;
 
 impl Job {
-    pub fn create(&mut self, data: [u8; 32], amount: u64) {
+    pub fn create(&mut self, authority: Pubkey, data: [u8; 32], amount: u64) {
+        self.authority = authority;
         self.job_status = JobStatus::Initialized as u8;
         self.ipfs_job = data;
         self.tokens = amount;

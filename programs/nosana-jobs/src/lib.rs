@@ -1,15 +1,13 @@
-mod error;
-mod ids;
 mod instructions;
 mod state;
-mod utils;
 
-use error::*;
-use ids::*;
 use instructions::*;
 use state::*;
 
 use anchor_lang::prelude::*;
+use nosana_common::jobs;
+
+declare_id!(jobs::ID);
 
 #[program]
 pub mod nosana_jobs {
@@ -29,6 +27,10 @@ pub mod nosana_jobs {
 
     pub fn claim_job(ctx: Context<ClaimJob>) -> Result<()> {
         claim_job::handler(ctx)
+    }
+
+    pub fn close_job(ctx: Context<CloseJob>) -> Result<()> {
+        close_job::handler(ctx)
     }
 
     pub fn reclaim_job(ctx: Context<ReclaimJob>) -> Result<()> {
