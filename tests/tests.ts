@@ -116,6 +116,7 @@ describe('Nosana SPL', () => {
     StakeAlreadyInitialized: 'NosanaError::StakeAlreadyInitialized - This stake is already running.',
     StakeAlreadyStaked: 'NosanaError::StakeAlreadyStaked - This stake is already unstaked.',
     StakeAlreadyUnstaked: 'NosanaError::StakeAlreadyUnstaked - This stake is already unstaked.',
+    StakeNotUnstaked: 'NosanaError::StakeNotUnstaked - This stake is not yet unstaked.',
     StakeLocked: 'NosanaError::StakeLocked - This stake is still locked.',
     StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This stake duration is not long enough.',
     StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This stake duration is too long.',
@@ -456,6 +457,56 @@ describe('Nosana SPL', () => {
       await utils.assertBalancesStaking(provider, ata, balances);
       xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 3);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    });
+
+    describe('claiming', async () => {
+      it('can not claim before unstake', async () => {
+        const acc = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+
+        let balanceBefore = await utils.getTokenBalance(provider, ata.user);
+        let msg = '';
+        await stakingProgram.methods.claim().accounts(accounts).rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+
+        let balanceAfter = await utils.getTokenBalance(provider, ata.user);
+        expect(balanceAfter).to.eq(balanceBefore);
+        expect(msg).to.eq(errors.StakeNotUnstaked);
+      });
+
+      it('can not claim before unstake duration', async () => {
+        await stakingProgram.methods.unstake().accounts(accounts).rpc();
+        const acc = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+
+        let balanceBefore = await utils.getTokenBalance(provider, ata.user);
+        let msg = '';
+        await stakingProgram.methods.claim().accounts(accounts).rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+
+        let balanceAfter = await utils.getTokenBalance(provider, ata.user);
+        expect(balanceAfter).to.eq(balanceBefore);
+        expect(msg).to.eq(errors.StakeLocked);
+        await stakingProgram.methods.restake().accounts(accounts).rpc();
+      });
+
+      // To run this test you will have to modify claim.rs and change stake_duration to 5 seconds:
+      // ... ctx.accounts.clock.unix_timestamp > stake.time_unstake.checked_add(5).unwrap() ...
+      // it('can claim after unstake duration', async () => {
+      //   let balanceBefore = await utils.getTokenBalance(provider, node2.ata);
+
+      //   await utils.sleep(5000);
+
+      //   await stakingProgram.methods.claim().accounts(
+      //     {...accounts,
+      //      ataTo: node2.ata,
+      //      stake: node2.stake,
+      //      authority: node2.publicKey}
+      //   )
+      //     .signers([node2.user])
+      //     .rpc();
+
+      //   let balanceAfter = await utils.getTokenBalance(provider, node2.ata);
+      //   expect(balanceAfter).to.eq(balanceBefore + stakeAmount);
+      // });
     });
 
     it('Slash', async () => {
