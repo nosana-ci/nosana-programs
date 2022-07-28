@@ -16,7 +16,7 @@ pub struct FinishJob<'info> {
     pub clock: Sysvar<'info, Clock>,
 }
 
-pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> {
+pub fn handler(ctx: Context<FinishJob>, data: [u8; 32]) -> Result<()> {
     // get job, verify signature and status, before finishing
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
@@ -35,7 +35,7 @@ pub fn handler(ctx: Context<FinishJob>, bump: u8, data: [u8; 32]) -> Result<()> 
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
-        bump,
+        *ctx.bumps.get("ata_vault").unwrap(),
         job.tokens,
     );
 }

@@ -36,6 +36,7 @@ describe('Nosana SPL', () => {
   const userSupply = 1e5 * decimals;
   const jobPrice = decimals;
   const stakeAmount = 1e4 * decimals;
+  const slashAmount = 1e3 * decimals;
   const minimumNodeStake = 1e4 * decimals;
 
   // setup users and nodes
@@ -460,6 +461,22 @@ describe('Nosana SPL', () => {
       xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 3);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
+
+    it('Slash', async () => {
+      await stakingProgram.methods
+        .slash(new anchor.BN(slashAmount))
+        .accounts({
+          ...accounts,
+          stake: nodes[3].stake,
+        })
+        .rpc();
+
+      balances.user -= slashAmount;
+      balances.vaultStaking -= slashAmount;
+      await utils.assertBalancesStaking(provider, ata, balances);
+      xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    });
   });
 
   /*
@@ -468,7 +485,7 @@ describe('Nosana SPL', () => {
   describe('Nosana Jobs', () => {
     it('Initialize the jobs vault', async () => {
       accounts.ataVault = ata.vaultJob;
-      await jobsProgram.methods.initVault(bumpJobs).accounts(accounts).rpc();
+      await jobsProgram.methods.initVault().accounts(accounts).rpc();
       await utils.assertBalancesJobs(provider, ata, balances);
     });
 
@@ -655,7 +672,7 @@ describe('Nosana SPL', () => {
     it('Finish job from other node', async () => {
       let msg = '';
       await jobsProgram.methods
-        .finishJob(bumpJobs, ipfsData)
+        .finishJob(ipfsData)
         .accounts({
           ...accounts,
           authority: user2.publicKey,
@@ -668,7 +685,7 @@ describe('Nosana SPL', () => {
     });
 
     it('Finish job', async () => {
-      await jobsProgram.methods.finishJob(bumpJobs, ipfsData).accounts(accounts).rpc();
+      await jobsProgram.methods.finishJob(ipfsData).accounts(accounts).rpc();
       balances.user += jobPrice;
       balances.vaultJob -= jobPrice;
       await utils.assertBalancesJobs(provider, ata, balances);
@@ -677,7 +694,7 @@ describe('Nosana SPL', () => {
     it('Finish job that is already finished', async () => {
       let msg = '';
       await jobsProgram.methods
-        .finishJob(bumpJobs, ipfsData)
+        .finishJob(ipfsData)
         .accounts(accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -688,7 +705,7 @@ describe('Nosana SPL', () => {
       await Promise.all(
         otherNodes.map(async (n) => {
           await jobsProgram.methods
-            .finishJob(bumpJobs, ipfsData)
+            .finishJob(ipfsData)
             .accounts({
               ...accounts,
               job: n.job,
@@ -737,7 +754,7 @@ describe('Nosana SPL', () => {
     it('Check that Job account does not exist anymore', async () => {
       let msg = '';
       await jobsProgram.methods
-        .finishJob(bumpJobs, ipfsData)
+        .finishJob(ipfsData)
         .accounts(accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -767,7 +784,7 @@ describe('Nosana SPL', () => {
     it('Cancel job in wrong queue', async () => {
       let msg = '';
       await jobsProgram.methods
-        .cancelJob(bumpJobs)
+        .cancelJob()
         .accounts({ ...accounts, jobs: cancelJobs.publicKey })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -778,7 +795,7 @@ describe('Nosana SPL', () => {
     it('Cancel job from other user', async () => {
       let msg = '';
       await jobsProgram.methods
-        .cancelJob(bumpJobs)
+        .cancelJob()
         .accounts({ ...accounts, authority: user1.publicKey })
         .signers([user1.user])
         .rpc()
@@ -788,7 +805,7 @@ describe('Nosana SPL', () => {
     });
 
     it('Cancel job', async () => {
-      await jobsProgram.methods.cancelJob(bumpJobs).accounts(accounts).rpc();
+      await jobsProgram.methods.cancelJob().accounts(accounts).rpc();
       balances.user += jobPrice;
       balances.vaultJob -= jobPrice;
       await utils.assertBalancesJobs(provider, ata, balances);
@@ -797,7 +814,7 @@ describe('Nosana SPL', () => {
     it('Cancel job in wrong state', async () => {
       let msg = '';
       await jobsProgram.methods
-        .cancelJob(bumpJobs)
+        .cancelJob()
         .accounts(accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
