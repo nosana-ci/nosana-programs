@@ -16,6 +16,7 @@ pub struct Claim<'info> {
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
+    #[account(mut)]
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
     pub token_program: Program<'info, Token>,
