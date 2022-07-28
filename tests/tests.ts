@@ -121,6 +121,8 @@ describe('Nosana SPL', () => {
     StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This stake duration is too long.',
 
     SolanaSeedsConstraint: 'A seeds constraint was violated',
+    SolanaHasOneConstraint: 'A has one constraint was violated',
+    SolanaSignature: 'Signature verification failed',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
 
     Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
@@ -473,6 +475,81 @@ describe('Nosana SPL', () => {
       xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
       xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    });
+
+    it('Somebody else slashes', async () => {
+      let msg = '';
+      await stakingProgram.methods
+        .slash(new anchor.BN(slashAmount))
+        .accounts({
+          ...accounts,
+          authority: node1.publicKey,
+        })
+        .signers([node1.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(errors.SolanaHasOneConstraint);
+      await utils.assertBalancesStaking(provider, ata, balances);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    });
+
+    it('Update slash without signature of new authority', async () => {
+      let msg = '';
+      await stakingProgram.methods
+        .updateAuthority()
+        .accounts({
+          ...accounts,
+          newAuthority: node1.publicKey,
+        })
+        .rpc()
+        .catch((e) => (msg = e.message));
+      expect(msg).to.equal(errors.SolanaSignature);
+    });
+
+    it('Update slash authority to Node 1', async () => {
+      await stakingProgram.methods
+        .updateAuthority()
+        .accounts({
+          ...accounts,
+          newAuthority: node1.publicKey,
+        })
+        .signers([node1.user])
+        .rpc();
+      const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
+      expect(stats.authority.toString()).to.equal(node1.publicKey.toString());
+    });
+
+    it('Node 1 slashes', async () => {
+      await stakingProgram.methods
+        .slash(new anchor.BN(slashAmount))
+        .accounts({
+          ...accounts,
+          stake: nodes[2].stake,
+          authority: node1.publicKey,
+        })
+        .signers([node1.user])
+        .rpc();
+
+      balances.user += slashAmount;
+      balances.vaultStaking -= slashAmount;
+      await utils.assertBalancesStaking(provider, ata, balances);
+      xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
+      xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
+      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    });
+
+    it('Update slash authority back', async () => {
+      await stakingProgram.methods
+        .updateAuthority()
+        .accounts({
+          ...accounts,
+          authority: node1.publicKey,
+          newAuthority: accounts.authority,
+        })
+        .signers([node1.user])
+        .rpc();
+      const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
+      expect(stats.authority.toString()).to.equal(accounts.authority.toString());
     });
   });
 
