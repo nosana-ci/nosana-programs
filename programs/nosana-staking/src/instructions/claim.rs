@@ -26,14 +26,14 @@ pub struct Claim<'info> {
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-
-    require!(stake.time_unstake != 0_i64, NosanaError::StakeNotUnstaked);
-    require!(stake.amount != 0_u64, NosanaError::StakeAlreadyClaimed);
-
-    let stake_duration: i64 = (stake.duration as i64).try_into().unwrap();
-
+    require!(stake.time_unstake != 0, NosanaError::StakeNotUnstaked);
+    require!(stake.amount != 0, NosanaError::StakeAlreadyClaimed);
     require!(
-        ctx.accounts.clock.unix_timestamp > stake.time_unstake.checked_add(stake_duration).unwrap(),
+        ctx.accounts.clock.unix_timestamp
+            > stake
+                .time_unstake
+                .checked_add(i64::try_from(stake.duration).unwrap())
+                .unwrap(),
         NosanaError::StakeLocked
     );
 

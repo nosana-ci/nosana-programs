@@ -137,7 +137,7 @@ describe('Nosana SPL', () => {
   let cancelJob = anchor.web3.Keypair.generate();
   let cancelJobs = anchor.web3.Keypair.generate();
 
-  describe('Initialization', () => {
+  describe('Initialization of mints and ATAs', () => {
     it('Mint $NOS', async () => {
       // create mint
       accounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
@@ -223,246 +223,287 @@ describe('Nosana SPL', () => {
   /*
     NOSANA STAKING SECTION
    */
-  describe('Nosana Staking', () => {
-    it('Initialize the staking vault', async () => {
-      accounts.ataVault = ata.vaultStaking;
-      await stakingProgram.methods.initVault().accounts(accounts).rpc();
-      await utils.assertBalancesStaking(provider, ata, balances);
+  describe('Nosana Staking Instructions', () => {
+    describe('init_vault()', async () => {
+      it('Initialize the staking vault', async () => {
+        accounts.ataVault = ata.vaultStaking;
+        await stakingProgram.methods.initVault().accounts(accounts).rpc();
+        await utils.assertBalancesStaking(provider, ata, balances);
+      });
     });
 
-    it('Create stake too short', async () => {
-      let msg = '';
-      await stakingProgram.methods
-        .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth - 1))
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.StakeDurationTooShort);
-      await utils.assertBalancesStaking(provider, ata, balances);
+    describe('stake()', async () => {
+      it('Create stake too short', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth - 1))
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.StakeDurationTooShort);
+        await utils.assertBalancesStaking(provider, ata, balances);
+      });
+
+      it('Create stake too long', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear + 1))
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.StakeDurationTooLong);
+        await utils.assertBalancesStaking(provider, ata, balances);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Create stake minimum', async () => {
+        await stakingProgram.methods
+          .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth))
+          .accounts(accounts)
+          .rpc();
+        balances.user -= stakeAmount;
+        balances.vaultStaking += stakeAmount;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos += calculateXnos(stakeDurationMonth, stakeAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Create stake maximum', async () => {
+        await stakingProgram.methods
+          .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear))
+          .accounts({
+            ...accounts,
+            ataFrom: user4.ata,
+            authority: user4.publicKey,
+            stake: user4.stake,
+          })
+          .signers([user4.user])
+          .rpc();
+        user4.balance -= stakeAmount;
+        balances.vaultStaking += stakeAmount;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos += calculateXnos(stakeDurationYear, stakeAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Create stake too low for node 1', async () => {
+        let amount = minimumNodeStake - 1;
+        await stakingProgram.methods
+          .stake(new anchor.BN(amount), new anchor.BN(stakeDurationMonth))
+          .accounts({
+            ...accounts,
+            ataFrom: node1.ata,
+            authority: node1.publicKey,
+            stake: node1.stake,
+          })
+          .signers([node1.user])
+          .rpc();
+        node1.balance -= amount;
+        balances.vaultStaking += amount;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos += calculateXnos(stakeDurationMonth, amount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Create stake for node 2, and unstake', async () => {
+        await stakingProgram.methods
+          .stake(new anchor.BN(minimumNodeStake), new anchor.BN(stakeDurationMonth))
+          .accounts({
+            ...accounts,
+            ataFrom: node2.ata,
+            authority: node2.publicKey,
+            stake: node2.stake,
+          })
+          .signers([node2.user])
+          .rpc();
+        await stakingProgram.methods
+          .unstake()
+          .accounts({
+            ...accounts,
+            authority: node2.publicKey,
+            stake: node2.stake,
+          })
+          .signers([node2.user])
+          .rpc();
+        node2.balance -= minimumNodeStake;
+        balances.vaultStaking += minimumNodeStake;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Initialize stake for other nodes', async () => {
+        await Promise.all(
+          otherNodes.map(async (n) => {
+            await stakingProgram.methods
+              .stake(new anchor.BN(stakeAmount * 2), new anchor.BN(3 * stakeDurationMonth))
+              .accounts({
+                ...accounts,
+                ataFrom: n.ata,
+                authority: n.publicKey,
+                stake: n.stake,
+              })
+              .signers([n.user])
+              .rpc();
+            balances.vaultStaking += stakeAmount * 2;
+            n.balance -= stakeAmount * 2;
+            xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount * 2);
+            expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
+          })
+        );
+        await utils.assertBalancesStaking(provider, ata, balances);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
     });
 
-    it('Create stake too long', async () => {
-      let msg = '';
-      await stakingProgram.methods
-        .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear + 1))
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.StakeDurationTooLong);
-      await utils.assertBalancesStaking(provider, ata, balances);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    describe('extend()', async () => {
+      it('Extend a stake with negative duration', async () => {
+        const accountBefore = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        await stakingProgram.methods.extend(new anchor.BN(-7)).accounts(accounts).rpc();
+        const accountAfter = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(accountAfter.duration.toNumber()).to.equal(accountBefore.duration.toNumber() + 7);
+
+        xnos -= calculateXnos(stakeDurationMonth, accountAfter.amount.toNumber());
+        xnos += calculateXnos(stakeDurationMonth + 7, accountAfter.amount.toNumber());
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Extend a stake too far', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .extend(new anchor.BN(stakeDurationYear))
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.StakeDurationTooLong);
+      });
+
+      it('Can extend a stake', async () => {
+        await stakingProgram.methods.extend(new anchor.BN(stakeDurationMonth)).accounts(accounts).rpc();
+
+        // check stake
+        const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(stake.duration.toNumber()).to.equal(stakeDurationMonth * 2 + 7);
+        expect(stake.amount.toNumber()).to.equal(stakeAmount);
+
+        // update xnos
+        xnos -= calculateXnos(stakeDurationMonth + 7, stake.amount.toNumber());
+        xnos += calculateXnos(stake.duration.toNumber(), stake.amount.toNumber());
+
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
     });
 
-    it('Create stake minimum', async () => {
-      await stakingProgram.methods
-        .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth))
-        .accounts(accounts)
-        .rpc();
-      balances.user -= stakeAmount;
-      balances.vaultStaking += stakeAmount;
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos += calculateXnos(stakeDurationMonth, stakeAmount);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    describe('unstake()', async () => {
+      it('Unstake from other account', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .unstake()
+          .accounts({ ...accounts, authority: user3.publicKey })
+          .signers([user3.user])
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.SolanaSeedsConstraint);
+        await utils.assertBalancesStaking(provider, ata, balances);
+      });
+
+      it('Unstake', async () => {
+        await stakingProgram.methods.unstake().accounts(accounts).rpc();
+        const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos -= calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
     });
 
-    it('Create stake maximum', async () => {
-      await stakingProgram.methods
-        .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear))
-        .accounts({
-          ...accounts,
-          ataFrom: user4.ata,
-          authority: user4.publicKey,
-          stake: user4.stake,
-        })
-        .signers([user4.user])
-        .rpc();
-      user4.balance -= stakeAmount;
-      balances.vaultStaking += stakeAmount;
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos += calculateXnos(stakeDurationYear, stakeAmount);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
+    describe('topup(), restake()', async () => {
+      it('Top Up after unstake', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .topup(new anchor.BN(stakeAmount))
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.StakeAlreadyUnstaked);
+        await utils.assertBalancesStaking(provider, ata, balances);
+      });
+
+      it('Re-stake', async () => {
+        await stakingProgram.methods.restake().accounts(accounts).rpc();
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Top Up', async () => {
+        await stakingProgram.methods.topup(new anchor.BN(stakeAmount)).accounts(accounts).rpc();
+        balances.user -= stakeAmount;
+        balances.vaultStaking += stakeAmount;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Unstake second time', async () => {
+        await stakingProgram.methods.unstake().accounts(accounts).rpc();
+        const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
+        unstakeTime = data.timeUnstake.toNumber();
+        await utils.assertBalancesStaking(provider, ata, balances);
+
+        xnos -= calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 2);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Final re-stake', async () => {
+        await stakingProgram.methods.restake().accounts(accounts).rpc();
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 2);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
     });
 
-    it('Create stake too low for node 1', async () => {
-      let amount = minimumNodeStake - 1;
-      await stakingProgram.methods
-        .stake(new anchor.BN(amount), new anchor.BN(stakeDurationMonth))
-        .accounts({
-          ...accounts,
-          ataFrom: node1.ata,
-          authority: node1.publicKey,
-          stake: node1.stake,
-        })
-        .signers([node1.user])
-        .rpc();
-      node1.balance -= amount;
-      balances.vaultStaking += amount;
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos += calculateXnos(stakeDurationMonth, amount);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Create stake for node 2, and unstake', async () => {
-      await stakingProgram.methods
-        .stake(new anchor.BN(minimumNodeStake), new anchor.BN(stakeDurationMonth))
-        .accounts({
-          ...accounts,
-          ataFrom: node2.ata,
-          authority: node2.publicKey,
-          stake: node2.stake,
-        })
-        .signers([node2.user])
-        .rpc();
-      await stakingProgram.methods
-        .unstake()
-        .accounts({
-          ...accounts,
-          authority: node2.publicKey,
-          stake: node2.stake,
-        })
-        .signers([node2.user])
-        .rpc();
-      node2.balance -= minimumNodeStake;
-      balances.vaultStaking += minimumNodeStake;
-      await utils.assertBalancesStaking(provider, ata, balances);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Initialize stake for other nodes', async () => {
-      await Promise.all(
-        otherNodes.map(async (n) => {
-          await stakingProgram.methods
-            .stake(new anchor.BN(stakeAmount * 2), new anchor.BN(3 * stakeDurationMonth))
-            .accounts({
-              ...accounts,
-              ataFrom: n.ata,
-              authority: n.publicKey,
-              stake: n.stake,
-            })
-            .signers([n.user])
-            .rpc();
-          balances.vaultStaking += stakeAmount * 2;
-          n.balance -= stakeAmount * 2;
-          xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount * 2);
-          expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
-        })
-      );
-      await utils.assertBalancesStaking(provider, ata, balances);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Unstake from other account', async () => {
-      let msg = '';
-      await stakingProgram.methods
-        .unstake()
-        .accounts({ ...accounts, authority: user3.publicKey })
-        .signers([user3.user])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.SolanaSeedsConstraint);
-      await utils.assertBalancesStaking(provider, ata, balances);
-    });
-
-    it('Top Up', async () => {
-      await stakingProgram.methods.topup(new anchor.BN(stakeAmount)).accounts(accounts).rpc();
-      balances.user -= stakeAmount;
-      balances.vaultStaking += stakeAmount;
-      xnos += calculateXnos(stakeDurationMonth, stakeAmount);
-      await utils.assertBalancesStaking(provider, ata, balances);
-    });
-
-    it('Extend a stake with negative duration', async () => {
-      const accountBefore = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      await stakingProgram.methods.extend(new anchor.BN(-7)).accounts(accounts).rpc();
-      const accountAfter = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(accountAfter.duration.toNumber()).to.equal(accountBefore.duration.toNumber() + 7);
-
-      xnos -= calculateXnos(stakeDurationMonth, accountAfter.amount.toNumber());
-      xnos += calculateXnos(stakeDurationMonth + 7, accountAfter.amount.toNumber());
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Extend a stake too far', async () => {
-      let msg = '';
-      await stakingProgram.methods
-        .extend(new anchor.BN(stakeDurationYear))
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.StakeDurationTooLong);
-    });
-
-    it('Can extend a stake', async () => {
-      await stakingProgram.methods.extend(new anchor.BN(stakeDurationMonth)).accounts(accounts).rpc();
-
-      // check stake
-      const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(stake.duration.toNumber()).to.equal(stakeDurationMonth * 2 + 7);
-      expect(stake.amount.toNumber()).to.equal(stakeAmount * 2);
-
-      // update xnos
-      xnos -= calculateXnos(stakeDurationMonth + 7, stake.amount.toNumber());
-      xnos += calculateXnos(stake.duration.toNumber(), stake.amount.toNumber());
-
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Unstake', async () => {
-      await stakingProgram.methods.unstake().accounts(accounts).rpc();
-      const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos -= calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 2);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Top Up after unstake', async () => {
-      let msg = '';
-      await stakingProgram.methods
-        .topup(new anchor.BN(stakeAmount))
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.StakeAlreadyUnstaked);
-      await utils.assertBalancesStaking(provider, ata, balances);
-    });
-
-    it('Re-stake', async () => {
-      await stakingProgram.methods.restake().accounts(accounts).rpc();
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 2);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Top Up again', async () => {
-      await stakingProgram.methods.topup(new anchor.BN(stakeAmount)).accounts(accounts).rpc();
-      balances.user -= stakeAmount;
-      balances.vaultStaking += stakeAmount;
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Unstake second time', async () => {
-      await stakingProgram.methods.unstake().accounts(accounts).rpc();
-      const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
-      unstakeTime = data.timeUnstake.toNumber();
-      await utils.assertBalancesStaking(provider, ata, balances);
-
-      xnos -= calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 3);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    it('Final re-stake', async () => {
-      await stakingProgram.methods.restake().accounts(accounts).rpc();
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 3);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
-
-    describe('claiming', async () => {
-      it('can not claim before unstake', async () => {
+    describe('claim()', async () => {
+      it('Cannot claim before unstake', async () => {
         const acc = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
 
         let balanceBefore = await utils.getTokenBalance(provider, ata.user);
@@ -478,7 +519,7 @@ describe('Nosana SPL', () => {
         expect(msg).to.eq(errors.StakeNotUnstaked);
       });
 
-      it('can not claim before unstake duration', async () => {
+      it('Cannot claim before unstake duration', async () => {
         await stakingProgram.methods.unstake().accounts(accounts).rpc();
         const acc = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
 
@@ -517,103 +558,114 @@ describe('Nosana SPL', () => {
       // });
     });
 
-    it('Slash', async () => {
-      await stakingProgram.methods
-        .slash(new anchor.BN(slashAmount))
-        .accounts({
-          ...accounts,
-          stake: nodes[2].stake,
-        })
-        .rpc();
+    describe('slash(), update_authority()', async () => {
+      it('Slash', async () => {
+        await stakingProgram.methods
+          .slash(new anchor.BN(slashAmount))
+          .accounts({
+            ...accounts,
+            stake: nodes[2].stake,
+          })
+          .rpc();
 
-      balances.user += slashAmount;
-      balances.vaultStaking -= slashAmount;
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
-      xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
+        balances.user += slashAmount;
+        balances.vaultStaking -= slashAmount;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
+        xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
 
-    it('Somebody else slashes', async () => {
-      let msg = '';
-      await stakingProgram.methods
-        .slash(new anchor.BN(slashAmount))
-        .accounts({
-          ...accounts,
-          authority: node1.publicKey,
-        })
-        .signers([node1.user])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.SolanaHasOneConstraint);
-      await utils.assertBalancesStaking(provider, ata, balances);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
+      it('Somebody else slashes', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .slash(new anchor.BN(slashAmount))
+          .accounts({
+            ...accounts,
+            authority: node1.publicKey,
+          })
+          .signers([node1.user])
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.SolanaHasOneConstraint);
+        await utils.assertBalancesStaking(provider, ata, balances);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
 
-    it('Update slash without signature of new authority', async () => {
-      let msg = '';
-      await stakingProgram.methods
-        .updateAuthority()
-        .accounts({
-          ...accounts,
-          newAuthority: node1.publicKey,
-        })
-        .rpc()
-        .catch((e) => (msg = e.message));
-      expect(msg).to.equal(errors.SolanaSignature);
-    });
+      it('Update slash without signature of new authority', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .updateAuthority()
+          .accounts({
+            ...accounts,
+            newAuthority: node1.publicKey,
+          })
+          .rpc()
+          .catch((e) => (msg = e.message));
+        expect(msg).to.equal(errors.SolanaSignature);
+      });
 
-    it('Update slash authority to Node 1', async () => {
-      await stakingProgram.methods
-        .updateAuthority()
-        .accounts({
-          ...accounts,
-          newAuthority: node1.publicKey,
-        })
-        .signers([node1.user])
-        .rpc();
-      const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
-      expect(stats.authority.toString()).to.equal(node1.publicKey.toString());
-    });
+      it('Update slash authority to Node 1', async () => {
+        await stakingProgram.methods
+          .updateAuthority()
+          .accounts({
+            ...accounts,
+            newAuthority: node1.publicKey,
+          })
+          .signers([node1.user])
+          .rpc();
+        const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
+        expect(stats.authority.toString()).to.equal(node1.publicKey.toString());
+      });
 
-    it('Node 1 slashes', async () => {
-      await stakingProgram.methods
-        .slash(new anchor.BN(slashAmount))
-        .accounts({
-          ...accounts,
-          stake: nodes[2].stake,
-          authority: node1.publicKey,
-        })
-        .signers([node1.user])
-        .rpc();
+      it('Node 1 slashes', async () => {
+        await stakingProgram.methods
+          .slash(new anchor.BN(slashAmount))
+          .accounts({
+            ...accounts,
+            stake: nodes[2].stake,
+            authority: node1.publicKey,
+          })
+          .signers([node1.user])
+          .rpc();
 
-      balances.user += slashAmount;
-      balances.vaultStaking -= slashAmount;
-      await utils.assertBalancesStaking(provider, ata, balances);
-      xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
-      xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
-      expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
-    });
+        balances.user += slashAmount;
+        balances.vaultStaking -= slashAmount;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
+        xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
 
-    it('Update slash authority back', async () => {
-      await stakingProgram.methods
-        .updateAuthority()
-        .accounts({
-          ...accounts,
-          authority: node1.publicKey,
-          newAuthority: accounts.authority,
-        })
-        .signers([node1.user])
-        .rpc();
-      const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
-      expect(stats.authority.toString()).to.equal(accounts.authority.toString());
+      it('Update slash authority back', async () => {
+        await stakingProgram.methods
+          .updateAuthority()
+          .accounts({
+            ...accounts,
+            authority: node1.publicKey,
+            newAuthority: accounts.authority,
+          })
+          .signers([node1.user])
+          .rpc();
+        const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
+        expect(stats.authority.toString()).to.equal(accounts.authority.toString());
+      });
     });
   });
 
   /*
     NOSANA JOBS SECTION
    */
-  describe('Nosana Jobs', () => {
+  describe('Nosana Jobs Instructions', () => {
     it('Initialize the jobs vault', async () => {
       accounts.ataVault = ata.vaultJob;
       await jobsProgram.methods.initVault().accounts(accounts).rpc();
