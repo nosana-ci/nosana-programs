@@ -23,3 +23,12 @@ pub mod nos {
 
     pub const DECIMALS: u64 = 1_000_000;
 }
+
+pub mod slash_authority {
+    use anchor_lang::declare_id;
+
+    #[cfg(feature = "mainnet")]
+    declare_id!("nosP9DVJQVuRqub7JLf3K5Z2pwx3612egECNqCueE9m");
+    #[cfg(not(feature = "mainnet"))]
+    declare_id!("XXXxddiNnmoD2h2LbQYaL76Swi21MaQbtBbRynAdQL8");
+}
