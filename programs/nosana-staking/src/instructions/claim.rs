@@ -31,16 +31,11 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     );
     require!(stake.time_unstake != 0_i64, NosanaError::StakeNotUnstaked);
     require!(stake.amount != 0_u64, NosanaError::StakeAlreadyClaimed);
+
+    let stake_duration: i64 = (stake.duration as i64).try_into().unwrap();
+
     require!(
-        stake.duration
-            >= u64::try_from(
-                ctx.accounts
-                    .clock
-                    .unix_timestamp
-                    .checked_sub(stake.time_unstake)
-                    .unwrap()
-            )
-            .unwrap(),
+        ctx.accounts.clock.unix_timestamp > stake.time_unstake.checked_add(stake_duration).unwrap(),
         NosanaError::StakeLocked
     );
 
