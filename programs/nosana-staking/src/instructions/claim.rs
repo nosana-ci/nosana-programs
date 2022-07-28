@@ -5,7 +5,7 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
-    #[account(mut, seeds = [ b"nos", nos::ID.key().as_ref() ], bump)]
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(
         mut,

@@ -109,6 +109,9 @@ describe('Nosana SPL', () => {
     JobNotTimedOut: 'NosanaError::JobNotTimedOut - Job is not timed out.',
     JobQueueNotFound: 'NosanaError::JobQueueNotFound - Job queue not found.',
 
+    NodeUnqualifiedUnstaked: "NosanaError::NodeUnqualifiedUnstaked - Node's stake has been unstaked.",
+    NodeUnqualifiedStakeAmount: 'NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.',
+
     StakeAmountNotEnough: 'NosanaError::StakeAmountNotEnough - This amount is not enough.',
     StakeAlreadyInitialized: 'NosanaError::StakeAlreadyInitialized - This stake is already running.',
     StakeAlreadyStaked: 'NosanaError::StakeAlreadyStaked - This stake is already unstaked.',
@@ -117,15 +120,14 @@ describe('Nosana SPL', () => {
     StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This stake duration is not long enough.',
     StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This stake duration is too long.',
 
-    NodeUnqualifiedUnstaked: "NosanaError::NodeUnqualifiedUnstaked - Node's stake has been unstaked.",
-    NodeUnqualifiedStakeAmount: 'NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.',
+    SolanaSeedsConstraint: 'A seeds constraint was violated',
+    SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
 
     Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
-    SeedsConstraint: 'A seeds constraint was violated',
   };
 
   // we'll set these later
-  let mint, bumpJobs, bumpStaking, claimTime, unstakeTime;
+  let mint, claimTime, unstakeTime;
   let xnos = 0;
   const ata = { user: undefined, vaultJob: undefined, vaultStaking: undefined, nft: undefined };
   const balances = { user: 0, vaultJob: 0, vaultStaking: 0 };
@@ -137,14 +139,8 @@ describe('Nosana SPL', () => {
       // create mint
       accounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
       // get ATA and bumps of the vaults
-      [ata.vaultJob, bumpJobs] = await anchor.web3.PublicKey.findProgramAddress(
-        [mint.toBuffer()],
-        jobsProgram.programId
-      );
-      [ata.vaultStaking, bumpStaking] = await anchor.web3.PublicKey.findProgramAddress(
-        [anchor.utils.bytes.utf8.encode('nos'), mint.toBuffer()],
-        stakingProgram.programId
-      );
+      [ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], jobsProgram.programId);
+      [ata.vaultStaking] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], stakingProgram.programId);
       [accounts.stats] = await anchor.web3.PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode('stats'), mint.toBuffer()],
         stakingProgram.programId
@@ -333,7 +329,7 @@ describe('Nosana SPL', () => {
       await Promise.all(
         otherNodes.map(async (n) => {
           await stakingProgram.methods
-            .stake(new anchor.BN(stakeAmount), new anchor.BN(3 * stakeDurationMonth))
+            .stake(new anchor.BN(stakeAmount * 2), new anchor.BN(3 * stakeDurationMonth))
             .accounts({
               ...accounts,
               ataFrom: n.ata,
@@ -342,9 +338,9 @@ describe('Nosana SPL', () => {
             })
             .signers([n.user])
             .rpc();
-          balances.vaultStaking += stakeAmount;
-          n.balance -= stakeAmount;
-          xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount);
+          balances.vaultStaking += stakeAmount * 2;
+          n.balance -= stakeAmount * 2;
+          xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount * 2);
           expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
         })
       );
@@ -360,7 +356,7 @@ describe('Nosana SPL', () => {
         .signers([user3.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.SeedsConstraint);
+      expect(msg).to.equal(errors.SolanaSeedsConstraint);
       await utils.assertBalancesStaking(provider, ata, balances);
     });
 
@@ -467,14 +463,15 @@ describe('Nosana SPL', () => {
         .slash(new anchor.BN(slashAmount))
         .accounts({
           ...accounts,
-          stake: nodes[3].stake,
+          stake: nodes[2].stake,
         })
         .rpc();
 
-      balances.user -= slashAmount;
+      balances.user += slashAmount;
       balances.vaultStaking -= slashAmount;
       await utils.assertBalancesStaking(provider, ata, balances);
-      xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
+      xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
+      xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
     });
   });
@@ -758,7 +755,7 @@ describe('Nosana SPL', () => {
         .accounts(accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal('The program expected this account to be already initialized');
+      expect(msg).to.equal(errors.SolanaAccountNotInitialized);
     });
 
     it('Create new job and new project', async () => {

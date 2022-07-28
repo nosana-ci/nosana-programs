@@ -14,7 +14,7 @@ pub struct InitVault<'info> {
         payer = authority,
         token::mint = mint,
         token::authority = ata_vault,
-        seeds = [ b"nos", mint.key().as_ref() ],
+        seeds = [ mint.key().as_ref() ],
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,

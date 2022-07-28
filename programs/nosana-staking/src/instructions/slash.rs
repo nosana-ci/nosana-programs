@@ -7,7 +7,7 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 pub struct Slash<'info> {
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
-    #[account(mut, seeds = [ b"nos", nos::ID.key().as_ref() ], bump)]
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
@@ -36,7 +36,7 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
         ctx.accounts.ata_to.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         *ctx.bumps.get("ata_vault").unwrap(),
-        stake.amount,
+        amount,
     )?;
 
     // update stats and stake

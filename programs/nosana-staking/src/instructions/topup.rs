@@ -13,7 +13,7 @@ pub struct Topup<'info> {
     pub stake: Box<Account<'info, StakeAccount>>,
     #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
     pub stats: Box<Account<'info, StatsAccount>>,
-    #[account(mut, seeds = [ b"nos", nos::ID.key().as_ref() ], bump)]
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,
