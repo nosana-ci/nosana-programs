@@ -17,7 +17,7 @@ pub struct CancelJob<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
+pub fn handler(ctx: Context<CancelJob>) -> Result<()> {
     // get job and cancel it
     let job: &mut Account<Job> = &mut ctx.accounts.job;
     require!(
@@ -32,7 +32,7 @@ pub fn handler(ctx: Context<CancelJob>, bump: u8) -> Result<()> {
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
-        bump,
+        *ctx.bumps.get("ata_vault").unwrap(),
         job.tokens,
     )?;
 

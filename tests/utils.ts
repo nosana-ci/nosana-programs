@@ -46,10 +46,6 @@ function buf2hex(buffer) {
   return [...new Uint8Array(buffer)].map((x) => x.toString().padStart(2, '0')).join('');
 }
 
-function timeDelta(t1, t2) {
-  return t1.toNumber() * 1e3 - t2;
-}
-
 async function getOrCreateAssociatedSPL(provider, owner, mint) {
   const ata = await getAssociatedTokenAddress(mint, owner);
   try {
@@ -106,7 +102,6 @@ export {
   assertBalancesStaking,
   calculateXnos,
   buf2hex,
-  timeDelta,
   getOrCreateAssociatedSPL,
   getTokenBalance,
   setupSolanaUser,
