@@ -407,7 +407,7 @@ describe('Nosana SPL', () => {
     it('Unstake', async () => {
       await stakingProgram.methods.unstake().accounts(accounts).rpc();
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
+      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
       await utils.assertBalancesStaking(provider, ata, balances);
       xnos -= calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 2);
       expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(xnos, 'xnos');
@@ -443,7 +443,7 @@ describe('Nosana SPL', () => {
     it('Unstake second time', async () => {
       await stakingProgram.methods.unstake().accounts(accounts).rpc();
       const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-      expect(Date.now() / 1e3 - data.timeUnstake.toNumber()).to.be.closeTo(0, 2);
+      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
       unstakeTime = data.timeUnstake.toNumber();
       await utils.assertBalancesStaking(provider, ata, balances);
 
@@ -660,7 +660,7 @@ describe('Nosana SPL', () => {
 
     it('Check if job is claimed', async () => {
       const data = await jobsProgram.account.job.fetch(accounts.job);
-      expect(utils.timeDelta(data.timeStart, claimTime)).to.be.closeTo(0, allowedClockDelta, 'times differ too much');
+      expect(claimTime / 1e3).to.be.closeTo(data.timeStart.toNumber(), allowedClockDelta, 'times differ too much');
       expect(data.jobStatus).to.equal(jobStatus.claimed);
       expect(data.node.toString()).to.equal(provider.wallet.publicKey.toString());
       expect(data.tokens.toString()).to.equal(jobPrice.toString());
@@ -724,7 +724,7 @@ describe('Nosana SPL', () => {
       const dataJobs = await jobsProgram.account.jobs.fetch(accounts.jobs);
       const dataJob = await jobsProgram.account.job.fetch(accounts.job);
 
-      expect(utils.timeDelta(dataJob.timeEnd, claimTime)).to.be.closeTo(0, allowedClockDelta);
+      expect(claimTime / 1e3).to.be.closeTo(dataJob.timeEnd.toNumber(), allowedClockDelta);
       expect(dataJob.jobStatus).to.equal(jobStatus.finished, 'job status does not match');
       expect(dataJobs.jobs.length).to.equal(0, 'number of jobs do not match');
       expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
