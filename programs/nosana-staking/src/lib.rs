@@ -56,7 +56,7 @@ pub mod nosana_staking {
         slash::handler(ctx, amount)
     }
 
-    pub fn update_slash_authority(ctx: Context<UpdateSlashAuthority>) -> Result<()> {
-        update_slash_authority::handler(ctx)
+    pub fn update_authority(ctx: Context<UpdateSlashAuthority>) -> Result<()> {
+        update_authority::handler(ctx)
     }
 }
