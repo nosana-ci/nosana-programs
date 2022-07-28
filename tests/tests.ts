@@ -467,7 +467,10 @@ describe('Nosana SPL', () => {
 
         let balanceBefore = await utils.getTokenBalance(provider, ata.user);
         let msg = '';
-        await stakingProgram.methods.claim().accounts(accounts).rpc()
+        await stakingProgram.methods
+          .claim()
+          .accounts(accounts)
+          .rpc()
           .catch((e) => (msg = e.error.errorMessage));
 
         let balanceAfter = await utils.getTokenBalance(provider, ata.user);
@@ -481,7 +484,10 @@ describe('Nosana SPL', () => {
 
         let balanceBefore = await utils.getTokenBalance(provider, ata.user);
         let msg = '';
-        await stakingProgram.methods.claim().accounts(accounts).rpc()
+        await stakingProgram.methods
+          .claim()
+          .accounts(accounts)
+          .rpc()
           .catch((e) => (msg = e.error.errorMessage));
 
         let balanceAfter = await utils.getTokenBalance(provider, ata.user);
