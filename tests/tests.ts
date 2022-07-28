@@ -223,7 +223,7 @@ describe('Nosana SPL', () => {
   /*
     NOSANA STAKING SECTION
    */
-  describe('Nosana Staking Instructions', () => {
+  describe('Nosana Staking Instructions:', () => {
     describe('init_vault()', async () => {
       it('Initialize the staking vault', async () => {
         accounts.ataVault = ata.vaultStaking;
@@ -233,7 +233,7 @@ describe('Nosana SPL', () => {
     });
 
     describe('stake()', async () => {
-      it('Create stake too short', async () => {
+      it('Stake too short', async () => {
         let msg = '';
         await stakingProgram.methods
           .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth - 1))
@@ -244,7 +244,7 @@ describe('Nosana SPL', () => {
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 
-      it('Create stake too long', async () => {
+      it('Stake too long', async () => {
         let msg = '';
         await stakingProgram.methods
           .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear + 1))
@@ -259,7 +259,7 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Create stake minimum', async () => {
+      it('Stake minimum', async () => {
         await stakingProgram.methods
           .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMonth))
           .accounts(accounts)
@@ -274,7 +274,7 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Create stake maximum', async () => {
+      it('Stake maximum', async () => {
         await stakingProgram.methods
           .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear))
           .accounts({
@@ -295,7 +295,7 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Create stake too low for node 1', async () => {
+      it('Stake for node 1, not enough for jobs', async () => {
         let amount = minimumNodeStake - 1;
         await stakingProgram.methods
           .stake(new anchor.BN(amount), new anchor.BN(stakeDurationMonth))
@@ -317,7 +317,7 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Create stake for node 2, and unstake', async () => {
+      it('Stake for node 2, and unstake', async () => {
         await stakingProgram.methods
           .stake(new anchor.BN(minimumNodeStake), new anchor.BN(stakeDurationMonth))
           .accounts({
@@ -346,7 +346,7 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Initialize stake for other nodes', async () => {
+      it('Stake for other nodes', async () => {
         await Promise.all(
           otherNodes.map(async (n) => {
             await stakingProgram.methods
@@ -388,7 +388,7 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Extend a stake too far', async () => {
+      it('Extend a stake too long', async () => {
         let msg = '';
         await stakingProgram.methods
           .extend(new anchor.BN(stakeDurationYear))
@@ -398,7 +398,7 @@ describe('Nosana SPL', () => {
         expect(msg).to.equal(errors.StakeDurationTooLong);
       });
 
-      it('Can extend a stake', async () => {
+      it('Extend a stake', async () => {
         await stakingProgram.methods.extend(new anchor.BN(stakeDurationMonth)).accounts(accounts).rpc();
 
         // check stake
@@ -444,7 +444,7 @@ describe('Nosana SPL', () => {
     });
 
     describe('topup(), restake()', async () => {
-      it('Top Up after unstake', async () => {
+      it('Topup after unstake', async () => {
         let msg = '';
         await stakingProgram.methods
           .topup(new anchor.BN(stakeAmount))
@@ -455,7 +455,7 @@ describe('Nosana SPL', () => {
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 
-      it('Re-stake', async () => {
+      it('Restake', async () => {
         await stakingProgram.methods.restake().accounts(accounts).rpc();
         await utils.assertBalancesStaking(provider, ata, balances);
         xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
@@ -465,7 +465,7 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Top Up', async () => {
+      it('Topup', async () => {
         await stakingProgram.methods.topup(new anchor.BN(stakeAmount)).accounts(accounts).rpc();
         balances.user -= stakeAmount;
         balances.vaultStaking += stakeAmount;
@@ -476,70 +476,36 @@ describe('Nosana SPL', () => {
           'xnos'
         );
       });
-
-      it('Unstake second time', async () => {
-        await stakingProgram.methods.unstake().accounts(accounts).rpc();
-        const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-        expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
-        unstakeTime = data.timeUnstake.toNumber();
-        await utils.assertBalancesStaking(provider, ata, balances);
-
-        xnos -= calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 2);
-        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
-          xnos,
-          'xnos'
-        );
-      });
-
-      it('Final re-stake', async () => {
-        await stakingProgram.methods.restake().accounts(accounts).rpc();
-        await utils.assertBalancesStaking(provider, ata, balances);
-        xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount * 2);
-        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
-          xnos,
-          'xnos'
-        );
-      });
     });
 
     describe('claim()', async () => {
-      it('Cannot claim before unstake', async () => {
-        const acc = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-
-        let balanceBefore = await utils.getTokenBalance(provider, ata.user);
+      it('Claim before unstake', async () => {
         let msg = '';
         await stakingProgram.methods
           .claim()
           .accounts(accounts)
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
-
-        let balanceAfter = await utils.getTokenBalance(provider, ata.user);
-        expect(balanceAfter).to.eq(balanceBefore);
-        expect(msg).to.eq(errors.StakeNotUnstaked);
+        expect(msg).to.equal(errors.StakeNotUnstaked);
+        await utils.assertBalancesStaking(provider, ata, balances);
       });
 
-      it('Cannot claim before unstake duration', async () => {
+      it('Claim after too soon unstake', async () => {
         await stakingProgram.methods.unstake().accounts(accounts).rpc();
-        const acc = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-
-        let balanceBefore = await utils.getTokenBalance(provider, ata.user);
         let msg = '';
         await stakingProgram.methods
           .claim()
           .accounts(accounts)
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
-
-        let balanceAfter = await utils.getTokenBalance(provider, ata.user);
-        expect(balanceAfter).to.eq(balanceBefore);
-        expect(msg).to.eq(errors.StakeLocked);
+        expect(msg).to.equal(errors.StakeLocked);
+        await utils.assertBalancesStaking(provider, ata, balances);
         await stakingProgram.methods.restake().accounts(accounts).rpc();
       });
 
       // To run this test you will have to modify claim.rs and change stake_duration to 5 seconds:
       // ... ctx.accounts.clock.unix_timestamp > stake.time_unstake.checked_add(5).unwrap() ...
-      // it('can claim after unstake duration', async () => {
+      // it('Claim after unstake duration', async () => {
       //   let balanceBefore = await utils.getTokenBalance(provider, node2.ata);
 
       //   await utils.sleep(5000);
@@ -562,10 +528,7 @@ describe('Nosana SPL', () => {
       it('Slash', async () => {
         await stakingProgram.methods
           .slash(new anchor.BN(slashAmount))
-          .accounts({
-            ...accounts,
-            stake: nodes[2].stake,
-          })
+          .accounts({ ...accounts, stake: nodes[2].stake })
           .rpc();
 
         balances.user += slashAmount;
@@ -579,14 +542,11 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Somebody else slashes', async () => {
+      it('Slash unauthorized', async () => {
         let msg = '';
         await stakingProgram.methods
           .slash(new anchor.BN(slashAmount))
-          .accounts({
-            ...accounts,
-            authority: node1.publicKey,
-          })
+          .accounts({ ...accounts, authority: node1.publicKey })
           .signers([node1.user])
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
@@ -598,40 +558,30 @@ describe('Nosana SPL', () => {
         );
       });
 
-      it('Update slash without signature of new authority', async () => {
+      it('Update slash authority without signature', async () => {
         let msg = '';
         await stakingProgram.methods
           .updateAuthority()
-          .accounts({
-            ...accounts,
-            newAuthority: node1.publicKey,
-          })
+          .accounts({ ...accounts, newAuthority: node1.publicKey })
           .rpc()
           .catch((e) => (msg = e.message));
         expect(msg).to.equal(errors.SolanaSignature);
       });
 
-      it('Update slash authority to Node 1', async () => {
+      it('Update slash authority to node 1', async () => {
         await stakingProgram.methods
           .updateAuthority()
-          .accounts({
-            ...accounts,
-            newAuthority: node1.publicKey,
-          })
+          .accounts({ ...accounts, newAuthority: node1.publicKey })
           .signers([node1.user])
           .rpc();
         const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
         expect(stats.authority.toString()).to.equal(node1.publicKey.toString());
       });
 
-      it('Node 1 slashes', async () => {
+      it('Slash with Node 1', async () => {
         await stakingProgram.methods
           .slash(new anchor.BN(slashAmount))
-          .accounts({
-            ...accounts,
-            stake: nodes[2].stake,
-            authority: node1.publicKey,
-          })
+          .accounts({ ...accounts, stake: nodes[2].stake, authority: node1.publicKey })
           .signers([node1.user])
           .rpc();
 
@@ -649,11 +599,7 @@ describe('Nosana SPL', () => {
       it('Update slash authority back', async () => {
         await stakingProgram.methods
           .updateAuthority()
-          .accounts({
-            ...accounts,
-            authority: node1.publicKey,
-            newAuthority: accounts.authority,
-          })
+          .accounts({ ...accounts, authority: node1.publicKey, newAuthority: accounts.authority })
           .signers([node1.user])
           .rpc();
         const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
@@ -665,344 +611,359 @@ describe('Nosana SPL', () => {
   /*
     NOSANA JOBS SECTION
    */
-  describe('Nosana Jobs Instructions', () => {
-    it('Initialize the jobs vault', async () => {
-      accounts.ataVault = ata.vaultJob;
-      await jobsProgram.methods.initVault().accounts(accounts).rpc();
-      await utils.assertBalancesJobs(provider, ata, balances);
+  describe('Nosana Jobs Instructions:', () => {
+    describe('init_vault()', async () => {
+      it('Initialize the jobs vault', async () => {
+        accounts.ataVault = ata.vaultJob;
+        await jobsProgram.methods.initVault().accounts(accounts).rpc();
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
     });
 
-    it('Initialize project', async () => {
-      await jobsProgram.methods.initProject().accounts(accounts).signers([signers.jobs]).rpc();
-      await utils.assertBalancesJobs(provider, ata, balances);
+    describe('init_propject()', async () => {
+      it('Initialize project', async () => {
+        await jobsProgram.methods.initProject().accounts(accounts).signers([signers.jobs]).rpc();
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Initialize project for other users', async () => {
+        await Promise.all(
+          users.map(async (u) => {
+            await jobsProgram.methods
+              .initProject()
+              .accounts({
+                ...accounts,
+                authority: u.publicKey,
+                jobs: u.signers.jobs.publicKey,
+              })
+              .signers([u.user, u.signers.jobs])
+              .rpc();
+          })
+        );
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Fetch project', async () => {
+        const data = await jobsProgram.account.jobs.fetch(accounts.jobs);
+        expect(data.authority.toString()).to.equal(accounts.authority.toString());
+        expect(data.jobs.length).to.equal(0);
+      });
     });
 
-    it('Initialize project for other users', async () => {
-      await Promise.all(
-        users.map(async (u) => {
-          await jobsProgram.methods
-            .initProject()
-            .accounts({
-              ...accounts,
-              authority: u.publicKey,
-              jobs: u.signers.jobs.publicKey,
-            })
-            .signers([u.user, u.signers.jobs])
-            .rpc();
-        })
-      );
-      await utils.assertBalancesJobs(provider, ata, balances);
+    describe('create_job()', async () => {
+      it('Create job', async () => {
+        await jobsProgram.methods
+          .createJob(new anchor.BN(jobPrice), ipfsData)
+          .accounts(accounts)
+          .signers([signers.job])
+          .rpc();
+        balances.user -= jobPrice;
+        balances.vaultJob += jobPrice;
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Create job in different ata', async () => {
+        let msg = '';
+        const tempJob = anchor.web3.Keypair.generate();
+        await jobsProgram.methods
+          .createJob(new anchor.BN(jobPrice), ipfsData)
+          .accounts({
+            ...accounts,
+            ataVault: accounts.ataFrom,
+            job: tempJob.publicKey,
+          })
+          .signers([tempJob])
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal('A seeds constraint was violated');
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Create job for other users', async () => {
+        await Promise.all(
+          users.map(async (u) => {
+            await jobsProgram.methods
+              .createJob(new anchor.BN(jobPrice), ipfsData)
+              .accounts({
+                ...accounts,
+                jobs: u.signers.jobs.publicKey,
+                job: u.signers.job.publicKey,
+                ataFrom: u.ata,
+                authority: u.publicKey,
+              })
+              .signers([u.user, u.signers.job])
+              .rpc();
+            // update balances
+            balances.vaultJob += jobPrice;
+            u.balance -= jobPrice;
+          })
+        );
+        await Promise.all(
+          users.map(async (u) => {
+            expect(await utils.getTokenBalance(provider, u.ata)).to.equal(u.balance);
+          })
+        );
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      /*
+      // create
+      it('Create max jobs', async () => {
+        for (let i = 0; i < 10; i++) {
+          console.log(i);
+          let job = anchor.web3.Keypair.generate();
+          await program.rpc.createJob(
+            bump,
+            new anchor.BN(jobPrice),
+            ipfsData,
+            {
+              accounts: {
+                ...accounts,
+                job: job.publicKey,
+              }, signers: [job]});
+          balances.user -= jobPrice
+          balances.vault += jobPrice
+        }
+
+        // tests
+        await utils.assertBalancesJobs(provider, ata, balances)
+      });
+      */
+
+      it('Fetch job', async () => {
+        const data = await jobsProgram.account.job.fetch(accounts.job);
+        expect(data.jobStatus).to.equal(jobStatus.created);
+        expect(utils.buf2hex(new Uint8Array(data.ipfsJob))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
+      });
     });
 
-    it('Create job', async () => {
-      await jobsProgram.methods
-        .createJob(new anchor.BN(jobPrice), ipfsData)
-        .accounts(accounts)
-        .signers([signers.job])
-        .rpc();
-      balances.user -= jobPrice;
-      balances.vaultJob += jobPrice;
-      await utils.assertBalancesJobs(provider, ata, balances);
+    describe('claim_job()', async () => {
+      it('Claim job', async () => {
+        await jobsProgram.methods.claimJob().accounts(accounts).rpc();
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Claim job that is already claimed', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .claimJob()
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.JobNotInitialized);
+      });
+
+      it('Claim job for all other nodes and users', async () => {
+        claimTime = new Date();
+        await Promise.all(
+          [...Array(10).keys()].map(async (i) => {
+            let user = users[i];
+            let node = nodes[i];
+
+            // store these temporary to get them easier later
+            node.job = user.signers.job.publicKey;
+            node.jobs = user.signers.jobs.publicKey;
+
+            let msg = '';
+            await jobsProgram.methods
+              .claimJob()
+              .accounts({
+                ...accounts,
+                authority: node.publicKey,
+                stake: node.stake,
+                job: node.job,
+                jobs: node.jobs,
+                ataNft: node.ataNft,
+              })
+              .signers([node.user])
+              .rpc()
+              .catch((e) => (msg = e.error.errorMessage));
+
+            if (i === 0) expect(msg).to.equal(errors.NodeUnqualifiedStakeAmount);
+            else if (i === 1) expect(msg).to.equal(errors.NodeUnqualifiedUnstaked);
+            else expect(msg).to.equal('');
+          })
+        );
+      });
+
+      it('Fetch claimed job', async () => {
+        const data = await jobsProgram.account.job.fetch(accounts.job);
+        expect(claimTime / 1e3).to.be.closeTo(data.timeStart.toNumber(), allowedClockDelta, 'times differ too much');
+        expect(data.jobStatus).to.equal(jobStatus.claimed);
+        expect(data.node.toString()).to.equal(provider.wallet.publicKey.toString());
+        expect(data.tokens.toString()).to.equal(jobPrice.toString());
+      });
     });
 
-    it('Create job in different ata', async () => {
-      let msg = '';
-      const tempJob = anchor.web3.Keypair.generate();
-      await jobsProgram.methods
-        .createJob(new anchor.BN(jobPrice), ipfsData)
-        .accounts({
-          ...accounts,
-          ataVault: accounts.ataFrom,
-          job: tempJob.publicKey,
-        })
-        .signers([tempJob])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal('A seeds constraint was violated');
-      await utils.assertBalancesJobs(provider, ata, balances);
+    describe('reclaim_job()', async () => {
+      it('Reclaim job too soon', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .reclaimJob()
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.JobNotTimedOut);
+      });
     });
 
-    it('Create jobs for other users', async () => {
-      await Promise.all(
-        users.map(async (u) => {
-          await jobsProgram.methods
-            .createJob(new anchor.BN(jobPrice), ipfsData)
-            .accounts({
-              ...accounts,
-              jobs: u.signers.jobs.publicKey,
-              job: u.signers.job.publicKey,
-              ataFrom: u.ata,
-              authority: u.publicKey,
-            })
-            .signers([u.user, u.signers.job])
-            .rpc();
-          // update balances
-          balances.vaultJob += jobPrice;
-          u.balance -= jobPrice;
-        })
-      );
-      await Promise.all(
-        users.map(async (u) => {
-          expect(await utils.getTokenBalance(provider, u.ata)).to.equal(u.balance);
-        })
-      );
-      await utils.assertBalancesJobs(provider, ata, balances);
+    describe('finish_job()', async () => {
+      it('Finish job from other node', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .finishJob(ipfsData)
+          .accounts({
+            ...accounts,
+            authority: user2.publicKey,
+          })
+          .signers([user2.user])
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.Unauthorized);
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Finish job', async () => {
+        await jobsProgram.methods.finishJob(ipfsData).accounts(accounts).rpc();
+        balances.user += jobPrice;
+        balances.vaultJob -= jobPrice;
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Finish job that is already finished', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .finishJob(ipfsData)
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.JobNotClaimed);
+      });
+
+      it('Finish job for all nodes', async () => {
+        await Promise.all(
+          otherNodes.map(async (n) => {
+            await jobsProgram.methods
+              .finishJob(ipfsData)
+              .accounts({
+                ...accounts,
+                job: n.job,
+                ataTo: n.ata,
+                authority: n.publicKey,
+              })
+              .signers([n.user])
+              .rpc();
+            // update balances
+            balances.vaultJob -= jobPrice;
+            n.balance += jobPrice;
+            expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
+          })
+        );
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
+
+      it('Fetch finished job', async () => {
+        const dataJobs = await jobsProgram.account.jobs.fetch(accounts.jobs);
+        const dataJob = await jobsProgram.account.job.fetch(accounts.job);
+
+        expect(claimTime / 1e3).to.be.closeTo(dataJob.timeEnd.toNumber(), allowedClockDelta);
+        expect(dataJob.jobStatus).to.equal(jobStatus.finished, 'job status does not match');
+        expect(dataJobs.jobs.length).to.equal(0, 'number of jobs do not match');
+        expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
+
+        await Promise.all(
+          otherNodes.map(async (n) => {
+            const dataJobs = await jobsProgram.account.jobs.fetch(n.jobs);
+            const dataJob = await jobsProgram.account.job.fetch(n.job);
+
+            expect(dataJob.jobStatus).to.equal(jobStatus.finished);
+            expect(dataJobs.jobs.length).to.equal(0);
+            expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
+          })
+        );
+      });
     });
 
-    /*
-    // create
-    it('Create max jobs', async () => {
-      for (let i = 0; i < 10; i++) {
-        console.log(i);
-        let job = anchor.web3.Keypair.generate();
-        await program.rpc.createJob(
-          bump,
-          new anchor.BN(jobPrice),
-          ipfsData,
-          {
-            accounts: {
-              ...accounts,
-              job: job.publicKey,
-            }, signers: [job]});
-        balances.user -= jobPrice
-        balances.vault += jobPrice
-      }
+    describe('close_job()', async () => {
+      it('Close job', async () => {
+        const lamport_before = await connection.getBalance(accounts.authority);
+        await jobsProgram.methods.closeJob().accounts(accounts).rpc();
+        const lamport_after = await connection.getBalance(accounts.authority);
+        expect(lamport_before).to.be.lessThan(lamport_after);
+      });
 
-      // tests
-      await utils.assertBalancesJobs(provider, ata, balances)
-    });
-    */
-
-    it('List jobs', async () => {
-      const data = await jobsProgram.account.jobs.fetch(accounts.jobs);
-      expect(data.authority.toString()).to.equal(accounts.authority.toString());
-      expect(data.jobs[0].toString()).to.equal(accounts.job.toString());
-      expect(data.jobs.length).to.equal(1);
+      it('Fetch closed Job', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .finishJob(ipfsData)
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.SolanaAccountNotInitialized);
+      });
     });
 
-    it('Check if job is created', async () => {
-      const data = await jobsProgram.account.job.fetch(accounts.job);
-      expect(data.jobStatus).to.equal(jobStatus.created);
-      expect(utils.buf2hex(new Uint8Array(data.ipfsJob))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
-    });
+    describe('cancel_job()', async () => {
+      it('Create new job and new project', async () => {
+        accounts.job = cancelJob.publicKey;
 
-    it('Claim job', async () => {
-      await jobsProgram.methods.claimJob().accounts(accounts).rpc();
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
+        await jobsProgram.methods
+          .createJob(new anchor.BN(jobPrice), ipfsData)
+          .accounts(accounts)
+          .signers([cancelJob])
+          .rpc();
 
-    it('Claim job that is already claimed', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .claimJob()
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.JobNotInitialized);
-    });
+        await jobsProgram.methods
+          .initProject()
+          .accounts({ ...accounts, jobs: cancelJobs.publicKey })
+          .signers([cancelJobs])
+          .rpc();
 
-    it('Reclaim job too soon', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .reclaimJob()
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.JobNotTimedOut);
-    });
+        balances.user -= jobPrice;
+        balances.vaultJob += jobPrice;
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
 
-    it('Claim jobs for all other nodes and users', async () => {
-      claimTime = new Date();
-      await Promise.all(
-        [...Array(10).keys()].map(async (i) => {
-          let user = users[i];
-          let node = nodes[i];
+      it('Cancel job in wrong queue', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .cancelJob()
+          .accounts({ ...accounts, jobs: cancelJobs.publicKey })
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.JobQueueNotFound);
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
 
-          // store these temporary to get them easier later
-          node.job = user.signers.job.publicKey;
-          node.jobs = user.signers.jobs.publicKey;
+      it('Cancel job from other user', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .cancelJob()
+          .accounts({ ...accounts, authority: user1.publicKey })
+          .signers([user1.user])
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.Unauthorized);
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
 
-          let msg = '';
-          await jobsProgram.methods
-            .claimJob()
-            .accounts({
-              ...accounts,
-              authority: node.publicKey,
-              stake: node.stake,
-              job: node.job,
-              jobs: node.jobs,
-              ataNft: node.ataNft,
-            })
-            .signers([node.user])
-            .rpc()
-            .catch((e) => (msg = e.error.errorMessage));
+      it('Cancel job', async () => {
+        await jobsProgram.methods.cancelJob().accounts(accounts).rpc();
+        balances.user += jobPrice;
+        balances.vaultJob -= jobPrice;
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
 
-          if (i === 0) expect(msg).to.equal(errors.NodeUnqualifiedStakeAmount);
-          else if (i === 1) expect(msg).to.equal(errors.NodeUnqualifiedUnstaked);
-          else expect(msg).to.equal('');
-        })
-      );
-    });
-
-    it('Check if job is claimed', async () => {
-      const data = await jobsProgram.account.job.fetch(accounts.job);
-      expect(claimTime / 1e3).to.be.closeTo(data.timeStart.toNumber(), allowedClockDelta, 'times differ too much');
-      expect(data.jobStatus).to.equal(jobStatus.claimed);
-      expect(data.node.toString()).to.equal(provider.wallet.publicKey.toString());
-      expect(data.tokens.toString()).to.equal(jobPrice.toString());
-    });
-
-    it('Finish job from other node', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .finishJob(ipfsData)
-        .accounts({
-          ...accounts,
-          authority: user2.publicKey,
-        })
-        .signers([user2.user])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.Unauthorized);
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
-
-    it('Finish job', async () => {
-      await jobsProgram.methods.finishJob(ipfsData).accounts(accounts).rpc();
-      balances.user += jobPrice;
-      balances.vaultJob -= jobPrice;
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
-
-    it('Finish job that is already finished', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .finishJob(ipfsData)
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.JobNotClaimed);
-    });
-
-    it('Finish job for all nodes', async () => {
-      await Promise.all(
-        otherNodes.map(async (n) => {
-          await jobsProgram.methods
-            .finishJob(ipfsData)
-            .accounts({
-              ...accounts,
-              job: n.job,
-              ataTo: n.ata,
-              authority: n.publicKey,
-            })
-            .signers([n.user])
-            .rpc();
-          // update balances
-          balances.vaultJob -= jobPrice;
-          n.balance += jobPrice;
-          expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
-        })
-      );
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
-
-    it('Check if job is finished', async () => {
-      const dataJobs = await jobsProgram.account.jobs.fetch(accounts.jobs);
-      const dataJob = await jobsProgram.account.job.fetch(accounts.job);
-
-      expect(claimTime / 1e3).to.be.closeTo(dataJob.timeEnd.toNumber(), allowedClockDelta);
-      expect(dataJob.jobStatus).to.equal(jobStatus.finished, 'job status does not match');
-      expect(dataJobs.jobs.length).to.equal(0, 'number of jobs do not match');
-      expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
-
-      await Promise.all(
-        otherNodes.map(async (n) => {
-          const dataJobs = await jobsProgram.account.jobs.fetch(n.jobs);
-          const dataJob = await jobsProgram.account.job.fetch(n.job);
-
-          expect(dataJob.jobStatus).to.equal(jobStatus.finished);
-          expect(dataJobs.jobs.length).to.equal(0);
-          expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(ipfsData)));
-        })
-      );
-    });
-
-    it('Close job', async () => {
-      const lamport_before = await connection.getBalance(accounts.authority);
-      await jobsProgram.methods.closeJob().accounts(accounts).rpc();
-      const lamport_after = await connection.getBalance(accounts.authority);
-      expect(lamport_before).to.be.lessThan(lamport_after);
-    });
-
-    it('Check that Job account does not exist anymore', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .finishJob(ipfsData)
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.SolanaAccountNotInitialized);
-    });
-
-    it('Create new job and new project', async () => {
-      accounts.job = cancelJob.publicKey;
-
-      await jobsProgram.methods
-        .createJob(new anchor.BN(jobPrice), ipfsData)
-        .accounts(accounts)
-        .signers([cancelJob])
-        .rpc();
-
-      await jobsProgram.methods
-        .initProject()
-        .accounts({ ...accounts, jobs: cancelJobs.publicKey })
-        .signers([cancelJobs])
-        .rpc();
-
-      balances.user -= jobPrice;
-      balances.vaultJob += jobPrice;
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
-
-    it('Cancel job in wrong queue', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .cancelJob()
-        .accounts({ ...accounts, jobs: cancelJobs.publicKey })
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.JobQueueNotFound);
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
-
-    it('Cancel job from other user', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .cancelJob()
-        .accounts({ ...accounts, authority: user1.publicKey })
-        .signers([user1.user])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.Unauthorized);
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
-
-    it('Cancel job', async () => {
-      await jobsProgram.methods.cancelJob().accounts(accounts).rpc();
-      balances.user += jobPrice;
-      balances.vaultJob -= jobPrice;
-      await utils.assertBalancesJobs(provider, ata, balances);
-    });
-
-    it('Cancel job in wrong state', async () => {
-      let msg = '';
-      await jobsProgram.methods
-        .cancelJob()
-        .accounts(accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(errors.JobNotInitialized);
-      await utils.assertBalancesJobs(provider, ata, balances);
+      it('Cancel job in wrong state', async () => {
+        let msg = '';
+        await jobsProgram.methods
+          .cancelJob()
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.JobNotInitialized);
+        await utils.assertBalancesJobs(provider, ata, balances);
+      });
     });
   });
 });
