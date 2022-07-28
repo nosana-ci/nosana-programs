@@ -7,6 +7,7 @@ use nosana_common::{nos, NosanaError};
 pub struct Extend<'info> {
     #[account(
         mut,
+        has_one = authority,
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
         bump = stake.bump
     )]
@@ -22,16 +23,10 @@ pub struct Extend<'info> {
 }
 
 pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
+    // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(
-        stake.authority == *ctx.accounts.authority.key,
-        NosanaError::Unauthorized
-    );
-    require!(
-        stake.time_unstake == 0_i64,
-        NosanaError::StakeAlreadyUnstaked
-    );
-    require!(duration > 0_u64, NosanaError::StakeDurationTooShort);
+    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
+    require!(duration > 0, NosanaError::StakeDurationTooShort);
 
     // update stats and stake
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;

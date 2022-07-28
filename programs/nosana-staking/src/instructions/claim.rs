@@ -9,6 +9,7 @@ pub struct Claim<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(
         mut,
+        has_one = authority,
         close = authority,
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
         bump = stake.bump
@@ -25,11 +26,7 @@ pub struct Claim<'info> {
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(
-        stake.authority == *ctx.accounts.authority.key,
-        NosanaError::Unauthorized
-    );
-    require!(stake.amount != 0_u64, NosanaError::StakeAlreadyClaimed);
+    require!(stake.amount != 0, NosanaError::StakeAlreadyClaimed);
     require!(
         stake.duration
             >= u64::try_from(

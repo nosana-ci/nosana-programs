@@ -24,7 +24,7 @@ pub mod nos {
     pub const DECIMALS: u64 = 1_000_000;
 }
 
-pub mod slash_authority {
+pub mod authority {
     use anchor_lang::declare_id;
 
     #[cfg(feature = "mainnet")]

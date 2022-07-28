@@ -7,6 +7,7 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 pub struct Topup<'info> {
     #[account(
         mut,
+        has_one = authority,
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
         bump = stake.bump
     )]
@@ -24,14 +25,7 @@ pub struct Topup<'info> {
 pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(
-        stake.authority == *ctx.accounts.authority.key,
-        NosanaError::Unauthorized
-    );
-    require!(
-        stake.time_unstake == 0_i64,
-        NosanaError::StakeAlreadyUnstaked
-    );
+    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
 
     // transfer tokens to the vault
     transfer_tokens(

@@ -8,7 +8,7 @@ pub mod slash;
 pub mod stake;
 pub mod topup;
 pub mod unstake;
-pub mod update_slash_authority;
+pub mod update_authority;
 
 pub use claim::*;
 pub use extend::*;
@@ -18,4 +18,4 @@ pub use slash::*;
 pub use stake::*;
 pub use topup::*;
 pub use unstake::*;
-pub use update_slash_authority::*;
+pub use update_authority::*;
