@@ -29,6 +29,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         stake.authority == *ctx.accounts.authority.key,
         NosanaError::Unauthorized
     );
+    require!(stake.time_unstake != 0_i64, NosanaError::StakeNotUnstaked);
     require!(stake.amount != 0_u64, NosanaError::StakeAlreadyClaimed);
     require!(
         stake.duration

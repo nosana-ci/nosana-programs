@@ -25,7 +25,7 @@ pub fn handler(ctx: Context<Restake>) -> Result<()> {
     require!(stake.time_unstake != 0_i64, NosanaError::StakeAlreadyStaked);
 
     // reset the unstake clock
-    stake.unstake(0);
+    stake.unstake(0_i64);
 
     // re-add xnos to stats
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
