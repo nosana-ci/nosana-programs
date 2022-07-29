@@ -1,7 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_common::{nos, transfer_tokens};
 
 pub fn handler(ctx: Context<AddFee>, amount: u64) -> Result<()> {
     transfer_tokens(
