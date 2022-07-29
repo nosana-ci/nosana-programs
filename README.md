@@ -4,74 +4,29 @@
   <br>
 </h1>
 
-# Nosana Jobs
+# Nosana Program Library
 
-Solana Program for creating Nosana jobs.
+Library of Solana Programs used in the Nosana network.
 
-## Note
+## ⚠ Warning
 
-- **This code is unaudited. Use at your own risk.**
+**Most code is unaudited. Use at your own risk.**
 
-## Developing
+## Index
 
-[Anchor](https://github.com/project-serum/anchor) is used for developoment, and it's recommended workflow is used here.
-To get started, see the [guide](https://project-serum.github.io/anchor/getting-started/introduction.html).
+Three Nosana programs can be found in this repository, together with the Nosana Common crate.
 
-### Wallet
+1. [Nosana Staking](./docs/staking.md)
+2. [Nosana Rewards](./docs/rewards.md)
+3. [Nosana Jobs](./docs/jobs.md)
+4. [Nosana Common](./docs/common.md)
 
-The default wallet location is set be located in `~/.config/solana/id.json`.
-When you like to use a different location use the flag `--provider.wallet`, and deo not change the `Anchor.toml`.
+## Contribution
 
-### Build
+See [CONTRIBUTING](CONTRIBUTING.md) guidelines.
 
-```
-anchor build --verifiable
-```
-
-The `--verifiable` flag should be used before deploying so that your build artifacts can be deterministically generated
-with docker.
-
-### Test
-
-When testing locally, be sure to build with disabled feature "mainnet" to enable the testing IDs. You can do this by
-editing `programs/nosana_jobs/Cargo.toml` and commenting the default feature set line.
-
-```
-anchor test
-```
-
-### Verify
-
-To verify the program deployed on Solana matches your local source code, change directory into the program you want to
-verify, e.g., `cd program`, and run
-
-```bash
-anchor verify -d projectserum/build:v0.22.1 --provider.cluster $CLUSTER nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
-```
-
-A list of build artifacts can be found in gitlab cicd.
-
-### Upgrade
-
-To deploy the program, configure your CLI to the desired network/wallet and run
-
-```bash
-anchor upgrade --program-id nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM --provider.cluster $CLUSTER target/deploy/nosana_jobs.so
-```
-
-### Initial Migration
-
-After deployment for the first time, you must point your `anchor.toml` file to the network you've deployed to and run
-
-```bash
-anchor migrate
-```
-
-This will call the `initialize` method to create the token vault. No specific calling key is needed - it can be called
-by anyone, and is a once only operation for PDA vault creation. Subsequent runs will fail.
-
-Any problems in this process can be triaged in the `migrations/deploy.js` file, which is what `anchor migrate` executes.
+Significant contributions to the source code may be compensated with a grant from the Nosana Foundation.
 
 ## License
 
-This Nosana program are licensed under the MIT license.
+This Nosana Programs are licensed under the [MIT license](./LICENSE).
