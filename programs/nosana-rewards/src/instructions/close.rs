@@ -7,7 +7,7 @@ use nosana_staking::program::NosanaStaking;
 pub struct Close<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(mut, close = authority, constraint = staker.key() == reward.authority, bump = reward.bump)]
+    #[account(mut, close = authority, constraint = staker.key() == reward.authority)]
     pub reward: Box<Account<'info, RewardAccount>>,
     #[account(owner = staking_program.key(), constraint = staker.key() == stake.authority)]
     pub stake: Account<'info, StakeAccount>,
