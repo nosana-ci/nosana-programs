@@ -23,6 +23,8 @@ pub enum NosanaError {
     StakeDurationTooShort,
     #[msg("NosanaError::StakeDurationTooLong - This stake duration is too long.")]
     StakeDurationTooLong,
+    #[msg("NosanaError::StakeDecreased - The stake is not allowed to decrease.")]
+    StakeDecreased,
 
     #[msg("NosanaError::JobNotClaimed - Job is not in the Claimed state.")]
     JobNotClaimed,
