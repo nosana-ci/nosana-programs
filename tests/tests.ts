@@ -145,7 +145,7 @@ describe('Nosana SPL', () => {
       [ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], jobsProgram.programId);
       [ata.vaultStaking] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], stakingProgram.programId);
       [accounts.stats] = await anchor.web3.PublicKey.findProgramAddress(
-        [anchor.utils.bytes.utf8.encode('stats'), mint.toBuffer()],
+        [anchor.utils.bytes.utf8.encode('stats')],
         stakingProgram.programId
       );
       [accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(

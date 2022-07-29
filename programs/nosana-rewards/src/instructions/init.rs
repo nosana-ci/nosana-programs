@@ -8,6 +8,8 @@ pub struct Init<'info> {
     pub mint: Box<Account<'info, Mint>>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
+    pub stats: Box<Account<'info, StatsAccount>>,
     #[account(
         init,
         payer = authority,
@@ -17,14 +19,6 @@ pub struct Init<'info> {
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(
-        init,
-        payer = authority,
-        space = STATS_SIZE,
-        seeds = [ b"stats" ],
-        bump,
-    )]
-    pub stats: Box<Account<'info, StatsAccount>>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
