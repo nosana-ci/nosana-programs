@@ -14,11 +14,11 @@ Library of Solana Programs used in the Nosana network.
 
 ## Index
 
-Three Nosana programs can be found in this repository, together with the [Nosana Common](./docs/common.md) crate.
+Three Nosana programs can be found in this repository, together with the [Nosana Common](docs/common.md) crate.
 
-1. [Nosana Staking](./docs/staking.md)
-2. [Nosana Rewards](./docs/rewards.md)
-3. [Nosana Jobs](./docs/jobs.md)
+1. [Nosana Staking](docs/staking.md)
+2. [Nosana Rewards](docs/rewards.md)
+3. [Nosana Jobs](docs/jobs.md)
 
 ## Contribution
 
@@ -28,4 +28,4 @@ Significant contributions to the source code may be compensated with a grant fro
 
 ## License
 
-This Nosana Programs are licensed under the [MIT license](./LICENSE).
+This Nosana Programs are licensed under the [MIT license](LICENSE).
