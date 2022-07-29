@@ -3,7 +3,7 @@
 The rewards program allow stakers to earn rewards. Anyone that has a stake can
 enter the rewards program.
 
-This are some of the properties of the rewards program:
+These are some of the properties of the rewards program:
 
 - A stakers' xNOS score determines the portion of the fees a user will receive.
 - You have to explicietly `enter` the rewards program to participate. The rewards
@@ -43,3 +43,4 @@ This are some of the properties of the rewards program:
   tests are disabled atm)
 - We should also close a reward if the corresponding stake does not exist (after
   it's closed). Is this possible?
+- With slashing, we now have to deal with downsized stakes
