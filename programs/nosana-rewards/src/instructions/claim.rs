@@ -41,7 +41,8 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let earned_fees: u128 = towed.checked_sub(reward.t_owned).unwrap();
 
     stats.r_total = stats.r_total.checked_sub(reward.r_owned).unwrap();
-    stats.t_total = stats.t_total
+    stats.t_total = stats
+        .t_total
         .checked_sub(reward.t_owned)
         .unwrap()
         .checked_sub(earned_fees)
@@ -57,7 +58,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.ata_to.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         bump, // we're signing the vault PDA
-        reward_amount
+        reward_amount,
     )?;
 
     // re-enter
