@@ -11,12 +11,7 @@ pub struct Slash<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(
-        mut,
-        has_one = authority,
-        seeds = [ b"stats", nos::ID.key().as_ref() ],
-        bump = stats.bump
-    )]
+    #[account(mut, has_one = authority)]
     pub stats: Box<Account<'info, StatsAccount>>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
