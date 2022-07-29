@@ -7,13 +7,7 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 pub struct Claim<'info> {
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(
-        mut,
-        has_one = authority,
-        close = authority,
-        seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
-        bump = stake.bump
-    )]
+    #[account(mut, has_one = authority, close = authority)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,

@@ -426,7 +426,7 @@ describe('Nosana SPL', () => {
           .signers([user3.user])
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
-        expect(msg).to.equal(errors.SolanaSeedsConstraint);
+        expect(msg).to.equal(errors.SolanaHasOneConstraint);
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 
