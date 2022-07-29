@@ -19,7 +19,7 @@ no-entrypoint = []
 cpi = ["no-entrypoint"]
 
 [dependencies]
-anchor-lang = "0.24.2"
-anchor-spl = "0.24.2"
+anchor-lang = "0.25.0"
+anchor-spl = "0.25.0"
 nosana-staking = { path = "../nosana-staking", features = ["cpi"]}
 nosana-common = { path = "../nosana-common", features = ["cpi"]}
