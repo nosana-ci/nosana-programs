@@ -34,9 +34,6 @@ pub struct Init<'info> {
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
     let stats = &mut ctx.accounts.stats;
-    stats.bump = *ctx.bumps.get("stats").unwrap();
-    stats.r_total = 0;
-    stats.t_total = 0;
-    stats.rate = INITIAL_RATE;
+    stats.init(*ctx.bumps.get("stats").unwrap());
     Ok(())
 }

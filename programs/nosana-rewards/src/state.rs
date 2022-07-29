@@ -25,6 +25,13 @@ pub struct StatsAccount {
 }
 
 impl StatsAccount {
+    pub fn init(&mut self, bump: u8) {
+        self.bump = bump;
+        self.r_total = 0;
+        self.t_total = 0;
+        self.update_rate();
+    }
+
     pub fn update_rate(&mut self) {
         if self.t_total == 0 {
             self.rate = INITIAL_RATE;
