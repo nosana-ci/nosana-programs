@@ -1,5 +1,4 @@
 use crate::*;
-
 use anchor_spl::token::{Token, TokenAccount};
 use nosana_common::{nos, transfer_tokens};
 

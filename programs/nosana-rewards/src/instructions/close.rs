@@ -1,7 +1,6 @@
 use crate::*;
-
-use nosana_common::NosanaError;
-use nosana_staking::program::NosanaStaking;
+use nosana_common::{staking, NosanaError};
+use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Close<'info> {
@@ -9,13 +8,12 @@ pub struct Close<'info> {
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, close = authority, constraint = staker.key() == reward.authority)]
     pub reward: Box<Account<'info, RewardAccount>>,
-    #[account(owner = staking_program.key(), constraint = staker.key() == stake.authority)]
+    #[account(owner = staking::ID, constraint = staker.key() == stake.authority)]
     pub stake: Account<'info, StakeAccount>,
     /// CHECK: this is the owner of the stake and reward, and is optionally the signer
     pub staker: UncheckedAccount<'info>,
     #[account(mut)]
     pub authority: Signer<'info>,
-    pub staking_program: Program<'info, NosanaStaking>,
 }
 
 pub fn handler(ctx: Context<Close>) -> Result<()> {

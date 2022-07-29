@@ -1,11 +1,10 @@
 mod instructions;
 mod state;
 
-use instructions::*;
-use state::*;
-
 use anchor_lang::prelude::*;
+use instructions::*;
 use nosana_common::jobs;
+use state::*;
 
 declare_id!(jobs::ID);
 

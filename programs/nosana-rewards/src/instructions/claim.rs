@@ -1,9 +1,7 @@
 use crate::*;
-
 use anchor_spl::token::{Token, TokenAccount};
-
-use nosana_common::{nos, transfer_tokens, NosanaError};
-use nosana_staking::program::NosanaStaking;
+use nosana_common::{nos, staking, transfer_tokens, NosanaError};
+use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -13,14 +11,13 @@ pub struct Claim<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
-    #[account(owner = staking_program.key(), has_one=authority)]
+    #[account(owner = staking::ID, has_one=authority)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, seeds = [ b"reward", authority.key().as_ref() ], bump = reward.bump)]
     pub reward: Box<Account<'info, RewardAccount>>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
-    pub staking_program: Program<'info, NosanaStaking>,
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {

@@ -1,12 +1,12 @@
 use crate::*;
-
-use nosana_common::NosanaError;
+use nosana_common::{staking, NosanaError};
+use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
     #[account(mut, owner=ID.key(), seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(owner = staking_program.key(), has_one = authority)]
+    #[account(owner = staking::ID, has_one = authority)]
     pub stake: Account<'info, StakeAccount>,
     #[account(
         init,
@@ -19,7 +19,6 @@ pub struct Enter<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
-    pub staking_program: Program<'info, NosanaStaking>,
 }
 
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
