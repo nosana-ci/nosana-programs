@@ -1,4 +1,4 @@
-//! Instructions for Nosana Staking.
+//! Instructions for Nosana Rewards.
 
 pub mod add_fee;
 pub mod claim;

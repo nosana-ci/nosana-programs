@@ -15,7 +15,7 @@ pub struct Claim<'info> {
     pub ata_to: Box<Account<'info, TokenAccount>>,
     #[account(owner = staking_program.key(), has_one=authority)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, seeds = [ b"reward", authority.key().as_ref()], bump = reward.bump)]
+    #[account(mut, seeds = [ b"reward", authority.key().as_ref() ], bump = reward.bump)]
     pub reward: Box<Account<'info, RewardAccount>>,
     #[account(mut)]
     pub authority: Signer<'info>,

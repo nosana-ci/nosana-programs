@@ -33,7 +33,7 @@ pub struct Init<'info> {
 }
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
-    let stats = &mut ctx.accounts.stats;
+    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
     stats.init(*ctx.bumps.get("stats").unwrap());
     Ok(())
 }
