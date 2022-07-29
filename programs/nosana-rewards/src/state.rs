@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 // TODO: this is a magic number based on SafeMoon. should be as large as we can
 // go without reaching an overflow in the arithmatics
-pub const INITIAL_RATE : u128 = 12736648300;
+pub const INITIAL_RATE: u128 = 12736648300;
 
 pub const REWARD_SIZE: usize = 8 + std::mem::size_of::<RewardAccount>();
 

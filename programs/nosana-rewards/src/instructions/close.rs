@@ -1,7 +1,7 @@
 use crate::*;
 
+use nosana_common::NosanaError;
 use nosana_staking::program::NosanaStaking;
-use nosana_common::{NosanaError};
 
 #[derive(Accounts)]
 pub struct Close<'info> {
@@ -27,7 +27,10 @@ pub fn handler(ctx: Context<Close>) -> Result<()> {
 
     // if the stake is not unstaked yet, only the owner can close the reward
     if stake.time_unstake == 0_i64 {
-        require!(reward.authority == *ctx.accounts.authority.key, NosanaError::Unauthorized);
+        require!(
+            reward.authority == *ctx.accounts.authority.key,
+            NosanaError::Unauthorized
+        );
     }
 
     stats.r_total = stats.r_total.checked_sub(reward.r_owned).unwrap();

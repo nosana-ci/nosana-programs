@@ -1,13 +1,13 @@
 mod instructions;
 mod state;
 
-use anchor_lang::prelude::*;
 use anchor_lang::declare_id;
+use anchor_lang::prelude::*;
+use instructions::*;
+use nosana_common::rewards;
 use nosana_staking::program::NosanaStaking;
 use nosana_staking::StakeAccount;
-use instructions::*;
 pub use state::*; // expose stake for cpi
-use nosana_common::rewards;
 
 declare_id!(rewards::ID);
 

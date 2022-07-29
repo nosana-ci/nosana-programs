@@ -2,8 +2,8 @@ use crate::*;
 
 use anchor_spl::token::{Token, TokenAccount};
 
-use nosana_staking::program::NosanaStaking;
 use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_staking::program::NosanaStaking;
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -27,12 +27,15 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let stats = &mut ctx.accounts.stats;
     let stake = &ctx.accounts.stake;
     let reward = &mut ctx.accounts.reward;
-    let bump: u8 =  *ctx.bumps.get("ata_vault").unwrap();
+    let bump: u8 = *ctx.bumps.get("ata_vault").unwrap();
 
     // check that the stake is still active, and that the stake has
     // not decreased.
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
-    require!(u128::from(stake.xnos) >= reward.t_owned, NosanaError::StakeDecreased);
+    require!(
+        u128::from(stake.xnos) >= reward.t_owned,
+        NosanaError::StakeDecreased
+    );
 
     let towed: u128 = reward.r_owned.checked_div(stats.rate).unwrap();
     let earned_fees: u128 = towed.checked_sub(reward.t_owned).unwrap();

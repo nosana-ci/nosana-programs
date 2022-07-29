@@ -1,6 +1,6 @@
 use crate::*;
 
-use nosana_common::{NosanaError};
+use nosana_common::NosanaError;
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
@@ -21,7 +21,6 @@ pub struct Enter<'info> {
     pub system_program: Program<'info, System>,
     pub staking_program: Program<'info, NosanaStaking>,
 }
-
 
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
     let stake = &ctx.accounts.stake;
