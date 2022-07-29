@@ -9,8 +9,8 @@ pub mod constants {
     pub const SECONDS_PER_MONTH: u128 = 2_628_000; // 365 * 24 * 60 * 60 / 12
     pub const DURATION_MONTH: u128 = SECONDS_PER_MONTH;
     pub const DURATION_YEAR: u128 = 12 * SECONDS_PER_MONTH;
-    pub const XNOS_PRECISION: u128 = nos::DECIMALS as u128;
-    pub const XNOS_DIV: u128 = 10_512_000; // SECONDS_PER_MONTH x 4
+    pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
+    pub const XNOS_DIV: u128 = 4 * SECONDS_PER_MONTH; // 0.25 growth per month
 }
 
 /// # Stats
@@ -19,14 +19,16 @@ pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
 
 #[account]
 pub struct StatsAccount {
-    pub xnos: u128,
     pub bump: u8,
+    pub authority: Pubkey,
+    pub xnos: u128,
 }
 
 impl StatsAccount {
-    pub fn init(&mut self, bump: u8) {
-        self.xnos = 0;
+    pub fn init(&mut self, bump: u8, authority: Pubkey) {
         self.bump = bump;
+        self.authority = authority;
+        self.xnos = 0;
     }
 
     pub fn add(&mut self, amount: u128) {
@@ -35,6 +37,10 @@ impl StatsAccount {
 
     pub fn sub(&mut self, amount: u128) {
         self.xnos -= amount;
+    }
+
+    pub fn update_authority(&mut self, authority: Pubkey) {
+        self.authority = authority;
     }
 }
 
@@ -69,6 +75,11 @@ impl StakeAccount {
 
     pub fn topup(&mut self, amount: u64) {
         self.amount += amount;
+        self.update_xnos();
+    }
+
+    pub fn slash(&mut self, amount: u64) {
+        self.amount -= amount;
         self.update_xnos();
     }
 

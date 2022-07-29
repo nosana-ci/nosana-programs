@@ -9,6 +9,7 @@ pub struct Claim<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(
         mut,
+        has_one = authority,
         close = authority,
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
         bump = stake.bump
@@ -16,6 +17,7 @@ pub struct Claim<'info> {
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
+    #[account(mut)]
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
     pub token_program: Program<'info, Token>,
@@ -24,21 +26,14 @@ pub struct Claim<'info> {
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+    require!(stake.time_unstake != 0, NosanaError::StakeNotUnstaked);
+    require!(stake.amount != 0, NosanaError::StakeAlreadyClaimed);
     require!(
-        stake.authority == *ctx.accounts.authority.key,
-        NosanaError::Unauthorized
-    );
-    require!(stake.amount != 0_u64, NosanaError::StakeAlreadyClaimed);
-    require!(
-        stake.duration
-            >= u64::try_from(
-                ctx.accounts
-                    .clock
-                    .unix_timestamp
-                    .checked_sub(stake.time_unstake)
-                    .unwrap()
-            )
-            .unwrap(),
+        ctx.accounts.clock.unix_timestamp
+            > stake
+                .time_unstake
+                .checked_add(i64::try_from(stake.duration).unwrap())
+                .unwrap(),
         NosanaError::StakeLocked
     );
 

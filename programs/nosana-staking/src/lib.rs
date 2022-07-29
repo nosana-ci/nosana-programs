@@ -51,4 +51,12 @@ pub mod nosana_staking {
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         claim::handler(ctx)
     }
+
+    pub fn slash(ctx: Context<Slash>, amount: u64) -> Result<()> {
+        slash::handler(ctx, amount)
+    }
+
+    pub fn update_authority(ctx: Context<UpdateSlashAuthority>) -> Result<()> {
+        update_authority::handler(ctx)
+    }
 }

@@ -46,10 +46,6 @@ function buf2hex(buffer) {
   return [...new Uint8Array(buffer)].map((x) => x.toString().padStart(2, '0')).join('');
 }
 
-function timeDelta(t1, t2) {
-  return t1.toNumber() * 1e3 - t2;
-}
-
 async function getOrCreateAssociatedSPL(provider, owner, mint) {
   const ata = await getAssociatedTokenAddress(mint, owner);
   try {
@@ -92,13 +88,9 @@ function setupSolanaUser(connection) {
   };
 }
 
-function calculateXnos(unstakeTime, duration, amount) {
-  const xnosDiv = (365 * 24 * 60 * 60) / 12 * 4;
-  const precision = 1_000_000;
-  if (unstakeTime !== 0) {
-    return 0;
-  }
-  return Math.floor((Math.floor((duration * precision) / xnosDiv + precision) * amount) / precision);
+function calculateXnos(duration, amount) {
+  const xnosDiv = ((365 * 24 * 60 * 60) / 12) * 4;
+  return Math.floor((duration / xnosDiv + 1) * amount);
 }
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -110,7 +102,6 @@ export {
   assertBalancesStaking,
   calculateXnos,
   buf2hex,
-  timeDelta,
   getOrCreateAssociatedSPL,
   getTokenBalance,
   setupSolanaUser,

@@ -1,7 +1,7 @@
 use crate::*;
 
 use anchor_spl::token::{Mint, Token, TokenAccount};
-use nosana_common::nos;
+use nosana_common::{authority, nos};
 
 #[derive(Accounts)]
 pub struct InitVault<'info> {
@@ -14,7 +14,7 @@ pub struct InitVault<'info> {
         payer = authority,
         token::mint = mint,
         token::authority = ata_vault,
-        seeds = [ b"nos", mint.key().as_ref() ],
+        seeds = [ mint.key().as_ref() ],
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
@@ -34,7 +34,7 @@ pub struct InitVault<'info> {
 pub fn handler(ctx: Context<InitVault>) -> Result<()> {
     // init stats account
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.init(*ctx.bumps.get("stats").unwrap());
+    stats.init(*ctx.bumps.get("stats").unwrap(), authority::ID);
 
     // finish
     Ok(())
