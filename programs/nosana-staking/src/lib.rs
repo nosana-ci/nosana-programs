@@ -1,12 +1,11 @@
 mod instructions;
 mod state;
 
-use instructions::*;
-pub use state::*; // expose stake for cpi
-
 use anchor_lang::prelude::*;
+use instructions::*;
 use nosana_common::staking;
 use solana_security_txt::security_txt;
+pub use state::*; // expose stake for cpi
 
 security_txt! {
     name: "Nosana Staking",

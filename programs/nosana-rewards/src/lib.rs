@@ -5,9 +5,7 @@ use anchor_lang::declare_id;
 use anchor_lang::prelude::*;
 use instructions::*;
 use nosana_common::rewards;
-use nosana_staking::program::NosanaStaking;
-use nosana_staking::StakeAccount;
-pub use state::*; // expose stake for cpi
+use state::*;
 
 declare_id!(rewards::ID);
 

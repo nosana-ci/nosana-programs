@@ -1,5 +1,4 @@
 use crate::*;
-
 use anchor_spl::token::{Token, TokenAccount};
 use nosana_common::{nos, transfer_tokens, NosanaError};
 
@@ -7,7 +6,7 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 pub struct Topup<'info> {
     #[account(mut, has_one = authority)]
     pub stake: Box<Account<'info, StakeAccount>>,
-    #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
+    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Box<Account<'info, StatsAccount>>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,

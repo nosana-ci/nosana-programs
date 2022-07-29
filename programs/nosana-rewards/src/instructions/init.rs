@@ -1,7 +1,5 @@
 use crate::*;
-
 use anchor_spl::token::{Mint, Token, TokenAccount};
-
 use nosana_common::nos;
 
 #[derive(Accounts)]
@@ -10,6 +8,8 @@ pub struct Init<'info> {
     pub mint: Box<Account<'info, Mint>>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
+    pub stats: Box<Account<'info, StatsAccount>>,
     #[account(
         init,
         payer = authority,
@@ -19,21 +19,16 @@ pub struct Init<'info> {
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(
-        init,
-        payer = authority,
-        space = STATS_SIZE,
-        seeds = [ b"stats" ],
-        bump,
-    )]
-    pub stats: Box<Account<'info, StatsAccount>>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
 }
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
+    // init stats account
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
     stats.init(*ctx.bumps.get("stats").unwrap());
+
+    // finish
     Ok(())
 }

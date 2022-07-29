@@ -1,11 +1,10 @@
 use crate::*;
-
 use anchor_spl::token::{Token, TokenAccount};
 use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
-    #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
+    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Box<Account<'info, StatsAccount>>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,

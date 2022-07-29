@@ -1,11 +1,11 @@
 use crate::*;
-use nosana_common::{nos, NosanaError};
+use nosana_common::NosanaError;
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
     #[account(mut, has_one = authority)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, seeds = [ b"stats", nos::ID.key().as_ref() ], bump = stats.bump)]
+    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Box<Account<'info, StatsAccount>>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
