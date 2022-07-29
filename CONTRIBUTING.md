@@ -23,4 +23,4 @@ Use the table of contents icon on the top left corner of this document to get to
 ## Getting Started
 
 To navigate our codebase with confidence,
-see the [Introduction to working in the Nosana Programs repository 🎊](./docs/getting-started.md).
+see the [Introduction to working in the Nosana Programs repository 🎊](docs/getting-started.md).

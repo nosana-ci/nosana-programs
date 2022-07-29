@@ -1,6 +1,6 @@
 # Nosana Common
 
-The Nosana Common crate can be found under [./programs/nosana-common](./programs/nosana-common).
+The Nosana Common crate can be found under [./common](common).
 The crate holds a number of re-usable components that are used throughout other Nosana programs.
 These components include:
 
