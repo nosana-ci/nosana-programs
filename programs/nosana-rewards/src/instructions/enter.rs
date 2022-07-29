@@ -23,24 +23,20 @@ pub struct Enter<'info> {
 }
 
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
-    let stake = &ctx.accounts.stake;
-    let stats = &mut ctx.accounts.stats;
-
-    let reward = &mut ctx.accounts.reward;
-    reward.bump = *ctx.bumps.get("reward").unwrap();
-    reward.authority = *ctx.accounts.authority.key;
-
+    // get and check stake
+    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
 
-    let tnos: u128 = u128::from(stake.xnos);
-    let rnos: u128 = stats.tokens_to_reflection(tnos);
+    // init the new reward account, and add reward to stats
+    let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+    reward.init(
+        *ctx.accounts.authority.key,
+        *ctx.bumps.get("reward").unwrap(),
+        stats.add_rewards_account(stake.xnos),
+        stake.xnos,
+    );
 
-    stats.r_total = stats.r_total.checked_add(rnos).unwrap();
-    stats.t_total = stats.t_total.checked_add(tnos).unwrap();
-    stats.update_rate();
-
-    reward.t_owned = tnos;
-    reward.r_owned = rnos;
-
+    // finish
     Ok(())
 }

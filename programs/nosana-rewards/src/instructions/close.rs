@@ -19,9 +19,8 @@ pub struct Close<'info> {
 }
 
 pub fn handler(ctx: Context<Close>) -> Result<()> {
-    let stats = &mut ctx.accounts.stats;
-    let stake = &ctx.accounts.stake;
-    let reward = &mut ctx.accounts.reward;
+    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
+    let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
 
     // TODO: we should also close a reward if the corresponding stake does not
     // exist (after it's closed). is this possible?
@@ -34,9 +33,10 @@ pub fn handler(ctx: Context<Close>) -> Result<()> {
         );
     }
 
-    stats.r_total = stats.r_total.checked_sub(reward.r_owned).unwrap();
-    stats.t_total = stats.t_total.checked_sub(reward.t_owned).unwrap();
-    stats.update_rate();
+    // update stats
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+    stats.remove_rewards_account(reward.reflection, reward.xnos);
 
+    // finish
     Ok(())
 }

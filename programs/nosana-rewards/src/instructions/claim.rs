@@ -24,53 +24,37 @@ pub struct Claim<'info> {
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
-    let stats = &mut ctx.accounts.stats;
-    let stake = &ctx.accounts.stake;
-    let reward = &mut ctx.accounts.reward;
-    let bump: u8 = *ctx.bumps.get("ata_vault").unwrap();
-
-    // check that the stake is still active, and that the stake has
-    // not decreased.
+    // get and check stake + reward account
+    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
+    let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
-    require!(
-        u128::from(stake.xnos) >= reward.t_owned,
-        NosanaError::StakeDecreased
-    );
+    require!(stake.xnos >= reward.xnos, NosanaError::StakeDecreased);
 
-    let towed: u128 = reward.r_owned.checked_div(stats.rate).unwrap();
-    let earned_fees: u128 = towed.checked_sub(reward.t_owned).unwrap();
-
-    stats.r_total = stats.r_total.checked_sub(reward.r_owned).unwrap();
-    stats.t_total = stats
-        .t_total
-        .checked_sub(reward.t_owned)
+    // determine pay-out
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+    let amount: u128 = reward
+        .reflection
+        .checked_div(stats.rate)
         .unwrap()
-        .checked_sub(earned_fees)
+        .checked_sub(reward.xnos)
         .unwrap();
 
-    stats.update_rate();
-
-    let reward_amount: u64 = u64::try_from(earned_fees).ok().unwrap();
-
+    // pay-out tokens
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
-        bump, // we're signing the vault PDA
-        reward_amount,
+        *ctx.bumps.get("ata_vault").unwrap(),
+        u64::try_from(amount).ok().unwrap(),
     )?;
 
-    // re-enter
-    let tnos: u128 = u128::from(stake.xnos);
-    let rnos: u128 = stats.tokens_to_reflection(tnos);
+    // decrease the reflection pool
+    stats.remove_rewards_account(reward.reflection, reward.xnos);
 
-    stats.r_total = stats.r_total.checked_add(rnos).unwrap();
-    stats.t_total = stats.t_total.checked_add(tnos).unwrap();
-    stats.update_rate();
+    // re-enter the pool with the current
+    reward.update(stats.add_rewards_account(stake.xnos), stake.xnos);
 
-    reward.t_owned = tnos;
-    reward.r_owned = rnos;
-
+    // finish
     Ok(())
 }
