@@ -17,7 +17,7 @@ pub fn handler(ctx: Context<Restake>) -> Result<()> {
     require!(stake.time_unstake != 0, NosanaError::StakeAlreadyStaked);
 
     // reset the unstake clock
-    stake.unstake(0_i64);
+    stake.unstake(0);
 
     // update stats and stake
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
