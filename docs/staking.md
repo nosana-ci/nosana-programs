@@ -30,6 +30,24 @@ Performs a top-up of an existing stake.
 - You can only top-up if the `stake` is not unstaked yet
 - A top-up is always for the duration of the original `stake`
 
+### Extend
+
+Extends the duration of a stake.
+The duration can only be increased which will result in a higher xnos.
+
+### Slash
+
+Reduce a stakes NOS tokens.
+This can only be done by the slashing authority declared in ~stats.authority~.
+The tokens that are slashed will be sent to the provided ~ata_to~ account.
+
+Slashing is a feature used by the Nosana protocol to punish bad actors.
+
+### UpdateAuthority
+
+Set the slashing authority in ~stats.authority~ to a new account.
+This can only by called by the current slashing authority.
+
 ### Restake
 
 Undo an unstake. This will make a stake active again and reset the unstake time.
