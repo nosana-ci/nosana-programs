@@ -14,18 +14,14 @@ Library of Solana Programs used in the Nosana network.
 
 ## Index
 
-Three Nosana programs can be found in this repository, together with the Nosana Commons crate.
+Three Nosana programs can be found in this repository, together with the Nosana Common crate.
 
 1. [Nosana Staking](./docs/staking.md)
 2. [Nosana Rewards](./docs/rewards.md)
 3. [Nosana Jobs](./docs/jobs.md)
 4. [Nosana Common](./docs/common.md)
 
-## Development
-
-To start using the code, please read up on our [Anchor](docs/getting-started.md) page.
-
-## Contribute
+## Contribution
 
 See [CONTRIBUTING](CONTRIBUTING.md) guidelines.
 
