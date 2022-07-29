@@ -6,7 +6,7 @@ edition = "2021"
 homepage = "https://nosana.io/"
 authors = ["nosana"]
 license = "MIT"
-keywords = ["solana", "nosana", "cicd", "staking", "anchor"]
+keywords = ["solana", "nosana", "cicd", "rewards", "anchor"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
