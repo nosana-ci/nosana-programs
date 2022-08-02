@@ -9,12 +9,11 @@ pub use state::*; // expose stake for cpi
 
 security_txt! {
     name: "Nosana Staking",
-    project_url: "http://nosana.io",
-    contacts: "email:team@nosana.io,link:https://nosana.io/security,discord:nosana#security",
-    policy: "https://github.com/solana-labs/solana/blob/master/SECURITY.md",
-    preferred_languages: "en",
+    project_url: "https://nosana.io",
+    contacts: "email:security@nosana.io",
+    policy: "https://github.com/nosana-ci/nosana-programs/blob/master/SECURITY.md",
     source_code: "https://github.com/nosana-ci/nosana-programs",
-    auditors: "TBD"
+    auditors: "https://opcodes.fr/en/"
 }
 
 declare_id!(staking::ID);
