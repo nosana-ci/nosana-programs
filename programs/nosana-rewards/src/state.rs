@@ -26,6 +26,17 @@ impl RewardAccount {
         self.reflection = reflection;
         self.xnos = xnos;
     }
+
+    pub fn get_amount(&mut self, rate: u128) -> u64 {
+        u64::try_from(
+            self.reflection
+                .checked_div(rate)
+                .unwrap()
+                .checked_sub(self.xnos)
+                .unwrap(),
+        )
+        .unwrap()
+    }
 }
 
 pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
@@ -46,8 +57,8 @@ impl StatsAccount {
         self.update_rate();
     }
 
-    pub fn add_fee(&mut self, amount: u128) {
-        self.total_xnos += amount;
+    pub fn add_fee(&mut self, xnos: u128) {
+        self.total_xnos += xnos;
         self.update_rate();
     }
 
@@ -67,7 +78,7 @@ impl StatsAccount {
         self.update_rate();
     }
 
-    pub fn update_rate(&mut self) {
+    fn update_rate(&mut self) {
         self.rate = if self.total_xnos == 0 {
             INITIAL_RATE
         } else {

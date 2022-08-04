@@ -11,7 +11,7 @@ pub struct Claim<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
-    #[account(owner = staking::ID)]
+    #[account(owner = staking::ID, has_one = authority)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, seeds = [ b"reward", authority.key().as_ref() ], bump = reward.bump)]
     pub reward: Box<Account<'info, RewardAccount>>,
@@ -21,24 +21,12 @@ pub struct Claim<'info> {
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
-    // get and check stake + reward account
+    // get and check stake, reward, and stats account
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
     let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
     require!(stake.xnos >= reward.xnos, NosanaError::StakeDecreased);
-    require!(
-        stake.authority == ctx.accounts.ata_to.owner,
-        NosanaError::Unauthorized
-    );
-
-    // determine pay-out
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    let amount: u128 = reward
-        .reflection
-        .checked_div(stats.rate)
-        .unwrap()
-        .checked_sub(reward.xnos)
-        .unwrap();
 
     // pay-out tokens
     transfer_tokens(
@@ -47,7 +35,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.ata_to.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         *ctx.bumps.get("ata_vault").unwrap(),
-        u64::try_from(amount).ok().unwrap(),
+        reward.get_amount(stats.rate),
     )?;
 
     // decrease the reflection pool
