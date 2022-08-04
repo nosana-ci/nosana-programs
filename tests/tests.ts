@@ -21,7 +21,7 @@ describe('Nosana SPL', () => {
   const metaplex = Metaplex.make(connection).use(walletOrGuestIdentity(wallet));
 
   // globals variables
-  const nosID = new anchor.web3.PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
+  const nosID = new anchor.web3.PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
   const ipfsData = [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')];
 
   // time

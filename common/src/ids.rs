@@ -19,7 +19,7 @@ pub mod nos {
     #[cfg(feature = "mainnet")]
     declare_id!("nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7");
     #[cfg(not(feature = "mainnet"))]
-    declare_id!("testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp");
+    declare_id!("devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP");
 
     pub const DECIMALS: u64 = 1_000_000;
 }
