@@ -7,17 +7,12 @@ use nosana_staking::StakeAccount;
 pub struct Sync<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(mut)]
-    pub ata_to: Box<Account<'info, TokenAccount>>,
     #[account(owner = staking::ID, has_one=authority)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, seeds = [ b"reward", authority.key().as_ref() ], bump = reward.bump)]
     pub reward: Box<Account<'info, RewardAccount>>,
     #[account(mut)]
-    pub authority: Account<'info>,
-    pub token_program: Program<'info, Token>,
+    pub authority: Account<'info>
 }
 
 pub fn handler(ctx: Context<Sync>) -> Result<()> {
