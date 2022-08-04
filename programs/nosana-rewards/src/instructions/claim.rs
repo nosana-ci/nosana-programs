@@ -11,7 +11,7 @@ pub struct Claim<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
-    #[account(owner = staking::ID, has_one=authority)]
+    #[account(owner = staking::ID)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, seeds = [ b"reward", authority.key().as_ref() ], bump = reward.bump)]
     pub reward: Box<Account<'info, RewardAccount>>,
@@ -26,6 +26,10 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
     require!(stake.xnos >= reward.xnos, NosanaError::StakeDecreased);
+    require!(
+        stake.authority == ctx.accounts.ata_to.owner,
+        NosanaError::Unauthorized
+    );
 
     // determine pay-out
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;

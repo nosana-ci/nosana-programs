@@ -124,6 +124,7 @@ describe('Nosana SPL', () => {
     SolanaSeedsConstraint: 'A seeds constraint was violated',
     SolanaHasOneConstraint: 'A has one constraint was violated',
     SolanaSignature: 'Signature verification failed',
+    SolanaOwnerConstraint: 'An owner constraint was violated',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
 
     Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',

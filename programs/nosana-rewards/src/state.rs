@@ -22,9 +22,9 @@ impl RewardAccount {
         self.xnos = tokens;
     }
 
-    pub fn update(&mut self, reflection: u128, tokens: u128) {
+    pub fn update(&mut self, reflection: u128, xnos: u128) {
         self.reflection = reflection;
-        self.xnos = tokens;
+        self.xnos = xnos;
     }
 }
 
