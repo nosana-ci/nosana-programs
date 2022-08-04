@@ -224,10 +224,10 @@ describe('Nosana SPL', () => {
     NOSANA STAKING SECTION
    */
   describe('Nosana Staking Instructions:', () => {
-    describe('init_vault()', async () => {
+    describe('init()', async () => {
       it('Initialize the staking vault', async () => {
         accounts.ataVault = ata.vaultStaking;
-        await stakingProgram.methods.initVault().accounts(accounts).rpc();
+        await stakingProgram.methods.init().accounts(accounts).rpc();
         await utils.assertBalancesStaking(provider, ata, balances);
       });
     });

@@ -22,8 +22,8 @@ declare_id!(staking::ID);
 pub mod nosana_staking {
     use super::*;
 
-    pub fn init_vault(ctx: Context<InitVault>) -> Result<()> {
-        init_vault::handler(ctx)
+    pub fn init(ctx: Context<Init>) -> Result<()> {
+        init::handler(ctx)
     }
 
     pub fn stake(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
@@ -54,7 +54,7 @@ pub mod nosana_staking {
         slash::handler(ctx, amount)
     }
 
-    pub fn update_authority(ctx: Context<UpdateSlashAuthority>) -> Result<()> {
+    pub fn update_authority(ctx: Context<UpdateAuthority>) -> Result<()> {
         update_authority::handler(ctx)
     }
 }

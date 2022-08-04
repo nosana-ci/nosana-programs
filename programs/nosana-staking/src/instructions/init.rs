@@ -3,7 +3,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 use nosana_common::{authority, nos};
 
 #[derive(Accounts)]
-pub struct InitVault<'info> {
+pub struct Init<'info> {
     #[account(address = nos::ID)]
     pub mint: Box<Account<'info, Mint>>,
     #[account(mut)]
@@ -24,7 +24,7 @@ pub struct InitVault<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<InitVault>) -> Result<()> {
+pub fn handler(ctx: Context<Init>) -> Result<()> {
     // init stats account
     let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
     stats.init(*ctx.bumps.get("stats").unwrap(), authority::ID);
