@@ -6,8 +6,8 @@ import { expect } from 'chai';
 import { TOKEN_PROGRAM_ID, createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { NosanaJobs } from '../target/types/nosana_jobs';
+import { NosanaRewards } from '../target/types/nosana_rewards';
 import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
-import { calculateXnos } from './utils';
 
 describe('Nosana SPL', () => {
   // provider and program
@@ -18,6 +18,7 @@ describe('Nosana SPL', () => {
   const payer = wallet.payer as anchor.web3.Signer;
   const jobsProgram = anchor.workspace.NosanaJobs as anchor.Program<NosanaJobs>;
   const stakingProgram = anchor.workspace.NosanaStaking as anchor.Program<NosanaStaking>;
+  const rewardsProgram = anchor.workspace.NosanaRewards as anchor.Program<NosanaRewards>;
   const metaplex = Metaplex.make(connection).use(walletOrGuestIdentity(wallet));
 
   // globals variables
@@ -38,12 +39,16 @@ describe('Nosana SPL', () => {
   const stakeAmount = 1e4 * decimals;
   const slashAmount = 1e3 * decimals;
   const minimumNodeStake = 1e4 * decimals;
+  const feeAmount = 1e5 * decimals;
+
+  // rate
+  let rate = 1e15;
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection);
   });
-  const [user1, user2, user3, user4, ...otherUsers] = users;
+  const [user1, user2, user3, user4] = users;
   const nodes = _.map(new Array(10), () => {
     return utils.setupSolanaUser(connection);
   });
@@ -54,6 +59,8 @@ describe('Nosana SPL', () => {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
   };
+  const cancelJob = anchor.web3.Keypair.generate();
+  const cancelJobs = anchor.web3.Keypair.generate();
 
   const collection = anchor.web3.Keypair.generate().publicKey;
   const nftConfig = {
@@ -86,6 +93,7 @@ describe('Nosana SPL', () => {
     jobs: signers.jobs.publicKey,
     job: signers.job.publicKey,
     stake: undefined,
+    reward: undefined,
 
     // token and ATAs (tbd)
     mint: undefined,
@@ -131,13 +139,51 @@ describe('Nosana SPL', () => {
   };
 
   // we'll set these later
-  let mint, claimTime, unstakeTime;
-  let xnos = 0;
-  const ata = { user: undefined, vaultJob: undefined, vaultStaking: undefined, nft: undefined };
-  const balances = { user: 0, vaultJob: 0, vaultStaking: 0 };
-  let cancelJob = anchor.web3.Keypair.generate();
-  let cancelJobs = anchor.web3.Keypair.generate();
+  let mint, claimTime;
+  let xnos = 0,
+    totalXnos = 0,
+    totalReflection = 0;
+  const ata = {
+    user: undefined,
+    vaultJob: undefined,
+    vaultStaking: undefined,
+    vaultRewards: undefined,
+    nft: undefined,
+  };
+  const stats = { staking: undefined, rewards: undefined };
+  const balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0 };
 
+  // helper
+  async function updateRewards(stakePubkey, statsPubkey, fee = 0, reflection = new anchor.BN(0)) {
+    const stakeAccount = await stakingProgram.account.stakeAccount.fetch(stakePubkey);
+    const statsAccount = await rewardsProgram.account.statsAccount.fetch(statsPubkey);
+
+    let amount = 0;
+    if (!reflection.eqn(0)) {
+      amount = reflection.div(new anchor.BN(rate)).sub(stakeAccount.xnos).toNumber();
+      totalXnos -= stakeAccount.xnos.toNumber();
+      totalReflection -= Number(reflection.toString());
+    }
+
+    if (fee === 0) {
+      totalXnos += stakeAccount.xnos.toNumber();
+      totalReflection += stakeAccount.xnos.toNumber() * rate;
+    } else {
+      totalXnos += fee;
+      rate = Math.floor(totalReflection / totalXnos);
+    }
+
+    console.log(`           ==> Total Xnos: ${totalXnos}, Total Reflection: ${totalReflection}, Rate: ${rate}`);
+
+    expect(statsAccount.totalXnos.toNumber()).to.equal(totalXnos);
+    expect(statsAccount.rate.toNumber()).to.equal(rate);
+
+    return amount;
+  }
+
+  /*
+    INITIALIZATION SECTION
+   */
   describe('Initialization of mints and ATAs', () => {
     it('Mint $NOS', async () => {
       // create mint
@@ -145,13 +191,22 @@ describe('Nosana SPL', () => {
       // get ATA and bumps of the vaults
       [ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], jobsProgram.programId);
       [ata.vaultStaking] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], stakingProgram.programId);
-      [accounts.stats] = await anchor.web3.PublicKey.findProgramAddress(
+      [ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], rewardsProgram.programId);
+      [stats.staking] = await anchor.web3.PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode('stats')],
         stakingProgram.programId
+      );
+      [stats.rewards] = await anchor.web3.PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode('stats')],
+        rewardsProgram.programId
       );
       [accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), provider.wallet.publicKey.toBuffer()],
         stakingProgram.programId
+      );
+      [accounts.reward] = await anchor.web3.PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode('reward'), provider.wallet.publicKey.toBuffer()],
+        rewardsProgram.programId
       );
       expect(nosID.toString()).to.equal(mint.toString());
     });
@@ -190,6 +245,10 @@ describe('Nosana SPL', () => {
             [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), n.publicKey.toBuffer()],
             stakingProgram.programId
           );
+          [n.reward] = await anchor.web3.PublicKey.findProgramAddress(
+            [anchor.utils.bytes.utf8.encode('reward'), n.publicKey.toBuffer()],
+            rewardsProgram.programId
+          );
         })
       );
       balances.user += mintSupply;
@@ -227,6 +286,7 @@ describe('Nosana SPL', () => {
   describe('Nosana Staking Instructions:', () => {
     describe('init()', async () => {
       it('Initialize the staking vault', async () => {
+        accounts.stats = stats.staking;
         accounts.ataVault = ata.vaultStaking;
         await stakingProgram.methods.init().accounts(accounts).rpc();
         await utils.assertBalancesStaking(provider, ata, balances);
@@ -268,7 +328,7 @@ describe('Nosana SPL', () => {
         balances.user -= stakeAmount;
         balances.vaultStaking += stakeAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos += calculateXnos(stakeDurationMonth, stakeAmount);
+        xnos += utils.calculateXnos(stakeDurationMonth, stakeAmount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -289,7 +349,7 @@ describe('Nosana SPL', () => {
         user4.balance -= stakeAmount;
         balances.vaultStaking += stakeAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos += calculateXnos(stakeDurationYear, stakeAmount);
+        xnos += utils.calculateXnos(stakeDurationYear, stakeAmount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -311,7 +371,7 @@ describe('Nosana SPL', () => {
         node1.balance -= amount;
         balances.vaultStaking += amount;
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos += calculateXnos(stakeDurationMonth, amount);
+        xnos += utils.calculateXnos(stakeDurationMonth, amount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -362,7 +422,7 @@ describe('Nosana SPL', () => {
               .rpc();
             balances.vaultStaking += stakeAmount * 2;
             n.balance -= stakeAmount * 2;
-            xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount * 2);
+            xnos += utils.calculateXnos(stakeDurationMonth * 3, stakeAmount * 2);
             expect(await utils.getTokenBalance(provider, n.ata)).to.equal(n.balance);
           })
         );
@@ -381,8 +441,8 @@ describe('Nosana SPL', () => {
         const accountAfter = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(accountAfter.duration.toNumber()).to.equal(accountBefore.duration.toNumber() + 7);
 
-        xnos -= calculateXnos(stakeDurationMonth, accountAfter.amount.toNumber());
-        xnos += calculateXnos(stakeDurationMonth + 7, accountAfter.amount.toNumber());
+        xnos -= utils.calculateXnos(stakeDurationMonth, accountAfter.amount.toNumber());
+        xnos += utils.calculateXnos(stakeDurationMonth + 7, accountAfter.amount.toNumber());
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -408,8 +468,8 @@ describe('Nosana SPL', () => {
         expect(stake.amount.toNumber()).to.equal(stakeAmount);
 
         // update xnos
-        xnos -= calculateXnos(stakeDurationMonth + 7, stake.amount.toNumber());
-        xnos += calculateXnos(stake.duration.toNumber(), stake.amount.toNumber());
+        xnos -= utils.calculateXnos(stakeDurationMonth + 7, stake.amount.toNumber());
+        xnos += utils.calculateXnos(stake.duration.toNumber(), stake.amount.toNumber());
 
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
@@ -436,7 +496,7 @@ describe('Nosana SPL', () => {
         const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos -= calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
+        xnos -= utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -459,7 +519,7 @@ describe('Nosana SPL', () => {
       it('Restake', async () => {
         await stakingProgram.methods.restake().accounts(accounts).rpc();
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
+        xnos += utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -471,7 +531,7 @@ describe('Nosana SPL', () => {
         balances.user -= stakeAmount;
         balances.vaultStaking += stakeAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos += calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
+        xnos += utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -535,8 +595,8 @@ describe('Nosana SPL', () => {
         balances.user += slashAmount;
         balances.vaultStaking -= slashAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
-        xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
+        xnos -= utils.calculateXnos(stakeDurationMonth * 3, stakeAmount);
+        xnos += utils.calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -589,8 +649,8 @@ describe('Nosana SPL', () => {
         balances.user += slashAmount;
         balances.vaultStaking -= slashAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
-        xnos -= calculateXnos(stakeDurationMonth * 3, stakeAmount);
-        xnos += calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
+        xnos -= utils.calculateXnos(stakeDurationMonth * 3, stakeAmount);
+        xnos += utils.calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,
           'xnos'
@@ -605,6 +665,108 @@ describe('Nosana SPL', () => {
           .rpc();
         const stats = await stakingProgram.account.statsAccount.fetch(accounts.stats);
         expect(stats.authority.toString()).to.equal(accounts.authority.toString());
+      });
+    });
+  });
+
+  /*
+    NOSANA REWARDS SECTION
+   */
+  describe('Nosana Rewards Instructions:', () => {
+    describe('init()', async () => {
+      it('Initialize the rewards vault', async () => {
+        accounts.stats = stats.rewards;
+        accounts.ataVault = ata.vaultRewards;
+        await rewardsProgram.methods.init().accounts(accounts).rpc();
+        const data = await rewardsProgram.account.statsAccount.fetch(accounts.stats);
+        expect(data.totalXnos.toNumber()).to.equal(totalXnos);
+        expect(data.totalReflection.toNumber()).to.equal(totalReflection);
+        expect(data.rate.toNumber()).to.equal(rate);
+        await utils.assertBalancesRewards(provider, ata, balances);
+      });
+    });
+
+    describe('enter()', async () => {
+      it('Initialize rewards account', async () => {
+        await rewardsProgram.methods.enter().accounts(accounts).rpc();
+        await updateRewards(accounts.stake, accounts.stats);
+      });
+
+      it('Initialize other reward account', async () => {
+        for (const node of otherNodes) {
+          await rewardsProgram.methods
+            .enter()
+            .accounts({ ...accounts, stake: node.stake, reward: node.reward, authority: node.publicKey })
+            .signers([node.user])
+            .rpc();
+          await updateRewards(node.stake, accounts.stats);
+        }
+      });
+    });
+
+    describe('add_fee()', async () => {
+      it('Add fees to the pool', async () => {
+        await rewardsProgram.methods.addFee(new anchor.BN(feeAmount)).accounts(accounts).rpc();
+        await updateRewards(accounts.stake, accounts.stats, feeAmount);
+        balances.user -= feeAmount;
+        balances.vaultRewards += feeAmount;
+        await utils.assertBalancesRewards(provider, ata, balances);
+      });
+    });
+
+    describe('claim()', async () => {
+      it('Claim rewards', async () => {
+        const reflection = (await rewardsProgram.account.rewardAccount.fetch(accounts.reward)).reflection;
+        await rewardsProgram.methods.claim().accounts(accounts).rpc();
+        const amount = await updateRewards(accounts.stake, accounts.stats, 0, reflection);
+        balances.user += amount;
+        balances.vaultRewards -= amount;
+        await utils.assertBalancesRewards(provider, ata, balances);
+      });
+
+      it('Claim other rewards', async () => {
+        for (const node of otherNodes) {
+          const reflection = (await rewardsProgram.account.rewardAccount.fetch(node.reward)).reflection;
+          const amount = await updateRewards(node.stake, accounts.stats, 0, reflection);
+          console.log('amount: ', amount);
+          await rewardsProgram.methods
+            .claim()
+            .accounts({
+              ...accounts,
+              stake: node.stake,
+              reward: node.reward,
+              authority: node.publicKey,
+              ataTo: node.ata,
+            })
+            .signers([node.user])
+            .rpc();
+          node.balance += amount;
+          balances.vaultRewards -= amount;
+          await utils.assertBalancesRewards(provider, ata, balances);
+        }
+        expect(await utils.getTokenBalance(provider, ata.vaultRewards)).to.be.closeTo(0, 100, 'vault is empty');
+      });
+    });
+
+    describe('close()', async () => {
+      it('Close reward account', async () => {
+        await rewardsProgram.methods.close().accounts(accounts).rpc();
+        await utils.assertBalancesRewards(provider, ata, balances);
+      });
+
+      it('Close other accounts', async () => {
+        for (const node of otherNodes) {
+          await rewardsProgram.methods
+            .close()
+            .accounts({
+              ...accounts,
+              reward: node.reward,
+              stake: node.stake,
+              authority: node.publicKey,
+            })
+            .signers([node.user])
+            .rpc();
+        }
       });
     });
   });

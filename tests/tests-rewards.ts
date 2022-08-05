@@ -16,7 +16,9 @@ import { NosanaRewards } from '../target/types/nosana_rewards';
 
 const { BN } = anchor;
 
-const bn = (n) => { return new BN(n); };
+const bn = (n) => {
+  return new BN(n);
+};
 
 describe('Nosana Rewards', () => {
   // provider and program
@@ -81,8 +83,18 @@ describe('Nosana Rewards', () => {
     SeedsConstraint: 'A seeds constraint was violated',
   };
 
-  let mint, bumpStaking, bumpRewards, statsStaking, statsRewards = null;
-  const ata = { user: undefined, vaultJob: undefined, vaultStaking: undefined, vaultRewards: undefined, nft: undefined };
+  let mint,
+    bumpStaking,
+    bumpRewards,
+    statsStaking,
+    statsRewards = null;
+  const ata = {
+    user: undefined,
+    vaultJob: undefined,
+    vaultStaking: undefined,
+    vaultRewards: undefined,
+    nft: undefined,
+  };
 
   const initialRate = 12736648300;
 
@@ -102,15 +114,17 @@ describe('Nosana Rewards', () => {
       })
       .signers([u.user])
       .rpc();
-  }
+  };
   const enterRewards = async (u) => {
-    await rewardsProgram.methods.enter()
-      .accounts({...accounts,stake: u.stake,reward: u.reward,authority: u.publicKey})
+    await rewardsProgram.methods
+      .enter()
+      .accounts({ ...accounts, stake: u.stake, reward: u.reward, authority: u.publicKey })
       .signers([u.user])
       .rpc();
-  }
+  };
   const claimRewards = async (user) => {
-    await rewardsProgram.methods.claim()
+    await rewardsProgram.methods
+      .claim()
       .accounts({
         ...accounts,
         ataTo: user.ata,
@@ -122,35 +136,34 @@ describe('Nosana Rewards', () => {
       })
       .signers([user.user])
       .rpc();
-  }
+  };
 
   before(async () => {
     accounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
     accounts.ataFrom =
       accounts.ataTo =
       ata.user =
-      await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
+        await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
 
     [ata.vaultStaking] = await anchor.web3.PublicKey.findProgramAddress(
-      [anchor.utils.bytes.utf8.encode('nos'), mint.toBuffer()], stakingProgram.programId
+      [anchor.utils.bytes.utf8.encode('nos'), mint.toBuffer()],
+      stakingProgram.programId
     );
-    [ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress(
-      [mint.toBuffer()], rewardsProgram.programId
-    );
+    [ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], rewardsProgram.programId);
     [statsStaking] = await anchor.web3.PublicKey.findProgramAddress(
-      [anchor.utils.bytes.utf8.encode('stats'), mint.toBuffer()], stakingProgram.programId
+      [anchor.utils.bytes.utf8.encode('stats'), mint.toBuffer()],
+      stakingProgram.programId
     );
     [statsRewards] = await anchor.web3.PublicKey.findProgramAddress(
-      [anchor.utils.bytes.utf8.encode('stats')], rewardsProgram.programId
+      [anchor.utils.bytes.utf8.encode('stats')],
+      rewardsProgram.programId
     );
 
     // fund users
     await utils.mintToAccount(provider, mint, ata.user, mintSupply);
     await Promise.all(
       users.map(async (u) => {
-        await connection.confirmTransaction(
-          await connection.requestAirdrop(u.publicKey, anchor.web3.LAMPORTS_PER_SOL)
-        );
+        await connection.confirmTransaction(await connection.requestAirdrop(u.publicKey, anchor.web3.LAMPORTS_PER_SOL));
         u.ata = await utils.getOrCreateAssociatedSPL(u.provider, u.publicKey, mint);
         await utils.mintToAccount(provider, mint, u.ata, userSupply);
         u.balance = userSupply;
@@ -166,7 +179,10 @@ describe('Nosana Rewards', () => {
     );
 
     // init staking
-    await stakingProgram.methods.initVault().accounts({...accounts, ataVault: ata.vaultStaking, stats: statsStaking}).rpc();
+    await stakingProgram.methods
+      .initVault()
+      .accounts({ ...accounts, ataVault: ata.vaultStaking, stats: statsStaking })
+      .rpc();
     await stake(bob, 7500);
     await stake(alice, 2500);
     await stake(carol, 16000);
@@ -184,7 +200,10 @@ describe('Nosana Rewards', () => {
   // TEST CASES
   //======
   it('can initialize', async () => {
-    await rewardsProgram.methods.init().accounts({...accounts}).rpc();
+    await rewardsProgram.methods
+      .init()
+      .accounts({ ...accounts })
+      .rpc();
     const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
     expect(account.rTotal.eq(bn(0))).to.be.true;
     expect(account.tTotal.eq(bn(0))).to.be.true;
@@ -201,19 +220,29 @@ describe('Nosana Rewards', () => {
   });
 
   it('can add fees to the pool', async () => {
-    await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
+    await rewardsProgram.methods
+      .addFee(bn(600 * decimals))
+      .accounts(accounts)
+      .rpc();
     const account = await rewardsProgram.account.statsAccount.fetch(statsRewards);
   });
 
-  const getbal = async (ata) => { return await utils.getTokenBalance(provider, ata) };
-  const getbals = async (atas) => { return await Promise.all(
-    atas.map(async (ata) => { return await getbal(ata); })
-  )};
+  const getbal = async (ata) => {
+    return await utils.getTokenBalance(provider, ata);
+  };
+  const getbals = async (atas) => {
+    return await Promise.all(
+      atas.map(async (ata) => {
+        return await getbal(ata);
+      })
+    );
+  };
 
   it('can claim all rewards alone', async () => {
     const nosBefore = await getbal(bob.ata);
 
-    await rewardsProgram.methods.claim()
+    await rewardsProgram.methods
+      .claim()
       .accounts({
         ...accounts,
         ataTo: bob.ata,
@@ -241,8 +270,15 @@ describe('Nosana Rewards', () => {
   describe('closing', async () => {
     it('can not close others rewards', async () => {
       let msg = '';
-      await rewardsProgram.methods.close()
-        .accounts({...accounts, authority: alice.publicKey, reward: bob.reward, staker: bob.publicKey, stake: bob.stake})
+      await rewardsProgram.methods
+        .close()
+        .accounts({
+          ...accounts,
+          authority: alice.publicKey,
+          reward: bob.reward,
+          staker: bob.publicKey,
+          stake: bob.stake,
+        })
         .signers([alice.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -251,8 +287,15 @@ describe('Nosana Rewards', () => {
 
     it('can close own rewards', async () => {
       let msg = '';
-      await rewardsProgram.methods.close()
-        .accounts({...accounts, authority: bob.publicKey, reward: bob.reward, stake: bob.stake, staker: bob.publicKey})
+      await rewardsProgram.methods
+        .close()
+        .accounts({
+          ...accounts,
+          authority: bob.publicKey,
+          reward: bob.reward,
+          stake: bob.stake,
+          staker: bob.publicKey,
+        })
         .signers([bob.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -274,24 +317,35 @@ describe('Nosana Rewards', () => {
     // => Add 600 NOS in fees.
     // ==> Now: Bob + 450 and Alice + 150
     it('can split rewards between 3 parties', async () => {
-      let bobNosBefore, aliceNosBefore, carolNosBefore, bobNosAfter, aliceNosAfter, carolNosAfter = 0;
+      let bobNosBefore,
+        aliceNosBefore,
+        carolNosBefore,
+        bobNosAfter,
+        aliceNosAfter,
+        carolNosAfter = 0;
 
       [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
 
       // Let 2 users enter with 600 rewards
       await enterRewards(bob);
       await enterRewards(alice);
-      await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
+      await rewardsProgram.methods
+        .addFee(bn(600 * decimals))
+        .accounts(accounts)
+        .rpc();
 
       // Check the 600 is split correctly
       await claimRewards(bob);
       await claimRewards(alice);
       [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
-      expect(bobNosAfter).to.equal(bobNosBefore + (450 * decimals));
-      expect(aliceNosAfter).to.equal(aliceNosBefore + (150 * decimals));
+      expect(bobNosAfter).to.equal(bobNosBefore + 450 * decimals);
+      expect(aliceNosAfter).to.equal(aliceNosBefore + 150 * decimals);
 
       // Distribute the 600 again, then enter a 3rd with
-      await rewardsProgram.methods.addFee(bn(600 * decimals)).accounts(accounts).rpc();
+      await rewardsProgram.methods
+        .addFee(bn(600 * decimals))
+        .accounts(accounts)
+        .rpc();
       await enterRewards(carol);
 
       // Now tOwned:
@@ -299,23 +353,24 @@ describe('Nosana Rewards', () => {
       // - alice:  250*1.25 + 150   = 450    (= 0.12097)
       // - carol: 1600*1.25         = 1920   (= 0.51613)
       // Now add 1000 fees
-      let [bob1, alice1, carol1] = [ 7500 * 1.25 + 450,
-                                     2500 * 1.25 + 150,
-                                     16000 * 1.25];
+      let [bob1, alice1, carol1] = [7500 * 1.25 + 450, 2500 * 1.25 + 150, 16000 * 1.25];
       let tot = bob1 + alice1 + carol1;
       let [bobShare, aliceShare, carolShare] = [bob1 / tot, alice1 / tot, carol1 / tot];
 
       [bobNosBefore, aliceNosBefore, carolNosBefore] = await getbals([bob.ata, alice.ata, carol.ata]);
-      await rewardsProgram.methods.addFee(bn(1000 * decimals)).accounts(accounts).rpc();
+      await rewardsProgram.methods
+        .addFee(bn(1000 * decimals))
+        .accounts(accounts)
+        .rpc();
       await claimRewards(bob);
       await claimRewards(alice);
       await claimRewards(carol);
 
       // Check the the 600 is split between 2, and the 1000 between 3
       [bobNosAfter, aliceNosAfter, carolNosAfter] = await getbals([bob.ata, alice.ata, carol.ata]);
-      expect(bobNosAfter).to.equal(Math.round(bobNosBefore + (450 * decimals) + (bobShare * 1000 * decimals)));
-      expect(aliceNosAfter).to.equal(Math.round(aliceNosBefore + (150 * decimals) + (aliceShare * 1000 * decimals)));
-      expect(carolNosAfter).to.equal(Math.round(carolNosBefore + (carolShare * 1000 * decimals)));
+      expect(bobNosAfter).to.equal(Math.round(bobNosBefore + 450 * decimals + bobShare * 1000 * decimals));
+      expect(aliceNosAfter).to.equal(Math.round(aliceNosBefore + 150 * decimals + aliceShare * 1000 * decimals));
+      expect(carolNosAfter).to.equal(Math.round(carolNosBefore + carolShare * 1000 * decimals));
     });
   });
 });

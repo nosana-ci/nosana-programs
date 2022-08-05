@@ -22,12 +22,11 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
         NosanaError::Unauthorized
     );
 
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-
     // decrease the reflection pool
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
-    // re-enter the pool with the current
+    // re-enter the pool with the current stake
     let amount: u128 = u128::from(reward.get_amount(stats.rate));
     reward.update(stats.add_rewards_account(stake.xnos, amount), stake.xnos);
 
