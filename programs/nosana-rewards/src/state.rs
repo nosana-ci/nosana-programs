@@ -62,8 +62,8 @@ impl StatsAccount {
         self.update_rate();
     }
 
-    pub fn add_rewards_account(&mut self, xnos: u128) -> u128 {
-        let reflection: u128 = self.xnos_to_reflection(xnos);
+    pub fn add_rewards_account(&mut self, xnos: u128, reward_xnos: u128) -> u128 {
+        let reflection: u128 = self.xnos_to_reflection(xnos + reward_xnos);
 
         self.total_xnos += xnos;
         self.total_reflection += reflection;

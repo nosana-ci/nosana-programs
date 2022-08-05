@@ -42,7 +42,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
     // re-enter the pool with the current
-    reward.update(stats.add_rewards_account(stake.xnos), stake.xnos);
+    reward.update(stats.add_rewards_account(stake.xnos, 0), stake.xnos);
 
     // finish
     Ok(())

@@ -32,7 +32,7 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
     reward.init(
         *ctx.accounts.authority.key,
         *ctx.bumps.get("reward").unwrap(),
-        stats.add_rewards_account(stake.xnos),
+        stats.add_rewards_account(stake.xnos, 0),
         stake.xnos,
     );
 

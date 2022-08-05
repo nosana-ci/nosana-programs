@@ -29,6 +29,10 @@ pub mod nosana_rewards {
         claim::handler(ctx)
     }
 
+    pub fn sync(ctx: Context<Sync>) -> Result<()> {
+        sync::handler(ctx)
+    }
+
     pub fn close(ctx: Context<Close>) -> Result<()> {
         close::handler(ctx)
     }
