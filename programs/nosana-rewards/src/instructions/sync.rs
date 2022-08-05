@@ -21,19 +21,14 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
         stake.authority == reward.authority,
         NosanaError::Unauthorized
     );
-    // determine current pending pay-out
+
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    let amount: u128 = reward
-        .reflection
-        .checked_div(stats.rate)
-        .unwrap()
-        .checked_sub(reward.xnos)
-        .unwrap();
 
     // decrease the reflection pool
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
     // re-enter the pool with the current
+    let amount: u128 = u128::from(reward.get_amount(stats.rate));
     reward.update(stats.add_rewards_account(stake.xnos, amount), stake.xnos);
 
     // finish
