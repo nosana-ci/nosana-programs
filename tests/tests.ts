@@ -42,7 +42,7 @@ describe('Nosana SPL', () => {
   const feeAmount = 1e5 * decimals;
 
   // rate
-  let rate = 1e15;
+  let rate = new anchor.BN(1e15);
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
@@ -141,8 +141,8 @@ describe('Nosana SPL', () => {
   // we'll set these later
   let mint, claimTime;
   let xnos = 0,
-    totalXnos = 0,
-    totalReflection = 0;
+    totalXnos = new anchor.BN(0),
+    totalReflection = new anchor.BN(0);
   const ata = {
     user: undefined,
     vaultJob: undefined,
@@ -160,23 +160,24 @@ describe('Nosana SPL', () => {
 
     let amount = 0;
     if (!reflection.eqn(0)) {
-      amount = reflection.div(new anchor.BN(rate)).sub(stakeAccount.xnos).toNumber();
-      totalXnos -= stakeAccount.xnos.toNumber();
-      totalReflection -= Number(reflection.toString());
+      amount = reflection.div(rate).sub(stakeAccount.xnos).toNumber();
+      totalXnos = totalXnos.sub(stakeAccount.xnos);
+      totalReflection = totalReflection.sub(reflection);
     }
 
-    if (fee === 0) {
-      totalXnos += stakeAccount.xnos.toNumber();
-      totalReflection += stakeAccount.xnos.toNumber() * rate;
+    if (fee !== 0) {
+      totalXnos = totalXnos.add(new anchor.BN(fee));
+      rate = totalReflection.div(totalXnos);
     } else {
-      totalXnos += fee;
-      rate = Math.floor(totalReflection / totalXnos);
+      totalXnos = totalXnos.add(stakeAccount.xnos);
+      totalReflection = totalReflection.add(stakeAccount.xnos.mul(rate));
     }
 
     console.log(`           ==> Total Xnos: ${totalXnos}, Total Reflection: ${totalReflection}, Rate: ${rate}`);
 
-    expect(statsAccount.totalXnos.toNumber()).to.equal(totalXnos);
-    expect(statsAccount.rate.toNumber()).to.equal(rate);
+    expect(statsAccount.totalXnos.toString()).to.equal(totalXnos.toString(), 'Total XNOS error');
+    expect(statsAccount.totalReflection.toString()).to.equal(totalReflection.toString(), 'Total reflection error');
+    expect(statsAccount.rate.toString()).to.equal(rate.toString(), 'Rate error');
 
     return amount;
   }
@@ -679,9 +680,9 @@ describe('Nosana SPL', () => {
         accounts.ataVault = ata.vaultRewards;
         await rewardsProgram.methods.init().accounts(accounts).rpc();
         const data = await rewardsProgram.account.statsAccount.fetch(accounts.stats);
-        expect(data.totalXnos.toNumber()).to.equal(totalXnos);
-        expect(data.totalReflection.toNumber()).to.equal(totalReflection);
-        expect(data.rate.toNumber()).to.equal(rate);
+        expect(data.totalXnos.toString()).to.equal(totalXnos.toString());
+        expect(data.totalReflection.toString()).to.equal(totalReflection.toString());
+        expect(data.rate.toString()).to.equal(rate.toString());
         await utils.assertBalancesRewards(provider, ata, balances);
       });
     });
@@ -727,8 +728,6 @@ describe('Nosana SPL', () => {
       it('Claim other rewards', async () => {
         for (const node of otherNodes) {
           const reflection = (await rewardsProgram.account.rewardAccount.fetch(node.reward)).reflection;
-          const amount = await updateRewards(node.stake, accounts.stats, 0, reflection);
-          console.log('amount: ', amount);
           await rewardsProgram.methods
             .claim()
             .accounts({
@@ -740,11 +739,90 @@ describe('Nosana SPL', () => {
             })
             .signers([node.user])
             .rpc();
+          const amount = await updateRewards(node.stake, accounts.stats, 0, reflection);
           node.balance += amount;
           balances.vaultRewards -= amount;
           await utils.assertBalancesRewards(provider, ata, balances);
         }
         expect(await utils.getTokenBalance(provider, ata.vaultRewards)).to.be.closeTo(0, 100, 'vault is empty');
+      });
+    });
+
+    describe('sync()', async () => {
+      it('Add more fees to the pool', async () => {
+        await rewardsProgram.methods.addFee(new anchor.BN(feeAmount)).accounts(accounts).rpc();
+        await updateRewards(accounts.stake, accounts.stats, feeAmount);
+        balances.user -= feeAmount;
+        balances.vaultRewards += feeAmount;
+        await utils.assertBalancesRewards(provider, ata, balances);
+      });
+
+      it('Topup stake', async () => {
+        await stakingProgram.methods
+          .topup(new anchor.BN(stakeAmount))
+          .accounts({
+            ...accounts,
+            stats: stats.staking,
+            ataVault: ata.vaultStaking,
+          })
+          .rpc();
+        balances.user -= stakeAmount;
+        balances.vaultStaking += stakeAmount;
+        await utils.assertBalancesStaking(provider, ata, balances);
+        xnos += utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount);
+        expect((await stakingProgram.account.statsAccount.fetch(stats.staking)).xnos.toNumber()).to.equal(xnos, 'xnos');
+        expect((await stakingProgram.account.stakeAccount.fetch(accounts.stake)).xnos.toNumber()).to.equal(
+          utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount) * 3
+        );
+      });
+
+      it('Sync reward reflection', async () => {
+        const before = await rewardsProgram.account.rewardAccount.fetch(accounts.reward);
+        await rewardsProgram.methods.sync().accounts(accounts).rpc();
+        const after = await rewardsProgram.account.rewardAccount.fetch(accounts.reward);
+        const stake = (await stakingProgram.account.stakeAccount.fetch(accounts.stake)).xnos.toNumber();
+
+        expect(before.xnos.toNumber()).to.be.lessThan(after.xnos.toNumber());
+        expect(after.xnos.toNumber()).to.equal(stake);
+        expect(after.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount) * 3);
+
+        totalXnos = totalXnos.add(after.xnos.sub(before.xnos));
+        totalReflection = totalReflection.sub(before.reflection);
+        const reflection = after.xnos.add(before.reflection.div(new anchor.BN(rate)).sub(before.xnos)).mul(rate);
+        totalReflection = totalReflection.add(reflection);
+
+        expect(reflection.toString()).to.equal(after.reflection.toString());
+
+        const rewardsAccount = await rewardsProgram.account.statsAccount.fetch(stats.rewards);
+
+        expect(rewardsAccount.totalXnos.toString()).to.equal(totalXnos.toString(), 'Total XNOS error');
+        expect(rewardsAccount.totalReflection.toString()).to.equal(
+          totalReflection.toString(),
+          'Total reflection error'
+        );
+        expect(rewardsAccount.rate.toString()).to.equal(rate.toString(), 'Rate error');
+      });
+
+      it('Add another round of fees to the pool', async () => {
+        await rewardsProgram.methods.addFee(new anchor.BN(feeAmount)).accounts(accounts).rpc();
+        await updateRewards(accounts.stake, accounts.stats, feeAmount);
+        balances.user -= feeAmount;
+        balances.vaultRewards += feeAmount;
+        await utils.assertBalancesRewards(provider, ata, balances);
+      });
+
+      it('Sync reward reflection for others', async () => {
+        for (const node of otherNodes) {
+          const before = await rewardsProgram.account.rewardAccount.fetch(node.reward);
+          await rewardsProgram.methods
+            .sync()
+            .accounts({ ...accounts, stake: node.stake, reward: node.reward })
+            .rpc();
+          const after = await rewardsProgram.account.rewardAccount.fetch(node.reward);
+          const stake = await stakingProgram.account.stakeAccount.fetch(node.stake);
+          expect(before.xnos.toNumber()).to.equal(after.xnos.toNumber());
+          expect(stake.xnos.toNumber()).to.equal(after.xnos.toNumber());
+        }
       });
     });
 
