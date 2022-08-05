@@ -154,23 +154,23 @@ describe('Nosana SPL', () => {
   const balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0 };
 
   // helper
-  async function updateRewards(stakePubkey, statsPubkey, fee = 0, reflection = new anchor.BN(0)) {
+  async function updateRewards(stakePubkey, statsPubkey, fee = new anchor.BN(0), reflection = new anchor.BN(0)) {
     const stakeAccount = await stakingProgram.account.stakeAccount.fetch(stakePubkey);
     const statsAccount = await rewardsProgram.account.statsAccount.fetch(statsPubkey);
 
     let amount = 0;
     if (!reflection.eqn(0)) {
       amount = reflection.div(rate).sub(stakeAccount.xnos).toNumber();
-      totalXnos = totalXnos.sub(stakeAccount.xnos);
-      totalReflection = totalReflection.sub(reflection);
+      totalXnos.isub(stakeAccount.xnos);
+      totalReflection.isub(reflection);
     }
 
-    if (fee !== 0) {
-      totalXnos = totalXnos.add(new anchor.BN(fee));
+    if (!fee.eqn(0)) {
+      totalXnos.iadd(fee);
       rate = totalReflection.div(totalXnos);
     } else {
-      totalXnos = totalXnos.add(stakeAccount.xnos);
-      totalReflection = totalReflection.add(stakeAccount.xnos.mul(rate));
+      totalXnos.iadd(stakeAccount.xnos);
+      totalReflection.iadd(stakeAccount.xnos.mul(rate));
     }
 
     console.log(`           ==> Total Xnos: ${totalXnos}, Total Reflection: ${totalReflection}, Rate: ${rate}`);
@@ -708,7 +708,7 @@ describe('Nosana SPL', () => {
     describe('add_fee()', async () => {
       it('Add fees to the pool', async () => {
         await rewardsProgram.methods.addFee(new anchor.BN(feeAmount)).accounts(accounts).rpc();
-        await updateRewards(accounts.stake, accounts.stats, feeAmount);
+        await updateRewards(accounts.stake, accounts.stats, new anchor.BN(feeAmount));
         balances.user -= feeAmount;
         balances.vaultRewards += feeAmount;
         await utils.assertBalancesRewards(provider, ata, balances);
@@ -719,7 +719,7 @@ describe('Nosana SPL', () => {
       it('Claim rewards', async () => {
         const reflection = (await rewardsProgram.account.rewardAccount.fetch(accounts.reward)).reflection;
         await rewardsProgram.methods.claim().accounts(accounts).rpc();
-        const amount = await updateRewards(accounts.stake, accounts.stats, 0, reflection);
+        const amount = await updateRewards(accounts.stake, accounts.stats, new anchor.BN(0), reflection);
         balances.user += amount;
         balances.vaultRewards -= amount;
         await utils.assertBalancesRewards(provider, ata, balances);
@@ -739,7 +739,7 @@ describe('Nosana SPL', () => {
             })
             .signers([node.user])
             .rpc();
-          const amount = await updateRewards(node.stake, accounts.stats, 0, reflection);
+          const amount = await updateRewards(node.stake, accounts.stats, new anchor.BN(0), reflection);
           node.balance += amount;
           balances.vaultRewards -= amount;
           await utils.assertBalancesRewards(provider, ata, balances);
@@ -751,7 +751,7 @@ describe('Nosana SPL', () => {
     describe('sync()', async () => {
       it('Add more fees to the pool', async () => {
         await rewardsProgram.methods.addFee(new anchor.BN(feeAmount)).accounts(accounts).rpc();
-        await updateRewards(accounts.stake, accounts.stats, feeAmount);
+        await updateRewards(accounts.stake, accounts.stats, new anchor.BN(feeAmount));
         balances.user -= feeAmount;
         balances.vaultRewards += feeAmount;
         await utils.assertBalancesRewards(provider, ata, balances);
@@ -786,10 +786,10 @@ describe('Nosana SPL', () => {
         expect(after.xnos.toNumber()).to.equal(stake);
         expect(after.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount) * 3);
 
-        totalXnos = totalXnos.add(after.xnos.sub(before.xnos));
-        totalReflection = totalReflection.sub(before.reflection);
+        totalXnos.iadd(after.xnos.sub(before.xnos));
+        totalReflection.isub(before.reflection);
         const reflection = after.xnos.add(before.reflection.div(new anchor.BN(rate)).sub(before.xnos)).mul(rate);
-        totalReflection = totalReflection.add(reflection);
+        totalReflection.iadd(reflection);
 
         expect(reflection.toString()).to.equal(after.reflection.toString());
 
@@ -805,7 +805,7 @@ describe('Nosana SPL', () => {
 
       it('Add another round of fees to the pool', async () => {
         await rewardsProgram.methods.addFee(new anchor.BN(feeAmount)).accounts(accounts).rpc();
-        await updateRewards(accounts.stake, accounts.stats, feeAmount);
+        await updateRewards(accounts.stake, accounts.stats, new anchor.BN(feeAmount));
         balances.user -= feeAmount;
         balances.vaultRewards += feeAmount;
         await utils.assertBalancesRewards(provider, ata, balances);
