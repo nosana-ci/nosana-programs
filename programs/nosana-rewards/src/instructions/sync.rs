@@ -1,5 +1,5 @@
 use crate::*;
-use nosana_common::{nos, staking, reward, NosanaError};
+use nosana_common::{rewards, staking, NosanaError};
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
@@ -8,14 +8,14 @@ pub struct Sync<'info> {
     pub stats: Account<'info, StatsAccount>,
     #[account(owner = staking::ID)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, owner = reward::ID)]
-    pub reward: Box<Account<'info, RewardAccount>>
+    #[account(mut, owner = rewards::ID)]
+    pub reward: Account<'info, RewardAccount>,
 }
 
 pub fn handler(ctx: Context<Sync>) -> Result<()> {
     // get and check stake + reward account
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
-    let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
+    let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
     require!(
         stake.authority == reward.authority,
