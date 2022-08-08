@@ -10,8 +10,8 @@ pub struct Slash<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, has_one = authority)]
-    pub stats: Box<Account<'info, StatsAccount>>,
+    #[account(mut, owner = staking::ID, has_one = authority)]
+    pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
@@ -32,7 +32,7 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     )?;
 
     // update stats and stake
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
     stats.sub(stake.xnos);
     stake.slash(amount);
     stats.add(stake.xnos);
