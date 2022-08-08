@@ -8,7 +8,6 @@ pub struct Restake<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Box<Account<'info, StatsAccount>>,
     pub authority: Signer<'info>,
-    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<Restake>) -> Result<()> {

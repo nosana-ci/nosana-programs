@@ -1,6 +1,6 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, NosanaError};
+use anchor_spl::token::Token;
+use nosana_common::NosanaError;
 
 #[derive(Accounts)]
 pub struct Extend<'info> {
@@ -8,10 +8,6 @@ pub struct Extend<'info> {
     pub stake: Box<Account<'info, StakeAccount>>,
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Box<Account<'info, StatsAccount>>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(mut)]
-    pub ata_from: Box<Account<'info, TokenAccount>>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
