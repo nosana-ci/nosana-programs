@@ -130,6 +130,7 @@ describe('Nosana SPL', () => {
     StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This stake duration is too long.',
 
     SolanaSeedsConstraint: 'A seeds constraint was violated',
+    SolanaRawConstraint: 'A raw constraint was violated',
     SolanaHasOneConstraint: 'A has one constraint was violated',
     SolanaSignature: 'Signature verification failed',
     SolanaOwnerConstraint: 'An owner constraint was violated',
@@ -212,7 +213,7 @@ describe('Nosana SPL', () => {
       expect(nosID.toString()).to.equal(mint.toString());
     });
 
-    it(`Create users ATAs and mint NOS tokens`, async () => {
+    it('Create users ATAs and mint NOS tokens', async () => {
       // create associated token accounts
       accounts.ataFrom =
         accounts.ataTo =
@@ -688,12 +689,22 @@ describe('Nosana SPL', () => {
     });
 
     describe('enter()', async () => {
-      it('Initialize rewards account', async () => {
+      it('Enter rewards pool with other stake', async () => {
+        let msg = '';
+        await rewardsProgram.methods
+          .enter()
+          .accounts({ ...accounts, stake: node1.stake })
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.SolanaHasOneConstraint);
+      });
+
+      it('Enter rewards pool with main wallet', async () => {
         await rewardsProgram.methods.enter().accounts(accounts).rpc();
         await updateRewards(accounts.stake, accounts.stats);
       });
 
-      it('Initialize other reward account', async () => {
+      it('Enter rewards with the other nodes', async () => {
         for (const node of otherNodes) {
           await rewardsProgram.methods
             .enter()
@@ -774,6 +785,16 @@ describe('Nosana SPL', () => {
         expect((await stakingProgram.account.stakeAccount.fetch(accounts.stake)).xnos.toNumber()).to.equal(
           utils.calculateXnos(stakeDurationMonth * 2 + 7, stakeAmount) * 3
         );
+      });
+
+      it('Sync reward reflection for wrong accounts', async () => {
+        let msg = '';
+        await rewardsProgram.methods
+          .sync()
+          .accounts({ ...accounts, reward: nodes[4].reward })
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.SolanaRawConstraint);
       });
 
       it('Sync reward reflection', async () => {
