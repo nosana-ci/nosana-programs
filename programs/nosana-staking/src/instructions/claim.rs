@@ -4,12 +4,18 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(mut, has_one = authority, close = authority)]
-    pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        owner = staking::ID,
+        has_one = authority,
+        close = authority,
+        constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked
+    )]
+    pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
@@ -19,8 +25,6 @@ pub struct Claim<'info> {
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(stake.time_unstake != 0, NosanaError::StakeNotUnstaked);
-    require!(stake.amount != 0, NosanaError::StakeAlreadyClaimed);
     require!(
         ctx.accounts.clock.unix_timestamp
             > stake

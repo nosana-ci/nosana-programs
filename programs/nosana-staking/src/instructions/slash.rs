@@ -8,7 +8,7 @@ pub struct Slash<'info> {
     pub ata_to: Box<Account<'info, TokenAccount>>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(mut)]
+    #[account(mut, owner = staking::ID)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, owner = staking::ID, has_one = authority)]
     pub stats: Account<'info, StatsAccount>,
@@ -17,9 +17,17 @@ pub struct Slash<'info> {
 }
 
 pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
-    // get and check the stake
+    // get stake and stats
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+
+    // test amount
     require!(amount <= stake.amount, NosanaError::StakeAmountNotEnough);
+
+    // update stats and stake
+    stats.sub(stake.xnos);
+    stake.slash(amount);
+    stats.add(stake.xnos);
 
     // transfer tokens from vault to given ata
     transfer_tokens(
@@ -30,12 +38,6 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
         *ctx.bumps.get("ata_vault").unwrap(),
         amount,
     )?;
-
-    // update stats and stake
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    stats.sub(stake.xnos);
-    stake.slash(amount);
-    stats.add(stake.xnos);
 
     // finish
     Ok(())

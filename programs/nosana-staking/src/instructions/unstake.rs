@@ -3,24 +3,26 @@ use nosana_common::NosanaError;
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
-    #[account(mut, has_one = authority)]
+    #[account(
+        mut,
+        owner = staking::ID,
+        has_one = authority,
+        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+    )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
-    pub stats: Box<Account<'info, StatsAccount>>,
+    #[account(mut, owner = staking::ID)]
+    pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,
     pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<Unstake>) -> Result<()> {
-    // get and check stake
+    // get stake and stats
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
-    // remove xnos from stats
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    // update stats and stake
     stats.sub(stake.xnos);
-
-    // clock time for unstake
     stake.unstake(ctx.accounts.clock.unix_timestamp);
 
     // finish

@@ -4,22 +4,32 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Topup<'info> {
-    #[account(mut, has_one = authority)]
-    pub stake: Box<Account<'info, StakeAccount>>,
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
-    pub stats: Box<Account<'info, StatsAccount>>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        owner = staking::ID,
+        has_one = authority,
+        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+    )]
+    pub stake: Account<'info, StakeAccount>,
+    #[account(mut, owner = staking::ID)]
+    pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
 pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
-    // get and check the stake
+    // get stake and stats
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+
+    // update stake and stats
+    stats.sub(stake.xnos);
+    stake.topup(amount);
+    stats.add(stake.xnos);
 
     // transfer tokens to the vault
     transfer_tokens(
@@ -30,12 +40,6 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
         0, // skip signature
         amount,
     )?;
-
-    // update stats and stake
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.sub(stake.xnos);
-    stake.topup(amount);
-    stats.add(stake.xnos);
 
     // finish
     Ok(())

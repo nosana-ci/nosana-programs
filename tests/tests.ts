@@ -132,6 +132,7 @@ describe('Nosana SPL', () => {
     SolanaSeedsConstraint: 'A seeds constraint was violated',
     SolanaRawConstraint: 'A raw constraint was violated',
     SolanaHasOneConstraint: 'A has one constraint was violated',
+    Solana8ByteConstraint: '8 byte discriminator did not match what was expected',
     SolanaSignature: 'Signature verification failed',
     SolanaOwnerConstraint: 'An owner constraint was violated',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
@@ -195,7 +196,7 @@ describe('Nosana SPL', () => {
       [ata.vaultStaking] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], stakingProgram.programId);
       [ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], rewardsProgram.programId);
       [stats.staking] = await anchor.web3.PublicKey.findProgramAddress(
-        [anchor.utils.bytes.utf8.encode('stats')],
+        [anchor.utils.bytes.utf8.encode('stats'), mint.toBuffer(),],
         stakingProgram.programId
       );
       [stats.rewards] = await anchor.web3.PublicKey.findProgramAddress(
@@ -614,6 +615,21 @@ describe('Nosana SPL', () => {
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
         expect(msg).to.equal(errors.SolanaHasOneConstraint);
+        await utils.assertBalancesStaking(provider, ata, balances);
+        expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
+          xnos,
+          'xnos'
+        );
+      });
+
+      it('Slash unauthorized hack 2', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .slash(new anchor.BN(slashAmount))
+          .accounts({ ...accounts, stats: accounts.stake})
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.Solana8ByteConstraint);
         await utils.assertBalancesStaking(provider, ata, balances);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,

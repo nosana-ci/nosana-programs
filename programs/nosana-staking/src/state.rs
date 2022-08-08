@@ -19,14 +19,12 @@ pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
 
 #[account]
 pub struct StatsAccount {
-    pub bump: u8,
     pub authority: Pubkey,
     pub xnos: u128,
 }
 
 impl StatsAccount {
-    pub fn init(&mut self, bump: u8, authority: Pubkey) {
-        self.bump = bump;
+    pub fn init(&mut self, authority: Pubkey) {
         self.authority = authority;
         self.xnos = 0;
     }
@@ -59,7 +57,7 @@ pub struct StakeAccount {
 }
 
 impl StakeAccount {
-    pub fn stake(&mut self, amount: u64, authority: Pubkey, bump: u8, duration: u64) {
+    pub fn init(&mut self, amount: u64, authority: Pubkey, bump: u8, duration: u64) {
         self.amount = amount;
         self.authority = authority;
         self.bump = bump;

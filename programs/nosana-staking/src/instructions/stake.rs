@@ -4,30 +4,32 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
-    pub stats: Box<Account<'info, StatsAccount>>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(
         init,
-        payer = fee_payer,
+        payer = authority,
         space = STAKE_SIZE,
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
         bump
     )]
     pub stake: Box<Account<'info, StakeAccount>>,
+    #[account(mut, owner = staking::ID)]
+    pub stats: Account<'info, StatsAccount>,
     #[account(mut)]
-    pub fee_payer: Signer<'info>,
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }
 
 pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
-    // get and check the stake
+    // get stake and stats
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+
+    // test duration and amount
     require!(
         u128::from(duration) >= constants::DURATION_MONTH,
         NosanaError::StakeDurationTooShort
@@ -52,7 +54,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
     )?;
 
     // initialize the stake
-    stake.stake(
+    stake.init(
         amount,
         *ctx.accounts.authority.key,
         *ctx.bumps.get("stake").unwrap(),
@@ -60,7 +62,6 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
     );
 
     // add xnos to stats
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
     stats.add(stake.xnos);
 
     // finish
