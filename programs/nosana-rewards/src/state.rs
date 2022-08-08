@@ -1,8 +1,51 @@
 use anchor_lang::prelude::*;
 
-// TODO: this is a magic number based on SafeMoon. should be as large as we can
-// go without reaching an overflow in the arithmatics
-pub const INITIAL_RATE: u128 = u128::pow(10, 15);
+pub mod constants {
+    // TODO: check this number as large as we can go without reaching an overflow in the arithmatics
+    pub const INITIAL_RATE: u128 = u128::pow(10, 15);
+}
+
+/// # Stats
+
+pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
+
+#[account]
+pub struct StatsAccount {
+    pub bump: u8,
+    pub rate: u128,
+    pub total_reflection: u128,
+    pub total_xnos: u128,
+}
+
+impl StatsAccount {
+    pub fn init(&mut self, bump: u8) {
+        self.bump = bump;
+        self.total_reflection = 0;
+        self.total_xnos = 0;
+        self.rate = constants::INITIAL_RATE;
+    }
+
+    pub fn add_fee(&mut self, fee: u128) {
+        self.total_xnos += fee;
+        self.rate = self.total_reflection.checked_div(self.total_xnos).unwrap()
+    }
+
+    pub fn add_rewards_account(&mut self, xnos: u128, reward_xnos: u128) -> u128 {
+        let reflection: u128 = (xnos + reward_xnos).checked_mul(self.rate).unwrap();
+
+        self.total_xnos += xnos;
+        self.total_reflection += reflection;
+
+        reflection
+    }
+
+    pub fn remove_rewards_account(&mut self, reflection: u128, xnos: u128) {
+        self.total_xnos -= xnos;
+        self.total_reflection -= reflection;
+    }
+}
+
+/// # Reward
 
 pub const REWARD_SIZE: usize = 8 + std::mem::size_of::<RewardAccount>();
 
@@ -36,43 +79,5 @@ impl RewardAccount {
                 .unwrap(),
         )
         .unwrap()
-    }
-}
-
-pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
-
-#[account]
-pub struct StatsAccount {
-    pub bump: u8,
-    pub rate: u128,
-    pub total_reflection: u128,
-    pub total_xnos: u128,
-}
-
-impl StatsAccount {
-    pub fn init(&mut self, bump: u8) {
-        self.bump = bump;
-        self.total_reflection = 0;
-        self.total_xnos = 0;
-        self.rate = INITIAL_RATE;
-    }
-
-    pub fn add_fee(&mut self, fee: u128) {
-        self.total_xnos += fee;
-        self.rate = self.total_reflection.checked_div(self.total_xnos).unwrap()
-    }
-
-    pub fn add_rewards_account(&mut self, xnos: u128, reward_xnos: u128) -> u128 {
-        let reflection: u128 = (xnos + reward_xnos).checked_mul(self.rate).unwrap();
-
-        self.total_xnos += xnos;
-        self.total_reflection += reflection;
-
-        reflection
-    }
-
-    pub fn remove_rewards_account(&mut self, reflection: u128, xnos: u128) {
-        self.total_xnos -= xnos;
-        self.total_reflection -= reflection;
     }
 }
