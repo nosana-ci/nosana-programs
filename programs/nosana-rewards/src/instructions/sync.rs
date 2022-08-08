@@ -8,7 +8,7 @@ pub struct Sync<'info> {
     pub stats: Account<'info, StatsAccount>,
     #[account(owner = staking::ID)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, owner = rewards::ID)]
+    #[account(mut, owner = rewards::ID, constraint = stake.authority == reward.authority)]
     pub reward: Account<'info, RewardAccount>,
 }
 
@@ -17,10 +17,6 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
-    require!(
-        stake.authority == reward.authority,
-        NosanaError::Unauthorized
-    );
 
     // decrease the reflection pool
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
