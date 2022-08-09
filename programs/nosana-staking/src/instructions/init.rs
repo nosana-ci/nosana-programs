@@ -4,7 +4,7 @@ use nosana_common::{authority, nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct Init<'info> {
-    #[account(address = nos::ID @ NosanaError::WrongMint)]
+    #[account(address = nos::ID @ NosanaError::InvalidMint)]
     pub mint: Box<Account<'info, Mint>>,
     #[account(
         init,

@@ -8,11 +8,11 @@ pub struct Slash<'info> {
     pub ata_to: Box<Account<'info, TokenAccount>>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(mut, owner = staking::ID @ NosanaError::WrongOwner)]
+    #[account(mut, owner = staking::ID @ NosanaError::InvalidOwner)]
     pub stake: Account<'info, StakeAccount>,
     #[account(
         mut,
-        owner = staking::ID @ NosanaError::WrongOwner,
+        owner = staking::ID @ NosanaError::InvalidOwner,
         has_one = authority @ NosanaError::Unauthorized,
     )]
     pub stats: Account<'info, StatsAccount>,

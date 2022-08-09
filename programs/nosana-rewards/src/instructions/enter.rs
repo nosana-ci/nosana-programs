@@ -4,9 +4,12 @@ use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
+    #[account(mut, owner = rewards::ID @ NosanaError::InvalidOwner)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(owner = staking::ID, has_one = authority)]
+    #[account(
+        owner = staking::ID @ NosanaError::InvalidOwner,
+        has_one = authority @ NosanaError::Unauthorized
+    )]
     pub stake: Account<'info, StakeAccount>,
     #[account(
         init,

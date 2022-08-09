@@ -5,12 +5,12 @@ use nosana_common::NosanaError;
 pub struct Restake<'info> {
     #[account(
         mut,
-        owner = staking::ID @ NosanaError::WrongOwner,
+        owner = staking::ID @ NosanaError::InvalidOwner,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake != 0 @ NosanaError::StakeAlreadyStaked,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, owner = staking::ID @ NosanaError::WrongOwner)]
+    #[account(mut, owner = staking::ID @ NosanaError::InvalidOwner)]
     pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,
 }

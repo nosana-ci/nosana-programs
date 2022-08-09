@@ -112,23 +112,32 @@ describe('Nosana SPL', () => {
   };
 
   const errors = {
-    JobNotClaimed: 'NosanaError::JobNotClaimed - Job is not in the Claimed state.',
-    JobNotInitialized: 'NosanaError::JobNotInitialized - Job is not in the Initialized state.',
-    JobNotTimedOut: 'NosanaError::JobNotTimedOut - Job is not timed out.',
-    JobQueueNotFound: 'NosanaError::JobQueueNotFound - Job queue not found.',
+    // generic errors
+    Unauthorized: 'This account is not authorized to perform this action.',
+    InvalidOwner: 'This account is owned by an invalid program.',
+    InvalidMint: 'This mint is invalid.',
 
-    NodeUnqualifiedUnstaked: "NosanaError::NodeUnqualifiedUnstaked - Node's stake has been unstaked.",
-    NodeUnqualifiedStakeAmount: 'NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.',
+    // stake errors
+    StakeAmountNotEnough: 'This amount is not enough.',
+    StakeAlreadyInitialized: 'This stake is already running.',
+    StakeAlreadyStaked: 'This stake is already unstaked.',
+    StakeAlreadyUnstaked: 'This stake is already unstaked.',
+    StakeNotUnstaked: 'This stake is not yet unstaked.',
+    StakeLocked: 'This stake is still locked.',
+    StakeDurationTooShort: 'This stake duration is not long enough.',
+    StakeDurationTooLong: 'This stake duration is too long.',
 
-    StakeAmountNotEnough: 'NosanaError::StakeAmountNotEnough - This amount is not enough.',
-    StakeAlreadyInitialized: 'NosanaError::StakeAlreadyInitialized - This stake is already running.',
-    StakeAlreadyStaked: 'NosanaError::StakeAlreadyStaked - This stake is already unstaked.',
-    StakeAlreadyUnstaked: 'NosanaError::StakeAlreadyUnstaked - This stake is already unstaked.',
-    StakeNotUnstaked: 'NosanaError::StakeNotUnstaked - This stake is not yet unstaked.',
-    StakeLocked: 'NosanaError::StakeLocked - This stake is still locked.',
-    StakeDurationTooShort: 'NosanaError::StakeDurationTooShort - This stake duration is not long enough.',
-    StakeDurationTooLong: 'NosanaError::StakeDurationTooLong - This stake duration is too long.',
+    // job errors
+    JobNotClaimed: 'This job is not in the Claimed state.',
+    JobNotInitialized: 'This job is not in the Initialized state.',
+    JobNotTimedOut: 'This job is not timed out.',
+    JobQueueNotFound: 'This job queue not found.',
 
+    // node errors
+    NodeUnqualifiedUnstaked: "This nodes' stake has been unstaked.",
+    NodeUnqualifiedStakeAmount: 'This node has not staked enough tokens.',
+
+    // anchor errors
     SolanaSeedsConstraint: 'A seeds constraint was violated',
     SolanaRawConstraint: 'A raw constraint was violated',
     SolanaHasOneConstraint: 'A has one constraint was violated',
@@ -137,7 +146,6 @@ describe('Nosana SPL', () => {
     SolanaOwnerConstraint: 'An owner constraint was violated',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
 
-    Unauthorized: 'NosanaError::Unauthorized - You are not authorized to perform this action.',
   };
 
   // we'll set these later
@@ -712,7 +720,7 @@ describe('Nosana SPL', () => {
           .accounts({ ...accounts, stake: node1.stake })
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
-        expect(msg).to.equal(errors.SolanaHasOneConstraint);
+        expect(msg).to.equal(errors.Unauthorized);
       });
 
       it('Enter rewards pool with main wallet', async () => {

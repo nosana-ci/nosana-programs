@@ -11,7 +11,7 @@ pub struct Claim<'info> {
     #[account(
         mut,
         close = authority,
-        owner = staking::ID @ NosanaError::WrongOwner,
+        owner = staking::ID @ NosanaError::InvalidOwner,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked,
     )]

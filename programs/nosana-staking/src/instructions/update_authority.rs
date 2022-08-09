@@ -5,7 +5,7 @@ use nosana_common::NosanaError;
 pub struct UpdateAuthority<'info> {
     #[account(
         mut,
-        owner = staking::ID @ NosanaError::WrongOwner,
+        owner = staking::ID @ NosanaError::InvalidOwner,
         has_one = authority @ NosanaError::Unauthorized,
     )]
     pub stats: Account<'info, StatsAccount>,
