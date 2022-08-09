@@ -2,9 +2,15 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum NosanaError {
+    // generic errors
     #[msg("NosanaError::Unauthorized - You are not authorized to perform this action.")]
     Unauthorized,
+    #[msg("NosanaError::WrongOwner - The account belongs to a different program.")]
+    WrongOwner,
+    #[msg("NosanaError::WrongMint - The mint has the wrong address.")]
+    WrongMint,
 
+    // stake errors
     #[msg("NosanaError::StakeAmountNotEnough - This amount is not enough.")]
     StakeAmountNotEnough,
     #[msg("NosanaError::StakeAlreadyInitialized - This stake is already running.")]
@@ -26,6 +32,7 @@ pub enum NosanaError {
     #[msg("NosanaError::StakeDecreased - The stake is not allowed to decrease.")]
     StakeDecreased,
 
+    // job errors
     #[msg("NosanaError::JobNotClaimed - Job is not in the Claimed state.")]
     JobNotClaimed,
     #[msg("NosanaError::JobNotInitialized - Job is not in the Initialized state.")]
@@ -34,6 +41,8 @@ pub enum NosanaError {
     JobNotTimedOut,
     #[msg("NosanaError::JobQueueNotFound - Job queue not found.")]
     JobQueueNotFound,
+
+    // node errors
     #[msg("NosanaError::NodeUnqualifiedUnstaked - Node's stake has been unstaked.")]
     NodeUnqualifiedUnstaked,
     #[msg("NosanaError::NodeUnqualifiedStakeAmount - Node has not staked enough tokens.")]

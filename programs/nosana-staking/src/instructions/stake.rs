@@ -16,7 +16,7 @@ pub struct Stake<'info> {
         bump
     )]
     pub stake: Box<Account<'info, StakeAccount>>,
-    #[account(mut, owner = staking::ID)]
+    #[account(mut, owner = staking::ID @ NosanaError::WrongOwner)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,

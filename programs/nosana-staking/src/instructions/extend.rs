@@ -6,12 +6,12 @@ use nosana_common::NosanaError;
 pub struct Extend<'info> {
     #[account(
         mut,
-        owner = staking::ID,
+        owner = staking::ID @ NosanaError::WrongOwner,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, owner = staking::ID)]
+    #[account(mut, owner = staking::ID @ NosanaError::WrongOwner)]
     pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

@@ -614,7 +614,7 @@ describe('Nosana SPL', () => {
           .signers([node1.user])
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
-        expect(msg).to.equal(errors.SolanaHasOneConstraint);
+        expect(msg).to.equal(errors.Unauthorized);
         await utils.assertBalancesStaking(provider, ata, balances);
         expect((await stakingProgram.account.statsAccount.fetch(accounts.stats)).xnos.toNumber()).to.equal(
           xnos,

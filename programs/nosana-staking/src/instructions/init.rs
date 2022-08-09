@@ -1,10 +1,10 @@
 use crate::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
-use nosana_common::{authority, nos};
+use nosana_common::{authority, nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct Init<'info> {
-    #[account(address = nos::ID)]
+    #[account(address = nos::ID @ NosanaError::WrongMint)]
     pub mint: Box<Account<'info, Mint>>,
     #[account(
         init,
