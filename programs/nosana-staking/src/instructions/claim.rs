@@ -10,9 +10,9 @@ pub struct Claim<'info> {
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(
         mut,
-        owner = staking::ID,
-        has_one = authority,
         close = authority,
+        owner = staking::ID,
+        has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked
     )]
     pub stake: Account<'info, StakeAccount>,

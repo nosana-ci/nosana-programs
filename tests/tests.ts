@@ -196,7 +196,7 @@ describe('Nosana SPL', () => {
       [ata.vaultStaking] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], stakingProgram.programId);
       [ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], rewardsProgram.programId);
       [stats.staking] = await anchor.web3.PublicKey.findProgramAddress(
-        [anchor.utils.bytes.utf8.encode('stats'), mint.toBuffer(),],
+        [anchor.utils.bytes.utf8.encode('stats')],
         stakingProgram.programId
       );
       [stats.rewards] = await anchor.web3.PublicKey.findProgramAddress(
@@ -490,7 +490,7 @@ describe('Nosana SPL', () => {
           .signers([user3.user])
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
-        expect(msg).to.equal(errors.SolanaHasOneConstraint);
+        expect(msg).to.equal(errors.Unauthorized);
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 

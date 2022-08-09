@@ -11,7 +11,7 @@ pub struct Topup<'info> {
     #[account(
         mut,
         owner = staking::ID,
-        has_one = authority,
+        has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
     )]
     pub stake: Account<'info, StakeAccount>,

@@ -15,13 +15,7 @@ pub struct Init<'info> {
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
-    #[account(
-        init,
-        payer = authority,
-        space = STATS_SIZE,
-        seeds = [ b"stats", mint.key().as_ref() ],
-        bump
-    )]
+    #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
     pub stats: Box<Account<'info, StatsAccount>>,
     #[account(mut)]
     pub authority: Signer<'info>,
