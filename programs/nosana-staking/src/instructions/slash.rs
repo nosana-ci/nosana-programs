@@ -24,7 +24,7 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     // test amount
     require!(amount <= stake.amount, NosanaError::StakeAmountNotEnough);
 
-    // update stats and stake
+    // update stake and stats
     stats.sub(stake.xnos);
     stake.slash(amount);
     stats.add(stake.xnos);

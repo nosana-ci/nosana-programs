@@ -25,10 +25,6 @@ pub struct Stake<'info> {
 }
 
 pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
-    // get stake and stats
-    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-
     // test duration and amount
     require!(
         u128::from(duration) >= constants::DURATION_MONTH,
@@ -43,6 +39,14 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
         NosanaError::StakeAmountNotEnough
     );
 
+    // get stake and stats
+    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+
+    // update stake and stats
+    stake.init(amount, *ctx.accounts.authority.key, duration);
+    stats.add(stake.xnos);
+
     // transfer tokens to vault
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
@@ -52,17 +56,6 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
         0, // skip signature
         amount,
     )?;
-
-    // initialize the stake
-    stake.init(
-        amount,
-        *ctx.accounts.authority.key,
-        *ctx.bumps.get("stake").unwrap(),
-        duration,
-    );
-
-    // add xnos to stats
-    stats.add(stake.xnos);
 
     // finish
     Ok(())

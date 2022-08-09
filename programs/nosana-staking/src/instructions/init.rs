@@ -19,7 +19,7 @@ pub struct Init<'info> {
         init,
         payer = authority,
         space = STATS_SIZE,
-        seeds = [ b"stats", nos::ID.key().as_ref() ],
+        seeds = [ b"stats", mint.key().as_ref() ],
         bump
     )]
     pub stats: Box<Account<'info, StatsAccount>>,

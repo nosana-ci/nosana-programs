@@ -21,7 +21,7 @@ pub fn handler(ctx: Context<Unstake>) -> Result<()> {
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
-    // update stats and stake
+    // update stake and stats
     stats.sub(stake.xnos);
     stake.unstake(ctx.accounts.clock.unix_timestamp);
 

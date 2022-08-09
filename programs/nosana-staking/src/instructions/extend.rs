@@ -18,14 +18,14 @@ pub struct Extend<'info> {
 }
 
 pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
+    // test duration
+    require!(duration > 0, NosanaError::StakeDurationTooShort);
+
     // get stake and stats
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
-    // test duration
-    require!(duration > 0, NosanaError::StakeDurationTooShort);
-
-    // update stats and stake
+    // update stake and stats
     stats.sub(stake.xnos);
     stake.extend(duration);
     stats.add(stake.xnos);

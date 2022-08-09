@@ -20,7 +20,7 @@ pub fn handler(ctx: Context<Restake>) -> Result<()> {
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
-    // update stats and stake
+    // update stake and stats
     stake.unstake(0);
     stats.add(stake.xnos);
 
