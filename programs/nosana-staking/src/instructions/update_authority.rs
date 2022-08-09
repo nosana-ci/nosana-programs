@@ -6,7 +6,7 @@ pub struct UpdateAuthority<'info> {
     #[account(
         mut,
         owner = staking::ID @ NosanaError::WrongOwner,
-        has_one = authority @ NosanaError::Unauthorized
+        has_one = authority @ NosanaError::Unauthorized,
     )]
     pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,

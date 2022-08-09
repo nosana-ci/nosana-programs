@@ -7,7 +7,7 @@ pub struct Restake<'info> {
         mut,
         owner = staking::ID @ NosanaError::WrongOwner,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake != 0 @ NosanaError::StakeAlreadyStaked
+        constraint = stake.time_unstake != 0 @ NosanaError::StakeAlreadyStaked,
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, owner = staking::ID @ NosanaError::WrongOwner)]

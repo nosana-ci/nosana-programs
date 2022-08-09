@@ -13,7 +13,7 @@ pub struct Claim<'info> {
         close = authority,
         owner = staking::ID @ NosanaError::WrongOwner,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked
+        constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked,
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]

@@ -13,7 +13,7 @@ pub struct Stake<'info> {
         payer = authority,
         space = STAKE_SIZE,
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
-        bump
+        bump,
     )]
     pub stake: Box<Account<'info, StakeAccount>>,
     #[account(mut, owner = staking::ID @ NosanaError::WrongOwner)]

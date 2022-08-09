@@ -8,7 +8,7 @@ pub struct Extend<'info> {
         mut,
         owner = staking::ID @ NosanaError::WrongOwner,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, owner = staking::ID @ NosanaError::WrongOwner)]
