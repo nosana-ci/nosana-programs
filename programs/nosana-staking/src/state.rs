@@ -60,17 +60,17 @@ impl StakeAccount {
     }
 
     pub fn topup(&mut self, amount: u64) {
-        self.amount += amount;
+        self.amount = self.amount.checked_add(amount).unwrap();
         self.update_xnos();
     }
 
     pub fn slash(&mut self, amount: u64) {
-        self.amount -= amount;
+        self.amount = self.amount.checked_sub(amount).unwrap();
         self.update_xnos();
     }
 
     pub fn extend(&mut self, duration: u64) {
-        self.duration += duration;
+        self.duration = self.duration.checked_add(duration).unwrap();
         self.update_xnos();
     }
 
