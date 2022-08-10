@@ -5,9 +5,9 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 #[derive(Accounts)]
 pub struct Stake<'info> {
     #[account(mut)]
-    pub ata_from: Box<Account<'info, TokenAccount>>,
+    pub ata_from: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    pub ata_vault: Account<'info, TokenAccount>,
     #[account(
         init,
         payer = authority,
@@ -15,9 +15,7 @@ pub struct Stake<'info> {
         seeds = [ b"stake", nos::ID.key().as_ref(), authority.key().as_ref() ],
         bump,
     )]
-    pub stake: Box<Account<'info, StakeAccount>>,
-    #[account(mut, owner = staking::ID @ NosanaError::InvalidOwner)]
-    pub stats: Account<'info, StatsAccount>,
+    pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -39,13 +37,9 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
         NosanaError::StakeAmountNotEnough
     );
 
-    // get stake and stats
+    // get stake account and init stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-
-    // update stake and stats
     stake.init(amount, *ctx.accounts.authority.key, duration);
-    stats.add(stake.xnos);
 
     // transfer tokens to vault
     transfer_tokens(
@@ -55,8 +49,5 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
         ctx.accounts.authority.to_account_info(),
         0, // skip signature
         amount,
-    )?;
-
-    // finish
-    Ok(())
+    )
 }

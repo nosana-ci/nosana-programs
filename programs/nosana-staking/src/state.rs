@@ -20,21 +20,11 @@ pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
 #[account]
 pub struct StatsAccount {
     pub authority: Pubkey,
-    pub xnos: u128,
 }
 
 impl StatsAccount {
     pub fn init(&mut self, authority: Pubkey) {
         self.authority = authority;
-        self.xnos = 0;
-    }
-
-    pub fn add(&mut self, amount: u128) {
-        self.xnos += amount;
-    }
-
-    pub fn sub(&mut self, amount: u128) {
-        self.xnos -= amount;
     }
 
     pub fn update_authority(&mut self, authority: Pubkey) {

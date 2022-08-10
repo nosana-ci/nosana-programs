@@ -5,9 +5,9 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
-    pub ata_to: Box<Account<'info, TokenAccount>>,
+    pub ata_to: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    pub ata_vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         close = authority,
@@ -42,8 +42,5 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.ata_vault.to_account_info(),
         *ctx.bumps.get("ata_vault").unwrap(),
         stake.amount,
-    )?;
-
-    // finish
-    Ok(())
+    )
 }
