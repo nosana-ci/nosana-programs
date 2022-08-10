@@ -1,12 +1,21 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::token::{Mint, Token, TokenAccount};
 use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
+    #[account(address = nos::ID @ NosanaError::InvalidMint)]
+    pub mint: Account<'info, Mint>,
     #[account(mut)]
     pub from: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    #[account(
+        init,
+        payer = authority,
+        token::mint = mint,
+        token::authority = vault,
+        seeds = [ b"vault", nos::ID.key().as_ref(), authority.key().as_ref() ],
+        bump,
+    )]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         init,
@@ -20,6 +29,7 @@ pub struct Stake<'info> {
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
