@@ -10,7 +10,12 @@ pub struct Slash<'info> {
     pub ata_vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
+    #[account(
+        mut,
+        has_one = authority @ NosanaError::Unauthorized,
+        seeds = [ b"stats" ],
+        bump
+    )]
     pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

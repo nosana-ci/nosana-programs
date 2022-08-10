@@ -3,7 +3,12 @@ use nosana_common::NosanaError;
 
 #[derive(Accounts)]
 pub struct UpdateAuthority<'info> {
-    #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
+    #[account(
+        mut,
+        has_one = authority @ NosanaError::Unauthorized,
+        seeds = [ b"stats" ],
+        bump
+    )]
     pub stats: Account<'info, StatsAccount>,
     pub authority: Signer<'info>,
     pub new_authority: Signer<'info>,
