@@ -28,9 +28,9 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     require!(
         clock.unix_timestamp
             > stake
-            .time_unstake
-            .checked_add(i64::try_from(stake.duration).unwrap())
-            .unwrap(),
+                .time_unstake
+                .checked_add(i64::try_from(stake.duration).unwrap())
+                .unwrap(),
         NosanaError::StakeLocked
     );
 
