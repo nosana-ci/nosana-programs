@@ -5,9 +5,9 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
-    pub ata_to: Account<'info, TokenAccount>,
+    pub to: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Account<'info, TokenAccount>,
+    pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         close = authority,
@@ -37,10 +37,10 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // return tokens, the stake account is closed so no need to update it.
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        ctx.accounts.ata_to.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        *ctx.bumps.get("ata_vault").unwrap(),
+        ctx.accounts.vault.to_account_info(),
+        ctx.accounts.to.to_account_info(),
+        ctx.accounts.vault.to_account_info(),
+        *ctx.bumps.get("vault").unwrap(),
         stake.amount,
     )
 }

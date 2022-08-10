@@ -10,11 +10,11 @@ pub struct Init<'info> {
         init,
         payer = authority,
         token::mint = mint,
-        token::authority = ata_vault,
+        token::authority = vault,
         seeds = [ mint.key().as_ref() ],
         bump,
     )]
-    pub ata_vault: Account<'info, TokenAccount>,
+    pub vault: Account<'info, TokenAccount>,
     #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut)]

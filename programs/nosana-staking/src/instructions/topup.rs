@@ -5,9 +5,9 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 #[derive(Accounts)]
 pub struct Topup<'info> {
     #[account(mut)]
-    pub ata_from: Account<'info, TokenAccount>,
+    pub from: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Account<'info, TokenAccount>,
+    pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         has_one = authority @ NosanaError::Unauthorized,
@@ -26,8 +26,8 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
     // transfer tokens to the vault
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.ata_from.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
+        ctx.accounts.from.to_account_info(),
+        ctx.accounts.vault.to_account_info(),
         ctx.accounts.authority.to_account_info(),
         0, // skip signature
         amount,

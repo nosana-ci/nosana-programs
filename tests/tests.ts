@@ -98,9 +98,12 @@ describe('Nosana SPL', () => {
     // token and ATAs (tbd)
     mint: undefined,
     ataVault: undefined,
+    vault: undefined,
     stats: undefined,
     ataFrom: undefined,
+    from: undefined,
     ataTo: undefined,
+    to: undefined,
     ataNft: undefined,
   };
 
@@ -226,6 +229,8 @@ describe('Nosana SPL', () => {
       accounts.ataFrom =
         accounts.ataTo =
         ata.user =
+        accounts.to =
+        accounts.from =
           await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
       // fund users
       await utils.mintToAccount(provider, mint, ata.user, mintSupply);
@@ -298,6 +303,7 @@ describe('Nosana SPL', () => {
       it('Initialize the staking vault', async () => {
         accounts.stats = stats.staking;
         accounts.ataVault = ata.vaultStaking;
+        accounts.vault = ata.vaultStaking;
         await stakingProgram.methods.init().accounts(accounts).rpc();
         await utils.assertBalancesStaking(provider, ata, balances);
       });
@@ -342,7 +348,7 @@ describe('Nosana SPL', () => {
           .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear))
           .accounts({
             ...accounts,
-            ataFrom: user4.ata,
+            from: user4.ata,
             authority: user4.publicKey,
             stake: user4.stake,
           })
@@ -360,7 +366,7 @@ describe('Nosana SPL', () => {
           .stake(new anchor.BN(amount), new anchor.BN(stakeDurationMonth))
           .accounts({
             ...accounts,
-            ataFrom: node1.ata,
+            from: node1.ata,
             authority: node1.publicKey,
             stake: node1.stake,
           })
@@ -377,7 +383,7 @@ describe('Nosana SPL', () => {
           .stake(new anchor.BN(minimumNodeStake), new anchor.BN(stakeDurationMonth))
           .accounts({
             ...accounts,
-            ataFrom: node2.ata,
+            from: node2.ata,
             authority: node2.publicKey,
             stake: node2.stake,
           })
@@ -404,7 +410,7 @@ describe('Nosana SPL', () => {
               .stake(new anchor.BN(stakeAmount * 2), new anchor.BN(3 * stakeDurationMonth))
               .accounts({
                 ...accounts,
-                ataFrom: n.ata,
+                from: n.ata,
                 authority: n.publicKey,
                 stake: n.stake,
               })
