@@ -18,19 +18,19 @@ pub struct Claim<'info> {
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
-    pub clock: Sysvar<'info, Clock>,
     pub token_program: Program<'info, Token>,
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+    let clock = Clock::get()?;
     require!(
-        ctx.accounts.clock.unix_timestamp
+        clock.unix_timestamp
             > stake
-                .time_unstake
-                .checked_add(i64::try_from(stake.duration).unwrap())
-                .unwrap(),
+            .time_unstake
+            .checked_add(i64::try_from(stake.duration).unwrap())
+            .unwrap(),
         NosanaError::StakeLocked
     );
 

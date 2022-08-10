@@ -10,12 +10,12 @@ pub struct Unstake<'info> {
     )]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
-    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<Unstake>) -> Result<()> {
     // get stake account, and unstake stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    stake.unstake(ctx.accounts.clock.unix_timestamp);
+    let clock = Clock::get()?;
+    stake.unstake(clock.unix_timestamp);
     Ok(())
 }
