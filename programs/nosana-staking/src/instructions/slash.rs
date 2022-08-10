@@ -11,7 +11,6 @@ pub struct Slash<'info> {
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
     #[account(
-        mut,
         has_one = authority @ NosanaError::Unauthorized,
         seeds = [ b"stats" ],
         bump
