@@ -558,6 +558,8 @@ describe('Nosana SPL', () => {
 
     describe('slash(), update_authority()', async () => {
       it('Slash', async () => {
+        const stakeBefore = await stakingProgram.account.stakeAccount.fetch(nodes[2].stake);
+
         await stakingProgram.methods
           .slash(new anchor.BN(slashAmount))
           .accounts({ ...accounts, stake: nodes[2].stake })
@@ -566,6 +568,9 @@ describe('Nosana SPL', () => {
         balances.user += slashAmount;
         balances.vaultStaking -= slashAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
+        const stakeAfter = await stakingProgram.account.stakeAccount.fetch(nodes[2].stake);
+        expect(stakeAfter.amount.toNumber()).to.equal(stakeBefore.amount.toNumber() - slashAmount);
+
         xnos -= utils.calculateXnos(stakeDurationMonth * 3, stakeAmount);
         xnos += utils.calculateXnos(stakeDurationMonth * 3, stakeAmount - slashAmount);
       });
