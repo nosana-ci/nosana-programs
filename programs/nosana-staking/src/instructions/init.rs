@@ -5,7 +5,7 @@ use nosana_common::{authority, nos, NosanaError};
 #[derive(Accounts)]
 pub struct Init<'info> {
     #[account(address = nos::ID @ NosanaError::InvalidMint)]
-    pub mint: Box<Account<'info, Mint>>,
+    pub mint: Account<'info, Mint>,
     #[account(
         init,
         payer = authority,
@@ -14,9 +14,9 @@ pub struct Init<'info> {
         seeds = [ mint.key().as_ref() ],
         bump,
     )]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    pub ata_vault: Account<'info, TokenAccount>,
     #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
-    pub stats: Box<Account<'info, StatsAccount>>,
+    pub stats: Account<'info, StatsAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -25,10 +25,8 @@ pub struct Init<'info> {
 }
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
-    // init stats account
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    // get stats account and init
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
     stats.init(authority::ID);
-
-    // finish
     Ok(())
 }
