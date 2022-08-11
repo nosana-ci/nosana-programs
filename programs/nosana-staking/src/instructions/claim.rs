@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_common::{nos, transfer_tokens_with_seeds, NosanaError};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -8,8 +8,7 @@ pub struct Claim<'info> {
     pub to: Account<'info, TokenAccount>,
     #[account(
         mut,
-        close = authority,
-        seeds = [ b"vault", nos::ID.key().as_ref(), authority.key().as_ref() ],
+        seeds = [ b"vault", nos::ID.key().as_ref(), stake.authority.key().as_ref() ],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
@@ -31,21 +30,25 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     let clock = Clock::get()?;
     require!(
-        clock.unix_timestamp
-            > stake
-                .time_unstake
-                .checked_add(i64::try_from(stake.duration).unwrap())
-                .unwrap(),
+        clock.unix_timestamp > stake.time_unstake.checked_add(5).unwrap(),
         NosanaError::StakeLocked
     );
 
+    let bump = *ctx.bumps.get("vault").unwrap();
+
     // return tokens, the stake account is closed so no need to update it.
-    transfer_tokens(
+    transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         ctx.accounts.to.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        *ctx.bumps.get("vault").unwrap(),
+        bump,
         stake.amount,
+        &[
+            b"vault",
+            nos::ID.key().as_ref(),
+            stake.authority.key().as_ref(),
+            &[bump],
+        ],
     )
 }

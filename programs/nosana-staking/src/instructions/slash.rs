@@ -1,12 +1,16 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_common::{nos, transfer_tokens_with_seeds, NosanaError};
 
 #[derive(Accounts)]
 pub struct Slash<'info> {
     #[account(mut)]
     pub to: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    #[account(
+        mut,
+        seeds = [ b"vault", nos::ID.key().as_ref(), stake.authority.key().as_ref() ],
+        bump,
+    )]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
@@ -30,13 +34,21 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     // slash stake
     stake.slash(amount);
 
+    let bump = *ctx.bumps.get("vault").unwrap();
+
     // transfer tokens from vault to given token account
-    transfer_tokens(
+    transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         ctx.accounts.to.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        *ctx.bumps.get("vault").unwrap(),
+        bump,
         amount,
+        &[
+            b"vault",
+            nos::ID.key().as_ref(),
+            stake.authority.key().as_ref(),
+            &[bump],
+        ],
     )
 }

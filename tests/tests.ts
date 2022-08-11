@@ -157,8 +157,9 @@ describe('Nosana SPL', () => {
     totalReflection = new anchor.BN(0);
   const ata = {
     user: undefined,
+    userVault: undefined,
     vaultJob: undefined,
-    vaultStaking: undefined,
+    userVaultStaking: undefined,
     vaultRewards: undefined,
     nft: undefined,
   };
@@ -203,7 +204,10 @@ describe('Nosana SPL', () => {
       accounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
       // get ATA and bumps of the vaults
       [ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], jobsProgram.programId);
-      [ata.vaultStaking] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], stakingProgram.programId);
+      [ata.userVaultStaking] = await anchor.web3.PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode('vault'), mint.toBuffer(), provider.wallet.publicKey.toBuffer()],
+        stakingProgram.programId
+      );
       [ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], rewardsProgram.programId);
       [stats.staking] = await anchor.web3.PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode('stats')],
@@ -246,6 +250,10 @@ describe('Nosana SPL', () => {
             [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), u.publicKey.toBuffer()],
             stakingProgram.programId
           );
+          [u.vault] = await anchor.web3.PublicKey.findProgramAddress(
+            [anchor.utils.bytes.utf8.encode('vault'), mint.toBuffer(), u.publicKey.toBuffer()],
+            stakingProgram.programId
+          );
         })
       );
       await Promise.all(
@@ -258,6 +266,10 @@ describe('Nosana SPL', () => {
           n.balance = userSupply;
           [n.stake] = await anchor.web3.PublicKey.findProgramAddress(
             [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), n.publicKey.toBuffer()],
+            stakingProgram.programId
+          );
+          [n.vault] = await anchor.web3.PublicKey.findProgramAddress(
+            [anchor.utils.bytes.utf8.encode('vault'), mint.toBuffer(), n.publicKey.toBuffer()],
             stakingProgram.programId
           );
           [n.reward] = await anchor.web3.PublicKey.findProgramAddress(
@@ -299,11 +311,13 @@ describe('Nosana SPL', () => {
     NOSANA STAKING SECTION
    */
   describe('Nosana Staking Instructions:', () => {
+    beforeEach(() => {
+      accounts.vault = ata.userVaultStaking;
+    });
+
     describe('init()', async () => {
       it('Initialize the staking vault', async () => {
         accounts.stats = stats.staking;
-        accounts.ataVault = ata.vaultStaking;
-        accounts.vault = ata.vaultStaking;
         await stakingProgram.methods.init().accounts(accounts).rpc();
         await utils.assertBalancesStaking(provider, ata, balances);
       });
@@ -351,6 +365,7 @@ describe('Nosana SPL', () => {
             from: user4.ata,
             authority: user4.publicKey,
             stake: user4.stake,
+            vault: user4.vault,
           })
           .signers([user4.user])
           .rpc();
@@ -369,6 +384,7 @@ describe('Nosana SPL', () => {
             from: node1.ata,
             authority: node1.publicKey,
             stake: node1.stake,
+            vault: node1.vault,
           })
           .signers([node1.user])
           .rpc();
@@ -386,6 +402,7 @@ describe('Nosana SPL', () => {
             from: node2.ata,
             authority: node2.publicKey,
             stake: node2.stake,
+            vault: node2.vault,
           })
           .signers([node2.user])
           .rpc();
@@ -413,6 +430,7 @@ describe('Nosana SPL', () => {
                 from: n.ata,
                 authority: n.publicKey,
                 stake: n.stake,
+                vault: n.vault,
               })
               .signers([n.user])
               .rpc();
@@ -544,9 +562,11 @@ describe('Nosana SPL', () => {
 
       //   await stakingProgram.methods.claim().accounts(
       //     {...accounts,
-      //      ataTo: node2.ata,
+      //      to: node2.ata,
       //      stake: node2.stake,
-      //      authority: node2.publicKey}
+      //      authority: node2.publicKey,
+      //      vault: node2.vault,
+      //     }
       //   )
       //     .signers([node2.user])
       //     .rpc();
@@ -562,7 +582,7 @@ describe('Nosana SPL', () => {
 
         await stakingProgram.methods
           .slash(new anchor.BN(slashAmount))
-          .accounts({ ...accounts, stake: nodes[2].stake })
+          .accounts({ ...accounts, stake: nodes[2].stake, vault: nodes[2].vault })
           .rpc();
 
         balances.user += slashAmount;
@@ -621,7 +641,12 @@ describe('Nosana SPL', () => {
       it('Slash with Node 1', async () => {
         await stakingProgram.methods
           .slash(new anchor.BN(slashAmount))
-          .accounts({ ...accounts, stake: nodes[2].stake, authority: node1.publicKey })
+          .accounts({
+            ...accounts,
+            stake: nodes[2].stake,
+            authority: node1.publicKey,
+            vault: nodes[2].vault
+          })
           .signers([node1.user])
           .rpc();
 
