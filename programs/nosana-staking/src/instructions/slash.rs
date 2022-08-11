@@ -19,28 +19,25 @@ pub struct Slash<'info> {
 pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     // get stake and vault account
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    let vault: &mut Account<TokenAccount> = &mut ctx.accounts.vault;
 
     // test amount
-    require!(amount <= vault.amount, NosanaError::StakeAmountNotEnough);
+    require!(amount <= stake.amount, NosanaError::StakeAmountNotEnough);
 
     // slash stake
     stake.slash(amount);
 
     // transfer tokens from vault to given token account
-    let bump = *ctx.bumps.get("vault").unwrap();
     transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         ctx.accounts.token_account.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        bump,
         amount,
         &[
             b"vault",
             nos::ID.key().as_ref(),
             stake.authority.key().as_ref(),
-            &[bump],
+            &[*ctx.bumps.get("vault").unwrap()],
         ],
     )
 }

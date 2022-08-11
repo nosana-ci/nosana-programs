@@ -28,21 +28,18 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         NosanaError::StakeLocked
     );
 
-    let bump = *ctx.bumps.get("vault").unwrap();
-
     // return tokens, the stake account is closed so no need to update it.
     transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        bump,
         ctx.accounts.vault.amount,
         &[
             b"vault",
             nos::ID.key().as_ref(),
             stake.authority.key().as_ref(),
-            &[bump],
+            &[*ctx.bumps.get("vault").unwrap()],
         ],
     )
 }
