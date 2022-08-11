@@ -18,18 +18,17 @@ pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
     // test duration
     require!(duration > 0, NosanaError::StakeDurationTooShort);
 
-    // get stake account and extend stake
+    // get stake account
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    stake.extend(duration);
 
-    // verify new duration is conform minimum and maximum allowed time
+    // test new duration
     require!(
-        u128::from(stake.duration) >= constants::DURATION_MONTH,
-        NosanaError::StakeDurationTooShort
-    );
-    require!(
-        u128::from(stake.duration) <= constants::DURATION_YEAR,
+        stake.duration + duration <= u64::try_from(DURATION_MAX).unwrap(),
         NosanaError::StakeDurationTooLong
     );
+
+    // extend stake
+    stake.extend(duration);
+
     Ok(())
 }

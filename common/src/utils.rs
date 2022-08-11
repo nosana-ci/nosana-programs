@@ -6,28 +6,21 @@ pub fn transfer_tokens_with_seeds<'info>(
     from: AccountInfo<'info>,
     to: AccountInfo<'info>,
     authority: AccountInfo<'info>,
-    nonce: u8,
     amount: u64,
     seeds: &[&[u8]],
 ) -> Result<()> {
-    let accounts = token::Transfer {
-        from,
-        to,
-        authority,
-    };
-
-    if nonce == 0 {
-        token::transfer(CpiContext::new(program, accounts), amount)
-    } else {
-        token::transfer(
-            CpiContext::new_with_signer(
-                program,
-                accounts,
-                &[seeds],
-            ),
-            amount,
-        )
-    }
+    token::transfer(
+        CpiContext::new_with_signer(
+            program,
+            token::Transfer {
+                from,
+                to,
+                authority,
+            },
+            &[seeds],
+        ),
+        amount,
+    )
 }
 
 pub fn transfer_tokens<'info>(
@@ -37,15 +30,27 @@ pub fn transfer_tokens<'info>(
     authority: AccountInfo<'info>,
     nonce: u8,
     amount: u64,
-
 ) -> Result<()> {
-    transfer_tokens_with_seeds(
-        program,
-        from,
-        to,
-        authority,
-        nonce,
-        amount,
-        &[crate::ids::nos::ID.as_ref(), &[nonce]]
-    )
+    if nonce == 0 {
+        token::transfer(
+            CpiContext::new(
+                program,
+                token::Transfer {
+                    from,
+                    to,
+                    authority,
+                },
+            ),
+            amount,
+        )
+    } else {
+        transfer_tokens_with_seeds(
+            program,
+            from,
+            to,
+            authority,
+            amount,
+            &[crate::ids::nos::ID.as_ref(), &[nonce]],
+        )
+    }
 }
