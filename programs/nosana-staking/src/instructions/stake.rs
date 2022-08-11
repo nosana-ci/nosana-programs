@@ -7,7 +7,7 @@ pub struct Stake<'info> {
     #[account(address = nos::ID @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
     #[account(mut)]
-    pub from: Account<'info, TokenAccount>,
+    pub user: Account<'info, TokenAccount>,
     #[account(
         init,
         payer = authority,
@@ -50,7 +50,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     // transfer tokens to vault
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.from.to_account_info(),
+        ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         ctx.accounts.authority.to_account_info(),
         0, // skip signature

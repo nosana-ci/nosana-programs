@@ -20,11 +20,7 @@ pub fn transfer_tokens_with_seeds<'info>(
         token::transfer(CpiContext::new(program, accounts), amount)
     } else {
         token::transfer(
-            CpiContext::new_with_signer(
-                program,
-                accounts,
-                &[seeds],
-            ),
+            CpiContext::new_with_signer(program, accounts, &[seeds]),
             amount,
         )
     }
@@ -37,7 +33,6 @@ pub fn transfer_tokens<'info>(
     authority: AccountInfo<'info>,
     nonce: u8,
     amount: u64,
-
 ) -> Result<()> {
     transfer_tokens_with_seeds(
         program,
@@ -46,6 +41,6 @@ pub fn transfer_tokens<'info>(
         authority,
         nonce,
         amount,
-        &[crate::ids::nos::ID.as_ref(), &[nonce]]
+        &[crate::ids::nos::ID.as_ref(), &[nonce]],
     )
 }

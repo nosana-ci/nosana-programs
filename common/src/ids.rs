@@ -39,5 +39,5 @@ pub mod token_account {
     #[cfg(feature = "mainnet")]
     declare_id!("NosanarMxfrZbyCx5CotBVrzxiPcrnhj6ickpX9vRkB");
     #[cfg(not(feature = "mainnet"))]
-    declare_id!("NosanarMxfrZbyCx5CotBVrzxiPcrnhj6ickpX9vRkB");
+    declare_id!("HLtABkKqsUjb4ECPEnvad6HN7QYf6ANHahAeZQXrAGgV");
 }
