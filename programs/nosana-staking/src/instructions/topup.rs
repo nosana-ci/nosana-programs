@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{transfer_tokens, NosanaError};
+use nosana_common::{error::NosanaError, utils::transfer_tokens};
 
 #[derive(Accounts)]
 pub struct Topup<'info> {

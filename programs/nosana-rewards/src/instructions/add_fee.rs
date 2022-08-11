@@ -1,12 +1,12 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens};
+use nosana_common::{address, utils::transfer_tokens};
 
 #[derive(Accounts)]
 pub struct AddFee<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    #[account(mut, seeds = [ address::NOS.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_from: Box<Account<'info, TokenAccount>>,

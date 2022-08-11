@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use nosana_common::nos;
+use nosana_common::address::nos;
 
 /// # Constants
 

@@ -50,7 +50,7 @@ pub fn transfer_tokens<'info>(
             to,
             authority,
             amount,
-            &[crate::ids::nos::ID.as_ref(), &[nonce]],
+            &[crate::address::nos::ID.as_ref(), &[nonce]],
         )
     }
 }

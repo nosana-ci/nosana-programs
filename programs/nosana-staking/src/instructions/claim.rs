@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens_with_seeds, NosanaError};
+use nosana_common::{address, error::NosanaError, utils::transfer_tokens_with_seeds};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -37,7 +37,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.vault.amount,
         &[
             b"vault",
-            nos::ID.key().as_ref(),
+            address::NOS.key().as_ref(),
             stake.authority.key().as_ref(),
             &[stake.vault_bump],
         ],
