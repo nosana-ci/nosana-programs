@@ -32,24 +32,19 @@ pub struct Stake<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
+pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     // test duration and amount
-    require!(
-        u128::from(duration) >= constants::DURATION_MONTH,
-        NosanaError::StakeDurationTooShort
-    );
-    require!(
-        u128::from(duration) <= constants::DURATION_YEAR,
-        NosanaError::StakeDurationTooLong
-    );
-    require!(
-        amount > constants::STAKE_MINIMUM,
-        NosanaError::StakeAmountNotEnough
-    );
+    require!(duration >= DURATION_MIN, NosanaError::StakeDurationTooShort);
+    require!(duration <= DURATION_MAX, NosanaError::StakeDurationTooLong);
+    require!(amount > STAKE_MINIMUM, NosanaError::StakeAmountNotEnough);
 
     // get stake account and init stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    stake.init(amount, *ctx.accounts.authority.key, duration);
+    stake.init(
+        amount,
+        *ctx.accounts.authority.key,
+        u64::try_from(duration).unwrap(),
+    );
 
     // transfer tokens to vault
     transfer_tokens(

@@ -4,18 +4,14 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Slash<'info> {
-    #[account(mut)]
-    pub to: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub vault: Account<'info, TokenAccount>,
+    #[account(has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
+    pub settings: Account<'info, SettingsAccount>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(
-        has_one = authority @ NosanaError::Unauthorized,
-        seeds = [ b"stats" ],
-        bump
-    )]
-    pub stats: Account<'info, StatsAccount>,
+    #[account(mut, address = settings.token_account @ NosanaError::InvalidTokenAccount)]
+    pub token_account: Account<'info, TokenAccount>,
+    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
@@ -34,7 +30,7 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        ctx.accounts.to.to_account_info(),
+        ctx.accounts.token_account.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         *ctx.bumps.get("vault").unwrap(),
         amount,

@@ -5,7 +5,7 @@ use nosana_common::{nos, transfer_tokens, NosanaError};
 #[derive(Accounts)]
 pub struct Topup<'info> {
     #[account(mut)]
-    pub from: Account<'info, TokenAccount>,
+    pub user: Account<'info, TokenAccount>,
     #[account(
         mut,
         seeds = [ b"vault", nos::ID.key().as_ref(), authority.key().as_ref() ],
@@ -30,7 +30,7 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
     // transfer tokens to the vault
     transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.from.to_account_info(),
+        ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         ctx.accounts.authority.to_account_info(),
         0, // skip signature

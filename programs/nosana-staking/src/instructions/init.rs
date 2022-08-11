@@ -1,10 +1,10 @@
 use crate::*;
-use nosana_common::{authority, nos, NosanaError};
+use nosana_common::{authority, treasury};
 
 #[derive(Accounts)]
 pub struct Init<'info> {
-    #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
-    pub stats: Account<'info, StatsAccount>,
+    #[account(init, payer = authority, space = SETTINGS_SIZE, seeds = [ b"settings" ], bump)]
+    pub settings: Account<'info, SettingsAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -12,8 +12,8 @@ pub struct Init<'info> {
 }
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
-    // get stats account and init
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    stats.init(authority::ID);
+    // get settings account and init
+    let settings: &mut Account<SettingsAccount> = &mut ctx.accounts.settings;
+    settings.set(authority::ID, treasury::ID);
     Ok(())
 }
