@@ -620,7 +620,7 @@ describe('Nosana SPL', () => {
           .accounts({ ...accounts, newAuthority: node1.publicKey })
           .signers([node1.user])
           .rpc();
-        const stats = await stakingProgram.account.settingsAccount.fetch(accounts.stats);
+        const stats = await stakingProgram.account.settingsAccount.fetch(accounts.settings);
         expect(stats.authority.toString()).to.equal(node1.publicKey.toString());
       });
 
@@ -647,7 +647,7 @@ describe('Nosana SPL', () => {
           .accounts({ ...accounts, authority: node1.publicKey, newAuthority: accounts.authority })
           .signers([node1.user])
           .rpc();
-        const stats = await stakingProgram.account.settingsAccount.fetch(accounts.stats);
+        const stats = await stakingProgram.account.settingsAccount.fetch(accounts.settings);
         expect(stats.authority.toString()).to.equal(accounts.authority.toString());
       });
     });

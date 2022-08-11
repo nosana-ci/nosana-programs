@@ -27,9 +27,8 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     // slash stake
     stake.slash(amount);
 
-    let bump = *ctx.bumps.get("vault").unwrap();
-
     // transfer tokens from vault to given token account
+    let bump = *ctx.bumps.get("vault").unwrap();
     transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
