@@ -45,6 +45,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
         *ctx.accounts.authority.key,
         u64::try_from(duration).unwrap(),
         *ctx.accounts.vault.to_account_info().key,
+        *ctx.bumps.get("vault").unwrap(),
     );
 
     // transfer tokens to vault

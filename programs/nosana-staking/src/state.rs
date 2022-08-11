@@ -38,16 +38,25 @@ pub struct StakeAccount {
     pub duration: u64,
     pub time_unstake: i64,
     pub vault: Pubkey,
+    pub vault_bump: u8,
     pub xnos: u128,
 }
 
 impl StakeAccount {
-    pub fn init(&mut self, amount: u64, authority: Pubkey, duration: u64, vault: Pubkey) {
+    pub fn init(
+        &mut self,
+        amount: u64,
+        authority: Pubkey,
+        duration: u64,
+        vault: Pubkey,
+        vault_bump: u8,
+    ) {
         self.amount = amount;
         self.authority = authority;
         self.duration = duration;
         self.time_unstake = 0;
         self.vault = vault;
+        self.vault_bump = vault_bump;
         self.update_xnos();
     }
 

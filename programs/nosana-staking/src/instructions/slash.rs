@@ -37,7 +37,7 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
             b"vault",
             nos::ID.key().as_ref(),
             stake.authority.key().as_ref(),
-            &[*ctx.bumps.get("vault").unwrap()],
+            &[stake.vault_bump],
         ],
     )
 }
