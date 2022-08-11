@@ -1,17 +1,12 @@
 use crate::*;
 use anchor_spl::token::TokenAccount;
-use nosana_common::NosanaError;
+use nosana_common::{nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct UpdateSettings<'info> {
-    #[account(mut)]
+    #[account(mut, token::mint = nos::ID)]
     pub token_account: Account<'info, TokenAccount>,
-    #[account(
-        mut,
-        has_one = authority @ NosanaError::Unauthorized,
-        seeds = [ b"settings" ],
-        bump
-    )]
+    #[account(mut, has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
     pub settings: Account<'info, SettingsAccount>,
     pub authority: Signer<'info>,
     pub new_authority: Signer<'info>,
