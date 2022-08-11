@@ -33,7 +33,7 @@ pub mod authority {
     declare_id!("XXXxddiNnmoD2h2LbQYaL76Swi21MaQbtBbRynAdQL8");
 }
 
-pub mod treasury {
+pub mod token_account {
     use anchor_lang::declare_id;
 
     #[cfg(feature = "mainnet")]

@@ -1,5 +1,5 @@
 use crate::*;
-use nosana_common::{authority, treasury};
+use nosana_common::{authority, token_account};
 
 #[derive(Accounts)]
 pub struct Init<'info> {
@@ -14,6 +14,6 @@ pub struct Init<'info> {
 pub fn handler(ctx: Context<Init>) -> Result<()> {
     // get settings account and init
     let settings: &mut Account<SettingsAccount> = &mut ctx.accounts.settings;
-    settings.set(authority::ID, treasury::ID);
+    settings.set(authority::ID, token_account::ID);
     Ok(())
 }
