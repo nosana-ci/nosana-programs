@@ -9,7 +9,7 @@ pub struct UpdateSettings<'info> {
     #[account(mut, has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
     pub settings: Account<'info, SettingsAccount>,
     pub authority: Signer<'info>,
-    pub new_authority: Signer<'info>,
+    pub new_authority: AccountInfo<'info>,
 }
 
 pub fn handler(ctx: Context<UpdateSettings>) -> Result<()> {
