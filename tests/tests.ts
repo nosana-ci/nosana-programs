@@ -352,9 +352,19 @@ describe('Nosana SPL', () => {
           .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMin))
           .accounts(accounts)
           .rpc();
+
+        // test balances
         balances.user -= stakeAmount;
         balances.vaultStaking += stakeAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
+
+        // test staking account
+        const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(stake.amount.toNumber()).to.equal(stakeAmount, 'amount');
+        expect(stake.vault.toString()).to.equal(accounts.vault.toString(), 'vault');
+        expect(stake.authority.toString()).to.equal(accounts.authority.toString(), 'authority');
+        expect(stake.duration.toNumber()).to.equal(stakeDurationMin, 'duration');
+        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin, stakeAmount), 'xnos');
       });
 
       it('Stake maximum', async () => {
@@ -466,8 +476,7 @@ describe('Nosana SPL', () => {
         const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(stake.duration.toNumber()).to.equal(stakeDurationMin * 2 + 7);
         expect(stake.amount.toNumber()).to.equal(stakeAmount);
-
-        // update xnos
+        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount), 'xnos');
       });
     });
 
@@ -489,6 +498,10 @@ describe('Nosana SPL', () => {
         const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
         await utils.assertBalancesStaking(provider, ata, balances);
+
+        // check stake
+        const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(stake.xnos.toNumber()).to.equal(0);
       });
     });
 
@@ -514,6 +527,12 @@ describe('Nosana SPL', () => {
         balances.user -= stakeAmount;
         balances.vaultStaking += stakeAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
+
+        // check stake
+        const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(stake.duration.toNumber()).to.equal(stakeDurationMin * 2 + 7, 'duration');
+        expect(stake.amount.toNumber()).to.equal(stakeAmount * 2, 'amount');
+        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount * 2), 'xnos');
       });
     });
 

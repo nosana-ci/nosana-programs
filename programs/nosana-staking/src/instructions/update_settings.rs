@@ -4,12 +4,12 @@ use nosana_common::{nos, NosanaError};
 
 #[derive(Accounts)]
 pub struct UpdateSettings<'info> {
-    #[account(mut, token::mint = nos::ID)]
+    pub new_authority: Signer<'info>,
+    #[account(token::mint = nos::ID)]
     pub token_account: Account<'info, TokenAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
     pub settings: Account<'info, SettingsAccount>,
     pub authority: Signer<'info>,
-    pub new_authority: Signer<'info>,
 }
 
 pub fn handler(ctx: Context<UpdateSettings>) -> Result<()> {
