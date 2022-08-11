@@ -23,6 +23,9 @@ pub struct Topup<'info> {
 }
 
 pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
+    // test amount
+    require!(amount > 0, NosanaError::StakeAmountNotEnough);
+
     // get stake account and topup stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
     stake.topup(amount);

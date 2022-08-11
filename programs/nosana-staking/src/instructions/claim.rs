@@ -40,6 +40,6 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         *ctx.bumps.get("vault").unwrap(),
-        stake.amount,
+        ctx.accounts.vault.amount,
     )
 }

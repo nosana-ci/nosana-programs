@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_common::{transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Slash<'info> {
@@ -10,18 +10,19 @@ pub struct Slash<'info> {
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, address = settings.token_account @ NosanaError::InvalidTokenAccount)]
     pub token_account: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    #[account(mut, address = stake.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
 pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
-    // get stake account
+    // get stake and vault account
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+    let vault: &mut Account<TokenAccount> = &mut ctx.accounts.vault;
 
     // test amount
-    require!(amount <= stake.amount, NosanaError::StakeAmountNotEnough);
+    require!(amount <= vault.amount, NosanaError::StakeAmountNotEnough);
 
     // slash stake
     stake.slash(amount);

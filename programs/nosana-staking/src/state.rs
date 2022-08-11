@@ -35,15 +35,17 @@ pub const STAKE_SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();
 pub struct StakeAccount {
     pub amount: u64,
     pub authority: Pubkey,
+    pub vault: Pubkey,
     pub duration: u64,
     pub time_unstake: i64,
     pub xnos: u128,
 }
 
 impl StakeAccount {
-    pub fn init(&mut self, amount: u64, authority: Pubkey, duration: u64) {
-        self.amount = amount;
+    pub fn init(&mut self, amount: u64, authority: Pubkey, vault: Pubkey, duration: u64) {
         self.authority = authority;
+        self.vault = vault;
+        self.amount = amount;
         self.duration = duration;
         self.time_unstake = 0;
         self.update_xnos();

@@ -43,6 +43,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     stake.init(
         amount,
         *ctx.accounts.authority.key,
+        *ctx.accounts.vault.to_account_info().key,
         u64::try_from(duration).unwrap(),
     );
 
