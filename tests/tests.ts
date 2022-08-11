@@ -101,9 +101,8 @@ describe('Nosana SPL', () => {
     vault: undefined,
     stats: undefined,
     ataFrom: undefined,
-    from: undefined,
     ataTo: undefined,
-    to: undefined,
+    user: undefined,
     ataNft: undefined,
   };
 
@@ -233,9 +232,8 @@ describe('Nosana SPL', () => {
       accounts.ataFrom =
         accounts.ataTo =
         ata.user =
-        accounts.to =
-        accounts.from =
-          await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
+        accounts.user =
+        await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
       // fund users
       await utils.mintToAccount(provider, mint, ata.user, mintSupply);
       await Promise.all(
@@ -362,7 +360,7 @@ describe('Nosana SPL', () => {
           .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationYear))
           .accounts({
             ...accounts,
-            from: user4.ata,
+            user: user4.ata,
             authority: user4.publicKey,
             stake: user4.stake,
             vault: user4.vault,
@@ -381,7 +379,7 @@ describe('Nosana SPL', () => {
           .stake(new anchor.BN(amount), new anchor.BN(stakeDurationMonth))
           .accounts({
             ...accounts,
-            from: node1.ata,
+            user: node1.ata,
             authority: node1.publicKey,
             stake: node1.stake,
             vault: node1.vault,
@@ -399,7 +397,7 @@ describe('Nosana SPL', () => {
           .stake(new anchor.BN(minimumNodeStake), new anchor.BN(stakeDurationMonth))
           .accounts({
             ...accounts,
-            from: node2.ata,
+            user: node2.ata,
             authority: node2.publicKey,
             stake: node2.stake,
             vault: node2.vault,
@@ -427,7 +425,7 @@ describe('Nosana SPL', () => {
               .stake(new anchor.BN(stakeAmount * 2), new anchor.BN(3 * stakeDurationMonth))
               .accounts({
                 ...accounts,
-                from: n.ata,
+                user: n.ata,
                 authority: n.publicKey,
                 stake: n.stake,
                 vault: n.vault,

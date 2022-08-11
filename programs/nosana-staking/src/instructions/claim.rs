@@ -5,17 +5,12 @@ use nosana_common::{nos, transfer_tokens_with_seeds, NosanaError};
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
-    pub to: Account<'info, TokenAccount>,
-    #[account(
-        mut,
-        seeds = [ b"vault", nos::ID.key().as_ref(), stake.authority.key().as_ref() ],
-        bump,
-    )]
+    pub user: Account<'info, TokenAccount>,
+    #[account(mut, close = authority, address = stake.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         close = authority,
-        owner = staking::ID @ NosanaError::InvalidOwner,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked,
     )]
@@ -28,9 +23,8 @@ pub struct Claim<'info> {
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    let clock = Clock::get()?;
     require!(
-        clock.unix_timestamp > stake.time_unstake.checked_add(5).unwrap(),
+        Clock::get()?.unix_timestamp > stake.time_unstake + i64::try_from(stake.duration).unwrap(),
         NosanaError::StakeLocked
     );
 
@@ -40,10 +34,10 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        ctx.accounts.to.to_account_info(),
+        ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         bump,
-        stake.amount,
+        ctx.accounts.vault.amount,
         &[
             b"vault",
             nos::ID.key().as_ref(),

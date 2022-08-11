@@ -32,3 +32,12 @@ pub mod authority {
     #[cfg(not(feature = "mainnet"))]
     declare_id!("XXXxddiNnmoD2h2LbQYaL76Swi21MaQbtBbRynAdQL8");
 }
+
+pub mod token_account {
+    use anchor_lang::declare_id;
+
+    #[cfg(feature = "mainnet")]
+    declare_id!("NosanarMxfrZbyCx5CotBVrzxiPcrnhj6ickpX9vRkB");
+    #[cfg(not(feature = "mainnet"))]
+    declare_id!("NosanarMxfrZbyCx5CotBVrzxiPcrnhj6ickpX9vRkB");
+}
