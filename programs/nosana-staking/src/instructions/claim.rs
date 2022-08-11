@@ -1,17 +1,12 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_common::{transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(
-        mut,
-        close = authority,
-        seeds = [ b"vault", nos::ID.key().as_ref(), authority.key().as_ref() ],
-        bump,
-    )]
+    #[account(mut, close = authority, address = stake.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
