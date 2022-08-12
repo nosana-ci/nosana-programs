@@ -17,7 +17,7 @@ pub struct Unstake<'info> {
         ).0 @ NosanaError::StakeDoesNotMatchReward,
         constraint = reward.to_account_info().lamports() == 0 @ NosanaError::StakeHasReward,
     )]
-    pub reward: AccountInfo<'info>,
+    pub reward: UncheckedAccount<'info>,
     pub authority: Signer<'info>,
 }
 
