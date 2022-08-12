@@ -1,5 +1,5 @@
 use crate::*;
-use nosana_common::NosanaError;
+use nosana_common::error::NosanaError;
 
 #[derive(Accounts)]
 pub struct Restake<'info> {

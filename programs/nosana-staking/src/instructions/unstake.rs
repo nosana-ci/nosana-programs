@@ -1,5 +1,5 @@
 use crate::*;
-use nosana_common::NosanaError;
+use nosana_common::error::NosanaError;
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
@@ -10,12 +10,11 @@ pub struct Unstake<'info> {
     )]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
-    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<Unstake>) -> Result<()> {
     // get stake account, and unstake stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    stake.unstake(ctx.accounts.clock.unix_timestamp);
+    stake.unstake(Clock::get()?.unix_timestamp);
     Ok(())
 }

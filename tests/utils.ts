@@ -34,7 +34,6 @@ async function assertBalancesStaking(provider, wallets, balances) {
     console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
-  expect(await getTokenBalance(provider, wallets.vaultStaking)).to.equal(balances.vaultStaking);
 }
 
 async function mintFromFile(key, provider, authority) {
@@ -78,6 +77,7 @@ function setupSolanaUser(connection) {
   const stake = undefined;
   const reward = undefined;
   const ataNft = undefined;
+  const vault = undefined;
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
@@ -95,6 +95,7 @@ function setupSolanaUser(connection) {
     jobs,
     stake,
     reward,
+    vault,
   };
 }
 
