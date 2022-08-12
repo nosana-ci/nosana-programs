@@ -8,6 +8,16 @@ pub struct Unstake<'info> {
         constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
     )]
     pub stake: Account<'info, StakeAccount>,
+    /// CHECK: we only want to verify this account does not exist
+    #[account(
+        owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
+        address = Pubkey::find_program_address(
+            &[ b"reward", authority.key().as_ref() ],
+            &id::REWARDS_PROGRAM
+        ).0 @ NosanaError::StakeDoesNotMatchReward,
+        constraint = reward.to_account_info().lamports() == 0 @ NosanaError::StakeHasReward,
+    )]
+    pub reward: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 

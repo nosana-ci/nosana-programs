@@ -5,6 +5,8 @@ pub enum NosanaError {
     // generic errors
     #[msg("This account is not authorized to perform this action.")]
     Unauthorized,
+    #[msg("This account is owned by an invalid program.")]
+    InvalidOwner,
     #[msg("This token account is not valid.")]
     InvalidTokenAccount,
     #[msg("This mint is invalid.")]
@@ -31,6 +33,10 @@ pub enum NosanaError {
     StakeDurationTooLong,
     #[msg("This stake is not allowed to decrease.")]
     StakeDecreased,
+    #[msg("This stake still has a reward account.")]
+    StakeHasReward,
+    #[msg("This stake does not match the reward account.")]
+    StakeDoesNotMatchReward,
 
     // job errors
     #[msg("This job is not in the Claimed state.")]
