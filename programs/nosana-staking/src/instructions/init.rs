@@ -1,32 +1,19 @@
 use crate::*;
-use anchor_spl::token::{Mint, Token, TokenAccount};
-use nosana_common::{authority, nos, NosanaError};
+use nosana_common::address;
 
 #[derive(Accounts)]
 pub struct Init<'info> {
-    #[account(address = nos::ID @ NosanaError::InvalidMint)]
-    pub mint: Account<'info, Mint>,
-    #[account(
-        init,
-        payer = authority,
-        token::mint = mint,
-        token::authority = vault,
-        seeds = [ mint.key().as_ref() ],
-        bump,
-    )]
-    pub vault: Account<'info, TokenAccount>,
-    #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
-    pub stats: Account<'info, StatsAccount>,
+    #[account(init, payer = authority, space = SETTINGS_SIZE, seeds = [ b"settings" ], bump)]
+    pub settings: Account<'info, SettingsAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
 }
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
-    // get stats account and init
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    stats.init(authority::ID);
+    // get settings account and init
+    let settings: &mut Account<SettingsAccount> = &mut ctx.accounts.settings;
+    settings.set(address::AUTHORITY, address::TOKEN_ACCOUNT);
     Ok(())
 }

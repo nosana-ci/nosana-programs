@@ -3,10 +3,10 @@ mod state;
 
 use anchor_lang::prelude::*;
 use instructions::*;
-use nosana_common::jobs;
+use nosana_common::address;
 use state::*;
 
-declare_id!(jobs::ID);
+declare_id!(address::JOBS);
 
 #[program]
 pub mod nosana_jobs {

@@ -1,14 +1,14 @@
 use crate::*;
-use nosana_common::{rewards, staking, NosanaError};
+use nosana_common::{address, error::NosanaError};
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Sync<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(owner = staking::ID)]
+    #[account(owner = address::STAKING)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, owner = rewards::ID, constraint = stake.authority == reward.authority)]
+    #[account(mut, owner = address::REWARDS, constraint = stake.authority == reward.authority)]
     pub reward: Account<'info, RewardAccount>,
 }
 

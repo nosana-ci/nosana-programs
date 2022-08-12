@@ -1,15 +1,15 @@
 use crate::*;
 use anchor_spl::token::TokenAccount;
-use nosana_common::{nos, staking, NosanaError};
+use nosana_common::{address::nos, error::NosanaError};
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct ClaimJob<'info> {
-    #[account(mut, owner = ID.key())]
+    #[account(mut)]
     pub jobs: Account<'info, Jobs>,
-    #[account(mut, owner = ID.key())]
+    #[account(mut)]
     pub job: Account<'info, Job>,
-    #[account(owner = staking::ID.key())]
+    #[account(owner = address::STAKING.key())]
     pub stake: Account<'info, StakeAccount>,
     // #[account(address = nos::ID)]
     pub ata_nft: Box<Account<'info, TokenAccount>>,

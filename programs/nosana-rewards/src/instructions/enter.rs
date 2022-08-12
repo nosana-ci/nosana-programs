@@ -1,15 +1,12 @@
 use crate::*;
-use nosana_common::{staking, NosanaError};
+use nosana_common::error::NosanaError;
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
-    #[account(mut, owner = rewards::ID @ NosanaError::InvalidOwner)]
+    #[account(mut)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(
-        owner = staking::ID @ NosanaError::InvalidOwner,
-        has_one = authority @ NosanaError::Unauthorized
-    )]
+    #[account(has_one = authority @ NosanaError::Unauthorized)]
     pub stake: Account<'info, StakeAccount>,
     #[account(
         init,

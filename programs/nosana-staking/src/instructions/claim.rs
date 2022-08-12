@@ -1,17 +1,16 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_common::{address, error::NosanaError, utils::transfer_tokens_with_seeds};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
-    pub to: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    pub user: Account<'info, TokenAccount>,
+    #[account(mut, close = authority, address = stake.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         close = authority,
-        owner = staking::ID @ NosanaError::InvalidOwner,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked,
     )]
@@ -24,23 +23,23 @@ pub struct Claim<'info> {
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and check the stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    let clock = Clock::get()?;
     require!(
-        clock.unix_timestamp
-            > stake
-                .time_unstake
-                .checked_add(i64::try_from(stake.duration).unwrap())
-                .unwrap(),
+        Clock::get()?.unix_timestamp > stake.time_unstake + i64::try_from(stake.duration).unwrap(),
         NosanaError::StakeLocked
     );
 
     // return tokens, the stake account is closed so no need to update it.
-    transfer_tokens(
+    transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        ctx.accounts.to.to_account_info(),
+        ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),
-        *ctx.bumps.get("vault").unwrap(),
-        stake.amount,
+        ctx.accounts.vault.amount,
+        &[
+            b"vault",
+            address::NOS.key().as_ref(),
+            stake.authority.key().as_ref(),
+            &[stake.vault_bump],
+        ],
     )
 }

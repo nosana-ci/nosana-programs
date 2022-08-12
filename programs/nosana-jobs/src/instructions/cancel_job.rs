@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
+use nosana_common::{address, error::NosanaError, utils::transfer_tokens};
 
 #[derive(Accounts)]
 pub struct CancelJob<'info> {
@@ -8,7 +8,7 @@ pub struct CancelJob<'info> {
     pub jobs: Account<'info, Jobs>,
     #[account(mut, owner = ID.key())]
     pub job: Account<'info, Job>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
+    #[account(mut, seeds = [ address::NOS.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
