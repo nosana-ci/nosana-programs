@@ -1,6 +1,5 @@
 use crate::*;
-use anchor_spl::token;
-use anchor_spl::token::{CloseAccount, Token, TokenAccount};
+use anchor_spl::token::{close_account, transfer, CloseAccount, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -28,34 +27,36 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         NosanaError::StakeLocked
     );
 
-    // return tokens, the stake account is closed so no need to update it.
-    utils::transfer_tokens_with_seeds(
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.vault.to_account_info(),
-        ctx.accounts.user.to_account_info(),
-        ctx.accounts.vault.to_account_info(),
+    // determine seeds
+    let seeds: &[&[u8]; 4] = &[
+        b"vault".as_ref(),
+        id::NOS_TOKEN.as_ref(),
+        stake.authority.as_ref(),
+        &[stake.vault_bump],
+    ];
+
+    // send tokens to the user
+    transfer(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.vault.to_account_info(),
+                to: ctx.accounts.user.to_account_info(),
+                authority: ctx.accounts.vault.to_account_info(),
+            },
+            &[&seeds[..]],
+        ),
         ctx.accounts.vault.amount,
-        &[
-            b"vault",
-            id::NOS_TOKEN.as_ref(),
-            stake.authority.as_ref(),
-            &[stake.vault_bump],
-        ],
     )?;
 
     // close the token vault
-    token::close_account(CpiContext::new_with_signer(
+    close_account(CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),
         CloseAccount {
             account: ctx.accounts.vault.to_account_info(),
             destination: ctx.accounts.user.to_account_info(),
             authority: ctx.accounts.authority.to_account_info(),
         },
-        &[&[
-            b"vault",
-            id::NOS_TOKEN.as_ref(),
-            stake.authority.as_ref(),
-            &[stake.vault_bump],
-        ]],
+        &[&seeds[..]],
     ))
 }
