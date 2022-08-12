@@ -38,7 +38,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         &[
             b"vault",
             id::NOS_TOKEN.as_ref(),
-            stake.authority.key().as_ref(),
+            stake.authority.as_ref(),
             &[stake.vault_bump],
         ],
     )?;
