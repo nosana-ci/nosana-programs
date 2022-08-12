@@ -11,7 +11,7 @@ pub struct Enter<'info> {
         init,
         payer = authority,
         space = REWARD_SIZE,
-        seeds = [ b"reward", authority.key().as_ref()],
+        seeds = [ b"reward", authority.key().as_ref() ],
         bump,
     )]
     pub reward: Box<Account<'info, RewardAccount>>,
