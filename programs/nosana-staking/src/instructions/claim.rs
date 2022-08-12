@@ -1,6 +1,5 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{address, error::NosanaError, utils::transfer_tokens_with_seeds};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -29,7 +28,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     );
 
     // return tokens, the stake account is closed so no need to update it.
-    transfer_tokens_with_seeds(
+    utils::transfer_tokens_with_seeds(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.vault.to_account_info(),
         ctx.accounts.user.to_account_info(),
@@ -37,7 +36,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.vault.amount,
         &[
             b"vault",
-            address::NOS.key().as_ref(),
+            id::NOS_TOKEN.key().as_ref(),
             stake.authority.key().as_ref(),
             &[stake.vault_bump],
         ],

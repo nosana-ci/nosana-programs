@@ -1,5 +1,4 @@
 use crate::*;
-use nosana_common::address;
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
@@ -8,7 +7,7 @@ pub struct Close<'info> {
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, close = authority, has_one = authority)]
     pub reward: Box<Account<'info, RewardAccount>>,
-    #[account(owner = address::STAKING, has_one = authority)]
+    #[account(owner = id::STAKING_PROGRAM, has_one = authority)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,

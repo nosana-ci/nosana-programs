@@ -1,6 +1,5 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{error::NosanaError, utils::transfer_tokens};
 
 #[derive(Accounts)]
 pub struct Topup<'info> {
@@ -27,7 +26,7 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
     stake.topup(amount);
 
     // transfer tokens to the vault
-    transfer_tokens(
+    utils::transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),

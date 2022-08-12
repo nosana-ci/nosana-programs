@@ -1,3 +1,4 @@
+use crate::id;
 use anchor_lang::prelude::*;
 use anchor_spl::token;
 
@@ -50,7 +51,7 @@ pub fn transfer_tokens<'info>(
             to,
             authority,
             amount,
-            &[crate::address::nos::ID.as_ref(), &[nonce]],
+            &[id::NOS_TOKEN.as_ref(), &[nonce]],
         )
     }
 }

@@ -1,10 +1,9 @@
 use crate::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
-use nosana_common::address;
 
 #[derive(Accounts)]
 pub struct Init<'info> {
-    #[account(address = address::NOS)]
+    #[account(address = id::NOS_TOKEN)]
     pub mint: Box<Account<'info, Mint>>,
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -15,7 +14,7 @@ pub struct Init<'info> {
         payer = authority,
         token::mint = mint,
         token::authority = ata_vault,
-        seeds = [ address::NOS.key().as_ref() ],
+        seeds = [ mint.key().as_ref() ],
         bump,
     )]
     pub ata_vault: Box<Account<'info, TokenAccount>>,

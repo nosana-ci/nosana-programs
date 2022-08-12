@@ -4,10 +4,10 @@ mod state;
 use anchor_lang::declare_id;
 use anchor_lang::prelude::*;
 use instructions::*;
-use nosana_common::address;
+use nosana_common::*;
 use state::*;
 
-declare_id!(address::REWARDS);
+declare_id!(id::REWARDS_PROGRAM);
 
 #[program]
 pub mod nosana_rewards {

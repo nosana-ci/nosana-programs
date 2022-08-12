@@ -1,10 +1,9 @@
 use crate::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
-use nosana_common::{address, error::NosanaError, utils::transfer_tokens};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
-    #[account(address = address::NOS @ NosanaError::InvalidMint)]
+    #[account(address = id::NOS_TOKEN @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
@@ -13,7 +12,7 @@ pub struct Stake<'info> {
         payer = authority,
         token::mint = mint,
         token::authority = vault,
-        seeds = [ b"vault", address::NOS.key().as_ref(), authority.key().as_ref() ],
+        seeds = [ b"vault", mint.key().as_ref(), authority.key().as_ref() ],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
@@ -21,7 +20,7 @@ pub struct Stake<'info> {
         init,
         payer = authority,
         space = STAKE_SIZE,
-        seeds = [ b"stake", address::NOS.key().as_ref(), authority.key().as_ref() ],
+        seeds = [ b"stake", mint.key().as_ref(), authority.key().as_ref() ],
         bump,
     )]
     pub stake: Account<'info, StakeAccount>,
@@ -49,7 +48,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     );
 
     // transfer tokens to vault
-    transfer_tokens(
+    utils::transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.user.to_account_info(),
         ctx.accounts.vault.to_account_info(),

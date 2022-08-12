@@ -1,5 +1,4 @@
 use crate::*;
-use nosana_common::error::NosanaError;
 
 #[derive(Accounts)]
 pub struct ReclaimJob<'info> {

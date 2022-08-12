@@ -1,5 +1,4 @@
 use crate::*;
-use nosana_common::error::NosanaError;
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]

@@ -1,19 +1,18 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{address, error::NosanaError, utils::transfer_tokens};
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(mut, seeds = [ address::NOS.key().as_ref() ], bump)]
+    #[account(mut, seeds = [ id::NOS_TOKEN.key().as_ref() ], bump)]
     pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub ata_to: Box<Account<'info, TokenAccount>>,
-    #[account(owner = address::STAKING, has_one = authority)]
+    #[account(owner = id::STAKING_PROGRAM, has_one = authority)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, owner = address::REWARDS, has_one = authority)]
+    #[account(mut, owner = id::REWARDS_PROGRAM, has_one = authority)]
     pub reward: Account<'info, RewardAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -29,7 +28,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     require!(stake.xnos >= reward.xnos, NosanaError::StakeDecreased);
 
     // pay-out tokens
-    transfer_tokens(
+    utils::transfer_tokens(
         ctx.accounts.token_program.to_account_info(),
         ctx.accounts.ata_vault.to_account_info(),
         ctx.accounts.ata_to.to_account_info(),

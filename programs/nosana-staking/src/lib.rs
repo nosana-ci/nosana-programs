@@ -3,7 +3,7 @@ mod state;
 
 use anchor_lang::prelude::*;
 use instructions::*;
-use nosana_common::address;
+use nosana_common::*;
 use solana_security_txt::security_txt;
 pub use state::*; // expose stake for cpi
 
@@ -16,7 +16,7 @@ security_txt! {
     auditors: "https://opcodes.fr/en/"
 }
 
-declare_id!(address::STAKING);
+declare_id!(id::STAKING_PROGRAM);
 
 #[program]
 pub mod nosana_staking {

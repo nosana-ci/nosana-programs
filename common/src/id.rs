@@ -1,32 +1,36 @@
 use anchor_lang::declare_id;
 
-pub use jobs::ID as JOBS;
-mod jobs {
+pub use system_program::ID as SYSTEM_PROGRAM;
+mod system_program {
+    use super::*;
+    declare_id!("11111111111111111111111111111111");
+}
+
+pub use jobs_program::ID as JOBS_PROGRAM;
+mod jobs_program {
     use super::*;
     declare_id!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
 }
 
-pub use rewards::ID as REWARDS;
-mod rewards {
+pub use rewards_program::ID as REWARDS_PROGRAM;
+mod rewards_program {
     use super::*;
     declare_id!("nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp");
 }
 
-pub use staking::ID as STAKING;
-mod staking {
+pub use staking_program::ID as STAKING_PROGRAM;
+mod staking_program {
     use super::*;
     declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
 }
 
-pub use nos::ID as NOS;
-pub mod nos {
+pub use nos_token::ID as NOS_TOKEN;
+mod nos_token {
     use super::*;
     #[cfg(feature = "mainnet")]
     declare_id!("nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7");
     #[cfg(not(feature = "mainnet"))]
     declare_id!("devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP");
-
-    pub const DECIMALS: u64 = 1_000_000;
 }
 
 pub use authority::ID as AUTHORITY;

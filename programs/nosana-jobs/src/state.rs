@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use nosana_common::error::NosanaError;
+use nosana_common::NosanaError;
 
 /// # Jobs
 /// Account for holding jobs of a certain Project
