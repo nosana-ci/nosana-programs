@@ -131,6 +131,8 @@ describe('Nosana SPL', () => {
     StakeLocked: 'This stake is still locked.',
     StakeDurationTooShort: 'This stake duration is not long enough.',
     StakeDurationTooLong: 'This stake duration is too long.',
+    StakeHasReward: "This stake still has a reward account.",
+    StakeDoesNotMatchReward: "This stake does not match the reward account.",
 
     // job errors
     JobNotClaimed: 'This job is not in the Claimed state.',
@@ -494,7 +496,22 @@ describe('Nosana SPL', () => {
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 
-      it('Unstake', async () => {
+      it('Can not unstake with invalid reward account', async () => {
+        let msg = '';
+        await stakingProgram.methods.unstake().accounts({
+          ...accounts,
+          reward: anchor.web3.Keypair.generate().publicKey
+        }).rpc().catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.StakeDoesNotMatchReward);
+
+        await stakingProgram.methods.unstake().accounts({
+          ...accounts,
+          reward: accounts.stake
+        }).rpc().catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.SolanaOwnerConstraint);
+      });
+
+      it('Can unstake', async () => {
         await stakingProgram.methods.unstake().accounts(accounts).rpc();
         const data = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
@@ -706,6 +723,13 @@ describe('Nosana SPL', () => {
         await updateRewards(accounts.stake, accounts.stats);
       });
 
+      it('Can not unstake while reward is open', async () => {
+        let msg = '';
+        await stakingProgram.methods.unstake().accounts(accounts).rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.SolanaOwnerConstraint);
+      });
+
       it('Enter rewards with the other nodes', async () => {
         for (const node of otherNodes) {
           await rewardsProgram.methods
@@ -844,6 +868,14 @@ describe('Nosana SPL', () => {
       it('Close reward account', async () => {
         await rewardsProgram.methods.close().accounts(accounts).rpc();
         await utils.assertBalancesRewards(provider, ata, balances);
+      });
+
+      it('Can unstake after reward is closed', async () => {
+        let stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(stake.timeUnstake.toNumber()).to.equal(0);
+        await stakingProgram.methods.unstake().accounts(accounts).rpc();
+        stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
+        expect(stake.timeUnstake.toNumber()).to.not.equal(0);
       });
 
       it('Close other accounts', async () => {
