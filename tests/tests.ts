@@ -419,6 +419,7 @@ describe('Nosana SPL', () => {
           .accounts({
             ...accounts,
             authority: node2.publicKey,
+            reward: node2.reward,
             stake: node2.stake,
           })
           .signers([node2.user])

@@ -31,6 +31,10 @@ pub enum NosanaError {
     StakeDurationTooLong,
     #[msg("This stake is not allowed to decrease.")]
     StakeDecreased,
+    #[msg("This stake still has a reward account.")]
+    StakeHasReward,
+    #[msg("This stake does not match the reward account.")]
+    StakeDoesNotMatchReward,
 
     // job errors
     #[msg("This job is not in the Claimed state.")]
