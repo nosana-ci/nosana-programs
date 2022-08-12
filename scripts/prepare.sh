@@ -19,11 +19,10 @@ log_err() { echo -e "${RED}==> ${WHITE}${1}${RESET}"; }
 
 # variables
 tag=$(git tag  | grep -E '^v[0-9]' | sort -V | tail -1)
-toml=common/Cargo.toml
 
 # prepare cargo for mainnet
 log_std "Setup for mainnet"
-sed -i "s/#default/default/" "${toml}"
+sed -i "s/#default/default/" common/Cargo.toml
 
 log_std "Set version to ${GREEN}${tag}"
-sed -i "s/0.1.0/${tag:1}/" "${toml}"
+sed -i "s/0.1.0/${tag:1}/" common/Cargo.toml programs/nosana-*/Cargo.toml

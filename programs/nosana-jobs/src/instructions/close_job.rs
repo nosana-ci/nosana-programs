@@ -1,5 +1,4 @@
 use crate::*;
-use nosana_common::NosanaError;
 
 #[derive(Accounts)]
 pub struct CloseJob<'info> {

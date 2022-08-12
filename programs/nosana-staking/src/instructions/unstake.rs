@@ -1,28 +1,29 @@
 use crate::*;
-use nosana_common::NosanaError;
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
-    #[account(mut, has_one = authority)]
+    #[account(
+        mut,
+        has_one = authority @ NosanaError::Unauthorized,
+        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
+    )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
-    pub stats: Box<Account<'info, StatsAccount>>,
+    /// CHECK: we only want to verify this account does not exist
+    #[account(
+        owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
+        address = Pubkey::find_program_address(
+            &[ b"reward", authority.key().as_ref() ],
+            &id::REWARDS_PROGRAM
+        ).0 @ NosanaError::StakeDoesNotMatchReward,
+        constraint = reward.to_account_info().lamports() == 0 @ NosanaError::StakeHasReward,
+    )]
+    pub reward: AccountInfo<'info>,
     pub authority: Signer<'info>,
-    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<Unstake>) -> Result<()> {
-    // get and check stake
+    // get stake account, and unstake stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
-
-    // remove xnos from stats
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.sub(stake.xnos);
-
-    // clock time for unstake
-    stake.unstake(ctx.accounts.clock.unix_timestamp);
-
-    // finish
+    stake.unstake(Clock::get()?.unix_timestamp);
     Ok(())
 }

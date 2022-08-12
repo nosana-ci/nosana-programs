@@ -1,42 +1,42 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_common::{nos, transfer_tokens, NosanaError};
 
 #[derive(Accounts)]
 pub struct Slash<'info> {
-    #[account(mut)]
-    pub ata_to: Box<Account<'info, TokenAccount>>,
-    #[account(mut, seeds = [ nos::ID.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    #[account(has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
+    pub settings: Account<'info, SettingsAccount>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, has_one = authority)]
-    pub stats: Box<Account<'info, StatsAccount>>,
+    #[account(mut, address = settings.token_account @ NosanaError::InvalidTokenAccount)]
+    pub token_account: Account<'info, TokenAccount>,
+    #[account(mut, address = stake.vault @ NosanaError::InvalidTokenAccount)]
+    pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
 pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
-    // get and check the stake
+    // get stake and vault account
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+
+    // test amount
     require!(amount <= stake.amount, NosanaError::StakeAmountNotEnough);
 
-    // transfer tokens from vault to given ata
-    transfer_tokens(
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        ctx.accounts.ata_to.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        *ctx.bumps.get("ata_vault").unwrap(),
-        amount,
-    )?;
-
-    // update stats and stake
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
-    stats.sub(stake.xnos);
+    // slash stake
     stake.slash(amount);
-    stats.add(stake.xnos);
 
-    // finish
-    Ok(())
+    // transfer tokens from vault to given token account
+    utils::transfer_tokens_with_seeds(
+        ctx.accounts.token_program.to_account_info(),
+        ctx.accounts.vault.to_account_info(),
+        ctx.accounts.token_account.to_account_info(),
+        ctx.accounts.vault.to_account_info(),
+        amount,
+        &[
+            b"vault",
+            id::NOS_TOKEN.key().as_ref(),
+            stake.authority.key().as_ref(),
+            &[stake.vault_bump],
+        ],
+    )
 }

@@ -4,10 +4,10 @@ mod state;
 use anchor_lang::declare_id;
 use anchor_lang::prelude::*;
 use instructions::*;
-use nosana_common::rewards;
+use nosana_common::*;
 use state::*;
 
-declare_id!(rewards::ID);
+declare_id!(id::REWARDS_PROGRAM);
 
 #[program]
 pub mod nosana_rewards {
@@ -27,6 +27,10 @@ pub mod nosana_rewards {
 
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         claim::handler(ctx)
+    }
+
+    pub fn sync(ctx: Context<Sync>) -> Result<()> {
+        sync::handler(ctx)
     }
 
     pub fn close(ctx: Context<Close>) -> Result<()> {

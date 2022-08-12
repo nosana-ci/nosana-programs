@@ -15,18 +15,25 @@ async function getTokenBalance(provider, wallet) {
 
 async function assertBalancesJobs(provider, wallets, balances) {
   for (const pool of ['user', 'vaultJob']) {
-    console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
   expect(await getTokenBalance(provider, wallets.vaultJob)).to.equal(balances.vaultJob);
 }
 
-async function assertBalancesStaking(provider, wallets, balances) {
-  for (const pool of ['user', 'vaultStaking']) {
-    console.log(`       ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+async function assertBalancesRewards(provider, wallets, balances) {
+  for (const pool of ['user', 'vaultRewards']) {
+    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
-  expect(await getTokenBalance(provider, wallets.vaultStaking)).to.equal(balances.vaultStaking);
+  expect(await getTokenBalance(provider, wallets.vaultRewards)).to.equal(balances.vaultRewards);
+}
+
+async function assertBalancesStaking(provider, wallets, balances) {
+  for (const pool of ['user', 'vaultStaking']) {
+    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+  }
+  expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
 }
 
 async function mintFromFile(key, provider, authority) {
@@ -68,7 +75,9 @@ function setupSolanaUser(connection) {
   const jobs = undefined;
   const job = undefined;
   const stake = undefined;
+  const reward = undefined;
   const ataNft = undefined;
+  const vault = undefined;
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
@@ -85,6 +94,8 @@ function setupSolanaUser(connection) {
     job,
     jobs,
     stake,
+    reward,
+    vault,
   };
 }
 
@@ -99,6 +110,7 @@ export {
   mintFromFile,
   mintToAccount,
   assertBalancesJobs,
+  assertBalancesRewards,
   assertBalancesStaking,
   calculateXnos,
   buf2hex,

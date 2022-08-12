@@ -3,7 +3,7 @@ mod state;
 
 use anchor_lang::prelude::*;
 use instructions::*;
-use nosana_common::staking;
+use nosana_common::*;
 use solana_security_txt::security_txt;
 pub use state::*; // expose stake for cpi
 
@@ -16,17 +16,17 @@ security_txt! {
     auditors: "https://opcodes.fr/en/"
 }
 
-declare_id!(staking::ID);
+declare_id!(id::STAKING_PROGRAM);
 
 #[program]
 pub mod nosana_staking {
     use super::*;
 
-    pub fn init_vault(ctx: Context<InitVault>) -> Result<()> {
-        init_vault::handler(ctx)
+    pub fn init(ctx: Context<Init>) -> Result<()> {
+        init::handler(ctx)
     }
 
-    pub fn stake(ctx: Context<Stake>, amount: u64, duration: u64) -> Result<()> {
+    pub fn stake(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
         stake::handler(ctx, amount, duration)
     }
 
@@ -54,7 +54,7 @@ pub mod nosana_staking {
         slash::handler(ctx, amount)
     }
 
-    pub fn update_authority(ctx: Context<UpdateSlashAuthority>) -> Result<()> {
-        update_authority::handler(ctx)
+    pub fn update_authority(ctx: Context<UpdateSettings>) -> Result<()> {
+        update_settings::handler(ctx)
     }
 }

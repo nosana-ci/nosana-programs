@@ -1,18 +1,17 @@
 use crate::*;
-use nosana_common::{staking, NosanaError};
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
+    #[account(mut)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(owner = staking::ID, has_one = authority)]
+    #[account(has_one = authority @ NosanaError::Unauthorized)]
     pub stake: Account<'info, StakeAccount>,
     #[account(
         init,
         payer = authority,
         space = REWARD_SIZE,
-        seeds = [ b"reward", authority.key().as_ref()],
+        seeds = [ b"reward", authority.key().as_ref() ],
         bump,
     )]
     pub reward: Box<Account<'info, RewardAccount>>,
@@ -32,7 +31,7 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
     reward.init(
         *ctx.accounts.authority.key,
         *ctx.bumps.get("reward").unwrap(),
-        stats.add_rewards_account(stake.xnos),
+        stats.add_rewards_account(stake.xnos, 0),
         stake.xnos,
     );
 
