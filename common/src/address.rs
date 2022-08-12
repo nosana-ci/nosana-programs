@@ -1,19 +1,19 @@
 use anchor_lang::declare_id;
 
 pub use jobs::ID as JOBS;
-pub mod jobs {
+mod jobs {
     use super::*;
     declare_id!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
 }
 
 pub use rewards::ID as REWARDS;
-pub mod rewards {
+mod rewards {
     use super::*;
     declare_id!("nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp");
 }
 
 pub use staking::ID as STAKING;
-pub mod staking {
+mod staking {
     use super::*;
     declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
 }
@@ -30,7 +30,7 @@ pub mod nos {
 }
 
 pub use authority::ID as AUTHORITY;
-pub mod authority {
+mod authority {
     use super::*;
     #[cfg(feature = "mainnet")]
     declare_id!("nosP9DVJQVuRqub7JLf3K5Z2pwx3612egECNqCueE9m");
@@ -39,7 +39,7 @@ pub mod authority {
 }
 
 pub use token_account::ID as TOKEN_ACCOUNT;
-pub mod token_account {
+mod token_account {
     use super::*;
     #[cfg(feature = "mainnet")]
     declare_id!("A9V8JkR5HihvFpHq1ZbwrpPAGBhsGfeWw5TVcUdGf2dg");
