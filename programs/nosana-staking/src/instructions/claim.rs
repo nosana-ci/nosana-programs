@@ -17,8 +17,6 @@ pub struct Claim<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
-    /// CHECK: this will be the new authority
-    pub staking_program: UncheckedAccount<'info>,
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
@@ -29,7 +27,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         NosanaError::StakeLocked
     );
 
-    // determine seeds
+    // compose seeds
     let seeds: &[&[u8]; 4] = &[
         b"vault".as_ref(),
         id::NOS_TOKEN.as_ref(),
@@ -37,7 +35,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         &[stake.vault_bump],
     ];
 
-    // send tokens to the user
+    // send tokens from the vault back to the user
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -57,7 +55,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         CloseAccount {
             account: ctx.accounts.vault.to_account_info(),
             destination: ctx.accounts.authority.to_account_info(),
-            authority: ctx.accounts.staking_program.to_account_info(),
+            authority: ctx.accounts.vault.to_account_info(),
         },
         &[&seeds[..]],
     ))
