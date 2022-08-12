@@ -1,5 +1,6 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::token;
+use anchor_spl::token::{CloseAccount, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -36,9 +37,25 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.vault.amount,
         &[
             b"vault",
-            id::NOS_TOKEN.key().as_ref(),
+            id::NOS_TOKEN.as_ref(),
             stake.authority.key().as_ref(),
             &[stake.vault_bump],
         ],
-    )
+    )?;
+
+    // close the token vault
+    token::close_account(CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        CloseAccount {
+            account: ctx.accounts.vault.to_account_info(),
+            destination: ctx.accounts.user.to_account_info(),
+            authority: ctx.accounts.authority.to_account_info(),
+        },
+        &[&[
+            b"vault",
+            id::NOS_TOKEN.as_ref(),
+            stake.authority.as_ref(),
+            &[stake.vault_bump],
+        ]],
+    ))
 }
