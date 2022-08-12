@@ -3,7 +3,8 @@ use anchor_spl::token::TokenAccount;
 
 #[derive(Accounts)]
 pub struct UpdateSettings<'info> {
-    pub new_authority: Signer<'info>,
+    /// CHECK: this will be the new authority
+    pub new_authority: UncheckedAccount<'info>,
     #[account(token::mint = id::NOS_TOKEN)]
     pub token_account: Account<'info, TokenAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]

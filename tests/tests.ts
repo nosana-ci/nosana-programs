@@ -649,21 +649,10 @@ describe('Nosana SPL', () => {
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 
-      it('Update slash authority without signature', async () => {
-        let msg = '';
-        await stakingProgram.methods
-          .updateAuthority()
-          .accounts({ ...accounts, newAuthority: node1.publicKey })
-          .rpc()
-          .catch((e) => (msg = e.message));
-        expect(msg).to.equal(errors.SolanaSignature);
-      });
-
       it('Update slash authority to node 1', async () => {
         await stakingProgram.methods
           .updateAuthority()
           .accounts({ ...accounts, newAuthority: node1.publicKey })
-          .signers([node1.user])
           .rpc();
         const stats = await stakingProgram.account.settingsAccount.fetch(accounts.settings);
         expect(stats.authority.toString()).to.equal(node1.publicKey.toString());
@@ -686,7 +675,7 @@ describe('Nosana SPL', () => {
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 
-      it('Update slash authority back', async () => {
+      it('Update settings authority back', async () => {
         await stakingProgram.methods
           .updateAuthority()
           .accounts({ ...accounts, authority: node1.publicKey, newAuthority: accounts.authority })
