@@ -28,7 +28,7 @@ describe('Nosana SPL', () => {
   // time
   const allowedClockDelta = 2000;
   const secondsPerDay = 24 * 60 * 60;
-  const stakeDurationMin = 5;
+  const stakeDurationMin = 14 * secondsPerDay;
   const stakeDurationMax = 365 * secondsPerDay;
 
   // tokens
@@ -588,6 +588,7 @@ describe('Nosana SPL', () => {
 
       // To run this test you will have to modify claim.rs and change stake_duration to 5 seconds:
       // ... ctx.accounts.clock.unix_timestamp > stake.time_unstake.checked_add(5).unwrap() ...
+      /*
       it('Claim after unstake duration', async () => {
         let balanceBefore = await utils.getTokenBalance(provider, node2.ata);
         await utils.sleep(5000);
@@ -607,6 +608,7 @@ describe('Nosana SPL', () => {
         let balanceAfter = await utils.getTokenBalance(provider, node2.ata);
         expect(balanceAfter).to.eq(balanceBefore + stakeAmount);
       });
+       */
     });
 
     describe('slash(), update_authority()', async () => {

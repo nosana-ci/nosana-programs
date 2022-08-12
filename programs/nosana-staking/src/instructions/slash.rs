@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Slash<'info> {
@@ -25,18 +25,22 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     // slash stake
     stake.slash(amount);
 
-    // transfer tokens from vault to given token account
-    utils::transfer_tokens_with_seeds(
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.vault.to_account_info(),
-        ctx.accounts.token_account.to_account_info(),
-        ctx.accounts.vault.to_account_info(),
+    // send tokens to the user
+    transfer(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.vault.to_account_info(),
+                to: ctx.accounts.token_account.to_account_info(),
+                authority: ctx.accounts.vault.to_account_info(),
+            },
+            &[&[
+                b"vault".as_ref(),
+                id::NOS_TOKEN.as_ref(),
+                stake.authority.as_ref(),
+                &[stake.vault_bump],
+            ]],
+        ),
         amount,
-        &[
-            b"vault",
-            id::NOS_TOKEN.as_ref(),
-            stake.authority.as_ref(),
-            &[stake.vault_bump],
-        ],
     )
 }

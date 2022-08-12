@@ -5,7 +5,7 @@ use anchor_spl::token::{close_account, transfer, CloseAccount, Token, TokenAccou
 pub struct Claim<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, close = authority, address = stake.vault @ NosanaError::InvalidTokenAccount)]
+    #[account(mut, address = stake.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
@@ -17,6 +17,8 @@ pub struct Claim<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
+    /// CHECK: this will be the new authority
+    pub staking_program: UncheckedAccount<'info>,
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
@@ -54,8 +56,8 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.token_program.to_account_info(),
         CloseAccount {
             account: ctx.accounts.vault.to_account_info(),
-            destination: ctx.accounts.user.to_account_info(),
-            authority: ctx.accounts.authority.to_account_info(),
+            destination: ctx.accounts.authority.to_account_info(),
+            authority: ctx.accounts.staking_program.to_account_info(),
         },
         &[&seeds[..]],
     ))

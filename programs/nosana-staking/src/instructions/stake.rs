@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token::{transfer, Mint, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
@@ -47,13 +47,15 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
         *ctx.bumps.get("vault").unwrap(),
     );
 
-    // transfer tokens to vault
-    utils::transfer_tokens(
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.user.to_account_info(),
-        ctx.accounts.vault.to_account_info(),
-        ctx.accounts.authority.to_account_info(),
-        0, // skip signature
+    transfer(
+        CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.user.to_account_info(),
+                to: ctx.accounts.vault.to_account_info(),
+                authority: ctx.accounts.authority.to_account_info(),
+            },
+        ),
         amount,
     )
 }
