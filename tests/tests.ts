@@ -586,8 +586,10 @@ describe('Nosana SPL', () => {
         await stakingProgram.methods.restake().accounts(accounts).rpc();
       });
 
-      // To run this test you will have to modify claim.rs and change stake_duration to 5 seconds:
-      // ... ctx.accounts.clock.unix_timestamp > stake.time_unstake.checked_add(5).unwrap() ...
+      //
+      //  To run this test you will have to modify claim.rs and change stake.duration to 5 seconds:
+      //  Clock::get()?.unix_timestamp > stake.time_unstake + i64::try_from(5).unwrap(),
+      //                                                                    ^
       /*
       it('Claim after unstake duration', async () => {
         let balanceBefore = await utils.getTokenBalance(provider, node2.ata);
@@ -603,12 +605,10 @@ describe('Nosana SPL', () => {
           })
           .signers([node2.user])
           .rpc();
-
-        balances.user += stakeAmount
         let balanceAfter = await utils.getTokenBalance(provider, node2.ata);
-        expect(balanceAfter).to.eq(balanceBefore + stakeAmount);
+        expect(balanceAfter).to.equal(balanceBefore + stakeAmount);
       });
-       */
+      */
     });
 
     describe('slash(), update_authority()', async () => {

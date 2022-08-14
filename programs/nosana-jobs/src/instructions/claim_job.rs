@@ -6,9 +6,22 @@ use nosana_staking::StakeAccount;
 pub struct ClaimJob<'info> {
     #[account(mut)]
     pub jobs: Account<'info, Jobs>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = job.job_status == JobStatus::Initialized as u8 @ NosanaError::JobNotInitialized
+    )]
     pub job: Account<'info, Job>,
-    #[account(owner = id::STAKING_PROGRAM.key())]
+    #[account(
+        owner = id::STAKING_PROGRAM @ NosanaError::InvalidOwner,
+        address = Pubkey::find_program_address(
+            &[ b"stake", id::NOS_TOKEN.key().as_ref(), authority.key().as_ref() ],
+            &id::STAKING_PROGRAM
+        ).0 @ NosanaError::StakeDoesNotMatchReward,
+        has_one = authority @ NosanaError::Unauthorized,
+        constraint = stake.to_account_info().lamports() != 0 @ NosanaError::StakeHasReward,
+        constraint = stake.amount >= 10_000 * constants::NOS_DECIMALS @ NosanaError::NodeUnqualifiedStakeAmount,
+        constraint = stake.time_unstake == 0 @ NosanaError::NodeUnqualifiedUnstaked,
+    )]
     pub stake: Account<'info, StakeAccount>,
     // #[account(address = nos::ID)]
     pub ata_nft: Box<Account<'info, TokenAccount>>,
@@ -19,25 +32,6 @@ pub struct ClaimJob<'info> {
 pub fn handler(ctx: Context<ClaimJob>) -> Result<()> {
     // get job and check if it's initialized
     let job: &mut Account<Job> = &mut ctx.accounts.job;
-    require!(
-        job.job_status == JobStatus::Initialized as u8,
-        NosanaError::JobNotInitialized
-    );
-
-    // verify node has enough stake
-    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
-    require!(
-        stake.authority == *ctx.accounts.authority.key,
-        NosanaError::Unauthorized
-    );
-    require!(
-        stake.amount >= 10_000 * constants::NOS_DECIMALS,
-        NosanaError::NodeUnqualifiedStakeAmount
-    );
-    require!(
-        stake.time_unstake == 0_i64,
-        NosanaError::NodeUnqualifiedUnstaked
-    );
 
     // verify node has NFT
     let ata_nft = &ctx.accounts.ata_nft;
