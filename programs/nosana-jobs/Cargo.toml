@@ -19,6 +19,5 @@ cpi = ["no-entrypoint"]
 [dependencies]
 anchor-lang = "0.25.0"
 anchor-spl = "0.25.0"
-spl-associated-token-account = "1.0.5"
 nosana-staking = { path = "../nosana-staking", features = ["cpi"]}
 nosana-common = { path = "../../common" }
