@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-   <img width="400" src="https://nosana.io/img/Nosana_Logo_vertical_color_black.svg" alt="step logo"/>
+   <img width="400" src="https://nosana.io/img/Nosana_Logo_vertical_color_black.svg" />
   <br>
 </h1>
 
