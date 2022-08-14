@@ -12,6 +12,8 @@ pub struct Claim<'info> {
         close = authority,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked,
+        constraint = stake.time_unstake + i64::try_from(stake.duration).unwrap() <
+            Clock::get()?.unix_timestamp @ NosanaError::StakeLocked,
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
@@ -20,14 +22,8 @@ pub struct Claim<'info> {
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
-    // get and check the stake
+    // get stake and compose seeds
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    require!(
-        Clock::get()?.unix_timestamp > stake.time_unstake + i64::try_from(stake.duration).unwrap(),
-        NosanaError::StakeLocked
-    );
-
-    // compose seeds
     let seeds: &[&[u8]; 4] = &[
         b"vault".as_ref(),
         id::NOS_TOKEN.as_ref(),

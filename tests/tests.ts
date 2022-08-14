@@ -588,8 +588,9 @@ describe('Nosana SPL', () => {
 
       //
       //  To run this test you will have to modify claim.rs and change stake.duration to 5 seconds:
-      //  Clock::get()?.unix_timestamp > stake.time_unstake + i64::try_from(5).unwrap(),
-      //                                                                    ^
+      //
+      //          constraint = stake.time_unstake + i64::try_from(5).unwrap() <
+      //                                                          ^
       /*
       it('Claim after unstake duration', async () => {
         let balanceBefore = await utils.getTokenBalance(provider, node2.ata);
