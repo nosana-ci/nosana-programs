@@ -1,5 +1,13 @@
 anchor_version = "0.25.0"
 
+[workspace]
+members = [
+    "common",
+    "programs/nosana-jobs",
+    "programs/nosana-staking",
+    "programs/nosana-rewards",
+]
+
 [programs.localnet]
 nosana_jobs = 'nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM'
 nosana_staking = 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'
