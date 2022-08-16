@@ -37,6 +37,7 @@ describe('Nosana SPL', () => {
   const userSupply = 1e5 * decimals;
   const jobPrice = decimals;
   const stakeAmount = 1e4 * decimals;
+  const stakeMinimum = 1e3 * decimals;
   const slashAmount = 1e3 * decimals;
   const minimumNodeStake = 1e4 * decimals;
   const feeAmount = 1e5 * decimals;
@@ -348,24 +349,35 @@ describe('Nosana SPL', () => {
         await utils.assertBalancesStaking(provider, ata, balances);
       });
 
+      it('Stake too less', async () => {
+        let msg = '';
+        await stakingProgram.methods
+          .stake(new anchor.BN(stakeMinimum - 1), new anchor.BN(stakeDurationMax))
+          .accounts(accounts)
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
+        expect(msg).to.equal(errors.StakeAmountNotEnough);
+        await utils.assertBalancesStaking(provider, ata, balances);
+      });
+
       it('Stake minimum', async () => {
         await stakingProgram.methods
-          .stake(new anchor.BN(stakeAmount), new anchor.BN(stakeDurationMin))
+          .stake(new anchor.BN(stakeMinimum), new anchor.BN(stakeDurationMin))
           .accounts(accounts)
           .rpc();
 
         // test balances
-        balances.user -= stakeAmount;
-        balances.vaultStaking += stakeAmount;
+        balances.user -= stakeMinimum;
+        balances.vaultStaking += stakeMinimum;
         await utils.assertBalancesStaking(provider, ata, balances);
 
         // test staking account
         const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
-        expect(stake.amount.toNumber()).to.equal(stakeAmount, 'amount');
+        expect(stake.amount.toNumber()).to.equal(stakeMinimum, 'amount');
         expect(stake.vault.toString()).to.equal(accounts.vault.toString(), 'vault');
         expect(stake.authority.toString()).to.equal(accounts.authority.toString(), 'authority');
         expect(stake.duration.toNumber()).to.equal(stakeDurationMin, 'duration');
-        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin, stakeAmount), 'xnos');
+        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin, stakeMinimum), 'xnos');
       });
 
       it('Stake maximum', async () => {
@@ -477,8 +489,8 @@ describe('Nosana SPL', () => {
         // check stake
         const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(stake.duration.toNumber()).to.equal(stakeDurationMin * 2 + 7);
-        expect(stake.amount.toNumber()).to.equal(stakeAmount);
-        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount), 'xnos');
+        expect(stake.amount.toNumber()).to.equal(stakeMinimum);
+        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeMinimum), 'xnos');
       });
     });
 
@@ -556,8 +568,8 @@ describe('Nosana SPL', () => {
         // check stake
         const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(stake.duration.toNumber()).to.equal(stakeDurationMin * 2 + 7, 'duration');
-        expect(stake.amount.toNumber()).to.equal(stakeAmount * 2, 'amount');
-        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount * 2), 'xnos');
+        expect(stake.amount.toNumber()).to.equal(stakeMinimum + stakeAmount, 'amount');
+        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeMinimum + stakeAmount), 'xnos');
       });
     });
 
@@ -802,7 +814,7 @@ describe('Nosana SPL', () => {
         balances.vaultStaking += stakeAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
         expect((await stakingProgram.account.stakeAccount.fetch(accounts.stake)).xnos.toNumber()).to.equal(
-          utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount) * 3
+          utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount * 2 + stakeMinimum)
         );
       });
 
@@ -824,7 +836,7 @@ describe('Nosana SPL', () => {
 
         expect(before.xnos.toNumber()).to.be.lessThan(after.xnos.toNumber());
         expect(after.xnos.toNumber()).to.equal(stake);
-        expect(after.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount) * 3);
+        expect(after.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount * 2 + stakeMinimum));
 
         totalXnos.iadd(after.xnos.sub(before.xnos));
         totalReflection.isub(before.reflection);
