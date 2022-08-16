@@ -2,43 +2,46 @@ anchor_version = "0.25.0"
 
 [workspace]
 members = [
-    "common",
+#    "common",
     "programs/nosana-jobs",
     "programs/nosana-staking",
     "programs/nosana-rewards",
 ]
 
-[programs.localnet]
-nosana_jobs = 'nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM'
-nosana_staking = 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'
-nosana_rewards = 'nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'
-
-[programs.devnet]
-nosana_jobs = 'nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM'
-nosana_staking = 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'
-nosana_rewards = 'nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'
-
-[programs.testnet]
-nosana_jobs = 'nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM'
-nosana_staking = 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'
-nosana_rewards = 'nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'
-
-[programs.mainnet]
-nosana_jobs = 'nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM'
-nosana_staking = 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'
-nosana_rewards = 'nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'
-
-[[test.genesis]]
-address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-program = "tests/mpl_token_metadata.so"
-
-[registry]
-url = "https://anchor.projectserum.com"
+[features]
+seeds = false
+skip-lint = false
 
 [provider]
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
+[registry]
+url = "https://api.apr.dev"
+
 [scripts]
 test = "npx ts-mocha --require mocha-suppress-logs -t 1000000 tests/tests.ts"
-testrewards = 'npx ts-mocha  -t 1000000 tests/tests-rewards.ts'
+
+[[test.genesis]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+program = "tests/mpl_token_metadata.so"
+
+[programs.localnet]
+nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
+nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
+
+[programs.devnet]
+nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
+nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
+
+[programs.testnet]
+nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
+nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
+
+[programs.mainnet]
+nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
+nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
+nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
