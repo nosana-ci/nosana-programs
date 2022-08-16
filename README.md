@@ -6,7 +6,7 @@
 
 # Nosana Program Library
 
-Library of Solana Programs used in the Nosana network.
+Library of Solana programs used in the Nosana Network.
 
 ## ⚠ Warning
 
