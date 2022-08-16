@@ -35,7 +35,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     // test duration and amount
     require!(duration >= DURATION_MIN, NosanaError::StakeDurationTooShort);
     require!(duration <= DURATION_MAX, NosanaError::StakeDurationTooLong);
-    require!(amount > STAKE_MINIMUM, NosanaError::StakeAmountNotEnough);
+    require!(amount >= STAKE_MINIMUM, NosanaError::StakeAmountNotEnough);
 
     // get stake account and init stake
     let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
