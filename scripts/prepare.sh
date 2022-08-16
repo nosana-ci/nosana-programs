@@ -26,3 +26,6 @@ sed -i "s/#default/default/" common/Cargo.toml
 
 log_std "Set version to ${GREEN}${tag}"
 sed -i "s/0.1.0/${tag:1}/" common/Cargo.toml programs/nosana-*/Cargo.toml
+
+log_std "Include 'common' for anchor publish"
+sed -i "s/#//" Anchor.toml
