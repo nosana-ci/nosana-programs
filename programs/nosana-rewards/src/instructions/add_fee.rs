@@ -4,11 +4,11 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 #[derive(Accounts)]
 pub struct AddFee<'info> {
     #[account(mut)]
-    pub user: Box<Account<'info, TokenAccount>>,
+    pub user: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
-    pub vault: Box<Account<'info, TokenAccount>>,
+    pub vault: Account<'info, TokenAccount>,
     pub system_program: Program<'info, System>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

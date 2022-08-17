@@ -6,7 +6,7 @@ pub struct Close<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, close = authority, has_one = authority @ NosanaError::Unauthorized)]
-    pub reward: Box<Account<'info, RewardAccount>>,
+    pub reward: Account<'info, RewardAccount>,
     #[account(has_one = authority @ NosanaError::Unauthorized)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
@@ -15,7 +15,7 @@ pub struct Close<'info> {
 
 pub fn handler(ctx: Context<Close>) -> Result<()> {
     // update stats
-    let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
+    let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 

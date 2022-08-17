@@ -31,6 +31,8 @@ pub enum NosanaError {
     StakeDurationTooShort,
     #[msg("This stake duration is too long.")]
     StakeDurationTooLong,
+    #[msg("This stake account does not exist.")]
+    StakeDoesNotExist,
     #[msg("This stake is not allowed to decrease.")]
     StakeDecreased,
     #[msg("This stake still has a reward account.")]

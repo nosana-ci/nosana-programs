@@ -4,9 +4,9 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 #[derive(Accounts)]
 pub struct Init<'info> {
     #[account(address = id::NOS_TOKEN @ NosanaError::InvalidMint)]
-    pub mint: Box<Account<'info, Mint>>,
+    pub mint: Account<'info, Mint>,
     #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
-    pub stats: Box<Account<'info, StatsAccount>>,
+    pub stats: Account<'info, StatsAccount>,
     #[account(
         init,
         payer = authority,
@@ -15,7 +15,7 @@ pub struct Init<'info> {
         seeds = [ mint.key().as_ref() ],
         bump,
     )]
-    pub vault: Box<Account<'info, TokenAccount>>,
+    pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -25,7 +25,7 @@ pub struct Init<'info> {
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
     // init stats account
-    let stats: &mut Box<Account<StatsAccount>> = &mut ctx.accounts.stats;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
     stats.init(*ctx.bumps.get("stats").unwrap());
 
     // finish

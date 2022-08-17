@@ -99,14 +99,11 @@ describe('Nosana SPL', () => {
     // token and ATAs (tbd)
     tokenAccount: undefined,
     mint: undefined,
-    ataVault: undefined,
     vault: undefined,
     stats: undefined,
     settings: undefined,
-    ataFrom: undefined,
-    ataTo: undefined,
     user: undefined,
-    ataNft: undefined,
+    nft: undefined,
   };
 
   // status options for jobs
@@ -234,8 +231,6 @@ describe('Nosana SPL', () => {
     it('Create users ATAs and mint NOS tokens', async () => {
       // create associated token accounts
       ata.user =
-        accounts.ataFrom =
-        accounts.ataTo =
         accounts.user =
         accounts.tokenAccount =
           await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
@@ -286,8 +281,8 @@ describe('Nosana SPL', () => {
 
     it('Mint NFTs', async () => {
       const { nft } = await metaplex.nfts().create(nftConfig);
-      accounts.ataNft = await getAssociatedTokenAddress(nft.mint, wallet.publicKey);
-      expect(await utils.getTokenBalance(provider, accounts.ataNft)).to.equal(1);
+      accounts.nft = await getAssociatedTokenAddress(nft.mint, wallet.publicKey);
+      expect(await utils.getTokenBalance(provider, accounts.nft)).to.equal(1);
 
       await Promise.all(
         nodes.map(async (n) => {
@@ -924,7 +919,7 @@ describe('Nosana SPL', () => {
   describe('Nosana Jobs Instructions:', () => {
     describe('init_vault()', async () => {
       it('Initialize the jobs vault', async () => {
-        accounts.ataVault = ata.vaultJob;
+        accounts.vault = ata.vaultJob;
         await jobsProgram.methods.initVault().accounts(accounts).rpc();
         await utils.assertBalancesJobs(provider, ata, balances);
       });
@@ -979,7 +974,7 @@ describe('Nosana SPL', () => {
           .createJob(new anchor.BN(jobPrice), ipfsData)
           .accounts({
             ...accounts,
-            ataVault: accounts.ataFrom,
+            vault: accounts.user,
             job: tempJob.publicKey,
           })
           .signers([tempJob])
@@ -998,7 +993,7 @@ describe('Nosana SPL', () => {
                 ...accounts,
                 jobs: u.signers.jobs.publicKey,
                 job: u.signers.job.publicKey,
-                ataFrom: u.ata,
+                user: u.ata,
                 authority: u.publicKey,
               })
               .signers([u.user, u.signers.job])
@@ -1083,7 +1078,7 @@ describe('Nosana SPL', () => {
                 stake: node.stake,
                 job: node.job,
                 jobs: node.jobs,
-                ataNft: node.ataNft,
+                nft: node.ataNft,
               })
               .signers([node.user])
               .rpc()
@@ -1158,7 +1153,7 @@ describe('Nosana SPL', () => {
               .accounts({
                 ...accounts,
                 job: n.job,
-                ataTo: n.ata,
+                user: n.ata,
                 authority: n.publicKey,
               })
               .signers([n.user])

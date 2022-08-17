@@ -5,9 +5,9 @@ use nosana_staking::StakeAccount;
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
-    pub user: Box<Account<'info, TokenAccount>>,
+    pub user: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
-    pub vault: Box<Account<'info, TokenAccount>>,
+    pub vault: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized)]

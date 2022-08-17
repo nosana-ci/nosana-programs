@@ -17,7 +17,7 @@ pub struct Enter<'info> {
         seeds = [ b"reward", authority.key().as_ref() ],
         bump,
     )]
-    pub reward: Box<Account<'info, RewardAccount>>,
+    pub reward: Account<'info, RewardAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,

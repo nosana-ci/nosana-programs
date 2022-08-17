@@ -46,7 +46,6 @@ impl Jobs {
 /// - __tokens__ is amount of tokens
 #[account]
 pub struct Job {
-    pub authority: Pubkey,
     pub node: Pubkey,
     pub job_status: u8,
     pub time_start: i64,
@@ -63,8 +62,7 @@ pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
 pub const TIMEOUT: i64 = 60 * 60;
 
 impl Job {
-    pub fn create(&mut self, authority: Pubkey, data: [u8; 32], amount: u64) {
-        self.authority = authority;
+    pub fn create(&mut self, data: [u8; 32], amount: u64) {
         self.job_status = JobStatus::Initialized as u8;
         self.ipfs_job = data;
         self.tokens = amount;
