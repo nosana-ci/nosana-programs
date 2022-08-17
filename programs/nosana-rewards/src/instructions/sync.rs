@@ -3,15 +3,15 @@ use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Sync<'info> {
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
-    pub stats: Account<'info, StatsAccount>,
+    #[account(mut)]
+    pub reward: Account<'info, RewardAccount>,
     #[account(
-        owner = id::STAKING_PROGRAM,
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
+        constraint = stake.authority == reward.authority @ NosanaError::Unauthorized,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, owner = id::REWARDS_PROGRAM, constraint = stake.authority == reward.authority)]
-    pub reward: Account<'info, RewardAccount>,
+    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
+    pub stats: Account<'info, StatsAccount>,
 }
 
 pub fn handler(ctx: Context<Sync>) -> Result<()> {
@@ -24,7 +24,7 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
     // re-enter the pool with the current stake
-    let amount: u128 = u128::from(reward.get_amount(stats.rate));
+    let amount: u128 = reward.get_amount(stats.rate) as u128;
     reward.update(stats.add_rewards_account(stake.xnos, amount), stake.xnos);
 
     // finish

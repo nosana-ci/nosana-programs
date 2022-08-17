@@ -142,12 +142,7 @@ describe('Nosana SPL', () => {
     NodeUnqualifiedStakeAmount: 'This node has not staked enough tokens.',
 
     // anchor errors
-    SolanaSeedsConstraint: 'A seeds constraint was violated',
-    SolanaRawConstraint: 'A raw constraint was violated',
-    SolanaHasOneConstraint: 'A has one constraint was violated',
     Solana8ByteConstraint: '8 byte discriminator did not match what was expected',
-    SolanaSignature: 'Signature verification failed',
-    SolanaOwnerConstraint: 'An owner constraint was violated',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
   };
 
@@ -826,7 +821,7 @@ describe('Nosana SPL', () => {
           .accounts({ ...accounts, reward: nodes[4].reward })
           .rpc()
           .catch((e) => (msg = e.error.errorMessage));
-        expect(msg).to.equal(errors.SolanaRawConstraint);
+        expect(msg).to.equal(errors.Unauthorized);
       });
 
       it('Sync reward reflection', async () => {
