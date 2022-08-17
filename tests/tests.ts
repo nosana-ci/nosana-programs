@@ -569,7 +569,10 @@ describe('Nosana SPL', () => {
         const stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(stake.duration.toNumber()).to.equal(stakeDurationMin * 2 + 7, 'duration');
         expect(stake.amount.toNumber()).to.equal(stakeMinimum + stakeAmount, 'amount');
-        expect(stake.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeMinimum + stakeAmount), 'xnos');
+        expect(stake.xnos.toNumber()).to.equal(
+          utils.calculateXnos(stakeDurationMin * 2 + 7, stakeMinimum + stakeAmount),
+          'xnos'
+        );
       });
     });
 
@@ -708,7 +711,7 @@ describe('Nosana SPL', () => {
     describe('init()', async () => {
       it('Initialize the rewards vault', async () => {
         accounts.stats = stats.rewards;
-        accounts.ataVault = ata.vaultRewards;
+        accounts.vault = ata.vaultRewards;
         await rewardsProgram.methods.init().accounts(accounts).rpc();
         const data = await rewardsProgram.account.statsAccount.fetch(accounts.stats);
         expect(data.totalXnos.toString()).to.equal(totalXnos.toString());
@@ -786,7 +789,7 @@ describe('Nosana SPL', () => {
               stake: node.stake,
               reward: node.reward,
               authority: node.publicKey,
-              ataTo: node.ata,
+              user: node.ata,
             })
             .signers([node.user])
             .rpc();
@@ -809,7 +812,10 @@ describe('Nosana SPL', () => {
       });
 
       it('Topup stake', async () => {
-        await stakingProgram.methods.topup(new anchor.BN(stakeAmount)).accounts(accounts).rpc();
+        await stakingProgram.methods
+          .topup(new anchor.BN(stakeAmount))
+          .accounts({ ...accounts, vault: ata.userVaultStaking })
+          .rpc();
         balances.user -= stakeAmount;
         balances.vaultStaking += stakeAmount;
         await utils.assertBalancesStaking(provider, ata, balances);
@@ -836,7 +842,9 @@ describe('Nosana SPL', () => {
 
         expect(before.xnos.toNumber()).to.be.lessThan(after.xnos.toNumber());
         expect(after.xnos.toNumber()).to.equal(stake);
-        expect(after.xnos.toNumber()).to.equal(utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount * 2 + stakeMinimum));
+        expect(after.xnos.toNumber()).to.equal(
+          utils.calculateXnos(stakeDurationMin * 2 + 7, stakeAmount * 2 + stakeMinimum)
+        );
 
         totalXnos.iadd(after.xnos.sub(before.xnos));
         totalReflection.isub(before.reflection);

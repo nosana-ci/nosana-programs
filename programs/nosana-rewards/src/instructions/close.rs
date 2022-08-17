@@ -5,9 +5,9 @@ use nosana_staking::StakeAccount;
 pub struct Close<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(mut, close = authority, has_one = authority)]
+    #[account(mut, close = authority, has_one = authority @ NosanaError::Unauthorized)]
     pub reward: Box<Account<'info, RewardAccount>>,
-    #[account(owner = id::STAKING_PROGRAM, has_one = authority)]
+    #[account(has_one = authority @ NosanaError::Unauthorized)]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,

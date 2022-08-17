@@ -38,6 +38,10 @@ pub enum NosanaError {
     #[msg("This stake does not match the reward account.")]
     StakeDoesNotMatchReward,
 
+    // reward errors
+    #[msg("There are no rewards to claim.")]
+    NothingToClaim,
+
     // job errors
     #[msg("This job is not in the Claimed state.")]
     JobNotClaimed,

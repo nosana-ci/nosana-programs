@@ -5,7 +5,10 @@ use nosana_staking::StakeAccount;
 pub struct Sync<'info> {
     #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(owner = id::STAKING_PROGRAM)]
+    #[account(
+        owner = id::STAKING_PROGRAM,
+        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+    )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, owner = id::REWARDS_PROGRAM, constraint = stake.authority == reward.authority)]
     pub reward: Account<'info, RewardAccount>,
@@ -15,7 +18,6 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
     // get and check stake + reward account
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
-    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
 
     // decrease the reflection pool
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
