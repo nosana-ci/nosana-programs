@@ -27,8 +27,6 @@ The external audits of the following Nosana programs are published in this repos
 | program                                              | auditor  | status      |
 |------------------------------------------------------|----------|-------------|
 | [Nosana Staking](audits/NOSANA_STAKING_REPORT_1.pdf) | Op Codes | in progress |
-|                                                      |          |             |
-|                                                      |          |             |
 
 ## Contribution
 
