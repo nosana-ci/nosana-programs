@@ -24,9 +24,9 @@ Three Nosana programs can be found in this repository, together with the [Nosana
 
 The external audits of the following Nosana programs are published in this repository:
 
-| program                                              | auditor  | status      |
-|------------------------------------------------------|----------|-------------|
-| [Nosana Staking](audits/NOSANA_STAKING_REPORT_1.pdf) | Op Codes | in progress |
+| program        | audit                                                             | auditor  | status      |
+|----------------|-------------------------------------------------------------------|----------|-------------|
+| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](audits/NOSANA_STAKING_REPORT_1.pdf) | Op Codes | in progress |
 
 ## Contribution
 
