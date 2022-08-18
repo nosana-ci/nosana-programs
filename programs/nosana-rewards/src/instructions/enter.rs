@@ -5,7 +5,10 @@ use nosana_staking::StakeAccount;
 pub struct Enter<'info> {
     #[account(mut)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(has_one = authority @ NosanaError::Unauthorized)]
+    #[account(
+        has_one = authority @ NosanaError::Unauthorized,
+        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+    )]
     pub stake: Account<'info, StakeAccount>,
     #[account(
         init,
@@ -14,20 +17,19 @@ pub struct Enter<'info> {
         seeds = [ b"reward", authority.key().as_ref() ],
         bump,
     )]
-    pub reward: Box<Account<'info, RewardAccount>>,
+    pub reward: Account<'info, RewardAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
-    // get and check stake
+    // get stake, reward, and stats account
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
-    require!(stake.time_unstake == 0, NosanaError::StakeAlreadyUnstaked);
-
-    // init the new reward account, and add reward to stats
-    let reward: &mut Box<Account<RewardAccount>> = &mut ctx.accounts.reward;
+    let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+
+    // initialize the reward account
     reward.init(
         *ctx.accounts.authority.key,
         *ctx.bumps.get("reward").unwrap(),

@@ -1,16 +1,19 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct CancelJob<'info> {
-    #[account(mut)]
+    #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
     pub jobs: Account<'info, Jobs>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = job.job_status == JobStatus::Initialized as u8 @ NosanaError::JobNotInitialized
+    )]
     pub job: Account<'info, Job>,
-    #[account(mut, seeds = [ id::NOS_TOKEN.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    #[account(mut, seeds = [ id::TST_TOKEN.as_ref() ], bump)]
+    pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub ata_to: Box<Account<'info, TokenAccount>>,
+    pub user: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
@@ -18,27 +21,23 @@ pub struct CancelJob<'info> {
 pub fn handler(ctx: Context<CancelJob>) -> Result<()> {
     // get job and cancel it
     let job: &mut Account<Job> = &mut ctx.accounts.job;
-    require!(
-        job.job_status == JobStatus::Initialized as u8,
-        NosanaError::JobNotInitialized
-    );
     job.cancel();
 
-    // refund tokens
-    utils::transfer_tokens(
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        ctx.accounts.ata_to.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        *ctx.bumps.get("ata_vault").unwrap(),
-        job.tokens,
-    )?;
-
+    let amount = job.tokens;
     // get jobs, check signature with authority, remove job from jobs list
     let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
-    require!(
-        jobs.authority == *ctx.accounts.authority.key,
-        NosanaError::Unauthorized
-    );
-    return jobs.remove_job(ctx.accounts.job.to_account_info().key);
+    jobs.remove_job(&ctx.accounts.job.key())?;
+
+    transfer(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.vault.to_account_info(),
+                to: ctx.accounts.user.to_account_info(),
+                authority: ctx.accounts.vault.to_account_info(),
+            },
+            &[&[id::TST_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
+        ),
+        amount,
+    )
 }

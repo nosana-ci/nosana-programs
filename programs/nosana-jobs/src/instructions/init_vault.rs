@@ -3,19 +3,19 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct InitVault<'info> {
-    #[account(address = id::NOS_TOKEN)]
-    pub mint: Box<Account<'info, Mint>>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
+    #[account(address = id::TST_TOKEN @ NosanaError::InvalidMint)]
+    pub mint: Account<'info, Mint>,
     #[account(
         init,
         payer = authority,
         token::mint = mint,
-        token::authority = ata_vault,
+        token::authority = vault,
         seeds = [ mint.key().as_ref() ],
         bump,
     )]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
+    pub vault: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,

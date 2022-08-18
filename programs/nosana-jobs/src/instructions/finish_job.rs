@@ -1,39 +1,38 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct FinishJob<'info> {
-    #[account(mut, owner = ID.key())]
-    pub job: Account<'info, Job>,
-    #[account(mut, seeds = [ id::NOS_TOKEN.key().as_ref() ], bump)]
-    pub ata_vault: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub ata_to: Box<Account<'info, TokenAccount>>,
+    pub user: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        constraint = job.node == authority.key() @ NosanaError::Unauthorized,
+        constraint = job.job_status == JobStatus::Claimed as u8 @ NosanaError::JobNotClaimed,
+    )]
+    pub job: Account<'info, Job>,
+    #[account(mut, seeds = [ id::TST_TOKEN.as_ref() ], bump)]
+    pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
-    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<FinishJob>, data: [u8; 32]) -> Result<()> {
-    // get job, verify signature and status, before finishing
+    // get job and finish it
     let job: &mut Account<Job> = &mut ctx.accounts.job;
-    require!(
-        job.node == *ctx.accounts.authority.key,
-        NosanaError::Unauthorized
-    );
-    require!(
-        job.job_status == JobStatus::Claimed as u8,
-        NosanaError::JobNotClaimed
-    );
-    job.finish(ctx.accounts.clock.unix_timestamp, data);
+    job.finish(Clock::get()?.unix_timestamp, data);
 
-    //  pay out
-    utils::transfer_tokens(
-        ctx.accounts.token_program.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        ctx.accounts.ata_to.to_account_info(),
-        ctx.accounts.ata_vault.to_account_info(),
-        *ctx.bumps.get("ata_vault").unwrap(),
+    // payout tokens
+    transfer(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.vault.to_account_info(),
+                to: ctx.accounts.user.to_account_info(),
+                authority: ctx.accounts.vault.to_account_info(),
+            },
+            &[&[id::TST_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
+        ),
         job.tokens,
     )
 }
