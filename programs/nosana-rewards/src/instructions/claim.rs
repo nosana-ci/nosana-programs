@@ -30,7 +30,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
     // test amount
-    let amount: u64 = reward.get_amount(stats.rate);
+    let amount: u128 = reward.get_amount(stats.rate);
     require!(amount > 0, NosanaError::NothingToClaim);
 
     // decrease the reflection pool
@@ -50,6 +50,6 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
             },
             &[&[id::NOS_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
         ),
-        amount,
+        u64::try_from(amount).unwrap(),
     )
 }
