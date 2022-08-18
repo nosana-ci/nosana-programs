@@ -20,6 +20,14 @@ Three Nosana programs can be found in this repository, together with the [Nosana
 2. [Nosana Rewards](docs/rewards.md)
 3. [Nosana Jobs](docs/jobs.md)
 
+## Audits
+
+The external audits of the following Nosana programs are published in this repository:
+
+| program        | report                                                            | auditor  | date       | status      |
+|----------------|-------------------------------------------------------------------|----------|------------|-------------|
+| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](audits/NOSANA_STAKING_REPORT_1.pdf) | Op Codes | 10-08-2022 | 🚧 in progress |
+
 ## Contribution
 
 See [CONTRIBUTING](CONTRIBUTING.md) guidelines.
