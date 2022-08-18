@@ -15,7 +15,7 @@ pub struct Unstake<'info> {
             &[ b"reward", authority.key().as_ref() ],
             &id::REWARDS_PROGRAM
         ).0 @ NosanaError::StakeDoesNotMatchReward,
-        constraint = reward.to_account_info().lamports() == 0 @ NosanaError::StakeHasReward,
+        constraint = reward.try_borrow_data().unwrap().len() == 0 @ NosanaError::StakeHasReward,
     )]
     pub reward: UncheckedAccount<'info>,
     pub authority: Signer<'info>,
@@ -23,7 +23,6 @@ pub struct Unstake<'info> {
 
 pub fn handler(ctx: Context<Unstake>) -> Result<()> {
     // get stake account, and unstake stake
-    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    stake.unstake(Clock::get()?.unix_timestamp);
+    (&mut ctx.accounts.stake).unstake(Clock::get()?.unix_timestamp);
     Ok(())
 }
