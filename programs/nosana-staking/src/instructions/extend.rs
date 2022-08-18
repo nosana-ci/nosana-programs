@@ -28,6 +28,5 @@ pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
 
     // extend stake
     stake.extend(duration);
-
     Ok(())
 }

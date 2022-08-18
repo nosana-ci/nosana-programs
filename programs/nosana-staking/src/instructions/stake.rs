@@ -46,6 +46,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
         *ctx.bumps.get("vault").unwrap(),
     );
 
+    // transfer tokens to the vault
     transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
