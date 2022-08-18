@@ -1,9 +1,7 @@
 use anchor_lang::prelude::*;
 
-pub mod constants {
-    // TODO: check this number as large as we can go without reaching an overflow in the arithmatics
-    pub const INITIAL_RATE: u128 = u128::pow(10, 15);
-}
+// TODO: check this number as large as we can go without reaching an overflow in the arithmatics
+pub const INITIAL_RATE: u128 = u128::pow(10, 15);
 
 /// # Stats
 
@@ -22,16 +20,16 @@ impl StatsAccount {
         self.bump = bump;
         self.total_reflection = 0;
         self.total_xnos = 0;
-        self.rate = constants::INITIAL_RATE;
+        self.rate = INITIAL_RATE;
     }
 
     pub fn add_fee(&mut self, fee: u128) {
         self.total_xnos += fee;
-        self.rate = self.total_reflection.checked_div(self.total_xnos).unwrap()
+        self.rate = self.total_reflection / self.total_xnos
     }
 
     pub fn add_rewards_account(&mut self, xnos: u128, reward_xnos: u128) -> u128 {
-        let reflection: u128 = (xnos + reward_xnos).checked_mul(self.rate).unwrap();
+        let reflection: u128 = (xnos + reward_xnos) * self.rate;
 
         self.total_xnos += xnos;
         self.total_reflection += reflection;
@@ -70,14 +68,7 @@ impl RewardAccount {
         self.xnos = xnos;
     }
 
-    pub fn get_amount(&mut self, rate: u128) -> u64 {
-        u64::try_from(
-            self.reflection
-                .checked_div(rate)
-                .unwrap()
-                .checked_sub(self.xnos)
-                .unwrap(),
-        )
-        .unwrap()
+    pub fn get_amount(&mut self, rate: u128) -> u128 {
+        self.reflection / rate - self.xnos
     }
 }

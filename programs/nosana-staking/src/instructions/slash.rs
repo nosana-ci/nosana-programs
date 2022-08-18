@@ -25,7 +25,7 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
     // slash stake
     stake.slash(amount);
 
-    // send tokens to the user
+    // transfer tokens to the token_account
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),

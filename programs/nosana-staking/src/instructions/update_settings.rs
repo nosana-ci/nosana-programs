@@ -14,8 +14,7 @@ pub struct UpdateSettings<'info> {
 
 pub fn handler(ctx: Context<UpdateSettings>) -> Result<()> {
     // get settings account and update it
-    let settings: &mut Account<SettingsAccount> = &mut ctx.accounts.settings;
-    settings.set(
+    (&mut ctx.accounts.settings).set(
         *ctx.accounts.new_authority.key,
         *ctx.accounts.token_account.to_account_info().key,
     );

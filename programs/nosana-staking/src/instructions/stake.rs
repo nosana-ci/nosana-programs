@@ -38,8 +38,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     require!(amount >= STAKE_MINIMUM, NosanaError::StakeAmountNotEnough);
 
     // get stake account and init stake
-    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    stake.init(
+    (&mut ctx.accounts.stake).init(
         amount,
         *ctx.accounts.authority.key,
         u64::try_from(duration).unwrap(),
@@ -47,6 +46,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
         *ctx.bumps.get("vault").unwrap(),
     );
 
+    // transfer tokens to the vault
     transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),

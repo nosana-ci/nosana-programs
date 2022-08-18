@@ -22,8 +22,7 @@ pub fn handler(ctx: Context<Topup>, amount: u64) -> Result<()> {
     require!(amount > 0, NosanaError::StakeAmountNotEnough);
 
     // get stake account and topup stake
-    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    stake.topup(amount);
+    (&mut ctx.accounts.stake).topup(amount);
 
     // transfer tokens to the vault
     transfer(

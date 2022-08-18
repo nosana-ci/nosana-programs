@@ -31,7 +31,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         &[stake.vault_bump],
     ];
 
-    // send tokens from the vault back to the user
+    // transfer tokens from the vault back to the user
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
