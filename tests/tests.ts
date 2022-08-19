@@ -877,15 +877,18 @@ describe('Nosana SPL', () => {
     });
 
     describe('close()', async () => {
-      it('Close reward account', async () => {
-        await rewardsProgram.methods.close().accounts(accounts).rpc();
+      it('Close reward account and unstake in the same tx', async () => {
         await utils.assertBalancesRewards(provider, ata, balances);
-      });
 
-      it('Can unstake after reward is closed', async () => {
         let stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(stake.timeUnstake.toNumber()).to.equal(0);
-        await stakingProgram.methods.unstake().accounts(accounts).rpc();
+
+        await stakingProgram.methods
+          .unstake()
+          .accounts(accounts)
+          .preInstructions([await rewardsProgram.methods.close().accounts(accounts).instruction()])
+          .rpc();
+
         stake = await stakingProgram.account.stakeAccount.fetch(accounts.stake);
         expect(stake.timeUnstake.toNumber()).to.not.equal(0);
         await stakingProgram.methods.restake().accounts(accounts).rpc();

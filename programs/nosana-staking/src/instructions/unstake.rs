@@ -10,14 +10,10 @@ pub struct Unstake<'info> {
     pub stake: Account<'info, StakeAccount>,
     /// CHECK: we only want to verify this account does not exist
     #[account(
-        owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
-        address = Pubkey::find_program_address(
-            &[ b"reward", authority.key().as_ref() ],
-            &id::REWARDS_PROGRAM
-        ).0 @ NosanaError::StakeDoesNotMatchReward,
-        constraint = reward.try_borrow_data().unwrap().len() == 0 @ NosanaError::StakeHasReward,
+        address = utils::get_reward_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
+        constraint = utils::account_is_closed(&reward) @ NosanaError::StakeHasReward,
     )]
-    pub reward: UncheckedAccount<'info>,
+    pub reward: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 

@@ -1,4 +1,5 @@
 use crate::id;
+use anchor_lang::__private::CLOSED_ACCOUNT_DISCRIMINATOR;
 use anchor_lang::prelude::*;
 use anchor_spl::token;
 
@@ -24,4 +25,13 @@ pub fn transfer_tokens<'info>(
             amount,
         )
     }
+}
+
+pub fn get_reward_address(authority: &Pubkey) -> Pubkey {
+    Pubkey::find_program_address(&[b"reward", authority.as_ref()], &id::REWARDS_PROGRAM).0
+}
+
+pub fn account_is_closed(account: &AccountInfo) -> bool {
+    account.owner == &id::SYSTEM_PROGRAM
+        || account.try_borrow_data().unwrap()[..8] == CLOSED_ACCOUNT_DISCRIMINATOR
 }
