@@ -43,7 +43,7 @@ describe('Nosana SPL', () => {
   const feeAmount = 1e5 * decimals;
 
   // rate
-  let initialRate = new anchor.BN('3402823669109384634633746');
+  let initialRate = new anchor.BN('3402823669209384634633746');
   let rate = initialRate;
 
   // setup users and nodes
