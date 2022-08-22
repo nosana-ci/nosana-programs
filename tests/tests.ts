@@ -43,7 +43,8 @@ describe('Nosana SPL', () => {
   const feeAmount = 1e5 * decimals;
 
   // rate
-  let rate = new anchor.BN(1e15);
+  let initialRate = new anchor.BN('3402823669109384634633746');
+  let rate = initialRate;
 
   // setup users and nodes
   const users = _.map(new Array(10), () => {
@@ -707,7 +708,7 @@ describe('Nosana SPL', () => {
         const data = await rewardsProgram.account.statsAccount.fetch(accounts.stats);
         expect(data.totalXnos.toString()).to.equal(totalXnos.toString());
         expect(data.totalReflection.toString()).to.equal(totalReflection.toString());
-        expect(data.rate.toString()).to.equal(rate.toString());
+        expect(data.rate.toString()).to.equal(initialRate.toString());
         await utils.assertBalancesRewards(provider, ata, balances);
       });
     });
