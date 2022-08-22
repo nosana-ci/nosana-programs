@@ -1,6 +1,7 @@
 pub mod constants;
-mod error;
 pub mod id;
+pub mod macros;
 pub mod utils;
 
+mod error;
 pub use error::*;
