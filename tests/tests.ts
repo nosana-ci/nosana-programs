@@ -169,6 +169,7 @@ describe('Nosana SPL', () => {
     let amount = 0;
     if (!reflection.eqn(0)) {
       amount = reflection.div(rate).sub(stakeAccount.xnos).toNumber();
+      console.log(`           ==> User Xnos: ${stakeAccount.xnos.toNumber()}, Amount: ${amount} NOS,  Total Reflection: ${totalReflection}`);
       totalXnos.isub(stakeAccount.xnos);
       totalReflection.isub(reflection);
     }

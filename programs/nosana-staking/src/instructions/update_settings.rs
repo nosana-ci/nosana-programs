@@ -4,7 +4,7 @@ use anchor_spl::token::TokenAccount;
 #[derive(Accounts)]
 pub struct UpdateSettings<'info> {
     /// CHECK: this will be the new authority
-    pub new_authority: UncheckedAccount<'info>,
+    pub new_authority: AccountInfo<'info>,
     #[account(token::mint = id::NOS_TOKEN)]
     pub token_account: Account<'info, TokenAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
@@ -15,8 +15,8 @@ pub struct UpdateSettings<'info> {
 pub fn handler(ctx: Context<UpdateSettings>) -> Result<()> {
     // get settings account and update it
     (&mut ctx.accounts.settings).set(
-        *ctx.accounts.new_authority.key,
-        *ctx.accounts.token_account.to_account_info().key,
+        ctx.accounts.new_authority.key(),
+        ctx.accounts.token_account.key(),
     );
     Ok(())
 }

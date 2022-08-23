@@ -1,20 +1,11 @@
 mod instructions;
+mod security;
 mod state;
 
 use anchor_lang::prelude::*;
 use instructions::*;
 use nosana_common::*;
-use solana_security_txt::security_txt;
-pub use state::*; // expose stake for cpi
-
-security_txt! {
-    name: "Nosana Staking",
-    project_url: "https://nosana.io",
-    contacts: "email:security@nosana.io",
-    policy: "https://github.com/nosana-ci/nosana-programs/blob/master/SECURITY.md",
-    source_code: "https://github.com/nosana-ci/nosana-programs",
-    auditors: "https://opcodes.fr/en/"
-}
+pub use state::*; // expose stake for cpi // expose stake for cpi
 
 declare_id!(id::STAKING_PROGRAM);
 
