@@ -12,21 +12,26 @@ Library of Solana programs used in the Nosana Network.
 
 **Most code is unaudited. Use at your own risk.**
 
-## Index
+## Nosana Programs
 
-Three Nosana programs can be found in this repository, together with the [Nosana Common](docs/common.md) crate.
+Four Nosana programs can be found in this repository, together with the [Nosana Common](docs/common.md) crate.
 
-1. [Nosana Staking](docs/staking.md)
-2. [Nosana Rewards](docs/rewards.md)
-3. [Nosana Jobs](docs/jobs.md)
+
+| program                           | program address                               | devnet                                                                                              | mainnet                                                                              |
+|-----------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [Nosana Staking](docs/staking.md) | `nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE` | [✅](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE?cluster=devnet) | [✅](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE) |
+| [Nosana Rewards](docs/rewards.md) | `nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp` | [✅](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp?cluster=devnet) | ️                                                                                    |
+| Nosana Pools                      |                                               |                                                                                                     |                                                                                      |
+| [Nosana Jobs](docs/jobs.md)       | `nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM` | [✅](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM?cluster=devnet) |                                                                                      |
 
 ## Audits
 
 The external audits of the following Nosana programs are published in this repository:
 
-| program        | report                                                            | auditor  | date       | status      |
-|----------------|-------------------------------------------------------------------|----------|------------|-------------|
-| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](audits/NOSANA_STAKING_REPORT_1.pdf) | Op Codes | 10-08-2022 | 🚧 in progress |
+| program        | report                                                            | auditor                            | date       | status    |
+|----------------|-------------------------------------------------------------------|------------------------------------|------------|-----------|
+| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](audits/NOSANA_STAKING_REPORT_1.pdf) | [Op Codes](https://opcodes.fr/en/) | 10-08-2022 | ✅ done    |
+| Nosana Staking | [NOSANA_STAKING_REPORT_2.pdf](audits/NOSANA_STAKING_REPORT_2.pdf) | [Op Codes](https://opcodes.fr/en/) | 23-08-2022 | ✅ done    |
 
 ## Contribution
 
