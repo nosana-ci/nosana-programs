@@ -12,10 +12,7 @@ pub struct ClaimJob<'info> {
     )]
     pub job: Account<'info, Job>,
     #[account(
-        address = Pubkey::find_program_address(
-            &[ b"stake", id::NOS_TOKEN.as_ref(), authority.key().as_ref() ],
-            &id::STAKING_PROGRAM
-        ).0 @ NosanaError::StakeDoesNotMatchReward,
+        address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.to_account_info().lamports() != 0 @ NosanaError::StakeDoesNotExist,
         constraint = stake.amount >= 10_000 * constants::NOS_DECIMALS @ NosanaError::NodeUnqualifiedStakeAmount,

@@ -31,6 +31,14 @@ pub fn get_reward_address(authority: &Pubkey) -> Pubkey {
     Pubkey::find_program_address(&[b"reward", authority.as_ref()], &id::REWARDS_PROGRAM).0
 }
 
+pub fn get_staking_address(authority: &Pubkey) -> Pubkey {
+    Pubkey::find_program_address(
+        &[b"stake", id::NOS_TOKEN.as_ref(), authority.as_ref()],
+        &id::STAKING_PROGRAM,
+    )
+    .0
+}
+
 pub fn account_is_closed(account: &AccountInfo) -> bool {
     account.owner == &id::SYSTEM_PROGRAM
         || account.try_borrow_data().unwrap()[..8] == CLOSED_ACCOUNT_DISCRIMINATOR

@@ -827,6 +827,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "mpl-token-metadata",
  "nosana-common",
  "nosana-staking",
 ]
@@ -847,7 +848,6 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
- "mpl-token-metadata",
  "nosana-common",
  "nosana-staking",
 ]
