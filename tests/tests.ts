@@ -46,15 +46,7 @@ describe('Nosana SPL', () => {
   let initialRate = new anchor.BN('3402823669209384634633746');
   let rate = initialRate;
 
-  // setup users and nodes
-  const users = _.map(new Array(10), () => {
-    return utils.setupSolanaUser(connection);
-  });
-  const [user1, user2, user3, user4] = users;
-  const nodes = _.map(new Array(10), () => {
-    return utils.setupSolanaUser(connection);
-  });
-  const [node1, node2, ...otherNodes] = nodes;
+  let users, nodes, user1, user2, user3, user4, node1, node2, node3, otherNodes, otherUsers;
 
   // Jobs account for the tests.
   const signers = {
@@ -198,6 +190,7 @@ describe('Nosana SPL', () => {
     it('Mint $NOS', async () => {
       // create mint
       accounts.mint = mint = await utils.mintFromFile(nosID.toString(), provider, provider.wallet.publicKey);
+
       // get ATA and bumps of the vaults
       [ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress([mint.toBuffer()], jobsProgram.programId);
       [ata.userVaultStaking] = await anchor.web3.PublicKey.findProgramAddress(
@@ -230,49 +223,20 @@ describe('Nosana SPL', () => {
         accounts.user =
         accounts.tokenAccount =
           await createAssociatedTokenAccount(provider.connection, payer, mint, provider.wallet.publicKey);
+
       // fund users
       await utils.mintToAccount(provider, mint, ata.user, mintSupply);
-      await Promise.all(
-        users.map(async (u) => {
-          await connection.confirmTransaction(
-            await connection.requestAirdrop(u.publicKey, anchor.web3.LAMPORTS_PER_SOL)
-          );
-          u.ata = await utils.getOrCreateAssociatedSPL(u.provider, u.publicKey, mint);
-          await utils.mintToAccount(provider, mint, u.ata, userSupply);
-          u.balance = userSupply;
-          [u.stake] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), u.publicKey.toBuffer()],
-            stakingProgram.programId
-          );
-          [u.vault] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('vault'), mint.toBuffer(), u.publicKey.toBuffer()],
-            stakingProgram.programId
-          );
-        })
-      );
-      await Promise.all(
-        nodes.map(async (n) => {
-          await connection.confirmTransaction(
-            await connection.requestAirdrop(n.publicKey, anchor.web3.LAMPORTS_PER_SOL)
-          );
-          n.ata = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, mint);
-          await utils.mintToAccount(provider, mint, n.ata, userSupply);
-          n.balance = userSupply;
-          [n.stake] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), n.publicKey.toBuffer()],
-            stakingProgram.programId
-          );
-          [n.vault] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('vault'), mint.toBuffer(), n.publicKey.toBuffer()],
-            stakingProgram.programId
-          );
-          [n.reward] = await anchor.web3.PublicKey.findProgramAddress(
-            [anchor.utils.bytes.utf8.encode('reward'), n.publicKey.toBuffer()],
-            rewardsProgram.programId
-          );
-        })
-      );
       balances.user += mintSupply;
+
+      // setup users and nodes
+      users = await Promise.all(_.map(new Array(10), async () => {
+        return await utils.setupSolanaUser(connection, mint, stakingProgram.programId, rewardsProgram.programId, userSupply, provider);
+      }));
+      [user1, user2, user3, user4, ...otherUsers] = users;
+      nodes = await Promise.all(_.map(new Array(10), async () => {
+        return await utils.setupSolanaUser(connection, mint, stakingProgram.programId, rewardsProgram.programId, userSupply, provider);
+      }));
+      [node1, node2, ...otherNodes] = nodes;
     });
 
     it('Mint NFTs', async () => {
