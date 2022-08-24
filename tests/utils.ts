@@ -15,7 +15,7 @@ async function getTokenBalance(provider, wallet) {
 
 async function assertBalancesJobs(provider, wallets, balances) {
   for (const pool of ['user', 'vaultJob']) {
-    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+    // console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
   expect(await getTokenBalance(provider, wallets.vaultJob)).to.equal(balances.vaultJob);
@@ -23,7 +23,7 @@ async function assertBalancesJobs(provider, wallets, balances) {
 
 async function assertBalancesRewards(provider, wallets, balances) {
   for (const pool of ['user', 'vaultRewards']) {
-    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+    // console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
   expect(await getTokenBalance(provider, wallets.vaultRewards)).to.equal(balances.vaultRewards);
@@ -31,7 +31,7 @@ async function assertBalancesRewards(provider, wallets, balances) {
 
 async function assertBalancesStaking(provider, wallets, balances) {
   for (const pool of ['user', 'vaultStaking']) {
-    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+    // console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
 }
@@ -121,33 +121,6 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 const utf8_encode = (s) => anchor.utils.bytes.utf8.encode(s);
 
 // helper
-async function updateRewards(stakePubkey, statsPubkey, fee = new anchor.BN(0), reflection = new anchor.BN(0)) {
-  const stakeAccount = await stakingProgram.account.stakeAccount.fetch(stakePubkey);
-  const statsAccount = await rewardsProgram.account.statsAccount.fetch(statsPubkey);
-
-  let amount = 0;
-  if (!reflection.eqn(0)) {
-    amount = reflection.div(rate).sub(stakeAccount.xnos).toNumber();
-    totalXnos.isub(stakeAccount.xnos);
-    totalReflection.isub(reflection);
-  }
-
-  if (!fee.eqn(0)) {
-    totalXnos.iadd(fee);
-    rate = totalReflection.div(totalXnos);
-  } else {
-    totalXnos.iadd(stakeAccount.xnos);
-    totalReflection.iadd(stakeAccount.xnos.mul(rate));
-  }
-
-  console.log(`           ==> Total Xnos: ${totalXnos}, Total Reflection: ${totalReflection}, Rate: ${rate}`);
-
-  expect(statsAccount.totalXnos.toString()).to.equal(totalXnos.toString(), 'Total XNOS error');
-  expect(statsAccount.totalReflection.toString()).to.equal(totalReflection.toString(), 'Total reflection error');
-  expect(statsAccount.rate.toString()).to.equal(rate.toString(), 'Rate error');
-
-  return amount;
-}
 
 
 export {
@@ -161,7 +134,6 @@ export {
   getOrCreateAssociatedSPL,
   getTokenBalance,
   setupSolanaUser,
-  udpateRewards,
   sleep,
   utf8_encode,
 };

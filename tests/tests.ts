@@ -87,15 +87,11 @@ describe('nosana programs', async function () {
       nft: undefined,
     };
 
-    // status options for jobs
-    this.jobStatus = {
-      created: 0,
-      claimed: 1,
-      finished: 2,
-    };
 
-    this.totalXnos = new anchor.BN(0);
-    this.totalReflection = new anchor.BN(0);
+    this.global = { xnos: new anchor.BN(0), reflection: new anchor.BN(0), rate: c.initialRate };
+
+    this.users = {user1: null, user2: null, user3: null, user4: null, otherUsers: null};
+    this.nodes = {node1: null, node2: null, otherNodes: null};
 
     this.ata = {
       user: undefined,

@@ -7,7 +7,7 @@ import { utf8_encode } from './utils';
 import c from './constants';
 
 export default function suite() {
-  describe('initialization of mints and ATAs', function () {
+  describe('mints and ATAs', function () {
     it('can create NOS mint', async function () {
       this.accounts.mint = this.mint = await utils.mintFromFile(
         this.nosID.toString(), this.provider, this.provider.wallet.publicKey
@@ -55,20 +55,23 @@ export default function suite() {
       this.balances.user += c.mintSupply;
 
       // setup users and nodes
-      this.users = await Promise.all(_.map(new Array(10), async () => {
+      let users = await Promise.all(_.map(new Array(10), async () => {
         return await utils.setupSolanaUser(
           this.connection, this.mint, this.stakingProgram.programId, this.rewardsProgram.programId,
           c.userSupply, this.provider
         );
       }));
-      [this.user1, this.user2, this.user3, this.user4, ...this.otherUsers] = this.users;
-      this.nodes = await Promise.all(_.map(new Array(10), async () => {
+      this.users.users = users;
+      [this.users.user1, this.users.user2, this.users.user3, this.users.user4, ...this.users.otherUsers] = users;
+
+      let nodes = await Promise.all(_.map(new Array(10), async () => {
         return await utils.setupSolanaUser(
           this.connection, this.mint, this.stakingProgram.programId, this.rewardsProgram.programId,
           c.userSupply, this.provider
         );
       }));
-      [this.node1, this.node2, ...this.otherNodes] = this.nodes;
+      this.users.nodes = nodes;
+      [this.users.node1, this.users.node2, ...this.users.otherNodes] = nodes;
     });
 
     it('can mint NFTs', async function () {
@@ -77,7 +80,7 @@ export default function suite() {
       expect(await utils.getTokenBalance(this.provider, this.accounts.nft)).to.equal(1);
 
       await Promise.all(
-        this.nodes.map(async (n) => {
+        this.users.nodes.map(async (n) => {
           const { nft } = await this.metaplex.nfts().create(this.nftConfig);
           n.ataNft = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, nft.mint);
           await transfer(

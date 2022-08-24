@@ -20,7 +20,13 @@ const constants = {
   feeAmount: 1e5 * decimals,
 
   initialRate,
-  rate: initialRate,
+
+  // status options for jobs
+  jobStatus: {
+    created: 0,
+    claimed: 1,
+    finished: 2,
+  },
 
   errors: {
     // generic errors
