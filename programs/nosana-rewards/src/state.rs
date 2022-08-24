@@ -10,7 +10,7 @@ use nosana_common::constants::NOS_TOTAL_SUPPLY;
 //
 // The formula below makes initial rate as large as it can be, and rounds it
 // down a little to a clean multiple of the total supply.
-pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY))  / NOS_TOTAL_SUPPLY;
+pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
 
 /// # Stats
 
