@@ -1,13 +1,13 @@
 use crate::*;
 // use anchor_spl::token::{close_account, transfer, CloseAccount, Token, TokenAccount, Transfer};
-use anchor_spl::token::{Token};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut, address = pool.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub pool: Account<'info, StakeAccount>,
+    pub pool: Account<'info, PoolAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

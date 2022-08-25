@@ -1,8 +1,9 @@
 import * as anchor from '@project-serum/anchor';
+import { BN } from '@project-serum/anchor';
 
 const decimals = 1e6;
 const secondsPerDay = 24 * 60 * 60;
-const initialRate = new anchor.BN('3402823669209384634633746');
+const initialRate = new BN('3402823669209384634633746');
 
 const constants = {
   allowedClockDelta: 2000,
@@ -60,6 +61,6 @@ const constants = {
     Solana8ByteConstraint: '8 byte discriminator did not match what was expected',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
   },
-}
+};
 
 export default constants;

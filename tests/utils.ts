@@ -81,7 +81,7 @@ async function setupSolanaUser(connection, mint, stakingProgram, rewardsProgram,
     [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), publicKey.toBuffer()],
     stakingProgram
   );
-  const [reward] =  await anchor.web3.PublicKey.findProgramAddress(
+  const [reward] = await anchor.web3.PublicKey.findProgramAddress(
     [anchor.utils.bytes.utf8.encode('reward'), publicKey.toBuffer()],
     rewardsProgram
   );
@@ -121,7 +121,6 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 const utf8_encode = (s) => anchor.utils.bytes.utf8.encode(s);
 
 // helper
-
 
 export {
   mintFromFile,
