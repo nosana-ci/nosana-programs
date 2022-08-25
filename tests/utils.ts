@@ -15,7 +15,7 @@ async function getTokenBalance(provider, wallet) {
 
 async function assertBalancesJobs(provider, wallets, balances) {
   for (const pool of ['user', 'vaultJob']) {
-    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+    // console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
   expect(await getTokenBalance(provider, wallets.vaultJob)).to.equal(balances.vaultJob);
@@ -23,7 +23,7 @@ async function assertBalancesJobs(provider, wallets, balances) {
 
 async function assertBalancesRewards(provider, wallets, balances) {
   for (const pool of ['user', 'vaultRewards']) {
-    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+    // console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
   expect(await getTokenBalance(provider, wallets.vaultRewards)).to.equal(balances.vaultRewards);
@@ -31,7 +31,7 @@ async function assertBalancesRewards(provider, wallets, balances) {
 
 async function assertBalancesStaking(provider, wallets, balances) {
   for (const pool of ['user', 'vaultStaking']) {
-    console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
+    // console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
 }
@@ -65,23 +65,34 @@ async function getOrCreateAssociatedSPL(provider, owner, mint) {
   return ata;
 }
 
-function setupSolanaUser(connection) {
+async function setupSolanaUser(connection, mint, stakingProgram, rewardsProgram, userSupply, mintProvider) {
   const user = anchor.web3.Keypair.generate();
   const publicKey = user.publicKey;
   const wallet = new anchor.Wallet(user);
   const provider = new anchor.AnchorProvider(connection, wallet, undefined);
-  const balance = undefined;
-  const ata = undefined;
+  await connection.confirmTransaction(await connection.requestAirdrop(user.publicKey, anchor.web3.LAMPORTS_PER_SOL));
+  const balance = userSupply;
+  const ata = await getOrCreateAssociatedSPL(provider, user.publicKey, mint);
   const jobs = undefined;
   const job = undefined;
-  const stake = undefined;
-  const reward = undefined;
+  const [stake] = await anchor.web3.PublicKey.findProgramAddress(
+    [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), publicKey.toBuffer()],
+    stakingProgram
+  );
+  const [reward] = await anchor.web3.PublicKey.findProgramAddress(
+    [anchor.utils.bytes.utf8.encode('reward'), publicKey.toBuffer()],
+    rewardsProgram
+  );
   const ataNft = undefined;
-  const vault = undefined;
+  const [vault] = await anchor.web3.PublicKey.findProgramAddress(
+    [anchor.utils.bytes.utf8.encode('vault'), mint.toBuffer(), publicKey.toBuffer()],
+    stakingProgram
+  );
   const signers = {
     jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
   };
+  await mintToAccount(mintProvider, mint, ata, userSupply);
   return {
     user,
     publicKey,
@@ -105,6 +116,9 @@ function calculateXnos(duration, amount) {
 }
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const utf8_encode = (s) => anchor.utils.bytes.utf8.encode(s);
+
+// helper
 
 export {
   mintFromFile,
@@ -118,4 +132,5 @@ export {
   getTokenBalance,
   setupSolanaUser,
   sleep,
+  utf8_encode,
 };

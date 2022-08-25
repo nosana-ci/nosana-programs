@@ -29,18 +29,3 @@ These are some of the properties of the rewards program:
   unclaimed rewards they will be voided (distributed to all other participants).
 - If a user unstaked anyone is allowed to close their reward account. This way
   there will not be "ghosts" accounts accumulating rewards.
-
-## Todo
-
-- Calculate a good value for `INITIAL_RATE`
-- Check safety of the arithmatics (overflow, underflow, rounding errors, etc)
-- Clean up the code (split operations into seperate files)
-- Add more tests
-  - Add tests for edge cases
-  - Add more complicated scenario tests
-  - Add tests for extreme (large / small / fractional) numbers
-- Make sure we can run both test files using `anchor test` (the staking and jobs
-  tests are disabled atm)
-- We should also close a reward if the corresponding stake does not exist (after
-  it's closed). Is this possible?
-- With slashing, we now have to deal with downsized stakes

@@ -1,7 +1,16 @@
 use anchor_lang::prelude::*;
+use nosana_common::constants::NOS_TOTAL_SUPPLY;
 
-// TODO: check this number as large as we can go without reaching an overflow in the arithmatics
-pub const INITIAL_RATE: u128 = u128::pow(10, 15);
+// This number should be as high as possible wihtout causing overflows.
+//
+// Rate gets multiplied by tokens to get reflections, and is the divisor of
+// reflections to get the xnos. A higher initial rate makes sure that
+// reflections will be large numbers. This is nice as total_xnos will be forever
+// increasing.
+//
+// The formula below makes initial rate as large as it can be, and rounds it
+// down a little to a clean multiple of the total supply.
+pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
 
 /// # Stats
 

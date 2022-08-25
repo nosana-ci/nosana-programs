@@ -20,11 +20,11 @@ wallet = "~/.config/solana/id.json"
 url = "https://api.apr.dev"
 
 [scripts]
-test = "npx ts-mocha --require mocha-suppress-logs -t 1000000 tests/tests.ts"
+test = "npx ts-mocha -t 1000000 tests/tests.ts"
 
 [[test.genesis]]
 address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-program = "tests/mpl_token_metadata.so"
+program = "tests/programs/mpl_token_metadata.so"
 
 [programs.localnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
