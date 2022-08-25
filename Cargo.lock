@@ -800,6 +800,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "nosana-pools"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "nosana-common",
+]
+
+[[package]]
 name = "nosana-rewards"
 version = "0.1.0"
 dependencies = [

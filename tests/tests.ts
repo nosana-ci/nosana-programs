@@ -15,6 +15,7 @@ import initTests from './0_init';
 import stakingTests from './1_staking';
 import rewardTests from './2_rewards';
 import jobTests from './3_jobs';
+import poolTests from './4_pools';
 
 describe('nosana programs', async function () {
   const provider = anchor.AnchorProvider.env();
@@ -31,6 +32,7 @@ describe('nosana programs', async function () {
     this.jobsProgram = anchor.workspace.NosanaJobs as anchor.Program<NosanaJobs>;
     this.stakingProgram = anchor.workspace.NosanaStaking as anchor.Program<NosanaStaking>;
     this.rewardsProgram = anchor.workspace.NosanaRewards as anchor.Program<NosanaRewards>;
+    this.poolsProgram = anchor.workspace.NosanaPools as anchor.Program<NosanaPools>;
     this.metaplex = Metaplex.make(connection).use(walletOrGuestIdentity(wallet));
 
     this.nosID = new anchor.web3.PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
@@ -110,4 +112,5 @@ describe('nosana programs', async function () {
   describe('staking', stakingTests.bind(this));
   describe('rewards', rewardTests.bind(this));
   describe('jobs', jobTests.bind(this));
+  describe('pools', poolTests.bind(this));
 });

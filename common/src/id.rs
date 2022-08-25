@@ -24,6 +24,12 @@ mod staking_program {
     declare_id!("nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE");
 }
 
+pub use pools_program::ID as POOLS_PROGRAM;
+mod pools_program {
+    use super::*;
+    declare_id!("GL82QivmTYTZqRdBM5wtRTj9hcibxAXTf82mnanfbgzq");
+}
+
 pub use nos_token::ID as NOS_TOKEN;
 mod nos_token {
     use super::*;

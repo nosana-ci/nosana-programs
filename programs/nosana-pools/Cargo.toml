@@ -1,0 +1,22 @@
+[package]
+name = "nosana-pools"
+version = "0.1.0"
+description = "Nosana Pools."
+edition = "2021"
+homepage = "https://nosana.io/"
+authors = ["nosana"]
+license = "MIT"
+keywords = ["solana", "nosana", "cicd", "vesting", "anchor"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "nosana_pools"
+
+[features]
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+
+[dependencies]
+anchor-lang = "0.25.0"
+anchor-spl = "0.25.0"
+nosana-common = { path = "../../common" }
