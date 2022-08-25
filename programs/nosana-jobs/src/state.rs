@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use nosana_common::NosanaError;
 
-/// # Jobs
+/// # Project
 /// Account for holding jobs of a certain Project
 /// - __authority__ is the payer and initial projects' creator
 /// - __jobs__ is list of Jobs
@@ -12,7 +12,7 @@ pub struct ProjectAccount {
 }
 
 // size of a jobs struct, in bytes
-pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<ProjectAccount>() + 32 * 100 + 16;
+pub const PROJECT_SIZE: usize = 8 + std::mem::size_of::<ProjectAccount>() + 32 * 100 + 16;
 
 impl ProjectAccount {
     pub fn init(&mut self, authority: Pubkey) {

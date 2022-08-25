@@ -24,8 +24,7 @@ pub struct Claim<'info> {
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
-    // get stake, reward, and stats account
-    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
+    // get rewards and stats account
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
@@ -37,7 +36,10 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
     // re-enter the pool with the current stake
-    reward.update(stats.add_rewards_account(stake.xnos, 0), stake.xnos);
+    reward.update(
+        stats.add_rewards_account(ctx.accounts.stake.xnos, 0),
+        ctx.accounts.stake.xnos,
+    );
 
     // pay-out reward
     transfer(

@@ -19,6 +19,10 @@ export default function suite() {
       [global.ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress(
         [global.mint.toBuffer()],
         global.jobsProgram.programId
+      ); // get ATA and bumps of the vaults
+      [global.accounts.project] = await anchor.web3.PublicKey.findProgramAddress(
+        [utf8_encode('project'), global.provider.wallet.publicKey.toBuffer()],
+        global.jobsProgram.programId
       );
       [global.ata.userVaultStaking] = await anchor.web3.PublicKey.findProgramAddress(
         [utf8_encode('vault'), global.mint.toBuffer(), global.provider.wallet.publicKey.toBuffer()],
@@ -66,14 +70,7 @@ export default function suite() {
       // setup users and nodes
       let users = await Promise.all(
         _.map(new Array(10), async () => {
-          return await utils.setupSolanaUser(
-            global.connection,
-            global.mint,
-            global.stakingProgram.programId,
-            global.rewardsProgram.programId,
-            c.userSupply,
-            global.provider
-          );
+          return await utils.setupSolanaUser(global.connection, global.mint, c.userSupply, global.provider);
         })
       );
       global.users.users = users;
@@ -82,14 +79,7 @@ export default function suite() {
 
       let nodes = await Promise.all(
         _.map(new Array(10), async () => {
-          return await utils.setupSolanaUser(
-            global.connection,
-            global.mint,
-            global.stakingProgram.programId,
-            global.rewardsProgram.programId,
-            c.userSupply,
-            global.provider
-          );
+          return await utils.setupSolanaUser(global.connection, global.mint, c.userSupply, global.provider);
         })
       );
       global.users.nodes = nodes;

@@ -13,7 +13,6 @@ pub struct Reclaim<'info> {
 
 pub fn handler(ctx: Context<Reclaim>) -> Result<()> {
     // get job and claim it
-    let job: &mut Account<JobAccount> = &mut ctx.accounts.job;
-    job.claim(*ctx.accounts.authority.key, Clock::get()?.unix_timestamp);
+    (&mut ctx.accounts.job).claim(ctx.accounts.authority.key(), Clock::get()?.unix_timestamp);
     Ok(())
 }

@@ -13,12 +13,12 @@ async function getTokenBalance(provider, wallet) {
   return parseInt((await provider.connection.getTokenAccountBalance(wallet)).value.amount);
 }
 
-async function assertBalancesJobs(provider, wallets, balances) {
+async function assertBalancesJobs() {
   for (const pool of ['user', 'vaultJob']) {
     // console.log(`           ==> Balance pool: ${pool}, ${balances[pool]} tokens`);
   }
-  expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
-  expect(await getTokenBalance(provider, wallets.vaultJob)).to.equal(balances.vaultJob);
+  expect(await getTokenBalance(global.provider, global.ata.user)).to.equal(global.balances.user);
+  expect(await getTokenBalance(global.provider, global.ata.vaultJob)).to.equal(global.balances.vaultJob);
 }
 
 async function assertBalancesRewards(provider, wallets, balances) {
@@ -65,7 +65,7 @@ async function getOrCreateAssociatedSPL(provider, owner, mint) {
   return ata;
 }
 
-async function setupSolanaUser(connection, mint, stakingProgram, rewardsProgram, userSupply, mintProvider) {
+async function setupSolanaUser(connection, mint, userSupply, mintProvider) {
   const user = anchor.web3.Keypair.generate();
   const publicKey = user.publicKey;
   const wallet = new anchor.Wallet(user);
@@ -73,23 +73,25 @@ async function setupSolanaUser(connection, mint, stakingProgram, rewardsProgram,
   await connection.confirmTransaction(await connection.requestAirdrop(user.publicKey, anchor.web3.LAMPORTS_PER_SOL));
   const balance = userSupply;
   const ata = await getOrCreateAssociatedSPL(provider, user.publicKey, mint);
-  const jobs = undefined;
   const job = undefined;
+  const ataNft = undefined;
   const [stake] = await anchor.web3.PublicKey.findProgramAddress(
     [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), publicKey.toBuffer()],
-    stakingProgram
+    global.stakingProgram.programId
   );
   const [reward] = await anchor.web3.PublicKey.findProgramAddress(
     [anchor.utils.bytes.utf8.encode('reward'), publicKey.toBuffer()],
-    rewardsProgram
+    global.rewardsProgram.programId
   );
-  const ataNft = undefined;
   const [vault] = await anchor.web3.PublicKey.findProgramAddress(
     [anchor.utils.bytes.utf8.encode('vault'), mint.toBuffer(), publicKey.toBuffer()],
-    stakingProgram
+    global.stakingProgram.programId
+  );
+  const [project] = await anchor.web3.PublicKey.findProgramAddress(
+    [utf8_encode('project'), publicKey.toBuffer()],
+    global.jobsProgram.programId
   );
   const signers = {
-    jobs: anchor.web3.Keypair.generate(),
     job: anchor.web3.Keypair.generate(),
   };
   await mintToAccount(mintProvider, mint, ata, userSupply);
@@ -103,7 +105,7 @@ async function setupSolanaUser(connection, mint, stakingProgram, rewardsProgram,
     ata,
     ataNft,
     job,
-    jobs,
+    project,
     stake,
     reward,
     vault,

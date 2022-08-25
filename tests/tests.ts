@@ -35,7 +35,6 @@ describe('nosana programs', async function () {
 
     // Jobs account for the tests.
     global.signers = {
-      jobs: anchor.web3.Keypair.generate(),
       job: anchor.web3.Keypair.generate(),
     };
     global.cancelJob = anchor.web3.Keypair.generate();
@@ -70,13 +69,13 @@ describe('nosana programs', async function () {
       feePayer: global.provider.wallet.publicKey,
 
       // Solana accounts for ci/cd and staking
-      jobs: global.signers.jobs.publicKey,
       job: global.signers.job.publicKey,
       stake: undefined,
       reward: undefined,
 
       // token and ATAs (tbd)
       tokenAccount: undefined,
+      project: undefined,
       mint: undefined,
       vault: undefined,
       stats: undefined,

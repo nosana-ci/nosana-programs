@@ -5,7 +5,7 @@ use nosana_staking::StakeAccount;
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
-    pub jobs: Account<'info, ProjectAccount>,
+    pub project: Account<'info, ProjectAccount>,
     #[account(
         mut,
         constraint = job.job_status == JobStatus::Initialized as u8 @ NosanaError::JobNotInitialized
@@ -25,18 +25,12 @@ pub struct Claim<'info> {
     )]
     pub nft: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
-    pub clock: Sysvar<'info, Clock>,
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get job and claim it
-    let job: &mut Account<JobAccount> = &mut ctx.accounts.job;
-    job.claim(
-        *ctx.accounts.authority.key,
-        ctx.accounts.clock.unix_timestamp,
-    );
+    (&mut ctx.accounts.job).claim(ctx.accounts.authority.key(), Clock::get()?.unix_timestamp);
 
-    // get jobs and remove the job from the list
-    let jobs: &mut Account<ProjectAccount> = &mut ctx.accounts.jobs;
-    return jobs.remove_job(job.to_account_info().key);
+    // get project and remove the job from the list
+    (&mut ctx.accounts.project).remove_job(&ctx.accounts.job.key())
 }

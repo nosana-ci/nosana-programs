@@ -6,7 +6,7 @@ pub struct Create<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Account<'info, JobAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
-    pub jobs: Account<'info, ProjectAccount>,
+    pub project: Account<'info, ProjectAccount>,
     #[account(mut, seeds = [ id::TST_TOKEN.as_ref() ], bump)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -19,15 +19,11 @@ pub struct Create<'info> {
 }
 
 pub fn handler(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
-    // retrieve job list and check signature
-    let jobs: &mut Account<ProjectAccount> = &mut ctx.accounts.jobs;
-
     // create job
-    let job: &mut Account<JobAccount> = &mut ctx.accounts.job;
-    job.create(data, amount);
+    (&mut ctx.accounts.job).create(data, amount);
 
-    // we push the account of the job to the list
-    jobs.add_job(ctx.accounts.job.key());
+    // add job to the project
+    (&mut ctx.accounts.project).add_job(ctx.accounts.job.key());
 
     // finish
     transfer(

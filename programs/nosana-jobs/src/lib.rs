@@ -17,8 +17,12 @@ pub mod nosana_jobs {
         init::handler()
     }
 
-    pub fn enter(ctx: Context<Enter>) -> Result<()> {
-        enter::handler(ctx)
+    pub fn start(ctx: Context<Start>) -> Result<()> {
+        start::handler(ctx)
+    }
+
+    pub fn stop(_ctx: Context<Stop>) -> Result<()> {
+        stop::handler()
     }
 
     pub fn create(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
