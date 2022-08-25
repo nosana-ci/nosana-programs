@@ -1,7 +1,7 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import * as utils from './utils';
-import c from './constants';
+import * as utils from '../utils';
+import c from '../constants';
 
 export default function suite() {
   async function updateRewards(t, stakePubkey, statsPubkey, fee = new anchor.BN(0), reflection = new anchor.BN(0)) {

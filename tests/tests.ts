@@ -8,10 +8,10 @@ import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
 
 import c from './constants';
 
-import initTests from './0_init';
-import stakingTests from './1_staking';
-import rewardTests from './2_rewards';
-import jobTests from './3_jobs';
+import initTests from './suites/0-initialization-tests';
+import stakingTests from './suites/1-nosana-staking-tests';
+import rewardTests from './suites/2-nosana-rewards-tests';
+import jobTests from './suites/4-nosana-jobs-tests';
 
 describe('nosana programs', async function () {
   const provider = anchor.AnchorProvider.env();
