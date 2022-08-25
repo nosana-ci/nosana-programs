@@ -27,16 +27,19 @@ pub fn transfer_tokens<'info>(
     }
 }
 
+pub fn get_address(seeds: &[&[u8]], program_id: &Pubkey) -> Pubkey {
+    Pubkey::find_program_address(seeds, program_id).0
+}
+
 pub fn get_reward_address(authority: &Pubkey) -> Pubkey {
-    Pubkey::find_program_address(&[b"reward", authority.as_ref()], &id::REWARDS_PROGRAM).0
+    get_address(&[b"reward", authority.as_ref()], &id::REWARDS_PROGRAM)
 }
 
 pub fn get_staking_address(authority: &Pubkey) -> Pubkey {
-    Pubkey::find_program_address(
+    get_address(
         &[b"stake", id::NOS_TOKEN.as_ref(), authority.as_ref()],
         &id::STAKING_PROGRAM,
     )
-    .0
 }
 
 pub fn account_is_closed(account: &AccountInfo) -> bool {
