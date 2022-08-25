@@ -3,8 +3,10 @@ import * as anchor from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
 
+// @ts-ignore
 import c from './constants';
 
+// suites
 import initTests from './suites/0-initialization-tests';
 import stakingTests from './suites/1-nosana-staking-tests';
 import rewardTests from './suites/2-nosana-rewards-tests';
