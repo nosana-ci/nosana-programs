@@ -1,9 +1,6 @@
 // imports
 import * as anchor from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { NosanaStaking } from '../target/types/nosana_staking';
-import { NosanaJobs } from '../target/types/nosana_jobs';
-import { NosanaRewards } from '../target/types/nosana_rewards';
 import { Metaplex, walletOrGuestIdentity } from '@metaplex-foundation/js';
 
 import c from './constants';
@@ -39,6 +36,7 @@ describe('nosana programs', async function () {
     };
     global.cancelJob = anchor.web3.Keypair.generate();
     global.cancelJobs = anchor.web3.Keypair.generate();
+    global.constants = c;
     global.nftConfig = {
       uri: 'https://arweave.net/123',
       name: 'Test NFT',

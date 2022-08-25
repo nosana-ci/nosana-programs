@@ -1,7 +1,6 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import * as utils from '../utils';
-import c from '../constants';
 
 export default function suite() {
   async function updateRewards(stakePubkey, statsPubkey, fee = new anchor.BN(0), reflection = new anchor.BN(0)) {
@@ -43,7 +42,7 @@ export default function suite() {
       const data = await global.rewardsProgram.account.statsAccount.fetch(global.accounts.stats);
       expect(data.totalXnos.toString()).to.equal(global.total.xnos.toString());
       expect(data.totalReflection.toString()).to.equal(global.total.reflection.toString());
-      expect(data.rate.toString()).to.equal(c.initialRate.toString());
+      expect(data.rate.toString()).to.equal(global.constants.initialRate.toString());
       await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
     });
   });
@@ -56,7 +55,7 @@ export default function suite() {
         .accounts({ ...global.accounts, stake: global.users.node1.stake })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.Unauthorized);
+      expect(msg).to.equal(global.constants.errors.Unauthorized);
     });
 
     it('can enter rewards pool with main wallet', async function () {
@@ -71,7 +70,7 @@ export default function suite() {
         .accounts(global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.StakeHasReward);
+      expect(msg).to.equal(global.constants.errors.StakeHasReward);
     });
 
     it('can enter rewards with the other nodes', async function () {
@@ -88,10 +87,13 @@ export default function suite() {
 
   describe('add_fee()', async function () {
     it('can add fees to the pool', async function () {
-      await global.rewardsProgram.methods.addFee(new anchor.BN(c.feeAmount)).accounts(global.accounts).rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(c.feeAmount));
-      global.balances.user -= c.feeAmount;
-      global.balances.vaultRewards += c.feeAmount;
+      await global.rewardsProgram.methods
+        .addFee(new anchor.BN(global.constants.feeAmount))
+        .accounts(global.accounts)
+        .rpc();
+      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(global.constants.feeAmount));
+      global.balances.user -= global.constants.feeAmount;
+      global.balances.vaultRewards += global.constants.feeAmount;
       await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
     });
 
@@ -135,23 +137,29 @@ export default function suite() {
 
   describe('sync()', async function () {
     it('Add more fees to the pool', async function () {
-      await global.rewardsProgram.methods.addFee(new anchor.BN(c.feeAmount)).accounts(global.accounts).rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(c.feeAmount));
-      global.balances.user -= c.feeAmount;
-      global.balances.vaultRewards += c.feeAmount;
+      await global.rewardsProgram.methods
+        .addFee(new anchor.BN(global.constants.feeAmount))
+        .accounts(global.accounts)
+        .rpc();
+      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(global.constants.feeAmount));
+      global.balances.user -= global.constants.feeAmount;
+      global.balances.vaultRewards += global.constants.feeAmount;
       await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
     });
 
     it('Topup stake', async function () {
       await global.stakingProgram.methods
-        .topup(new anchor.BN(c.stakeAmount))
+        .topup(new anchor.BN(global.constants.stakeAmount))
         .accounts({ ...global.accounts, vault: global.ata.userVaultStaking })
         .rpc();
-      global.balances.user -= c.stakeAmount;
-      global.balances.vaultStaking += c.stakeAmount;
+      global.balances.user -= global.constants.stakeAmount;
+      global.balances.vaultStaking += global.constants.stakeAmount;
       await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
       expect((await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake)).xnos.toNumber()).to.equal(
-        utils.calculateXnos(c.stakeDurationMin * 2 + 7, c.stakeAmount * 2 + c.stakeMinimum)
+        utils.calculateXnos(
+          global.constants.stakeDurationMin * 2 + 7,
+          global.constants.stakeAmount * 2 + global.constants.stakeMinimum
+        )
       );
     });
 
@@ -162,7 +170,7 @@ export default function suite() {
         .accounts({ ...global.accounts, reward: global.users.nodes[4].reward })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.Unauthorized);
+      expect(msg).to.equal(global.constants.errors.Unauthorized);
     });
 
     it('can sync reward reflection', async function () {
@@ -174,7 +182,10 @@ export default function suite() {
       expect(before.xnos.toNumber()).to.be.lessThan(after.xnos.toNumber());
       expect(after.xnos.toNumber()).to.equal(stake);
       expect(after.xnos.toNumber()).to.equal(
-        utils.calculateXnos(c.stakeDurationMin * 2 + 7, c.stakeAmount * 2 + c.stakeMinimum)
+        utils.calculateXnos(
+          global.constants.stakeDurationMin * 2 + 7,
+          global.constants.stakeAmount * 2 + global.constants.stakeMinimum
+        )
       );
 
       global.total.xnos.iadd(after.xnos.sub(before.xnos));
@@ -197,10 +208,13 @@ export default function suite() {
     });
 
     it('Add another round of fees to the pool', async function () {
-      await global.rewardsProgram.methods.addFee(new anchor.BN(c.feeAmount)).accounts(global.accounts).rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(c.feeAmount));
-      global.balances.user -= c.feeAmount;
-      global.balances.vaultRewards += c.feeAmount;
+      await global.rewardsProgram.methods
+        .addFee(new anchor.BN(global.constants.feeAmount))
+        .accounts(global.accounts)
+        .rpc();
+      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(global.constants.feeAmount));
+      global.balances.user -= global.constants.feeAmount;
+      global.balances.vaultRewards += global.constants.feeAmount;
       await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
     });
 

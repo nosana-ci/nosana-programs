@@ -20,6 +20,7 @@ declare global {
 
   //TODO : define types
   var collection;
+  var constants;
   var accounts;
   var nftConfig;
 

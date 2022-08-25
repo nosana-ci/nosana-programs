@@ -1,7 +1,6 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import * as utils from '../utils';
-import c from '../constants';
 
 export default function suite() {
   describe('init_vault()', async function () {
@@ -45,12 +44,12 @@ export default function suite() {
   describe('create_job()', async function () {
     it('Create job', async function () {
       await global.jobsProgram.methods
-        .createJob(new anchor.BN(c.jobPrice), global.ipfsData)
+        .createJob(new anchor.BN(global.constants.jobPrice), global.ipfsData)
         .accounts(global.accounts)
         .signers([global.signers.job])
         .rpc();
-      global.balances.user -= c.jobPrice;
-      global.balances.vaultJob += c.jobPrice;
+      global.balances.user -= global.constants.jobPrice;
+      global.balances.vaultJob += global.constants.jobPrice;
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 
@@ -58,7 +57,7 @@ export default function suite() {
       let msg = '';
       const tempJob = anchor.web3.Keypair.generate();
       await global.jobsProgram.methods
-        .createJob(new anchor.BN(c.jobPrice), global.ipfsData)
+        .createJob(new anchor.BN(global.constants.jobPrice), global.ipfsData)
         .accounts({
           ...global.accounts,
           vault: global.accounts.user,
@@ -75,7 +74,7 @@ export default function suite() {
       await Promise.all(
         global.users.users.map(async (u) => {
           await global.jobsProgram.methods
-            .createJob(new anchor.BN(c.jobPrice), global.ipfsData)
+            .createJob(new anchor.BN(global.constants.jobPrice), global.ipfsData)
             .accounts({
               ...global.accounts,
               jobs: u.signers.jobs.publicKey,
@@ -86,8 +85,8 @@ export default function suite() {
             .signers([u.user, u.signers.job])
             .rpc();
           // update global.balances
-          global.balances.vaultJob += c.jobPrice;
-          u.balance -= c.jobPrice;
+          global.balances.vaultJob += global.constants.jobPrice;
+          u.balance -= global.constants.jobPrice;
         })
       );
       await Promise.all(
@@ -104,17 +103,17 @@ export default function suite() {
     for (let i = 0; i < 10; i++) {
     console.log(i);
     let job = anchor.web3.Keypair.generate();
-    await program.rpc.createJob(
+    await program.rpglobal.constants.createJob(
     bump,
-    new anchor.BN(c.jobPrice),
+    new anchor.BN(global.constants.jobPrice),
     global.ipfsData,
     {
     accounts: {
     ...accounts,
     job: job.publicKey,
     }, signers: [job]});
-    global.balances.user -= c.jobPrice
-    global.balances.vault += c.jobPrice
+    global.balances.user -= global.constants.jobPrice
+    global.balances.vault += global.constants.jobPrice
     }
 
     // tests
@@ -124,7 +123,7 @@ export default function suite() {
 
     it('Fetch job', async function () {
       const data = await global.jobsProgram.account.job.fetch(global.accounts.job);
-      expect(data.jobStatus).to.equal(c.jobStatus.created);
+      expect(data.jobStatus).to.equal(global.constants.jobStatus.created);
       expect(utils.buf2hex(new Uint8Array(data.ipfsJob))).to.equal(utils.buf2hex(new Uint8Array(global.ipfsData)));
     });
   });
@@ -142,7 +141,7 @@ export default function suite() {
         .accounts(global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.JobNotInitialized);
+      expect(msg).to.equal(global.constants.errors.JobNotInitialized);
     });
 
     it('Claim job for all other nodes and users', async function () {
@@ -171,8 +170,8 @@ export default function suite() {
             .rpc()
             .catch((e) => (msg = e.error.errorMessage));
 
-          if (i === 0) expect(msg).to.equal(c.errors.NodeUnqualifiedStakeAmount);
-          else if (i === 1) expect(msg).to.equal(c.errors.NodeUnqualifiedUnstaked);
+          if (i === 0) expect(msg).to.equal(global.constants.errors.NodeUnqualifiedStakeAmount);
+          else if (i === 1) expect(msg).to.equal(global.constants.errors.NodeUnqualifiedUnstaked);
           else expect(msg).to.equal('');
         })
       );
@@ -182,12 +181,12 @@ export default function suite() {
       const data = await global.jobsProgram.account.job.fetch(global.accounts.job);
       expect(global.global.claimTime / 1e3).to.be.closeTo(
         data.timeStart.toNumber(),
-        c.allowedClockDelta,
+        global.constants.allowedClockDelta,
         'times differ too much'
       );
-      expect(data.jobStatus).to.equal(c.jobStatus.claimed);
+      expect(data.jobStatus).to.equal(global.constants.jobStatus.claimed);
       expect(data.node.toString()).to.equal(global.provider.wallet.publicKey.toString());
-      expect(data.tokens.toString()).to.equal(c.jobPrice.toString());
+      expect(data.tokens.toString()).to.equal(global.constants.jobPrice.toString());
     });
   });
 
@@ -199,7 +198,7 @@ export default function suite() {
         .accounts(global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.JobNotTimedOut);
+      expect(msg).to.equal(global.constants.errors.JobNotTimedOut);
     });
   });
 
@@ -215,14 +214,14 @@ export default function suite() {
         .signers([global.users.user2.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.Unauthorized);
+      expect(msg).to.equal(global.constants.errors.Unauthorized);
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 
     it('Finish job', async function () {
       await global.jobsProgram.methods.finishJob(global.ipfsData).accounts(global.accounts).rpc();
-      global.balances.user += c.jobPrice;
-      global.balances.vaultJob -= c.jobPrice;
+      global.balances.user += global.constants.jobPrice;
+      global.balances.vaultJob -= global.constants.jobPrice;
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 
@@ -233,7 +232,7 @@ export default function suite() {
         .accounts(global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.JobNotClaimed);
+      expect(msg).to.equal(global.constants.errors.JobNotClaimed);
     });
 
     it('Finish job for all nodes', async function () {
@@ -250,8 +249,8 @@ export default function suite() {
             .signers([n.user])
             .rpc();
           // update global.balances
-          global.balances.vaultJob -= c.jobPrice;
-          n.balance += c.jobPrice;
+          global.balances.vaultJob -= global.constants.jobPrice;
+          n.balance += global.constants.jobPrice;
           expect(await utils.getTokenBalance(global.provider, n.ata)).to.equal(n.balance);
         })
       );
@@ -262,8 +261,11 @@ export default function suite() {
       const dataJobs = await global.jobsProgram.account.jobs.fetch(global.accounts.jobs);
       const dataJob = await global.jobsProgram.account.job.fetch(global.accounts.job);
 
-      expect(global.global.claimTime / 1e3).to.be.closeTo(dataJob.timeEnd.toNumber(), c.allowedClockDelta);
-      expect(dataJob.jobStatus).to.equal(c.jobStatus.finished, 'job status does not match');
+      expect(global.global.claimTime / 1e3).to.be.closeTo(
+        dataJob.timeEnd.toNumber(),
+        global.constants.allowedClockDelta
+      );
+      expect(dataJob.jobStatus).to.equal(global.constants.jobStatus.finished, 'job status does not match');
       expect(dataJobs.jobs.length).to.equal(0, 'number of jobs do not match');
       expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(
         utils.buf2hex(new Uint8Array(global.ipfsData))
@@ -274,7 +276,7 @@ export default function suite() {
           const dataJobs = await global.jobsProgram.account.jobs.fetch(n.jobs);
           const dataJob = await global.jobsProgram.account.job.fetch(n.job);
 
-          expect(dataJob.jobStatus).to.equal(c.jobStatus.finished);
+          expect(dataJob.jobStatus).to.equal(global.constants.jobStatus.finished);
           expect(dataJobs.jobs.length).to.equal(0);
           expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(
             utils.buf2hex(new Uint8Array(global.ipfsData))
@@ -299,7 +301,7 @@ export default function suite() {
         .accounts(global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.SolanaAccountNotInitialized);
+      expect(msg).to.equal(global.constants.errors.SolanaAccountNotInitialized);
     });
   });
 
@@ -308,7 +310,7 @@ export default function suite() {
       global.accounts.job = global.cancelJob.publicKey;
 
       await global.jobsProgram.methods
-        .createJob(new anchor.BN(c.jobPrice), global.ipfsData)
+        .createJob(new anchor.BN(global.constants.jobPrice), global.ipfsData)
         .accounts(global.accounts)
         .signers([global.cancelJob])
         .rpc();
@@ -319,8 +321,8 @@ export default function suite() {
         .signers([global.cancelJobs])
         .rpc();
 
-      global.balances.user -= c.jobPrice;
-      global.balances.vaultJob += c.jobPrice;
+      global.balances.user -= global.constants.jobPrice;
+      global.balances.vaultJob += global.constants.jobPrice;
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 
@@ -331,7 +333,7 @@ export default function suite() {
         .accounts({ ...global.accounts, jobs: global.cancelJobs.publicKey })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.JobQueueNotFound);
+      expect(msg).to.equal(global.constants.errors.JobQueueNotFound);
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 
@@ -343,14 +345,14 @@ export default function suite() {
         .signers([global.users.user1.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.Unauthorized);
+      expect(msg).to.equal(global.constants.errors.Unauthorized);
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 
     it('Cancel job', async function () {
       await global.jobsProgram.methods.cancelJob().accounts(global.accounts).rpc();
-      global.balances.user += c.jobPrice;
-      global.balances.vaultJob -= c.jobPrice;
+      global.balances.user += global.constants.jobPrice;
+      global.balances.vaultJob -= global.constants.jobPrice;
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 
@@ -361,7 +363,7 @@ export default function suite() {
         .accounts(global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(c.errors.JobNotInitialized);
+      expect(msg).to.equal(global.constants.errors.JobNotInitialized);
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
   });
