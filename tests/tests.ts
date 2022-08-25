@@ -100,8 +100,8 @@ describe('nosana programs', async function () {
   });
 
   describe('initialization', initTests);
-  // describe('staking', stakingTests);
+  describe('staking', stakingTests);
   describe('rewards', rewardTests);
   describe('pools', poolTests);
-  // describe('jobs', jobTests);
+  describe('jobs', jobTests);
 });

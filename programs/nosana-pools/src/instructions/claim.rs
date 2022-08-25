@@ -30,7 +30,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
 
     let amount = pool.claim(vault.amount, now);
 
-    // TODO: the below is not a requirement anymore, can be removed
+    // TODO: the below is not a requirement anymore, can be removed?
     // the pool must have enough funds for an emmission
     require!(amount >= pool.emmission, NosanaError::PoolUnderfunded);
 
@@ -46,7 +46,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     //         },
     //         &[&[b"vault".as_ref(), pool.key().as_ref(), &[pool.vault_bump]]],
     //     ),
-    //     3,
+    //     amount,
     // );
 
     nosana_rewards::cpi::add_fee(

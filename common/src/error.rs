@@ -49,6 +49,8 @@ pub enum NosanaError {
     PoolNotStarted,
     #[msg("This pool does not have enough funds.")]
     PoolUnderfunded,
+    #[msg("This pool is not closeable.")]
+    PoolNotCloseable,
 
     // job errors
     #[msg("This job is not in the Claimed state.")]
