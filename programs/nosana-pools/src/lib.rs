@@ -12,7 +12,12 @@ declare_id!(id::POOLS_PROGRAM);
 pub mod nosana_pools {
     use super::*;
 
-    pub fn open(ctx: Context<Open>, emmission: u64, start_time: i64, closeable: bool) -> Result<()> {
+    pub fn open(
+        ctx: Context<Open>,
+        emmission: u64,
+        start_time: i64,
+        closeable: bool,
+    ) -> Result<()> {
         open::handler(ctx, emmission, start_time, closeable)
     }
 

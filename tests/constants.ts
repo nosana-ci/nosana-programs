@@ -53,6 +53,10 @@ const constants = {
     JobNotTimedOut: 'This job is not timed out.',
     JobQueueNotFound: 'This job queue not found.',
 
+    // poool errors
+    PoolNotStarted: "This pool as not started yet.",
+    PoolUnderfunded: "This pool does not have enough funds.",
+
     // node errors
     NodeUnqualifiedUnstaked: "This nodes' stake has been unstaked.",
     NodeUnqualifiedStakeAmount: 'This node has not staked enough tokens.',

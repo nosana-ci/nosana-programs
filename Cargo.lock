@@ -806,6 +806,7 @@ dependencies = [
  "anchor-lang",
  "anchor-spl",
  "nosana-common",
+ "nosana-rewards",
 ]
 
 [[package]]

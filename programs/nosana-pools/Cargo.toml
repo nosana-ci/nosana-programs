@@ -20,3 +20,4 @@ cpi = ["no-entrypoint"]
 anchor-lang = "0.25.0"
 anchor-spl = "0.25.0"
 nosana-common = { path = "../../common" }
+nosana-rewards = { path = "../nosana-rewards", features = ["cpi"]}

@@ -38,6 +38,7 @@ pub fn handler(ctx: Context<Open>, emmission: u64, start_time: i64, closeable: b
         *ctx.accounts.authority.key,
         start_time,
         *ctx.accounts.vault.to_account_info().key,
+        *ctx.bumps.get("vault").unwrap(),
         closeable,
     );
 
