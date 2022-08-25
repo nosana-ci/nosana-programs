@@ -7,34 +7,29 @@ import { Wallet } from '@project-serum/common';
 import { Metaplex } from '@metaplex-foundation/js';
 
 declare global {
-  var provider: AnchorProvider;
-  var connection: Connection;
-  var wallet: Wallet;
-
-  var payer: Signer;
-  var jobsProgram: Program<NosanaJobs>;
-  var stakingProgram: Program<NosanaStaking>;
-  var rewardsProgram: Program<NosanaRewards>;
-  var metaplex: Metaplex;
-  var nosID: PublicKey;
-
-  //TODO : define types
-  var collection;
-  var constants;
-  var accounts;
-  var nftConfig;
-
-  var ipfsData;
-
-  var signers;
-  var cancelJob;
-  var mint;
-  var cancelJobs;
-
-  var balances;
-  var total;
-  var stats;
-  var ata;
-  var nodes;
-  var users;
+  var provider: AnchorProvider,
+    connection: Connection,
+    wallet: Wallet,
+    payer: Signer,
+    jobsProgram: Program<NosanaJobs>,
+    stakingProgram: Program<NosanaStaking>,
+    rewardsProgram: Program<NosanaRewards>,
+    metaplex: Metaplex,
+    nosID: PublicKey,
+    //TODO : define types
+    collection,
+    constants,
+    accounts,
+    nftConfig,
+    ipfsData,
+    signers,
+    cancelJob,
+    mint,
+    cancelJobs,
+    balances,
+    total,
+    stats,
+    ata,
+    nodes,
+    users;
 }
