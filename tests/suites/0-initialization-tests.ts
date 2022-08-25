@@ -9,119 +9,119 @@ import c from '../constants';
 export default function suite() {
   describe('mints and ATAs', function () {
     it('can create NOS mint', async function () {
-      this.global.accounts.mint = this.global.mint = await utils.mintFromFile(
-        this.global.nosID.toString(),
-        this.global.provider,
-        this.global.provider.wallet.publicKey
+      global.accounts.mint = global.mint = await utils.mintFromFile(
+        global.nosID.toString(),
+        global.provider,
+        global.wallet.publicKey
       );
 
       // get ATA and bumps of the vaults
-      [this.global.ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress(
-        [this.global.mint.toBuffer()],
-        this.global.jobsProgram.programId
+      [global.ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress(
+        [global.mint.toBuffer()],
+        global.jobsProgram.programId
       );
-      [this.global.ata.userVaultStaking] = await anchor.web3.PublicKey.findProgramAddress(
-        [utf8_encode('vault'), this.global.mint.toBuffer(), this.global.provider.wallet.publicKey.toBuffer()],
-        this.global.stakingProgram.programId
+      [global.ata.userVaultStaking] = await anchor.web3.PublicKey.findProgramAddress(
+        [utf8_encode('vault'), global.mint.toBuffer(), global.provider.wallet.publicKey.toBuffer()],
+        global.stakingProgram.programId
       );
-      [this.global.ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress(
-        [this.global.mint.toBuffer()],
-        this.global.rewardsProgram.programId
+      [global.ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress(
+        [global.mint.toBuffer()],
+        global.rewardsProgram.programId
       );
-      [this.global.stats.staking] = await anchor.web3.PublicKey.findProgramAddress(
+      [global.stats.staking] = await anchor.web3.PublicKey.findProgramAddress(
         [utf8_encode('settings')],
-        this.global.stakingProgram.programId
+        global.stakingProgram.programId
       );
-      [this.global.stats.rewards] = await anchor.web3.PublicKey.findProgramAddress(
+      [global.stats.rewards] = await anchor.web3.PublicKey.findProgramAddress(
         [utf8_encode('stats')],
-        this.global.rewardsProgram.programId
+        global.rewardsProgram.programId
       );
-      [this.global.accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
-        [utf8_encode('stake'), this.global.mint.toBuffer(), this.global.provider.wallet.publicKey.toBuffer()],
-        this.global.stakingProgram.programId
+      [global.accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
+        [utf8_encode('stake'), global.mint.toBuffer(), global.provider.wallet.publicKey.toBuffer()],
+        global.stakingProgram.programId
       );
-      [this.global.accounts.reward] = await anchor.web3.PublicKey.findProgramAddress(
-        [utf8_encode('reward'), this.global.provider.wallet.publicKey.toBuffer()],
-        this.global.rewardsProgram.programId
+      [global.accounts.reward] = await anchor.web3.PublicKey.findProgramAddress(
+        [utf8_encode('reward'), global.provider.wallet.publicKey.toBuffer()],
+        global.rewardsProgram.programId
       );
-      expect(this.global.nosID.toString()).to.equal(this.global.mint.toString());
+      expect(global.nosID.toString()).to.equal(global.mint.toString());
     });
 
     it('can create ATAs and mint NOS tokens', async function () {
       // create associated token accounts
-      this.global.ata.user =
-        this.global.accounts.user =
-        this.global.accounts.tokenAccount =
+      global.ata.user =
+        global.accounts.user =
+        global.accounts.tokenAccount =
           await createAssociatedTokenAccount(
-            this.global.provider.connection,
-            this.global.payer,
-            this.global.mint,
-            this.global.provider.wallet.publicKey
+            global.provider.connection,
+            global.payer,
+            global.mint,
+            global.provider.wallet.publicKey
           );
 
       // fund users
-      await utils.mintToAccount(this.global.provider, this.global.mint, this.global.ata.user, c.mintSupply);
-      this.global.balances.user += c.mintSupply;
+      await utils.mintToAccount(global.provider, global.mint, global.ata.user, c.mintSupply);
+      global.balances.user += c.mintSupply;
 
       // setup users and nodes
       let users = await Promise.all(
         _.map(new Array(10), async () => {
           return await utils.setupSolanaUser(
-            this.global.connection,
-            this.global.mint,
-            this.global.stakingProgram.programId,
-            this.global.rewardsProgram.programId,
+            global.connection,
+            global.mint,
+            global.stakingProgram.programId,
+            global.rewardsProgram.programId,
             c.userSupply,
-            this.global.provider
+            global.provider
           );
         })
       );
-      this.global.users.users = users;
+      global.users.users = users;
       [
-        this.global.users.user1,
-        this.global.users.user2,
-        this.global.users.user3,
-        this.global.users.user4,
-        ...this.global.users.otherUsers
+        global.users.user1,
+        global.users.user2,
+        global.users.user3,
+        global.users.user4,
+        ...global.users.otherUsers
       ] = users;
 
       let nodes = await Promise.all(
         _.map(new Array(10), async () => {
           return await utils.setupSolanaUser(
-            this.global.connection,
-            this.global.mint,
-            this.global.stakingProgram.programId,
-            this.global.rewardsProgram.programId,
+            global.connection,
+            global.mint,
+            global.stakingProgram.programId,
+            global.rewardsProgram.programId,
             c.userSupply,
-            this.global.provider
+            global.provider
           );
         })
       );
-      this.global.users.nodes = nodes;
-      [this.global.users.node1, this.global.users.node2, ...this.global.users.otherNodes] = nodes;
+      global.users.nodes = nodes;
+      [global.users.node1, global.users.node2, ...global.users.otherNodes] = nodes;
     });
 
     it('can mint NFTs', async function () {
-      const { nft } = await this.global.metaplex.nfts().create(this.global.nftConfig);
-      this.global.accounts.nft = await getAssociatedTokenAddress(nft.mint, this.global.wallet.publicKey);
-      expect(await utils.getTokenBalance(this.global.provider, this.global.accounts.nft)).to.equal(1);
+      const { nft } = await global.metaplex.nfts().create(global.nftConfig);
+      global.accounts.nft = await getAssociatedTokenAddress(nft.mint, global.wallet.publicKey);
+      expect(await utils.getTokenBalance(global.provider, global.accounts.nft)).to.equal(1);
 
       await Promise.all(
-        this.global.users.nodes.map(async (n) => {
-          const { nft } = await this.global.metaplex.nfts().create(this.global.nftConfig);
+        global.users.nodes.map(async (n) => {
+          const { nft } = await global.metaplex.nfts().create(global.nftConfig);
           n.ataNft = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, nft.mint);
           await transfer(
-            this.global.connection,
-            this.global.payer,
-            await getAssociatedTokenAddress(nft.mint, this.global.wallet.publicKey),
+            global.connection,
+            global.payer,
+            await getAssociatedTokenAddress(nft.mint, global.wallet.publicKey),
             n.ataNft,
-            this.global.payer,
+            global.payer,
             1
           );
 
-          expect(await utils.getTokenBalance(this.global.provider, n.ataNft)).to.equal(1);
-          expect(nft.name).to.equal(this.global.nftConfig.name);
-          expect(nft.collection.key.toString()).to.equal(this.global.collection.toString());
+          expect(await utils.getTokenBalance(global.provider, n.ataNft)).to.equal(1);
+          expect(nft.name).to.equal(global.nftConfig.name);
+          expect(nft.collection.key.toString()).to.equal(global.collection.toString());
         })
       );
     });
