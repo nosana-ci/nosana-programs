@@ -16,8 +16,10 @@ declare global {
   var stakingProgram: Program<NosanaStaking>;
   var rewardsProgram: Program<NosanaRewards>;
   var metaplex: Metaplex;
-
   var nosID: PublicKey;
+
+  //TODO : define types
+  var collection;
   var accounts;
   var nftConfig;
 

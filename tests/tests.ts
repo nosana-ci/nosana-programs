@@ -50,6 +50,8 @@ describe('nosana programs', async function () {
       },
     };
 
+    global.collection = global.nftConfig.collection.key;
+
     // public keys
     global.accounts = {
       // program ids
@@ -81,11 +83,6 @@ describe('nosana programs', async function () {
       nft: undefined,
     };
 
-    global.total = { xnos: new anchor.BN(0), reflection: new anchor.BN(0), rate: c.initialRate };
-
-    global.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
-    global.nodes = { node1: null, node2: null, otherNodes: null };
-
     global.ata = {
       user: undefined,
       userVault: undefined,
@@ -95,6 +92,9 @@ describe('nosana programs', async function () {
       nft: undefined,
     };
 
+    global.total = { xnos: new anchor.BN(0), reflection: new anchor.BN(0), rate: c.initialRate };
+    global.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
+    global.nodes = { node1: null, node2: null, otherNodes: null };
     global.stats = { staking: undefined, rewards: undefined };
     global.balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0 };
   });
