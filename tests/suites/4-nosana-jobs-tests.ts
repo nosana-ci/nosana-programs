@@ -14,11 +14,7 @@ export default function suite() {
 
   describe('init_propject()', async function () {
     it('can initilize a project', async function () {
-      await global.jobsProgram.methods
-        .initProject()
-        .accounts(global.accounts)
-        .signers([global.signers.jobs])
-        .rpc();
+      await global.jobsProgram.methods.initProject().accounts(global.accounts).signers([global.signers.jobs]).rpc();
       await utils.assertBalancesJobs(global.provider, global.ata, global.balances);
     });
 

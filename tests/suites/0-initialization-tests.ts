@@ -77,13 +77,8 @@ export default function suite() {
         })
       );
       global.users.users = users;
-      [
-        global.users.user1,
-        global.users.user2,
-        global.users.user3,
-        global.users.user4,
-        ...global.users.otherUsers
-      ] = users;
+      [global.users.user1, global.users.user2, global.users.user3, global.users.user4, ...global.users.otherUsers] =
+        users;
 
       let nodes = await Promise.all(
         _.map(new Array(10), async () => {

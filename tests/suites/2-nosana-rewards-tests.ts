@@ -93,8 +93,7 @@ export default function suite() {
     });
 
     it('can claim rewards', async function () {
-      const reflection = (await global.rewardsProgram.account.rewardAccount.fetch(global.accounts.reward))
-        .reflection;
+      const reflection = (await global.rewardsProgram.account.rewardAccount.fetch(global.accounts.reward)).reflection;
 
       await global.rewardsProgram.methods.claim().accounts(global.accounts).rpc();
       const amount = await updateRewards(
@@ -154,9 +153,9 @@ export default function suite() {
       global.balances.user -= c.stakeAmount;
       global.balances.vaultStaking += c.stakeAmount;
       await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
-      expect(
-        (await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake)).xnos.toNumber()
-      ).to.equal(utils.calculateXnos(c.stakeDurationMin * 2 + 7, c.stakeAmount * 2 + c.stakeMinimum));
+      expect((await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake)).xnos.toNumber()).to.equal(
+        utils.calculateXnos(c.stakeDurationMin * 2 + 7, c.stakeAmount * 2 + c.stakeMinimum)
+      );
     });
 
     it('can not sync reward reflection for wrong accounts', async function () {
@@ -173,9 +172,7 @@ export default function suite() {
       const before = await global.rewardsProgram.account.rewardAccount.fetch(global.accounts.reward);
       await global.rewardsProgram.methods.sync().accounts(global.accounts).rpc();
       const after = await global.rewardsProgram.account.rewardAccount.fetch(global.accounts.reward);
-      const stake = (
-        await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake)
-      ).xnos.toNumber();
+      const stake = (await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake)).xnos.toNumber();
 
       expect(before.xnos.toNumber()).to.be.lessThan(after.xnos.toNumber());
       expect(after.xnos.toNumber()).to.equal(stake);
@@ -235,9 +232,7 @@ export default function suite() {
       await global.stakingProgram.methods
         .unstake()
         .accounts(global.accounts)
-        .preInstructions([
-          await global.rewardsProgram.methods.close().accounts(global.accounts).instruction(),
-        ])
+        .preInstructions([await global.rewardsProgram.methods.close().accounts(global.accounts).instruction()])
         .rpc();
 
       stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);

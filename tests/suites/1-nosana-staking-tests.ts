@@ -174,10 +174,7 @@ export default function suite() {
     });
 
     it('Extend a stake', async function () {
-      await global.stakingProgram.methods
-        .extend(new anchor.BN(c.stakeDurationMin))
-        .accounts(global.accounts)
-        .rpc();
+      await global.stakingProgram.methods.extend(new anchor.BN(c.stakeDurationMin)).accounts(global.accounts).rpc();
 
       // check stake
       const stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
