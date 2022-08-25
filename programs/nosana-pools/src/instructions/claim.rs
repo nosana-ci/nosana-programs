@@ -30,6 +30,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
 
     let amount = pool.claim(vault.amount, now);
 
+    // TODO: the below is not a requirement anymore, can be removed
     // the pool must have enough funds for an emmission
     require!(amount >= pool.emmission, NosanaError::PoolUnderfunded);
 
