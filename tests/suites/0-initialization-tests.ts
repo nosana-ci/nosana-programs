@@ -1,54 +1,60 @@
-import { TOKEN_PROGRAM_ID, createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
-import * as anchor from '@project-serum/anchor';
+import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
 import * as _ from 'lodash';
 import { expect } from 'chai';
-import * as utils from '../utils';
-import { utf8_encode } from '../utils';
-import c from '../constants';
+import {
+  utf8_encode,
+  mintFromFile,
+  mintToAccount,
+  setupSolanaUser,
+  getOrCreateAssociatedSPL,
+  getTokenBalance,
+} from '../utils';
 
 export default function suite() {
-  describe('mints and ATAs', function () {
+  describe('mints and PDAs', function () {
     it('can create NOS mint', async function () {
-      global.accounts.mint = global.mint = await utils.mintFromFile(
-        global.nosID.toString(),
-        global.provider,
-        global.wallet.publicKey
-      );
+      // create main mint
+      global.accounts.mint = global.mint = await mintFromFile(global.nosID.toString(), global.wallet.publicKey);
+      expect(global.nosID.toString()).to.equal(global.mint.toString());
 
-      // get ATA and bumps of the vaults
-      [global.ata.vaultJob] = await anchor.web3.PublicKey.findProgramAddress(
-        [global.mint.toBuffer()],
-        global.jobsProgram.programId
-      ); // get ATA and bumps of the vaults
-      [global.accounts.project] = await anchor.web3.PublicKey.findProgramAddress(
-        [utf8_encode('project'), global.provider.wallet.publicKey.toBuffer()],
-        global.jobsProgram.programId
-      );
-      [global.ata.userVaultStaking] = await anchor.web3.PublicKey.findProgramAddress(
-        [utf8_encode('vault'), global.mint.toBuffer(), global.provider.wallet.publicKey.toBuffer()],
-        global.stakingProgram.programId
-      );
-      [global.ata.vaultRewards] = await anchor.web3.PublicKey.findProgramAddress(
-        [global.mint.toBuffer()],
-        global.rewardsProgram.programId
-      );
-      [global.stats.staking] = await anchor.web3.PublicKey.findProgramAddress(
+      // stats
+      [global.stats.staking] = await PublicKey.findProgramAddress(
         [utf8_encode('settings')],
         global.stakingProgram.programId
       );
-      [global.stats.rewards] = await anchor.web3.PublicKey.findProgramAddress(
+      [global.stats.rewards] = await PublicKey.findProgramAddress(
         [utf8_encode('stats')],
         global.rewardsProgram.programId
       );
-      [global.accounts.stake] = await anchor.web3.PublicKey.findProgramAddress(
-        [utf8_encode('stake'), global.mint.toBuffer(), global.provider.wallet.publicKey.toBuffer()],
-        global.stakingProgram.programId
+
+      // token vault
+      [global.ata.vaultJob] = await PublicKey.findProgramAddress(
+        [global.mint.toBuffer()],
+        global.jobsProgram.programId
       );
-      [global.accounts.reward] = await anchor.web3.PublicKey.findProgramAddress(
-        [utf8_encode('reward'), global.provider.wallet.publicKey.toBuffer()],
+      [global.ata.vaultRewards] = await PublicKey.findProgramAddress(
+        [global.mint.toBuffer()],
         global.rewardsProgram.programId
       );
-      expect(global.nosID.toString()).to.equal(global.mint.toString());
+      [global.ata.userVaultStaking] = await PublicKey.findProgramAddress(
+        [utf8_encode('vault'), global.mint.toBuffer(), global.publicKey.toBuffer()],
+        global.stakingProgram.programId
+      );
+
+      // main accounts
+      [global.accounts.project] = await PublicKey.findProgramAddress(
+        [utf8_encode('project'), global.publicKey.toBuffer()],
+        global.jobsProgram.programId
+      );
+      [global.accounts.stake] = await PublicKey.findProgramAddress(
+        [utf8_encode('stake'), global.mint.toBuffer(), global.publicKey.toBuffer()],
+        global.stakingProgram.programId
+      );
+      [global.accounts.reward] = await PublicKey.findProgramAddress(
+        [utf8_encode('reward'), global.publicKey.toBuffer()],
+        global.rewardsProgram.programId
+      );
     });
 
     it('can create ATAs and mint NOS tokens', async function () {
@@ -64,13 +70,13 @@ export default function suite() {
           );
 
       // fund users
-      await utils.mintToAccount(global.provider, global.mint, global.ata.user, c.mintSupply);
-      global.balances.user += c.mintSupply;
+      await mintToAccount(global.provider, global.mint, global.ata.user, global.constants.mintSupply);
+      global.balances.user += global.constants.mintSupply;
 
       // setup users and nodes
       let users = await Promise.all(
         _.map(new Array(10), async () => {
-          return await utils.setupSolanaUser(global.connection, global.mint, c.userSupply, global.provider);
+          return await setupSolanaUser(global.mint, global.constants.userSupply, global.provider);
         })
       );
       global.users.users = users;
@@ -79,7 +85,7 @@ export default function suite() {
 
       let nodes = await Promise.all(
         _.map(new Array(10), async () => {
-          return await utils.setupSolanaUser(global.connection, global.mint, c.userSupply, global.provider);
+          return await setupSolanaUser(global.mint, global.constants.userSupply, global.provider);
         })
       );
       global.users.nodes = nodes;
@@ -89,12 +95,12 @@ export default function suite() {
     it('can mint NFTs', async function () {
       const { nft } = await global.metaplex.nfts().create(global.nftConfig);
       global.accounts.nft = await getAssociatedTokenAddress(nft.mint, global.wallet.publicKey);
-      expect(await utils.getTokenBalance(global.provider, global.accounts.nft)).to.equal(1);
+      expect(await getTokenBalance(global.provider, global.accounts.nft)).to.equal(1);
 
       await Promise.all(
         global.users.nodes.map(async (n) => {
           const { nft } = await global.metaplex.nfts().create(global.nftConfig);
-          n.ataNft = await utils.getOrCreateAssociatedSPL(n.provider, n.publicKey, nft.mint);
+          n.ataNft = await getOrCreateAssociatedSPL(n.provider, n.publicKey, nft.mint);
           await transfer(
             global.connection,
             global.payer,
@@ -104,7 +110,7 @@ export default function suite() {
             1
           );
 
-          expect(await utils.getTokenBalance(global.provider, n.ataNft)).to.equal(1);
+          expect(await getTokenBalance(global.provider, n.ataNft)).to.equal(1);
           expect(nft.name).to.equal(global.nftConfig.name);
           expect(nft.collection.key.toString()).to.equal(global.collection.toString());
         })

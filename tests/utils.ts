@@ -36,10 +36,10 @@ async function assertBalancesStaking(provider, wallets, balances) {
   expect(await getTokenBalance(provider, wallets.user)).to.equal(balances.user);
 }
 
-async function mintFromFile(key, provider, authority) {
+async function mintFromFile(key, authority) {
   const keyData = require(`./keys/${key}.json`);
   const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData));
-  return await createMint(provider.connection, provider.wallet.payer, authority, null, 6, keyPair);
+  return await createMint(global.connection, global.payer, authority, null, 6, keyPair);
 }
 
 async function mintToAccount(provider, mint, destination, amount) {
@@ -65,12 +65,14 @@ async function getOrCreateAssociatedSPL(provider, owner, mint) {
   return ata;
 }
 
-async function setupSolanaUser(connection, mint, userSupply, mintProvider) {
+async function setupSolanaUser(mint, userSupply, mintProvider) {
   const user = anchor.web3.Keypair.generate();
   const publicKey = user.publicKey;
   const wallet = new anchor.Wallet(user);
   const provider = new anchor.AnchorProvider(connection, wallet, undefined);
-  await connection.confirmTransaction(await connection.requestAirdrop(user.publicKey, anchor.web3.LAMPORTS_PER_SOL));
+  await global.connection.confirmTransaction(
+    await global.connection.requestAirdrop(user.publicKey, anchor.web3.LAMPORTS_PER_SOL)
+  );
   const balance = userSupply;
   const ata = await getOrCreateAssociatedSPL(provider, user.publicKey, mint);
   const job = undefined;
