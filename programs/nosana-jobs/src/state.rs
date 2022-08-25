@@ -6,15 +6,15 @@ use nosana_common::NosanaError;
 /// - __authority__ is the payer and initial projects' creator
 /// - __jobs__ is list of Jobs
 #[account]
-pub struct Jobs {
+pub struct ProjectAccount {
     pub authority: Pubkey,
     pub jobs: Vec<Pubkey>,
 }
 
 // size of a jobs struct, in bytes
-pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<Jobs>() + 32 * 100 + 16;
+pub const JOBS_SIZE: usize = 8 + std::mem::size_of::<ProjectAccount>() + 32 * 100 + 16;
 
-impl Jobs {
+impl ProjectAccount {
     pub fn init(&mut self, authority: Pubkey) {
         self.authority = authority;
         self.jobs = Vec::new();
@@ -45,7 +45,7 @@ impl Jobs {
 /// - __ipfs_result__ is the IPFS hash pointing to the job results
 /// - __tokens__ is amount of tokens
 #[account]
-pub struct Job {
+pub struct JobAccount {
     pub node: Pubkey,
     pub job_status: u8,
     pub time_start: i64,
@@ -56,12 +56,12 @@ pub struct Job {
 }
 
 // size of a job in bytes
-pub const JOB_SIZE: usize = 8 + std::mem::size_of::<Job>();
+pub const JOB_SIZE: usize = 8 + std::mem::size_of::<JobAccount>();
 
 // timeout of a job in seconds
 pub const TIMEOUT: i64 = 60 * 60;
 
-impl Job {
+impl JobAccount {
     pub fn create(&mut self, data: [u8; 32], amount: u64) {
         self.job_status = JobStatus::Initialized as u8;
         self.ipfs_job = data;
