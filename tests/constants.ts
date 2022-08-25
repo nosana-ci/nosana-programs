@@ -60,6 +60,6 @@ const constants = {
     Solana8ByteConstraint: '8 byte discriminator did not match what was expected',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
   },
-}
+};
 
 export default constants;

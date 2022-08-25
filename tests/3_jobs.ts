@@ -6,25 +6,29 @@ import c from './constants';
 export default function suite() {
   describe('init_vault()', async function () {
     it('can initialie the jobs vault', async function () {
-      this.accounts.vault = this.ata.vaultJob;
-      await this.jobsProgram.methods.initVault().accounts(this.accounts).rpc();
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      this.global.accounts.vault = this.global.ata.vaultJob;
+      await this.global.jobsProgram.methods.initVault().accounts(this.global.accounts).rpc();
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
   });
 
   describe('init_propject()', async function () {
     it('can initilize a project', async function () {
-      await this.jobsProgram.methods.initProject().accounts(this.accounts).signers([this.signers.jobs]).rpc();
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await this.global.jobsProgram.methods
+        .initProject()
+        .accounts(this.global.accounts)
+        .signers([this.global.signers.jobs])
+        .rpc();
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('can initialize projects for other users', async function () {
       await Promise.all(
-        this.users.users.map(async (u) => {
-          await this.jobsProgram.methods
+        this.global.users.users.map(async (u) => {
+          await this.global.jobsProgram.methods
             .initProject()
             .accounts({
-              ...this.accounts,
+              ...this.global.accounts,
               authority: u.publicKey,
               jobs: u.signers.jobs.publicKey,
             })
@@ -32,52 +36,52 @@ export default function suite() {
             .rpc();
         })
       );
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('stores projects', async function () {
-      const data = await this.jobsProgram.account.jobs.fetch(this.accounts.jobs);
-      expect(data.authority.toString()).to.equal(this.accounts.authority.toString());
+      const data = await this.global.jobsProgram.account.jobs.fetch(this.global.accounts.jobs);
+      expect(data.authority.toString()).to.equal(this.global.accounts.authority.toString());
       expect(data.jobs.length).to.equal(0);
     });
   });
 
   describe('create_job()', async function () {
     it('Create job', async function () {
-      await this.jobsProgram.methods
-        .createJob(new anchor.BN(c.jobPrice), this.ipfsData)
-        .accounts(this.accounts)
-        .signers([this.signers.job])
+      await this.global.jobsProgram.methods
+        .createJob(new anchor.BN(c.jobPrice), this.global.ipfsData)
+        .accounts(this.global.accounts)
+        .signers([this.global.signers.job])
         .rpc();
-      this.balances.user -= c.jobPrice;
-      this.balances.vaultJob += c.jobPrice;
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      this.global.balances.user -= c.jobPrice;
+      this.global.balances.vaultJob += c.jobPrice;
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
-    it('can not create job in different this.ata', async function () {
+    it('can not create job in different this.global.ata', async function () {
       let msg = '';
       const tempJob = anchor.web3.Keypair.generate();
-      await this.jobsProgram.methods
-        .createJob(new anchor.BN(c.jobPrice), this.ipfsData)
+      await this.global.jobsProgram.methods
+        .createJob(new anchor.BN(c.jobPrice), this.global.ipfsData)
         .accounts({
-          ...this.accounts,
-          vault: this.accounts.user,
+          ...this.global.accounts,
+          vault: this.global.accounts.user,
           job: tempJob.publicKey,
         })
         .signers([tempJob])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal('A seeds constraint was violated');
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Create job for other users', async function () {
       await Promise.all(
-        this.users.users.map(async (u) => {
-          await this.jobsProgram.methods
-            .createJob(new anchor.BN(c.jobPrice), this.ipfsData)
+        this.global.users.users.map(async (u) => {
+          await this.global.jobsProgram.methods
+            .createJob(new anchor.BN(c.jobPrice), this.global.ipfsData)
             .accounts({
-              ...this.accounts,
+              ...this.global.accounts,
               jobs: u.signers.jobs.publicKey,
               job: u.signers.job.publicKey,
               user: u.ata,
@@ -85,17 +89,17 @@ export default function suite() {
             })
             .signers([u.user, u.signers.job])
             .rpc();
-          // update this.balances
-          this.balances.vaultJob += c.jobPrice;
+          // update this.global.balances
+          this.global.balances.vaultJob += c.jobPrice;
           u.balance -= c.jobPrice;
         })
       );
       await Promise.all(
-        this.users.users.map(async (u) => {
-          expect(await utils.getTokenBalance(this.provider, u.ata)).to.equal(u.balance);
+        this.global.users.users.map(async (u) => {
+          expect(await utils.getTokenBalance(this.global.provider, u.ata)).to.equal(u.balance);
         })
       );
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     /*
@@ -107,60 +111,60 @@ export default function suite() {
     await program.rpc.createJob(
     bump,
     new anchor.BN(c.jobPrice),
-    this.ipfsData,
+    this.global.ipfsData,
     {
     accounts: {
     ...accounts,
     job: job.publicKey,
     }, signers: [job]});
-    this.balances.user -= c.jobPrice
-    this.balances.vault += c.jobPrice
+    this.global.balances.user -= c.jobPrice
+    this.global.balances.vault += c.jobPrice
     }
 
     // tests
-    await utils.assertBalancesJobs(this.provider, this.ata, this.balances)
+    await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances)
     });
     */
 
     it('Fetch job', async function () {
-      const data = await this.jobsProgram.account.job.fetch(this.accounts.job);
+      const data = await this.global.jobsProgram.account.job.fetch(this.global.accounts.job);
       expect(data.jobStatus).to.equal(c.jobStatus.created);
-      expect(utils.buf2hex(new Uint8Array(data.ipfsJob))).to.equal(utils.buf2hex(new Uint8Array(this.ipfsData)));
+      expect(utils.buf2hex(new Uint8Array(data.ipfsJob))).to.equal(utils.buf2hex(new Uint8Array(this.global.ipfsData)));
     });
   });
 
   describe('claim_job()', async function () {
     it('Claim job', async function () {
-      await this.jobsProgram.methods.claimJob().accounts(this.accounts).rpc();
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await this.global.jobsProgram.methods.claimJob().accounts(this.global.accounts).rpc();
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Claim job that is already claimed', async function () {
       let msg = '';
-      await this.jobsProgram.methods
+      await this.global.jobsProgram.methods
         .claimJob()
-        .accounts(this.accounts)
+        .accounts(this.global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.JobNotInitialized);
     });
 
     it('Claim job for all other nodes and users', async function () {
-      this.global.claimTime = new Date();
+      this.global.global.claimTime = new Date();
       await Promise.all(
         [...Array(10).keys()].map(async (i) => {
-          let user = this.users.users[i];
-          let node = this.users.nodes[i];
+          let user = this.global.users.users[i];
+          let node = this.global.users.nodes[i];
 
           // store these temporary to get them easier later
           node.job = user.signers.job.publicKey;
           node.jobs = user.signers.jobs.publicKey;
 
           let msg = '';
-          await this.jobsProgram.methods
+          await this.global.jobsProgram.methods
             .claimJob()
             .accounts({
-              ...this.accounts,
+              ...this.global.accounts,
               authority: node.publicKey,
               stake: node.stake,
               job: node.job,
@@ -179,10 +183,14 @@ export default function suite() {
     });
 
     it('Fetch claimed job', async function () {
-      const data = await this.jobsProgram.account.job.fetch(this.accounts.job);
-      expect(this.global.claimTime / 1e3).to.be.closeTo(data.timeStart.toNumber(), c.allowedClockDelta, 'times differ too much');
+      const data = await this.global.jobsProgram.account.job.fetch(this.global.accounts.job);
+      expect(this.global.global.claimTime / 1e3).to.be.closeTo(
+        data.timeStart.toNumber(),
+        c.allowedClockDelta,
+        'times differ too much'
+      );
       expect(data.jobStatus).to.equal(c.jobStatus.claimed);
-      expect(data.node.toString()).to.equal(this.provider.wallet.publicKey.toString());
+      expect(data.node.toString()).to.equal(this.global.provider.wallet.publicKey.toString());
       expect(data.tokens.toString()).to.equal(c.jobPrice.toString());
     });
   });
@@ -190,9 +198,9 @@ export default function suite() {
   describe('reclaim_job()', async function () {
     it('Reclaim job too soon', async function () {
       let msg = '';
-      await this.jobsProgram.methods
+      await this.global.jobsProgram.methods
         .reclaimJob()
-        .accounts(this.accounts)
+        .accounts(this.global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.JobNotTimedOut);
@@ -202,31 +210,31 @@ export default function suite() {
   describe('finish_job()', async function () {
     it('Finish job from other node', async function () {
       let msg = '';
-      await this.jobsProgram.methods
-        .finishJob(this.ipfsData)
+      await this.global.jobsProgram.methods
+        .finishJob(this.global.ipfsData)
         .accounts({
-          ...this.accounts,
-          authority: this.users.user2.publicKey,
+          ...this.global.accounts,
+          authority: this.global.users.user2.publicKey,
         })
-        .signers([this.users.user2.user])
+        .signers([this.global.users.user2.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.Unauthorized);
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Finish job', async function () {
-      await this.jobsProgram.methods.finishJob(this.ipfsData).accounts(this.accounts).rpc();
-      this.balances.user += c.jobPrice;
-      this.balances.vaultJob -= c.jobPrice;
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await this.global.jobsProgram.methods.finishJob(this.global.ipfsData).accounts(this.global.accounts).rpc();
+      this.global.balances.user += c.jobPrice;
+      this.global.balances.vaultJob -= c.jobPrice;
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Finish job that is already finished', async function () {
       let msg = '';
-      await this.jobsProgram.methods
-        .finishJob(this.ipfsData)
-        .accounts(this.accounts)
+      await this.global.jobsProgram.methods
+        .finishJob(this.global.ipfsData)
+        .accounts(this.global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.JobNotClaimed);
@@ -234,43 +242,47 @@ export default function suite() {
 
     it('Finish job for all nodes', async function () {
       await Promise.all(
-        this.users.otherNodes.map(async (n) => {
-          await this.jobsProgram.methods
-            .finishJob(this.ipfsData)
+        this.global.users.otherNodes.map(async (n) => {
+          await this.global.jobsProgram.methods
+            .finishJob(this.global.ipfsData)
             .accounts({
-              ...this.accounts,
+              ...this.global.accounts,
               job: n.job,
               user: n.ata,
               authority: n.publicKey,
             })
             .signers([n.user])
             .rpc();
-          // update this.balances
-          this.balances.vaultJob -= c.jobPrice;
+          // update this.global.balances
+          this.global.balances.vaultJob -= c.jobPrice;
           n.balance += c.jobPrice;
-          expect(await utils.getTokenBalance(this.provider, n.ata)).to.equal(n.balance);
+          expect(await utils.getTokenBalance(this.global.provider, n.ata)).to.equal(n.balance);
         })
       );
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Fetch finished job', async function () {
-      const dataJobs = await this.jobsProgram.account.jobs.fetch(this.accounts.jobs);
-      const dataJob = await this.jobsProgram.account.job.fetch(this.accounts.job);
+      const dataJobs = await this.global.jobsProgram.account.jobs.fetch(this.global.accounts.jobs);
+      const dataJob = await this.global.jobsProgram.account.job.fetch(this.global.accounts.job);
 
-      expect(this.global.claimTime / 1e3).to.be.closeTo(dataJob.timeEnd.toNumber(), c.allowedClockDelta);
+      expect(this.global.global.claimTime / 1e3).to.be.closeTo(dataJob.timeEnd.toNumber(), c.allowedClockDelta);
       expect(dataJob.jobStatus).to.equal(c.jobStatus.finished, 'job status does not match');
       expect(dataJobs.jobs.length).to.equal(0, 'number of jobs do not match');
-      expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(this.ipfsData)));
+      expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(
+        utils.buf2hex(new Uint8Array(this.global.ipfsData))
+      );
 
       await Promise.all(
-        this.users.otherNodes.map(async (n) => {
-          const dataJobs = await this.jobsProgram.account.jobs.fetch(n.jobs);
-          const dataJob = await this.jobsProgram.account.job.fetch(n.job);
+        this.global.users.otherNodes.map(async (n) => {
+          const dataJobs = await this.global.jobsProgram.account.jobs.fetch(n.jobs);
+          const dataJob = await this.global.jobsProgram.account.job.fetch(n.job);
 
           expect(dataJob.jobStatus).to.equal(c.jobStatus.finished);
           expect(dataJobs.jobs.length).to.equal(0);
-          expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(this.ipfsData)));
+          expect(utils.buf2hex(new Uint8Array(dataJob.ipfsResult))).to.equal(
+            utils.buf2hex(new Uint8Array(this.global.ipfsData))
+          );
         })
       );
     });
@@ -278,17 +290,17 @@ export default function suite() {
 
   describe('close_job()', async function () {
     it('Close job', async function () {
-      const lamport_before = await this.connection.getBalance(this.accounts.authority);
-      await this.jobsProgram.methods.closeJob().accounts(this.accounts).rpc();
-      const lamport_after = await this.connection.getBalance(this.accounts.authority);
+      const lamport_before = await this.global.connection.getBalance(this.global.accounts.authority);
+      await this.global.jobsProgram.methods.closeJob().accounts(this.global.accounts).rpc();
+      const lamport_after = await this.global.connection.getBalance(this.global.accounts.authority);
       expect(lamport_before).to.be.lessThan(lamport_after);
     });
 
     it('Fetch closed Job', async function () {
       let msg = '';
-      await this.jobsProgram.methods
-        .finishJob(this.ipfsData)
-        .accounts(this.accounts)
+      await this.global.jobsProgram.methods
+        .finishJob(this.global.ipfsData)
+        .accounts(this.global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.SolanaAccountNotInitialized);
@@ -297,64 +309,64 @@ export default function suite() {
 
   describe('cancel_job()', async function () {
     it('Create new job and new project', async function () {
-      this.accounts.job = this.cancelJob.publicKey;
+      this.global.accounts.job = this.global.cancelJob.publicKey;
 
-      await this.jobsProgram.methods
-        .createJob(new anchor.BN(c.jobPrice), this.ipfsData)
-        .accounts(this.accounts)
-        .signers([this.cancelJob])
+      await this.global.jobsProgram.methods
+        .createJob(new anchor.BN(c.jobPrice), this.global.ipfsData)
+        .accounts(this.global.accounts)
+        .signers([this.global.cancelJob])
         .rpc();
 
-      await this.jobsProgram.methods
+      await this.global.jobsProgram.methods
         .initProject()
-        .accounts({ ...this.accounts, jobs: this.cancelJobs.publicKey })
-        .signers([this.cancelJobs])
+        .accounts({ ...this.global.accounts, jobs: this.global.cancelJobs.publicKey })
+        .signers([this.global.cancelJobs])
         .rpc();
 
-      this.balances.user -= c.jobPrice;
-      this.balances.vaultJob += c.jobPrice;
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      this.global.balances.user -= c.jobPrice;
+      this.global.balances.vaultJob += c.jobPrice;
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Cancel job in wrong queue', async function () {
       let msg = '';
-      await this.jobsProgram.methods
+      await this.global.jobsProgram.methods
         .cancelJob()
-        .accounts({ ...this.accounts, jobs: this.cancelJobs.publicKey })
+        .accounts({ ...this.global.accounts, jobs: this.global.cancelJobs.publicKey })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.JobQueueNotFound);
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Cancel job from other user', async function () {
       let msg = '';
-      await this.jobsProgram.methods
+      await this.global.jobsProgram.methods
         .cancelJob()
-        .accounts({ ...this.accounts, authority: this.users.user1.publicKey })
-        .signers([this.users.user1.user])
+        .accounts({ ...this.global.accounts, authority: this.global.users.user1.publicKey })
+        .signers([this.global.users.user1.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.Unauthorized);
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Cancel job', async function () {
-      await this.jobsProgram.methods.cancelJob().accounts(this.accounts).rpc();
-      this.balances.user += c.jobPrice;
-      this.balances.vaultJob -= c.jobPrice;
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await this.global.jobsProgram.methods.cancelJob().accounts(this.global.accounts).rpc();
+      this.global.balances.user += c.jobPrice;
+      this.global.balances.vaultJob -= c.jobPrice;
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
 
     it('Cancel job in wrong state', async function () {
       let msg = '';
-      await this.jobsProgram.methods
+      await this.global.jobsProgram.methods
         .cancelJob()
-        .accounts(this.accounts)
+        .accounts(this.global.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(c.errors.JobNotInitialized);
-      await utils.assertBalancesJobs(this.provider, this.ata, this.balances);
+      await utils.assertBalancesJobs(this.global.provider, this.global.ata, this.global.balances);
     });
   });
 }
