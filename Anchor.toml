@@ -2,7 +2,7 @@ anchor_version = "0.25.0"
 
 [workspace]
 members = [
-#    "common",
+    "programs/nosana-pools",
     "programs/nosana-jobs",
     "programs/nosana-staking",
     "programs/nosana-rewards",
@@ -30,18 +30,22 @@ program = "tests/programs/mpl_token_metadata.so"
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
 nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
+nosana_pools = "nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD"
 
 [programs.devnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
 nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
+nosana_pools = "nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD"
 
 [programs.testnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
 nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
+nosana_pools = "nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD"
 
 [programs.mainnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
 nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
 nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
+nosana_pools = "nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD"

@@ -1,0 +1,51 @@
+use crate::*;
+use anchor_spl::token::{Token, TokenAccount};
+use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, StatsAccount};
+
+#[derive(Accounts)]
+pub struct ClaimFee<'info> {
+    #[account(mut, address = pool.vault @ NosanaError::InvalidTokenAccount)]
+    pub vault: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub rewards_stats: Account<'info, StatsAccount>,
+    #[account(mut)]
+    pub rewards_vault: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted,
+        constraint = pool.claim_type == ClaimType::AddFee as u8 @ NosanaError::PoolWrongClaimType,
+    )]
+    pub pool: Account<'info, PoolAccount>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+    pub rewards_program: Program<'info, NosanaRewards>,
+    pub system_program: Program<'info, System>,
+}
+
+pub fn handler(ctx: Context<ClaimFee>) -> Result<()> {
+    let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
+    let vault: &mut Account<TokenAccount> = &mut ctx.accounts.vault;
+
+    let amount: u64 = pool.claim(vault.amount, Clock::get()?.unix_timestamp);
+
+    // TODO: the below is not a requirement anymore, can be removed?
+    // the pool must have enough funds for an emmission
+    require!(amount >= pool.emission, NosanaError::PoolUnderfunded);
+
+    nosana_rewards::cpi::add_fee(
+        CpiContext::new_with_signer(
+            ctx.accounts.rewards_program.to_account_info(),
+            AddFee {
+                user: vault.to_account_info(),
+                stats: ctx.accounts.rewards_stats.to_account_info(),
+                vault: ctx.accounts.rewards_vault.to_account_info(),
+                system_program: ctx.accounts.system_program.to_account_info(),
+                authority: ctx.accounts.vault.to_account_info(),
+                token_program: ctx.accounts.token_program.to_account_info(),
+            },
+            &[&[b"vault".as_ref(), pool.key().as_ref(), &[pool.vault_bump]]],
+        ),
+        amount,
+    )
+}

@@ -44,6 +44,16 @@ pub enum NosanaError {
     #[msg("There are no rewards to claim.")]
     NothingToClaim,
 
+    // pool errors
+    #[msg("This pool as not started yet.")]
+    PoolNotStarted,
+    #[msg("This pool does not have enough funds.")]
+    PoolUnderfunded,
+    #[msg("This pool is not closeable.")]
+    PoolNotCloseable,
+    #[msg("This pool has a different claim type.")]
+    PoolWrongClaimType,
+
     // job errors
     #[msg("This job is not in the Claimed state.")]
     JobNotClaimed,
