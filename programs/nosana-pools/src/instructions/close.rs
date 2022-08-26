@@ -24,7 +24,7 @@ pub fn handler(ctx: Context<Close>) -> Result<()> {
     let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
 
     // transfer tokens from the vault back to the user
-    if (ctx.accounts.vault.amount > 0) {
+    if ctx.accounts.vault.amount > 0 {
         transfer(
             CpiContext::new_with_signer(
                 ctx.accounts.token_program.to_account_info(),

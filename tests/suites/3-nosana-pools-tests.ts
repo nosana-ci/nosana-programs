@@ -64,7 +64,7 @@ export default function suite() {
 
     expect(pool.emmission.toNumber()).to.equal(this.emmission);
     expect(pool.startTime.toNumber()).to.equal(startTime);
-    expect(pool.claimed.toNumber()).to.equal(0);
+    expect(pool.claimedTokens.toNumber()).to.equal(0);
     expect(pool.closeable).to.equal(true);
   });
 
@@ -112,7 +112,7 @@ export default function suite() {
     let claimed = after - this.rewardsBalanceBefore;
 
     // allow a second of drift
-    expect(claimed).to.be.closeTo(ellapsed * this.emmission - pool.claimed, 1 * this.emmission);
+    expect(claimed).to.be.closeTo(ellapsed * this.emmission - pool.claimedTokens, 1 * this.emmission);
   });
 
   it('can close', async function () {

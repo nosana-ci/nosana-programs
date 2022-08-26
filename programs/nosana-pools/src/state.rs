@@ -9,7 +9,7 @@ pub const POOL_SIZE: usize = 8 + std::mem::size_of::<PoolAccount>();
 #[account]
 pub struct PoolAccount {
     pub authority: Pubkey,
-    pub claimed: u64,
+    pub claimed_tokens: u64,
     pub closeable: bool,
     pub emmission: u64,
     pub start_time: i64,
@@ -29,7 +29,7 @@ impl PoolAccount {
     ) {
         self.emmission = emmission;
         self.authority = authority;
-        self.claimed = 0;
+        self.claimed_tokens = 0;
         self.start_time = start_time;
         self.vault = vault;
         self.vault_bump = vault_bump;
@@ -38,10 +38,10 @@ impl PoolAccount {
 
     pub fn claim(&mut self, amount_available: u64, now: i64) -> u64 {
         let pool_amount = (now - self.start_time) as u64 * self.emmission;
-        let amount_due = pool_amount - self.claimed;
+        let amount_due = pool_amount - self.claimed_tokens;
         let amount = cmp::min(amount_due, amount_available);
 
-        self.claimed += amount;
+        self.claimed_tokens += amount;
 
         amount
     }
