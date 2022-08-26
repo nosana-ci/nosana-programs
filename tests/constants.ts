@@ -53,7 +53,7 @@ const constants = {
     JobNotTimedOut: 'This job is not timed out.',
     JobQueueNotFound: 'This job queue not found.',
 
-    // poool errors
+    // pool errors
     PoolNotStarted: 'This pool as not started yet.',
     PoolUnderfunded: 'This pool does not have enough funds.',
 
