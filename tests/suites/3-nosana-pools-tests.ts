@@ -76,7 +76,7 @@ export default function suite() {
   it('can not claim underfunded', async function () {
     let msg = '';
     await global.poolsProgram.methods
-      .claim()
+      .claimFee()
       .accounts(global.accounts)
       .rpc()
       .catch((e) => (msg = e.error.errorMessage));
@@ -88,7 +88,7 @@ export default function suite() {
 
     expect(await getTokenBalance(global.provider, this.poolVault)).to.equal(this.amount);
 
-    await global.poolsProgram.methods.claim().accounts(global.accounts).rpc();
+    await global.poolsProgram.methods.claimFee().accounts(global.accounts).rpc();
     const after = await getTokenBalance(global.provider, global.ata.vaultRewards);
 
     expect(after).to.equal(this.amount);
@@ -106,7 +106,7 @@ export default function suite() {
 
     let ellapsed = now() - pool.startTime;
     expect(ellapsed).to.be.above(1);
-    await global.poolsProgram.methods.claim().accounts(global.accounts).rpc();
+    await global.poolsProgram.methods.claimFee().accounts(global.accounts).rpc();
 
     const after = await getTokenBalance(global.provider, global.ata.vaultRewards);
     let claimed = after - this.rewardsBalanceBefore;

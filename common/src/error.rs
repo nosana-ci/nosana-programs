@@ -51,6 +51,8 @@ pub enum NosanaError {
     PoolUnderfunded,
     #[msg("This pool is not closeable.")]
     PoolNotCloseable,
+    #[msg("This pool has a different claim type.")]
+    PoolWrongClaimType,
 
     // job errors
     #[msg("This job is not in the Claimed state.")]

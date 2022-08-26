@@ -6,10 +6,17 @@ use std::cmp;
 
 pub const POOL_SIZE: usize = 8 + std::mem::size_of::<PoolAccount>();
 
+#[derive(AnchorDeserialize, AnchorSerialize, Copy, Clone, PartialEq, Eq)]
+pub enum ClaimType {
+    Transfer,
+    AddFee,
+}
+
 #[account]
 pub struct PoolAccount {
     pub authority: Pubkey,
     pub claimed_tokens: u64,
+    pub claim_type: ClaimType,
     pub closeable: bool,
     pub emmission: u64,
     pub start_time: i64,
@@ -30,6 +37,7 @@ impl PoolAccount {
         self.emmission = emmission;
         self.authority = authority;
         self.claimed_tokens = 0;
+        self.claim_type = ClaimType::AddFee;
         self.start_time = start_time;
         self.vault = vault;
         self.vault_bump = vault_bump;

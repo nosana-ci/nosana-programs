@@ -21,9 +21,14 @@ pub mod nosana_pools {
         open::handler(ctx, emmission, start_time, closeable)
     }
 
-    pub fn claim(ctx: Context<Claim>) -> Result<()> {
-        claim::handler(ctx)
+    pub fn claim_fee(ctx: Context<ClaimFee>) -> Result<()> {
+        claim_fee::handler(ctx)
     }
+
+    pub fn claim_transfer(ctx: Context<ClaimTransfer>) -> Result<()> {
+        claim_transfer::handler(ctx)
+    }
+
 
     pub fn close(ctx: Context<Close>) -> Result<()> {
         close::handler(ctx)
