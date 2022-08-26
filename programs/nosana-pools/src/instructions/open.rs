@@ -34,12 +34,12 @@ pub fn handler(ctx: Context<Open>, emmission: u64, start_time: i64, closeable: b
 
     // init pool
     (&mut ctx.accounts.pool).init(
-        emmission,
         ctx.accounts.authority.key(),
+        emmission,
+        closeable,
         start_time,
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
-        closeable,
     );
 
     Ok(())

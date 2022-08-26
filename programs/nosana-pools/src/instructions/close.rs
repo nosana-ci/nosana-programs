@@ -12,7 +12,7 @@ pub struct Close<'info> {
         close = authority,
         has_one = authority @ NosanaError::Unauthorized,
         has_one = vault @ NosanaError::InvalidTokenAccount,
-        constraint = pool.closeable == true || vault.amount == 0 @ NosanaError::PoolNotCloseable
+        constraint = pool.closeable || vault.amount == 0 @ NosanaError::PoolNotCloseable
     )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]
@@ -22,6 +22,11 @@ pub struct Close<'info> {
 
 pub fn handler(ctx: Context<Close>) -> Result<()> {
     let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
+    let seeds: &[&[u8]; 3] = &[
+        b"vault".as_ref(),
+        pool.to_account_info().key.as_ref(),
+        &[pool.vault_bump],
+    ];
 
     // transfer tokens from the vault back to the user
     if ctx.accounts.vault.amount > 0 {
@@ -33,7 +38,7 @@ pub fn handler(ctx: Context<Close>) -> Result<()> {
                     to: ctx.accounts.user.to_account_info(),
                     authority: ctx.accounts.vault.to_account_info(),
                 },
-                &[&[b"vault".as_ref(), pool.key().as_ref(), &[pool.vault_bump]]],
+                &[&seeds[..]],
             ),
             ctx.accounts.vault.amount,
         )?;
@@ -47,6 +52,6 @@ pub fn handler(ctx: Context<Close>) -> Result<()> {
             destination: ctx.accounts.authority.to_account_info(),
             authority: ctx.accounts.vault.to_account_info(),
         },
-        &[&[b"vault".as_ref(), pool.key().as_ref(), &[pool.vault_bump]]],
+        &[&seeds[..]],
     ))
 }
