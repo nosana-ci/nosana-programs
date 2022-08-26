@@ -1,6 +1,7 @@
 import { AnchorProvider, Program } from '@project-serum/anchor';
 import { Connection, Keypair, PublicKey, Signer } from '@solana/web3.js';
 import { NosanaStaking } from '../../../target/types/nosana_staking';
+import { NosanaPools } from '../../../target/types/nosana_pools';
 import { NosanaJobs } from '../../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../../target/types/nosana_rewards';
 import { Wallet } from '@project-serum/common';
@@ -18,6 +19,7 @@ declare global {
     jobsProgram: Program<NosanaJobs>,
     stakingProgram: Program<NosanaStaking>,
     rewardsProgram: Program<NosanaRewards>,
+    poolsProgram: Program<NosanaPools>,
     // single public keys
     nosID: PublicKey,
     mint: PublicKey,
