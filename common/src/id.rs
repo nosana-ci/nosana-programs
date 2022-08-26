@@ -27,7 +27,7 @@ mod staking_program {
 pub use pools_program::ID as POOLS_PROGRAM;
 mod pools_program {
     use super::*;
-    declare_id!("GL82QivmTYTZqRdBM5wtRTj9hcibxAXTf82mnanfbgzq");
+    declare_id!("nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD");
 }
 
 pub use nos_token::ID as NOS_TOKEN;
