@@ -12,7 +12,10 @@ pub struct Claim<'info> {
     pub rewards_stats: Account<'info, StatsAccount>,
     #[account(mut)]
     pub rewards_vault: Account<'info, TokenAccount>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted
+    )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -25,8 +28,6 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let now: i64 = Clock::get()?.unix_timestamp;
     let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
     let vault: &mut Account<TokenAccount> = &mut ctx.accounts.vault;
-
-    require!(now > pool.start_time, NosanaError::PoolNotStarted);
 
     let amount = pool.claim(vault.amount, now);
 
