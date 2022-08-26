@@ -6,7 +6,7 @@ use anchor_lang::declare_id;
 use anchor_lang::prelude::*;
 use instructions::*;
 use nosana_common::*;
-pub use state::*;
+pub use state::*; // expose state for cpi
 
 declare_id!(id::REWARDS_PROGRAM);
 

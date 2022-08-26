@@ -4,7 +4,7 @@ mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 use nosana_common::*;
-pub use state::*; // expose stake for cpi
+use state::*;
 
 declare_id!(id::POOLS_PROGRAM);
 
