@@ -30,9 +30,11 @@ declare global {
     ipfsData: number[],
     // public key collections
     accounts: {
+      // programs
       systemProgram: PublicKey;
       tokenProgram: PublicKey;
       stakingProgram: PublicKey;
+      rewardsProgram: PublicKey;
 
       // sys vars
       rent: PublicKey;
@@ -41,19 +43,30 @@ declare global {
       authority: PublicKey;
       feePayer: PublicKey;
 
-      // Solana accounts for ci/cd and staking
-      job: PublicKey;
-      stake: PublicKey;
-      reward: PublicKey;
-
-      // token and ATAs (tbd)
-      tokenAccount: PublicKey;
-      project: PublicKey;
+      // token
       mint: PublicKey;
+
+      // token accounts
       vault: PublicKey;
-      stats: PublicKey;
-      settings: PublicKey;
+      tokenAccount: PublicKey;
       user: PublicKey;
+
+      // staking specific
+      settings: PublicKey;
+      stake: PublicKey;
+
+      // rewards specific
+      stats: PublicKey;
+      reward: PublicKey;
+      rewardsVault: PublicKey;
+      rewardsStats: PublicKey;
+
+      // pools specific
+      pool: PublicKey;
+
+      // jobs specific
+      job: PublicKey;
+      project: PublicKey;
       nft: PublicKey;
     },
     ata: {

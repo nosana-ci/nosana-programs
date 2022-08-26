@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import * as utils from '../utils';
 import { getTokenBalance } from '../utils';
 import c from '../constants';
+import { afterEach } from 'mocha';
 
 const now = function () {
   return Math.floor(Date.now() / 1e3);
@@ -49,6 +50,10 @@ export default function suite() {
     global.accounts.rewardsProgram = global.rewardsProgram.programId;
 
     this.rewardsBalanceBefore = await getTokenBalance(global.provider, global.ata.vaultRewards);
+  });
+
+  afterEach(async function () {
+    expect(await getTokenBalance(global.provider, global.ata.user)).to.equal(global.balances.user, 'user');
   });
 
   it('can open a pool', async function () {
@@ -105,18 +110,20 @@ export default function suite() {
     // sleep at least 1 second
     await utils.sleep(1000);
 
-    let ellapsed = now() - pool.startTime;
-    expect(ellapsed).to.be.above(1);
+    let elapsed = now() - pool.startTime;
+    expect(elapsed).to.be.above(1);
     await global.poolsProgram.methods.claimFee().accounts(global.accounts).rpc();
 
     const after = await getTokenBalance(global.provider, global.ata.vaultRewards);
     let claimed = after - this.rewardsBalanceBefore;
 
     // allow a second of drift
-    expect(claimed).to.be.closeTo(ellapsed * this.emission - pool.claimedTokens, 1 * this.emission);
+    expect(claimed).to.be.closeTo(elapsed * this.emission - pool.claimedTokens, 1 * this.emission);
   });
 
   it('can close', async function () {
+    const amount = await getTokenBalance(global.provider, this.poolVault);
+    global.balances.user += amount;
     await global.poolsProgram.methods.close().accounts(global.accounts).rpc();
   });
 }
