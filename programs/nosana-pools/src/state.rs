@@ -8,12 +8,12 @@ pub const POOL_SIZE: usize = 8 + std::mem::size_of::<PoolAccount>();
 
 #[account]
 pub struct PoolAccount {
-    pub emmission: u64,
     pub authority: Pubkey,
     pub claimed: u64,
+    pub closeable: bool,
+    pub emmission: u64,
     pub start_time: i64,
     pub vault: Pubkey,
-    pub closeable: bool,
     pub vault_bump: u8,
 }
 
