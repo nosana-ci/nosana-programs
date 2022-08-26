@@ -2,11 +2,11 @@ use crate::*;
 use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
-pub struct CreateJob<'info> {
+pub struct Create<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
-    pub job: Account<'info, Job>,
+    pub job: Account<'info, JobAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
-    pub jobs: Account<'info, Jobs>,
+    pub project: Account<'info, ProjectAccount>,
     #[account(mut, seeds = [ id::TST_TOKEN.as_ref() ], bump)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -18,16 +18,12 @@ pub struct CreateJob<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<()> {
-    // retrieve job list and check signature
-    let jobs: &mut Account<Jobs> = &mut ctx.accounts.jobs;
-
+pub fn handler(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
     // create job
-    let job: &mut Account<Job> = &mut ctx.accounts.job;
-    job.create(data, amount);
+    (&mut ctx.accounts.job).create(data, amount);
 
-    // we push the account of the job to the list
-    jobs.add_job(ctx.accounts.job.key());
+    // add job to the project
+    (&mut ctx.accounts.project).add_job(ctx.accounts.job.key());
 
     // finish
     transfer(

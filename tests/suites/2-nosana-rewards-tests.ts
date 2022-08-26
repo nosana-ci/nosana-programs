@@ -266,33 +266,4 @@ export default function suite() {
       }
     });
   });
-
-  let alice, bob, carol;
-  const setupUser = async (amount) => {
-    await utils.setupSolanaUser(
-      global.connection,
-      global.mint,
-      global.stakingProgram.programId,
-      global.rewardsProgram.programId,
-      amount,
-      global.provider
-    );
-  };
-
-  // describe('rewards scenarios', async function () {
-  //   before(async function () {
-  //     alice = await setupUser(600000000);
-  //     console.log('hi');
-  //     console.log(alice);
-  //   });
-
-  //   beforeEach(async function () {
-  //   });
-
-  //   it('works with large quantities', async function () {
-  //     console.log(alice.user);
-  //     console.log('ho');
-  //     console.log(await utils.getTokenBalance(provider, alice.ata));
-  //   });
-  // });
 }

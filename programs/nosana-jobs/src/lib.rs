@@ -13,35 +13,39 @@ declare_id!(id::JOBS_PROGRAM);
 pub mod nosana_jobs {
     use super::*;
 
-    pub fn init_vault(_ctx: Context<InitVault>) -> Result<()> {
-        init_vault::handler()
+    pub fn init(_ctx: Context<Init>) -> Result<()> {
+        init::handler()
     }
 
-    pub fn init_project(ctx: Context<InitProject>) -> Result<()> {
-        init_project::handler(ctx)
+    pub fn start(ctx: Context<Start>) -> Result<()> {
+        start::handler(ctx)
     }
 
-    pub fn create_job(ctx: Context<CreateJob>, amount: u64, data: [u8; 32]) -> Result<()> {
-        create_job::handler(ctx, amount, data)
+    pub fn stop(_ctx: Context<Stop>) -> Result<()> {
+        stop::handler()
     }
 
-    pub fn claim_job(ctx: Context<ClaimJob>) -> Result<()> {
-        claim_job::handler(ctx)
+    pub fn create(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
+        create::handler(ctx, amount, data)
     }
 
-    pub fn close_job(ctx: Context<CloseJob>) -> Result<()> {
-        close_job::handler(ctx)
+    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+        claim::handler(ctx)
     }
 
-    pub fn reclaim_job(ctx: Context<ReclaimJob>) -> Result<()> {
-        reclaim_job::handler(ctx)
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        close::handler(ctx)
     }
 
-    pub fn finish_job(ctx: Context<FinishJob>, data: [u8; 32]) -> Result<()> {
-        finish_job::handler(ctx, data)
+    pub fn reclaim(ctx: Context<Reclaim>) -> Result<()> {
+        reclaim::handler(ctx)
     }
 
-    pub fn cancel_job(ctx: Context<CancelJob>) -> Result<()> {
-        cancel_job::handler(ctx)
+    pub fn finish(ctx: Context<Finish>, data: [u8; 32]) -> Result<()> {
+        finish::handler(ctx, data)
+    }
+
+    pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
+        cancel::handler(ctx)
     }
 }

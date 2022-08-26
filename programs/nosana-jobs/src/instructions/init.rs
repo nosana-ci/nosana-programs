@@ -2,7 +2,7 @@ use crate::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
-pub struct InitVault<'info> {
+pub struct Init<'info> {
     #[account(address = id::TST_TOKEN @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
     #[account(
