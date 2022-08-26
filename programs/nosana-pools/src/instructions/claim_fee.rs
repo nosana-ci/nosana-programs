@@ -1,8 +1,6 @@
 use crate::*;
-use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
-use nosana_rewards::cpi::accounts::AddFee;
-use nosana_rewards::program::NosanaRewards;
-use nosana_rewards::StatsAccount;
+use anchor_spl::token::{Token, TokenAccount};
+use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, StatsAccount};
 
 #[derive(Accounts)]
 pub struct ClaimFee<'info> {
@@ -15,7 +13,7 @@ pub struct ClaimFee<'info> {
     #[account(
         mut,
         constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted,
-        constraint = pool.claim_type == ClaimType::AddFee @ NosanaError::PoolWrongClaimType,
+        constraint = pool.claim_type == ClaimType::AddFee as u8 @ NosanaError::PoolWrongClaimType,
     )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]
@@ -26,15 +24,14 @@ pub struct ClaimFee<'info> {
 }
 
 pub fn handler(ctx: Context<ClaimFee>) -> Result<()> {
-    let now: i64 = Clock::get()?.unix_timestamp;
     let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
     let vault: &mut Account<TokenAccount> = &mut ctx.accounts.vault;
 
-    let amount = pool.claim(vault.amount, now);
+    let amount: u64 = pool.claim(vault.amount, Clock::get()?.unix_timestamp);
 
     // TODO: the below is not a requirement anymore, can be removed?
     // the pool must have enough funds for an emmission
-    require!(amount >= pool.emmission, NosanaError::PoolUnderfunded);
+    require!(amount >= pool.emission, NosanaError::PoolUnderfunded);
 
     nosana_rewards::cpi::add_fee(
         CpiContext::new_with_signer(

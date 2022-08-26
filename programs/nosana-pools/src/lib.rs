@@ -29,7 +29,6 @@ pub mod nosana_pools {
         claim_transfer::handler(ctx)
     }
 
-
     pub fn close(ctx: Context<Close>) -> Result<()> {
         close::handler(ctx)
     }

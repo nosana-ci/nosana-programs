@@ -1,24 +1,16 @@
 use anchor_lang::prelude::*;
-use std::cmp;
-// use nosana_common::constants;
 
-/// # Pool
+/// # Pool Account
 
 pub const POOL_SIZE: usize = 8 + std::mem::size_of::<PoolAccount>();
-
-#[derive(AnchorDeserialize, AnchorSerialize, Copy, Clone, PartialEq, Eq)]
-pub enum ClaimType {
-    Transfer,
-    AddFee,
-}
 
 #[account]
 pub struct PoolAccount {
     pub authority: Pubkey,
+    pub claim_type: u8,
     pub claimed_tokens: u64,
-    pub claim_type: ClaimType,
     pub closeable: bool,
-    pub emmission: u64,
+    pub emission: u64,
     pub start_time: i64,
     pub vault: Pubkey,
     pub vault_bump: u8,
@@ -27,30 +19,37 @@ pub struct PoolAccount {
 impl PoolAccount {
     pub fn init(
         &mut self,
-        emmission: u64,
         authority: Pubkey,
+        emission: u64,
+        closeable: bool,
         start_time: i64,
         vault: Pubkey,
         vault_bump: u8,
-        closeable: bool,
     ) {
-        self.emmission = emmission;
         self.authority = authority;
+        self.claim_type = ClaimType::AddFee as u8;
         self.claimed_tokens = 0;
-        self.claim_type = ClaimType::AddFee;
+        self.closeable = closeable;
+        self.emission = emission;
         self.start_time = start_time;
         self.vault = vault;
         self.vault_bump = vault_bump;
-        self.closeable = closeable;
     }
 
     pub fn claim(&mut self, amount_available: u64, now: i64) -> u64 {
-        let pool_amount = (now - self.start_time) as u64 * self.emmission;
-        let amount_due = pool_amount - self.claimed_tokens;
-        let amount = cmp::min(amount_due, amount_available);
+        let pool_amount: u64 = (now - self.start_time) as u64 * self.emission;
+        let amount_due: u64 = pool_amount - self.claimed_tokens;
+        let amount: u64 = std::cmp::min(amount_due, amount_available);
 
         self.claimed_tokens += amount;
 
         amount
     }
+}
+
+/// # Claim types
+#[repr(u8)]
+pub enum ClaimType {
+    Transfer,
+    AddFee,
 }
