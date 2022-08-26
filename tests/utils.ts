@@ -70,9 +70,7 @@ async function setupSolanaUser(connection, mint, stakingProgram, rewardsProgram,
   const publicKey = user.publicKey;
   const wallet = new anchor.Wallet(user);
   const provider = new anchor.AnchorProvider(connection, wallet, undefined);
-  await connection.confirmTransaction(
-    await connection.requestAirdrop(user.publicKey, anchor.web3.LAMPORTS_PER_SOL)
-  );
+  await connection.confirmTransaction(await connection.requestAirdrop(user.publicKey, anchor.web3.LAMPORTS_PER_SOL));
   const balance = userSupply;
   const ata = await getOrCreateAssociatedSPL(provider, user.publicKey, mint);
   const jobs = undefined;

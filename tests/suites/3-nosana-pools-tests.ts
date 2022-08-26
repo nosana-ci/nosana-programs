@@ -6,29 +6,34 @@ import * as utils from '../utils';
 import { getTokenBalance } from '../utils';
 import c from '../constants';
 
-const now = function () { return Math.floor(Date.now() / 1e3) };
+const now = function () {
+  return Math.floor(Date.now() / 1e3);
+};
 
 export default function suite() {
   before(async function () {
     this.pool = anchor.web3.Keypair.generate();
     [this.poolVault] = await anchor.web3.PublicKey.findProgramAddress(
-      [utils.utf8_encode("vault"), this.pool.publicKey.toBuffer()],
+      [utils.utf8_encode('vault'), this.pool.publicKey.toBuffer()],
       global.poolsProgram.programId
     );
 
     // helper to add funds to the pool
     this.fundPool = async function (amount) {
       await transfer(
-        global.connection, global.payer,
+        global.connection,
+        global.payer,
         await getAssociatedTokenAddress(global.accounts.mint, global.wallet.publicKey),
-        this.poolVault, global.payer, amount
+        this.poolVault,
+        global.payer,
+        amount
       );
       this.amount += amount;
-    }
+    };
 
     this.getPool = async function () {
       return await global.poolsProgram.account.poolAccount.fetch(this.pool.publicKey);
-    }
+    };
 
     this.emmission = 20;
     this.amount = 0;
@@ -49,7 +54,8 @@ export default function suite() {
     // start pool 3 second ago
     let startTime = now() - 3;
 
-    await global.poolsProgram.methods.open(new BN(this.emmission), new BN(startTime), true)
+    await global.poolsProgram.methods
+      .open(new BN(this.emmission), new BN(startTime), true)
       .accounts(global.accounts)
       .signers([this.pool])
       .rpc();
@@ -69,7 +75,10 @@ export default function suite() {
 
   it('can not claim underfunded', async function () {
     let msg = '';
-    await global.poolsProgram.methods.claim().accounts(global.accounts).rpc()
+    await global.poolsProgram.methods
+      .claim()
+      .accounts(global.accounts)
+      .rpc()
       .catch((e) => (msg = e.error.errorMessage));
     expect(msg).to.equal(c.errors.PoolUnderfunded);
   });
