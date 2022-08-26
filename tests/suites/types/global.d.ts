@@ -1,8 +1,8 @@
 import { AnchorProvider, Program } from '@project-serum/anchor';
 import { Connection, Keypair, PublicKey, Signer } from '@solana/web3.js';
-import { NosanaStaking } from '../../target/types/nosana_staking';
-import { NosanaJobs } from '../../target/types/nosana_jobs';
-import { NosanaRewards } from '../../target/types/nosana_rewards';
+import { NosanaStaking } from '../../../target/types/nosana_staking';
+import { NosanaJobs } from '../../../target/types/nosana_jobs';
+import { NosanaRewards } from '../../../target/types/nosana_rewards';
 import { Wallet } from '@project-serum/common';
 import { Metaplex } from '@metaplex-foundation/js';
 import { CreateNftInput } from '@metaplex-foundation/js/src/plugins/nftModule/createNft';

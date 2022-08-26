@@ -4,7 +4,6 @@ import { BN } from '@project-serum/anchor';
 import { expect } from 'chai';
 import * as utils from '../utils';
 import { getTokenBalance } from '../utils';
-import c from '../constants';
 import { afterEach } from 'mocha';
 
 const now = function () {
@@ -86,7 +85,7 @@ export default function suite() {
       .accounts(global.accounts)
       .rpc()
       .catch((e) => (msg = e.error.errorMessage));
-    expect(msg).to.equal(c.errors.PoolUnderfunded);
+    expect(msg).to.equal(global.constants.errors.PoolUnderfunded);
   });
 
   it('can claim a multiple of emission', async function () {
