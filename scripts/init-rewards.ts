@@ -27,7 +27,7 @@ async function main() {
 
   // init vault
   const tx = await program.methods.init().accounts(accounts).rpc();
-  console.log(tx);
+  console.log(`https://explorer.solana.com/tx/${tx}`);
 }
 
 console.log('Running client.');

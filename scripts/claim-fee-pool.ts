@@ -1,8 +1,8 @@
 import { AnchorProvider, Program, setProvider, web3, BN } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { NosanaPools } from '../target/types/nosana_pools';
-import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 async function main() {
   // anchor
@@ -22,22 +22,18 @@ async function main() {
 
   // PDAs
   const accounts = {
-    vault: (await PublicKey.findProgramAddress([utf8.encode('vault'), keyPair.publicKey.toBuffer()], poolsId))[0],
+    vault: (await PublicKey.findProgramAddress([utf8.encode('vault'), pool.toBuffer()], poolsId))[0],
     rewardsStats: (await PublicKey.findProgramAddress([utf8.encode('stats')], rewardsId))[0],
     rewardsVault: (await PublicKey.findProgramAddress([mint.toBuffer()], rewardsId))[0],
-    pool: keyPair.publicKey,
+    pool,
     authority: provider.wallet.publicKey,
     tokenProgram: TOKEN_PROGRAM_ID,
     rewardsProgram: rewardsId,
     systemProgram: web3.SystemProgram.programId,
   };
 
-  // open pool
-  let tx = await program.methods
-    .claimFee()
-    .accounts(accounts)
-    .rpc();
-  console.log(tx);
+  // claim from pool
+  console.log(`https://explorer.solana.com/tx/${await program.methods.claimFee().accounts(accounts).rpc()}`);
 }
 
 console.log('Running client.');

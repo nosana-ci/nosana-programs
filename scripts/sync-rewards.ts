@@ -62,7 +62,8 @@ async function main() {
 
     // 13 sync instructions in 1 tx seems to be the max without (Error: Transaction too large: XXXX > 1232)
     if (instructions.length === 12 || row === rows[rows.length - 1]) {
-      console.log(await program.methods.sync().accounts(accounts).preInstructions(instructions).rpc()); // log tx
+      const tx = await program.methods.sync().accounts(accounts).preInstructions(instructions).rpc();
+      console.log(`https://explorer.solana.com/tx/${tx}`);
       instructions = []; // reset instructions
     } else instructions.push(await program.methods.sync().accounts(accounts).instruction());
   }

@@ -10,7 +10,7 @@ async function main() {
   setProvider(provider);
 
   // pool config
-  const poolConfig = require("../pool.json")
+  const poolConfig = require('../pool.json');
   const keyPair = Keypair.fromSecretKey(new Uint8Array(require(poolConfig.poolKey)));
 
   // public keys
@@ -40,7 +40,7 @@ async function main() {
     .accounts(accounts)
     .signers([keyPair])
     .rpc();
-  console.log(tx);
+  console.log(`https://explorer.solana.com/tx/${tx}`);
 }
 
 console.log('Running client.');
