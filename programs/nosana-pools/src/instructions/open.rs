@@ -19,7 +19,7 @@ pub struct Open<'info> {
     )]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub user: Account<'info, TokenAccount>,
+    pub beneficiary: Account<'info, TokenAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub mint: Account<'info, Mint>,
@@ -28,14 +28,12 @@ pub struct Open<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<Open>, emmission: u64, start_time: i64, closeable: bool) -> Result<()> {
-    // TODO: maybe we want to support pools already started?
-    // require!(start_time >= Clock::get()?.unix_timestamp, NosanaError::PoolStartTimeInPast);
-
+pub fn handler(ctx: Context<Open>, emission: u64, start_time: i64, closeable: bool) -> Result<()> {
     // init pool
     (&mut ctx.accounts.pool).init(
         ctx.accounts.authority.key(),
-        emmission,
+        ctx.accounts.beneficiary.key(),
+        emission,
         closeable,
         start_time,
         ctx.accounts.vault.key(),
