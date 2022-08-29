@@ -32,10 +32,11 @@ pub fn handler(ctx: Context<Open>, emmission: u64, start_time: i64, closeable: b
     // TODO: maybe we want to support pools already started?
     // require!(start_time >= Clock::get()?.unix_timestamp, NosanaError::PoolStartTimeInPast);
 
+pub fn handler(ctx: Context<Open>, emission: u64, start_time: i64, closeable: bool) -> Result<()> {
     // init pool
     (&mut ctx.accounts.pool).init(
         ctx.accounts.authority.key(),
-        emmission,
+        emission,
         closeable,
         start_time,
         ctx.accounts.vault.key(),
