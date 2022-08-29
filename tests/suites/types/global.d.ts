@@ -5,8 +5,7 @@ import { NosanaPools } from '../../../target/types/nosana_pools';
 import { NosanaJobs } from '../../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../../target/types/nosana_rewards';
 import { Wallet } from '@project-serum/common';
-import { Metaplex } from '@metaplex-foundation/js';
-import { CreateNftInput } from '@metaplex-foundation/js/src/plugins/nftModule/createNft';
+import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
 
 declare global {
   var // anchor setup
@@ -25,7 +24,6 @@ declare global {
     mint: PublicKey,
     // metaplex
     metaplex: Metaplex,
-    collection: PublicKey,
     nftConfig: CreateNftInput,
     // jobs program
     cancelJob: Keypair,
@@ -70,6 +68,7 @@ declare global {
       job: PublicKey;
       project: PublicKey;
       nft: PublicKey;
+      metadata: PublicKey;
     },
     ata: {
       user: PublicKey;

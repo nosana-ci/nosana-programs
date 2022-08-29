@@ -77,6 +77,7 @@ async function setupSolanaUser(mint, userSupply, mintProvider) {
   const ata = await getOrCreateAssociatedSPL(provider, user.publicKey, mint);
   const job = undefined;
   const ataNft = undefined;
+  const metadataAddress = undefined;
   const [stake] = await anchor.web3.PublicKey.findProgramAddress(
     [anchor.utils.bytes.utf8.encode('stake'), mint.toBuffer(), publicKey.toBuffer()],
     global.stakingProgram.programId
@@ -108,6 +109,7 @@ async function setupSolanaUser(mint, userSupply, mintProvider) {
     ataNft,
     job,
     project,
+    metadataAddress,
     stake,
     reward,
     vault,
