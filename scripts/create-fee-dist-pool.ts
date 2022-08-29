@@ -9,17 +9,14 @@ async function main() {
   const provider = AnchorProvider.env();
   setProvider(provider);
 
-  const emission = 253678; // lamport-NOS per second
-  const start_time = 1661780725; // 08/29/2022 @ 1:45pm
-  const closeable = true;
+  // pool config
+  const poolConfig = require("../pool.json")
+  const keyPair = Keypair.fromSecretKey(new Uint8Array(require(poolConfig.poolKey)));
 
   // public keys
   const poolsId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
   const rewardsId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
   const mint = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
-
-  // the vanity address for this pool
-  const keyPair = Keypair.fromSecretKey(new Uint8Array(require('../poF4cdcnisqUSBCbfvf4T9Hmvz1sTdhfhGzfPqoQZks.json')));
 
   // program
   const idl = await Program.fetchIdl(poolsId.toString());
@@ -40,7 +37,7 @@ async function main() {
 
   // open pool
   let tx = await program.methods
-    .open(new BN(emission), new BN(start_time), closeable)
+    .open(new BN(poolConfig.emission), new BN(poolConfig.startTime), poolConfig.closeable)
     .accounts(accounts)
     .signers([keyPair])
     .rpc();
