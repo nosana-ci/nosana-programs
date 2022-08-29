@@ -8,7 +8,9 @@ variables:
 .parallel:
   parallel:
     matrix:
-      - PROGRAM_NAME: nosana_rewards
-        PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
       - PROGRAM_NAME: nosana_jobs
         PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
+      - PROGRAM_NAME: nosana_pools
+        PROGRAM_ID: nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD
+      - PROGRAM_NAME: nosana_rewards
+        PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
