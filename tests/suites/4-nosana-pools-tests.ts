@@ -48,6 +48,8 @@ export default function suite() {
     global.accounts.rewardsVault = global.ata.vaultRewards;
     global.accounts.rewardsProgram = global.rewardsProgram.programId;
 
+    global.accounts.beneficiary = global.ata.vaultRewards;
+
     this.rewardsBalanceBefore = await getTokenBalance(global.provider, global.ata.vaultRewards);
   });
 

@@ -14,6 +14,7 @@ pub struct ClaimFee<'info> {
         mut,
         constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted,
         constraint = pool.claim_type == ClaimType::AddFee as u8 @ NosanaError::PoolWrongClaimType,
+        constraint = pool.beneficiary == rewards_vault.key() @ NosanaError::PoolWrongBeneficiary,
     )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]
