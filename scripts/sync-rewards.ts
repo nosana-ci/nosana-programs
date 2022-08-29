@@ -2,10 +2,9 @@ import { NosanaRewards } from '../target/types/nosana_rewards';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { parse } from 'csv-parse';
-import { PublicKey, sendAndConfirmTransaction } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, setProvider } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
-import { sleep } from '@project-serum/common';
 
 async function main() {
   // setup anchor
@@ -61,9 +60,8 @@ async function main() {
       stakingId
     );
 
-    // 12 sync instructions in 1 tx seems to be the max without (Error: Transaction too large: XXXX > 1232)
-    if (instructions.length === 12 || row == rows[rows.length - 1]) {
-      // await sleep(10); // give the rpc nodes some slack
+    // 13 sync instructions in 1 tx seems to be the max without (Error: Transaction too large: XXXX > 1232)
+    if (instructions.length === 12 || row === rows[rows.length - 1]) {
       console.log(await program.methods.sync().accounts(accounts).preInstructions(instructions).rpc()); // log tx
       instructions = []; // reset instructions
     } else instructions.push(await program.methods.sync().accounts(accounts).instruction());
