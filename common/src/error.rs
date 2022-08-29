@@ -62,7 +62,9 @@ pub enum NosanaError {
 
     // node errors
     #[msg("This nodes' stake has been unstaked.")]
-    NodeUnqualifiedUnstaked,
+    NodeNoStake,
     #[msg("This node has not staked enough tokens.")]
-    NodeUnqualifiedStakeAmount,
+    NodeNotEnoughStake,
+    #[msg("This metadata does not have the correct address.")]
+    NodeNftWrongMetadata,
 }

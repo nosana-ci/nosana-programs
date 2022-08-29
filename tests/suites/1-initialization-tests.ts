@@ -97,9 +97,12 @@ export default function suite() {
       global.accounts.nft = await getAssociatedTokenAddress(mintAddress, global.wallet.publicKey);
       expect(await getTokenBalance(global.provider, global.accounts.nft)).to.equal(1);
 
+      global.accounts.metadata = nft.metadataAddress;
+
       await Promise.all(
         global.users.nodes.map(async (n) => {
-          const { mintAddress } = await global.metaplex.nfts().create(global.nftConfig).run();
+          const { nft, mintAddress } = await global.metaplex.nfts().create(global.nftConfig).run();
+          n.metadata = nft.metadataAddress;
           n.ataNft = await getOrCreateAssociatedSPL(n.provider, n.publicKey, mintAddress);
           await transfer(
             global.connection,

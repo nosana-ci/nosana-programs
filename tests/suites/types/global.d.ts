@@ -68,6 +68,7 @@ declare global {
       job: PublicKey;
       project: PublicKey;
       nft: PublicKey;
+      metadata: PublicKey;
     },
     ata: {
       user: PublicKey;

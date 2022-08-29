@@ -160,6 +160,7 @@ export default function suite() {
               authority: node.publicKey,
               stake: node.stake,
               nft: node.ataNft,
+              metadata: node.metadata,
 
               job: node.job,
               project: user.project,
