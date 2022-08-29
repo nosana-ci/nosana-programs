@@ -5,8 +5,7 @@ import { NosanaRewards } from '../target/types/nosana_rewards';
 
 async function main() {
   // anchor
-  const provider = AnchorProvider.env();
-  setProvider(provider);
+  setProvider(AnchorProvider.env());
 
   // setup js programd
   const programId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
