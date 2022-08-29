@@ -14,7 +14,7 @@ async function main() {
   const closeable = true;
 
   // public keys
-  const stakingId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
+  const poolsId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
   const rewardsId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
   const mint = new PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
 
@@ -22,8 +22,8 @@ async function main() {
   const keyPair = Keypair.fromSecretKey(new Uint8Array(require('../poF4cdcnisqUSBCbfvf4T9Hmvz1sTdhfhGzfPqoQZks.json')));
 
   // program
-  const idl = await Program.fetchIdl(stakingId.toString());
-  const program = new Program(idl, stakingId) as Program<NosanaPools>;
+  const idl = await Program.fetchIdl(poolsId.toString());
+  const program = new Program(idl, poolsId) as Program<NosanaPools>;
 
   // PDAs
   const accounts = {
@@ -35,7 +35,7 @@ async function main() {
     systemProgram: web3.SystemProgram.programId,
     tokenProgram: TOKEN_PROGRAM_ID,
     user: await getAssociatedTokenAddress(mint, provider.wallet.publicKey),
-    vault: (await PublicKey.findProgramAddress([utf8.encode('vault'), keyPair.publicKey.toBuffer()], stakingId))[0],
+    vault: (await PublicKey.findProgramAddress([utf8.encode('vault'), keyPair.publicKey.toBuffer()], poolsId))[0],
   };
 
   // open pool
