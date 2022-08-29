@@ -31,6 +31,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // decrease the reflection pool
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
+    // determine amount to claim
     let amount: u128 = reward.get_amount(stats.rate);
     if amount == 0 {
         return Ok(());
