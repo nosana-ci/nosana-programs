@@ -7,6 +7,7 @@ pub const POOL_SIZE: usize = 8 + std::mem::size_of::<PoolAccount>();
 #[account]
 pub struct PoolAccount {
     pub authority: Pubkey,
+    pub beneficiary: Pubkey,
     pub claim_type: u8,
     pub claimed_tokens: u64,
     pub closeable: bool,
@@ -20,6 +21,7 @@ impl PoolAccount {
     pub fn init(
         &mut self,
         authority: Pubkey,
+        beneficiary: Pubkey,
         emission: u64,
         closeable: bool,
         start_time: i64,
@@ -27,6 +29,7 @@ impl PoolAccount {
         vault_bump: u8,
     ) {
         self.authority = authority;
+        self.beneficiary = beneficiary;
         self.claim_type = ClaimType::AddFee as u8;
         self.claimed_tokens = 0;
         self.closeable = closeable;

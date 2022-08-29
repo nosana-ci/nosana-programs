@@ -6,9 +6,10 @@ pub struct ClaimTransfer<'info> {
     #[account(mut, address = pool.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub user: Account<'info, TokenAccount>,
+    pub beneficiary: Account<'info, TokenAccount>,
     #[account(
         mut,
+        has_one = beneficiary @ NosanaError::PoolWrongBeneficiary,
         constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted,
         constraint = pool.claim_type == ClaimType::Transfer as u8 @ NosanaError::PoolWrongClaimType,
     )]
@@ -35,7 +36,7 @@ pub fn handler(ctx: Context<ClaimTransfer>) -> Result<()> {
             ctx.accounts.token_program.to_account_info(),
             Transfer {
                 from: vault.to_account_info(),
-                to: ctx.accounts.user.to_account_info(),
+                to: ctx.accounts.beneficiary.to_account_info(),
                 authority: vault.to_account_info(),
             },
             &[&[b"vault".as_ref(), pool.key().as_ref(), &[pool.vault_bump]]],
