@@ -16,7 +16,7 @@ async function main() {
   // public keys
   const poolsId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
   const rewardsId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
-  const mint = new PublicKey('testsKbCqE8T1ndjY4kNmirvyxjajKvyp1QTDmdGwrp');
+  const mint = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
 
   // the vanity address for this pool
   const keyPair = Keypair.fromSecretKey(new Uint8Array(require('../poF4cdcnisqUSBCbfvf4T9Hmvz1sTdhfhGzfPqoQZks.json')));
