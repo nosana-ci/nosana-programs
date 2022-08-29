@@ -8,7 +8,7 @@ import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
 async function main() {
   // setup anchor
-  const provider = setProvider(AnchorProvider.env());
+  setProvider(AnchorProvider.env());
 
   // public keys
   const mint = new PublicKey('nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7');

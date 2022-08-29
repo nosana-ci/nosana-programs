@@ -13,7 +13,7 @@ import {
 
 export default function suite() {
   describe('mints and PDAs', function () {
-    it('can create NOS mint', async function () {
+    it('can create NOS mint and derive PDAs', async function () {
       // create main mint
       global.accounts.mint = global.mint = await mintFromFile(global.nosID.toString(), global.wallet.publicKey);
       expect(global.nosID.toString()).to.equal(global.mint.toString());
@@ -57,7 +57,7 @@ export default function suite() {
       );
     });
 
-    it('can create ATAs and mint NOS tokens', async function () {
+    it('can create more users, token accounts and mint additional NOS tokens', async function () {
       // create associated token accounts
       global.ata.user =
         global.accounts.user =
@@ -93,26 +93,26 @@ export default function suite() {
     });
 
     it('can mint NFTs', async function () {
-      const { nft } = await global.metaplex.nfts().create(global.nftConfig);
-      global.accounts.nft = await getAssociatedTokenAddress(nft.mint, global.wallet.publicKey);
+      const { nft, mintAddress } = await global.metaplex.nfts().create(global.nftConfig).run();
+      global.accounts.nft = await getAssociatedTokenAddress(mintAddress, global.wallet.publicKey);
       expect(await getTokenBalance(global.provider, global.accounts.nft)).to.equal(1);
 
       await Promise.all(
         global.users.nodes.map(async (n) => {
-          const { nft } = await global.metaplex.nfts().create(global.nftConfig);
-          n.ataNft = await getOrCreateAssociatedSPL(n.provider, n.publicKey, nft.mint);
+          const { mintAddress } = await global.metaplex.nfts().create(global.nftConfig).run();
+          n.ataNft = await getOrCreateAssociatedSPL(n.provider, n.publicKey, mintAddress);
           await transfer(
             global.connection,
             global.payer,
-            await getAssociatedTokenAddress(nft.mint, global.wallet.publicKey),
+            await getAssociatedTokenAddress(mintAddress, global.wallet.publicKey),
             n.ataNft,
             global.payer,
             1
           );
 
           expect(await getTokenBalance(global.provider, n.ataNft)).to.equal(1);
-          expect(nft.name).to.equal(global.nftConfig.name);
-          expect(nft.collection.key.toString()).to.equal(global.collection.toString());
+          expect(nft.name).to.equal(global.nftConfig.name, 'NFT name');
+          expect(nft.collection.address.toString()).to.equal(global.nftConfig.collection.toString(), 'Collection pk');
         })
       );
     });
