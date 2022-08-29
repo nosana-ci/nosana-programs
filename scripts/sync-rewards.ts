@@ -1,16 +1,16 @@
 import { NosanaRewards } from '../target/types/nosana_rewards';
-import * as fs from 'fs';
-import * as path from 'path';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { parse } from 'csv-parse';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, sendAndConfirmTransaction } from '@solana/web3.js';
 import { Program, AnchorProvider, setProvider } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { sleep } from '@project-serum/common';
 
-const provider = AnchorProvider.env();
-setProvider(provider);
-
 async function main() {
+  // setup anchor
+  const provider = setProvider(AnchorProvider.env());
+
   // public keys
   const mint = new PublicKey('nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7');
   const rewardsId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
@@ -29,7 +29,7 @@ async function main() {
   };
   let rows = [{}] as Stakers[];
   parse(
-    fs.readFileSync(path.resolve(__dirname, 'stakers.csv'), { encoding: 'utf-8' }),
+    readFileSync(resolve(__dirname, 'stakers.csv'), { encoding: 'utf-8' }),
     {
       delimiter: ',',
       columns: ['address', 'amount', 'duration', 'xnos'],
@@ -51,17 +51,24 @@ async function main() {
   };
   [accounts.stats] = await PublicKey.findProgramAddress([utf8.encode('stats')], rewardsId);
 
+  let instructions = [];
   for (const row of rows) {
-    if (row.address === 'address') continue;
+    if (row.address === 'address') continue; // skip the header row
     const authority = new PublicKey(row.address);
     [accounts.reward] = await PublicKey.findProgramAddress([utf8.encode('reward'), authority.toBuffer()], rewardsId);
     [accounts.stake] = await PublicKey.findProgramAddress(
       [utf8.encode('stake'), mint.toBuffer(), authority.toBuffer()],
       stakingId
     );
-    let tx = await program.methods.sync().accounts(accounts).rpc();
-    await sleep(5000);
-    console.log(tx);
+
+    // 10 sync instructions in 1 tx seems to be the max
+    if (instructions.length === 10) {
+      await sleep(10); // give the rpc nodes some slack
+      const tx = await program.methods.sync().accounts(accounts).preInstructions(instructions).rpc();
+      console.log(tx);
+      // reset instructions
+      instructions = [];
+    } else instructions.push(await program.methods.sync().accounts(accounts).instruction());
   }
 }
 
