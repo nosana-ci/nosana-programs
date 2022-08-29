@@ -31,7 +31,6 @@ async function main() {
     rent: web3.SYSVAR_RENT_PUBKEY,
     systemProgram: web3.SystemProgram.programId,
     tokenProgram: TOKEN_PROGRAM_ID,
-    user: await getAssociatedTokenAddress(mint, provider.wallet.publicKey),
     vault: (await PublicKey.findProgramAddress([utf8.encode('vault'), keyPair.publicKey.toBuffer()], poolsId))[0],
   };
 
