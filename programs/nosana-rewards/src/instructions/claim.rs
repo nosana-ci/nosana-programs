@@ -31,6 +31,11 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // decrease the reflection pool
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
+    let amount: u128 = reward.get_amount(stats.rate);
+    if amount == 0 {
+        return Ok(());
+    }
+
     // re-enter the pool with the current stake
     reward.update(
         stats.add_rewards_account(ctx.accounts.stake.xnos, 0),
@@ -48,6 +53,6 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
             },
             &[&[id::NOS_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
         ),
-        u64::try_from(reward.get_amount(stats.rate)).unwrap(),
+        u64::try_from(amount).unwrap(),
     )
 }
