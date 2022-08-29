@@ -40,10 +40,6 @@ pub enum NosanaError {
     #[msg("This stake does not match the reward account.")]
     StakeDoesNotMatchReward,
 
-    // reward errors
-    #[msg("There are no rewards to claim.")]
-    NothingToClaim,
-
     // pool errors
     #[msg("This pool as not started yet.")]
     PoolNotStarted,
