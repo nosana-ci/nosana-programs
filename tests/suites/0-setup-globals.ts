@@ -154,7 +154,7 @@ export default function suite() {
         name: 'Burner Phone NFT',
         symbol: 'NOS-NFT',
         sellerFeeBasisPoints: 0,
-        collection: anchor.web3.Keypair.generate().publicKey,
+        collection: new anchor.web3.PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT'),
       };
 
       // dynamic values

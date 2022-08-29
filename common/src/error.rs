@@ -67,4 +67,6 @@ pub enum NosanaError {
     NodeNotEnoughStake,
     #[msg("This metadata does not have the correct address.")]
     NodeNftWrongMetadata,
+    #[msg("This NFT does not belong to the right collection.")]
+    NodeNftWrongCollection,
 }
