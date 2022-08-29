@@ -133,6 +133,7 @@ export default function suite() {
         job: global.signers.job.publicKey,
         project: undefined,
         nft: undefined,
+        metadata: undefined,
       };
 
       // token accounts
