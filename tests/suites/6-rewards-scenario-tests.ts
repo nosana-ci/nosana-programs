@@ -6,10 +6,7 @@ import * as utils from '../utils';
 
 export default function suite() {
   before(async function () {
-    this.users = [{amount: new BN(8362000000),  duration: 31536000,  xnos: new BN(33448000000)},
-                  {amount: new BN(27274000000), duration: 31449600,  xnos: new BN(108871830136)},
-                  {amount: new BN(249000000),   duration: 10368000,  xnos: new BN(494589041)  },
-                  {amount: new BN(4998200000),  duration: 31536000,  xnos: new BN(19992800000)}];
+    this.users = require('../users.json');
 
     // init staking
     await global.stakingProgram.methods.init()
@@ -91,7 +88,9 @@ export default function suite() {
       return u;
     };
 
-    this.claimAndCheckIds = async function (ids) {
+    this.claimAndCheckIds = async function (num) {
+      const ids = _.sampleSize(_.range(0, this.users.length), num);
+      console.log('claiming for users ', ids);
       for (let i = 0; i < ids.length; i++) {
         await this.claimAndCheck(this.users[i]);
       }
@@ -114,6 +113,8 @@ export default function suite() {
   it('stakes', async function () {
     let totalXnos = new BN(0);
     await this.mapUsers(async function (u) {
+      u.amount = new BN(u.amount);
+      u.xnos = new BN(u.xnos);
       const accs = {...global.accounts, stats: global.stats.rewards, stake: u.user.stake,
                     reward: u.user.reward, authority: u.user.publicKey, user: u.user.ata,
                     vault: u.user.vault};
@@ -163,20 +164,24 @@ export default function suite() {
     await this.claimAndCheck(this.users[2]);
     await this.calcXnosPerc();
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 2; i++) {
       console.log(' - add 1540 NOS - iteration', i);
       await this.addFee('1540000000');
       await this.calcXnosPerc();
-      await this.claimAndCheckIds([0, 1, 2]);
+      await this.claimAndCheckIds(5);
       await this.calcXnosPerc();
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 2; i++) {
       console.log(' - add 0.259099 NOS - iteration: ', i);
       await this.addFee('259099');
       await this.calcXnosPerc();
-      await this.claimAndCheckIds([0, 1, 2]);
+      await this.claimAndCheckIds(5);
       await this.calcXnosPerc();
     }
+
+    await this.claim(this.users[1]);
+    let balance = await utils.getTokenBalance(global.provider, this.users[0].user.ata);
+    console.log('Claimed for user[1] = ' + balance);
   });
 }
