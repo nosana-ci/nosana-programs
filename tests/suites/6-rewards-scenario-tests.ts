@@ -81,6 +81,8 @@ export default function suite() {
 
     // helper to call sync for a user stake
     this.sync = async function (u) {
+      let stake1 = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+
       await global.rewardsProgram.methods
         .sync()
         .accounts({
