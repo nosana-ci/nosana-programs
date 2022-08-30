@@ -6,10 +6,10 @@ import * as utils from '../utils';
 
 export default function suite() {
   before(async function () {
-    this.users = [{amount: 8362000000,  duration: 31536000,  xnos: 33448000000},
-                  {amount: 27274000000, duration: 31449600,  xnos: 108871830136},
-                  {amount: 249000000,   duration: 10368000,  xnos: 494589041  },
-                  {amount: 4998200000,  duration: 31536000,  xnos: 19992800000}];
+    this.users = [{amount: new BN(8362000000),  duration: 31536000,  xnos: new BN(33448000000)},
+                  {amount: new BN(27274000000), duration: 31449600,  xnos: new BN(108871830136)},
+                  {amount: new BN(249000000),   duration: 10368000,  xnos: new BN(494589041)  },
+                  {amount: new BN(4998200000),  duration: 31536000,  xnos: new BN(19992800000)}];
 
     // init staking
     await global.stakingProgram.methods.init()
@@ -28,8 +28,8 @@ export default function suite() {
 
     await this.mapUsers(async (u) => {
       u.user = await utils.setupSolanaUser(global.mint, u.amount, global.provider);
-      u.pending = 0;
-      u.received = 0;
+      u.pending = 0.0;
+      u.received = new BN(0);
       return u;
     });
 
@@ -38,21 +38,28 @@ export default function suite() {
       const totalXnos = this.totalXnos.add(this.feesAdded).sub(this.feesClaimed).toNumber();
       console.log('total xnos ', totalXnos);
       await this.mapUsers(async function (u) {
-        u.xnosPerc = (u.xnos + u.pending) / totalXnos;
-        console.log('pend: ', u.pending, '%% ', u.xnosPerc);
+        u.xnosPerc = (u.xnos.toNumber() + u.pending) / totalXnos;
+        console.log(u.xnosPerc, '% of pool', ' - pending reward: ', u.pending);
         return u;
       });
     };
 
     // helper to add a fee and update pending rewards for users
     this.addFee = async function (amount) {
-      await global.rewardsProgram.methods.addFee(new BN(amount))
+      const amountBn = new BN(amount);
+      await global.rewardsProgram.methods.addFee(amountBn)
         .accounts({...global.accounts, stats: global.stats.rewards, vault: global.ata.vaultRewards})
         .rpc();
-      this.feesAdded = this.feesAdded.add(new BN(amount))
+
       await this.mapUsers((u) => {
-        u.pending += amount * u.xnosPerc;
+        // const totalXnos = this.totalXnos.add(this.feesAdded).sub(this.feesClaimed);
+        // console.log('tttt', totalXnos.toString());
+        // console.log('hi', amountBn.mul(u.xnos.add(new BN(u.pending))).toNumber() / totalXnos.toNumber())
+        // u.pending += u.xnos.add(new BN(u.pending)).div(totalXnos).mul(amountBn).toNumber();
+        u.pending += u.xnosPerc * amount;
       });
+
+      this.feesAdded = this.feesAdded.add(amountBn)
     };
 
     // helper to claim rewards for a user
@@ -63,7 +70,7 @@ export default function suite() {
                    stats: global.stats.rewards})
         .signers([u.user.user])
         .rpc();
-      this.feesClaimed = this.feesClaimed.add(new BN(u.pending));
+
     };
 
     // helper to compare expected pending rewards with actual received
@@ -73,9 +80,10 @@ export default function suite() {
       await this.claim(u);
       let balance = await utils.getTokenBalance(global.provider, u.user.ata);
       console.log('claim. nos', balanceBefore, ' => ', balance);
+      this.feesClaimed = this.feesClaimed.add(new BN(balance - balanceBefore));
 
-      expect(balance - balanceBefore).to.equal(Math.floor(u.pending));
-      u.received += u.pending;
+      expect(balance - balanceBefore).to.be.closeTo(Math.round(u.pending), 3);
+      u.received.add(new BN(u.pending));
       u.pending = 0;
       return u;
     };
@@ -107,14 +115,14 @@ export default function suite() {
         .instruction();
 
       await global.stakingProgram.methods
-        .stake(new BN(u.amount), new BN(u.duration))
+        .stake(u.amount, new BN(u.duration))
         .accounts(accs)
         .postInstructions([rewardOpen])
         .signers([u.user.user])
         .rpc();
 
       let stake = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
-      expect(stake.xnos.toNumber()).to.equal(u.xnos);
+      expect(stake.xnos.toNumber()).to.equal(u.xnos.toNumber());
       totalXnos = totalXnos.add(stake.xnos);
 
       return u;
@@ -131,38 +139,39 @@ export default function suite() {
 
     console.log(' - add 1 NOS - ')
     await this.addFee('1000000');
+    await this.calcXnosPerc();
     await this.claimAndCheck(this.users[0]);
     await this.calcXnosPerc();
 
     console.log(' - add 10 NOS - ')
     await this.addFee('10000000');
+    await this.calcXnosPerc();
     await this.claimAndCheck(this.users[3]);
     await this.calcXnosPerc();
 
-    console.log(' - add 100 NOS - ')
-    await this.addFee('100000000');
-    await this.claimAndCheck(this.users[2]);
-    await this.calcXnosPerc();
-
-    console.log(' - add 250,000 NOS - ')
-    await this.addFee('250000000000');
-    await this.claimAndCheck(this.users[1]);
-    await this.calcXnosPerc();
-
-    // console.log(' - add 11,000,000 NOS - ')
-    // await this.addFee('11000000000000');
-    // await this.claimAndCheck(this.users[0]);
-
-
-
-    // let balance = await utils.getTokenBalance(global.provider, this.users[0].user.ata);
-    // console.log(balance)
-
-
-    // console.log(' - step 2 - ')
-    // await this.addFee('1000');
+    // console.log(' - add 100 NOS - ')
+    // await this.addFee('100000000');
+    // await this.claimAndCheck(this.users[2]);
     // await this.calcXnosPerc();
-    // await this.claimAndCheck(this.users[0]);
-    // await this.claimAndCheck(this.users[0]);
+
+    for (let i = 0; i < 25; i++) {
+      console.log(' - add 1540 NOS - ', i);
+      await this.addFee('1540000000');
+      await this.calcXnosPerc();
+      await this.claimAndCheck(this.users[1]);
+      await this.claimAndCheck(this.users[0]);
+      await this.claimAndCheck(this.users[2]);
+      await this.calcXnosPerc();
+    }
+
+    for (let i = 0; i < 25; i++) {
+      console.log(' - add 0.259099 NOS - ', i);
+      await this.addFee('259099');
+      await this.calcXnosPerc();
+      await this.claimAndCheck(this.users[1]);
+      await this.claimAndCheck(this.users[0]);
+      await this.claimAndCheck(this.users[2]);
+      await this.calcXnosPerc();
+    }
   });
 }
