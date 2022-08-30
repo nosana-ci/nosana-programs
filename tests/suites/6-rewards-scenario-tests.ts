@@ -63,17 +63,34 @@ export default function suite() {
     this.claim = async function (u) {
       await global.rewardsProgram.methods.claim()
         .accounts({...global.accounts, stake: u.user.stake, reward: u.user.reward,
+
                    authority: u.user.publicKey, user: u.user.ata, vault: global.ata.vaultRewards,
                    stats: global.stats.rewards})
         .signers([u.user.user])
         .rpc();
     };
 
+    // helper to call sync for a user stake
     this.sync = async function (u) {
+      let stake1 = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+
       await global.rewardsProgram.methods.sync()
         .accounts({...global.accounts, stake: u.user.stake, reward: u.user.reward,
                    authority: u.user.publicKey, user: u.user.ata, vault: global.ata.vaultRewards,
                    stats: global.stats.rewards})
+        .rpc();
+
+      let stake = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      u.duration = stake.duration.toNumber();
+      u.xnos = stake.xnos;
+      this.totalXnos = this.totalXnos.sub(stake1.xnos).add(stake.xnos);
+    };
+
+    this.extend = async function (u, amount) {
+      await global.stakingProgram.methods.extend(new BN(amount))
+        .accounts({...global.accounts, stake: u.user.stake,
+                   authority: u.user.publicKey})
+        .signers([u.user.user])
         .rpc();
     };
 
@@ -153,7 +170,6 @@ export default function suite() {
     // we are going to reserve a 100 million tokens to distribute
     await utils.mintToAccount(global.provider, global.mint, global.ata.user,
                               new BN('100000000000000'));
-
     console.log(' - add 1 NOS - ')
     await this.addFee('1000000');
     await this.calcXnosPerc();
@@ -166,15 +182,24 @@ export default function suite() {
     await this.claimAndCheck(this.users[3]);
     await this.calcXnosPerc();
 
-    console.log(' DOING A BUNCH OF SYNCS')
-    // await this.sync(this.users[0])
-    // await this.sync(this.users[1])
-    await this.sync(this.users[2])
-    // await this.sync(this.users[3])
-
     console.log(' - add 1000000 NOS - ')
     await this.addFee('1000000000000');
     await this.claimAndCheck(this.users[2]);
+    await this.calcXnosPerc();
+
+    console.log('-----> doing a sync');
+    await this.calcXnosPerc();
+    await this.extend(this.users[2], 10000);
+    await this.calcXnosPerc();
+    await this.sync(this.users[2]);
+    await this.calcXnosPerc();
+
+    console.log(' - add 1,000,000 NOS - ')
+    await this.addFee('1000000000000');
+    await this.calcXnosPerc();
+    await this.claimAndCheck(this.users[2]);
+    await this.calcXnosPerc();
+    await this.claimAndCheck(this.users[0]);
     await this.calcXnosPerc();
 
     for (let i = 0; i < 2; i++) {
