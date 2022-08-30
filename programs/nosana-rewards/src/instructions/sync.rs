@@ -24,7 +24,7 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
     let amount: u128 = reward.get_amount(stats.rate);
 
     // decrease the reflection pool
-    stats.remove_rewards_account(reward.reflection, reward.xnos + amount);
+    stats.remove_rewards_account(reward.reflection, reward.xnos);
 
     // re-enter the pool with the current stake
     reward.update(stats.add_rewards_account(stake.xnos, amount), stake.xnos);
