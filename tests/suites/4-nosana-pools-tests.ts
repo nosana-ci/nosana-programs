@@ -62,7 +62,7 @@ export default function suite() {
     let startTime = now() - 3;
 
     await global.poolsProgram.methods
-      .open(new BN(this.emission), new BN(startTime), true)
+      .open(new BN(this.emission), new BN(startTime),  0, true)
       .accounts(global.accounts)
       .signers([this.pool])
       .rpc();
@@ -87,7 +87,7 @@ export default function suite() {
       .accounts(global.accounts)
       .rpc()
       .catch((e) => (msg = e.error.errorMessage));
-    expect(msg).to.equal(global.constants.errors.PoolUnderfunded);
+    expect(msg).to.equal('');
   });
 
   it('can claim a multiple of emission', async function () {
@@ -98,7 +98,7 @@ export default function suite() {
     await global.poolsProgram.methods.claimFee().accounts(global.accounts).rpc();
     const after = await getTokenBalance(global.provider, global.ata.vaultRewards);
 
-    // expect(after).to.equal(this.amount);
+    expect(after).to.equal(this.amount);
     expect(await getTokenBalance(global.provider, this.poolVault)).to.equal(0);
   });
 
