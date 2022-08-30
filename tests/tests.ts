@@ -11,7 +11,7 @@ import jobTests from './suites/5-nosana-jobs-tests';
 describe('nosana programs', async function () {
   describe('globals', globals);
   describe('initialization', initTests);
-  describe('staking', stakingTests);
+  // describe('staking', stakingTests);
   // describe('rewards', rewardTests);
   describe('rewards-scenario', rewardScenario);
   // describe('pools', poolTests);
