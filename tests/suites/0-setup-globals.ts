@@ -2,6 +2,7 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import * as anchor from '@project-serum/anchor';
 import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
 import { BN } from '@project-serum/anchor';
+import {Keypair, PublicKey} from "@solana/web3.js";
 
 const decimals = 1e6;
 const secondsPerDay = 24 * 60 * 60;
@@ -89,9 +90,9 @@ export default function suite() {
       global.metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
 
       // public keys
-      global.nosID = new anchor.web3.PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
-      global.signers = { job: anchor.web3.Keypair.generate() };
-      global.cancelJob = anchor.web3.Keypair.generate();
+      global.nosID = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
+      global.signers = { job: Keypair.generate() };
+      global.cancelJob = Keypair.generate();
 
       // public keys
       global.accounts = {
@@ -155,11 +156,11 @@ export default function suite() {
         name: 'Burner Phone NFT',
         symbol: 'NOS-NFT',
         sellerFeeBasisPoints: 0,
-        collection: new anchor.web3.PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT'),
+        collection: new PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT'),
       };
 
       // dynamic values
-      global.total = { xnos: new anchor.BN(0), reflection: new anchor.BN(0), rate: global.constants.initialRate };
+      global.total = { xnos: new BN(0), reflection: new BN(0), rate: global.constants.initialRate };
       global.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
       global.nodes = { node1: null, node2: null, otherNodes: null };
       global.stats = { staking: undefined, rewards: undefined };

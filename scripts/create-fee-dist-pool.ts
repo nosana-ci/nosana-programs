@@ -2,7 +2,7 @@ import { AnchorProvider, Program, setProvider, web3, BN } from '@project-serum/a
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { NosanaPools } from '../target/types/nosana_pools';
-import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 async function main() {
   // anchor
