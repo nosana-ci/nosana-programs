@@ -28,11 +28,13 @@ pub fn handler(ctx: Context<ClaimFee>) -> Result<()> {
     let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
     let vault: &mut Account<TokenAccount> = &mut ctx.accounts.vault;
 
+    // determine amount
     let amount: u64 = pool.claim(vault.amount, Clock::get()?.unix_timestamp);
 
-    // TODO: the below is not a requirement anymore, can be removed?
-    // the pool must have enough funds for an emmission
-    require!(amount >= pool.emission, NosanaError::PoolUnderfunded);
+    // stop early when there is no error
+    if amount < pool.emission {
+        return Ok(());
+    }
 
     nosana_rewards::cpi::add_fee(
         CpiContext::new_with_signer(

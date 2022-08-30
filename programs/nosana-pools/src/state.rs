@@ -23,15 +23,16 @@ impl PoolAccount {
         &mut self,
         authority: Pubkey,
         beneficiary: Pubkey,
-        emission: u64,
+        claim_type: u8,
         closeable: bool,
+        emission: u64,
         start_time: i64,
         vault: Pubkey,
         vault_bump: u8,
     ) {
         self.authority = authority;
         self.beneficiary = beneficiary;
-        self.claim_type = ClaimType::AddFee as u8;
+        self.claim_type = claim_type;
         self.claimed_tokens = 0;
         self.closeable = closeable;
         self.emission = emission;
@@ -54,6 +55,6 @@ impl PoolAccount {
 /// # Claim types
 #[repr(u8)]
 pub enum ClaimType {
-    Transfer,
-    AddFee,
+    AddFee = 0,
+    Transfer = 1,
 }
