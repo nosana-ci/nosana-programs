@@ -55,6 +55,6 @@ impl PoolAccount {
 /// # Claim types
 #[repr(u8)]
 pub enum ClaimType {
-    AddFee = 0,
-    Transfer = 1,
+    Transfer = 0,
+    AddFee = 1,
 }
