@@ -67,7 +67,15 @@ export default function suite() {
                    stats: global.stats.rewards})
         .signers([u.user.user])
         .rpc();
+    };
 
+    this.sync = async function (u) {
+      await global.rewardsProgram.methods.claim()
+        .accounts({...global.accounts, stake: u.user.stake, reward: u.user.reward,
+                   authority: u.user.publicKey, user: u.user.ata, vault: global.ata.vaultRewards,
+                   stats: global.stats.rewards})
+        .signers([u.user.user])
+        .rpc();
     };
 
     // helper to compare expected pending rewards with actual received
@@ -159,6 +167,12 @@ export default function suite() {
     await this.claimAndCheck(this.users[3]);
     await this.calcXnosPerc();
 
+    console.log(' DOING A BUNCH OF SYNCS')
+    // await this.sync(this.users[0])
+    // await this.sync(this.users[1])
+    await this.sync(this.users[2])
+    // await this.sync(this.users[3])
+
     console.log(' - add 1000000 NOS - ')
     await this.addFee('1000000000000');
     await this.claimAndCheck(this.users[2]);
@@ -177,6 +191,22 @@ export default function suite() {
       await this.addFee('259099');
       await this.calcXnosPerc();
       await this.claimAndCheckIds(5);
+      await this.calcXnosPerc();
+    }
+
+    for (let i = 0; i < 5; i++) {
+      console.log(' - add 250,000 NOS - iteration: ', i);
+      await this.addFee('250000000000');
+      await this.calcXnosPerc();
+      await this.claimAndCheckIds(5);
+      await this.calcXnosPerc();
+    }
+
+    for (let i = 0; i < 10; i++) {
+      console.log(' - add 1,250,000 NOS - iteration: ', i);
+      await this.addFee('1250000000000');
+      await this.calcXnosPerc();
+      await this.claimAndCheckIds(20);
       await this.calcXnosPerc();
     }
 
