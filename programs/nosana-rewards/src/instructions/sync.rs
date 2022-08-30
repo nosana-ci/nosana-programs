@@ -20,7 +20,7 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
-    // determine amount to claim
+    // determine amount that can be claimed
     let amount: u128 = reward.get_amount(stats.rate);
 
     // decrease the reflection pool
