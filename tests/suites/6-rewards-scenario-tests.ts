@@ -70,11 +70,10 @@ export default function suite() {
     };
 
     this.sync = async function (u) {
-      await global.rewardsProgram.methods.claim()
+      await global.rewardsProgram.methods.sync()
         .accounts({...global.accounts, stake: u.user.stake, reward: u.user.reward,
                    authority: u.user.publicKey, user: u.user.ata, vault: global.ata.vaultRewards,
                    stats: global.stats.rewards})
-        .signers([u.user.user])
         .rpc();
     };
 
