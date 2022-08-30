@@ -96,9 +96,6 @@ export default function suite() {
     expect(await getTokenBalance(global.provider, this.poolVault)).to.equal(this.amount, 'vault balance');
 
     await global.poolsProgram.methods.claimFee().accounts(global.accounts).rpc();
-    const after = await getTokenBalance(global.provider, global.ata.vaultRewards);
-
-    expect(after).to.equal(this.amount);
     expect(await getTokenBalance(global.provider, this.poolVault)).to.equal(0);
   });
 
