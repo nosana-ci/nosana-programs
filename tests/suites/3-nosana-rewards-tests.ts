@@ -207,7 +207,6 @@ export default function suite() {
         'Total reflection error'
       );
       expect(rewardsAccount.rate.toString()).to.equal(global.total.rate.toString(), 'Rate error');
-
     });
 
     it('Add another round of fees to the pool', async function () {

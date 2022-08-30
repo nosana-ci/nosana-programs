@@ -9,13 +9,15 @@ export default function suite() {
     this.users = require('../users.json');
 
     // init staking
-    await global.stakingProgram.methods.init()
-      .accounts({...global.accounts, settings: global.stats.staking})
+    await global.stakingProgram.methods
+      .init()
+      .accounts({ ...global.accounts, settings: global.stats.staking })
       .rpc();
 
     // init rewards
-    await global.rewardsProgram.methods.init()
-      .accounts({...global.accounts, stats: global.stats.rewards, vault: global.ata.vaultRewards})
+    await global.rewardsProgram.methods
+      .init()
+      .accounts({ ...global.accounts, stats: global.stats.rewards, vault: global.ata.vaultRewards })
       .rpc();
 
     // helper to apply a function to each user
@@ -44,8 +46,9 @@ export default function suite() {
     // helper to add a fee and update pending rewards for users
     this.addFee = async function (amount) {
       const amountBn = new BN(amount);
-      await global.rewardsProgram.methods.addFee(amountBn)
-        .accounts({...global.accounts, stats: global.stats.rewards, vault: global.ata.vaultRewards})
+      await global.rewardsProgram.methods
+        .addFee(amountBn)
+        .accounts({ ...global.accounts, stats: global.stats.rewards, vault: global.ata.vaultRewards })
         .rpc();
 
       await this.mapUsers((u) => {
@@ -56,24 +59,38 @@ export default function suite() {
         u.pending += u.xnosPerc * amount;
       });
 
-      this.feesAdded = this.feesAdded.add(amountBn)
+      this.feesAdded = this.feesAdded.add(amountBn);
     };
 
     // helper to claim rewards for a user
     this.claim = async function (u) {
-      await global.rewardsProgram.methods.claim()
-        .accounts({...global.accounts, stake: u.user.stake, reward: u.user.reward,
-                   authority: u.user.publicKey, user: u.user.ata, vault: global.ata.vaultRewards,
-                   stats: global.stats.rewards})
+      await global.rewardsProgram.methods
+        .claim()
+        .accounts({
+          ...global.accounts,
+          stake: u.user.stake,
+          reward: u.user.reward,
+          authority: u.user.publicKey,
+          user: u.user.ata,
+          vault: global.ata.vaultRewards,
+          stats: global.stats.rewards,
+        })
         .signers([u.user.user])
         .rpc();
     };
 
     this.sync = async function (u) {
-      await global.rewardsProgram.methods.sync()
-        .accounts({...global.accounts, stake: u.user.stake, reward: u.user.reward,
-                   authority: u.user.publicKey, user: u.user.ata, vault: global.ata.vaultRewards,
-                   stats: global.stats.rewards})
+      await global.rewardsProgram.methods
+        .sync()
+        .accounts({
+          ...global.accounts,
+          stake: u.user.stake,
+          reward: u.user.reward,
+          authority: u.user.publicKey,
+          user: u.user.ata,
+          vault: global.ata.vaultRewards,
+          stats: global.stats.rewards,
+        })
         .rpc();
     };
 
@@ -86,8 +103,8 @@ export default function suite() {
       // console.log('claim. nos', balanceBefore, ' => ', balance);
       this.feesClaimed = this.feesClaimed.add(new BN(balance - balanceBefore));
 
-      if ((balance - balanceBefore) != Math.round(u.pending)) {
-        console.log('!!!! DETECTED DRIFT OF ', (balance - balanceBefore) - Math.round(u.pending));
+      if (balance - balanceBefore != Math.round(u.pending)) {
+        console.log('!!!! DETECTED DRIFT OF ', balance - balanceBefore - Math.round(u.pending));
       }
       expect(balance - balanceBefore).to.be.closeTo(Math.round(u.pending), 5);
       u.received.add(new BN(u.pending));
@@ -101,15 +118,15 @@ export default function suite() {
       for (let i = 0; i < ids.length; i++) {
         await this.claimAndCheck(this.users[i]);
       }
-    }
+    };
 
     this.printReflections = async function (u) {
       const r = await global.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
       const stats = await global.rewardsProgram.account.statsAccount.fetch(global.stats.rewards);
 
-      console.log('reflection: ' , r.reflection.toString() , ' xnos: ', r.xnos.toString());
-      console.log('rate: ' , stats.rate.toString());
-    }
+      console.log('reflection: ', r.reflection.toString(), ' xnos: ', r.xnos.toString());
+      console.log('rate: ', stats.rate.toString());
+    };
 
     // track how much fees have been added
     this.totalXnos = new BN(0);
@@ -122,14 +139,17 @@ export default function suite() {
     await this.mapUsers(async function (u) {
       u.amount = new BN(u.amount);
       u.xnos = new BN(u.xnos);
-      const accs = {...global.accounts, stats: global.stats.rewards, stake: u.user.stake,
-                    reward: u.user.reward, authority: u.user.publicKey, user: u.user.ata,
-                    vault: u.user.vault};
+      const accs = {
+        ...global.accounts,
+        stats: global.stats.rewards,
+        stake: u.user.stake,
+        reward: u.user.reward,
+        authority: u.user.publicKey,
+        user: u.user.ata,
+        vault: u.user.vault,
+      };
 
-      const rewardOpen = await global.rewardsProgram.methods
-        .enter()
-        .accounts(accs)
-        .instruction();
+      const rewardOpen = await global.rewardsProgram.methods.enter().accounts(accs).instruction();
 
       await global.stakingProgram.methods
         .stake(u.amount, new BN(u.duration))
@@ -151,28 +171,27 @@ export default function suite() {
 
   it('adds fees', async function () {
     // we are going to reserve a 100 million tokens to distribute
-    await utils.mintToAccount(global.provider, global.mint, global.ata.user,
-                              new BN('100000000000000'));
+    await utils.mintToAccount(global.provider, global.mint, global.ata.user, new BN('100000000000000'));
 
-    console.log(' - add 1 NOS - ')
+    console.log(' - add 1 NOS - ');
     await this.addFee('1000000');
     await this.calcXnosPerc();
     await this.claimAndCheck(this.users[0]);
     await this.calcXnosPerc();
 
-    console.log(' - add 10 NOS - ')
+    console.log(' - add 10 NOS - ');
     await this.addFee('10000000');
     await this.calcXnosPerc();
     await this.claimAndCheck(this.users[3]);
     await this.calcXnosPerc();
 
-    console.log(' DOING A BUNCH OF SYNCS')
+    console.log(' DOING A BUNCH OF SYNCS');
     // await this.sync(this.users[0])
     // await this.sync(this.users[1])
-    await this.sync(this.users[2])
+    await this.sync(this.users[2]);
     // await this.sync(this.users[3])
 
-    console.log(' - add 1000000 NOS - ')
+    console.log(' - add 1000000 NOS - ');
     await this.addFee('1000000000000');
     await this.claimAndCheck(this.users[2]);
     await this.calcXnosPerc();
