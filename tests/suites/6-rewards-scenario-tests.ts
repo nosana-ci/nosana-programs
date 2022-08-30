@@ -81,7 +81,9 @@ export default function suite() {
 
     // helper to call sync for a user stake
     this.sync = async function (u) {
-      let stake1 = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      let reward = await global.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
+      let stake = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      this.totalXnos = this.totalXnos.sub(reward.xnos);
 
       await global.rewardsProgram.methods
         .sync()
@@ -96,10 +98,10 @@ export default function suite() {
         })
         .rpc();
 
-      let stake = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      let reward2 = await global.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
       u.duration = stake.duration.toNumber();
       u.xnos = stake.xnos;
-      this.totalXnos = this.totalXnos.sub(stake1.xnos).add(stake.xnos);
+      this.totalXnos = this.totalXnos.add(reward2.xnos);
     };
 
     this.extend = async function (u, amount) {
