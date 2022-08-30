@@ -18,9 +18,9 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
     // get and check stake + reward account
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
+    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
     // decrease the reflection pool
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
     stats.remove_rewards_account(reward.reflection, reward.xnos);
 
     // re-enter the pool with the current stake

@@ -11,6 +11,7 @@ use nosana_common::constants::NOS_TOTAL_SUPPLY;
 // The formula below makes initial rate as large as it can be, and rounds it
 // down a little to a clean multiple of the total supply.
 pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
+// pub const INITIAL_RATE: u128 = u128::pow(10, 15);
 
 /// # Stats
 
@@ -27,21 +28,21 @@ pub struct StatsAccount {
 impl StatsAccount {
     pub fn init(&mut self, bump: u8) {
         self.bump = bump;
+        self.rate = INITIAL_RATE;
         self.total_reflection = 0;
         self.total_xnos = 0;
-        self.rate = INITIAL_RATE;
     }
 
     pub fn add_fee(&mut self, fee: u128) {
         self.total_xnos += fee;
-        self.rate = self.total_reflection / self.total_xnos
+        self.rate = self.total_reflection / self.total_xnos;
     }
 
     pub fn add_rewards_account(&mut self, xnos: u128, reward_xnos: u128) -> u128 {
         let reflection: u128 = (xnos + reward_xnos) * self.rate;
 
-        self.total_xnos += xnos;
         self.total_reflection += reflection;
+        self.total_xnos += xnos;
 
         reflection
     }

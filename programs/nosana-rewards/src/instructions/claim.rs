@@ -35,7 +35,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     }
 
     // decrease the reflection pool
-    stats.remove_rewards_account(reward.reflection, reward.xnos);
+    stats.remove_rewards_account(reward.reflection, reward.xnos + amount);
 
     // re-enter the pool with the current stake
     reward.update(

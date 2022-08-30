@@ -25,9 +25,6 @@ pub struct Init<'info> {
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
     // init stats account
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    stats.init(*ctx.bumps.get("stats").unwrap());
-
-    // finish
+    (&mut ctx.accounts.stats).init(*ctx.bumps.get("stats").unwrap());
     Ok(())
 }
