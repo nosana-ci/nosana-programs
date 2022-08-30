@@ -28,17 +28,23 @@ pub struct Open<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<Open>, emission: u64, start_time: i64, closeable: bool) -> Result<()> {
+pub fn handler(
+    ctx: Context<Open>,
+    emission: u64,
+    start_time: i64,
+    claim_type: u8,
+    closeable: bool,
+) -> Result<()> {
     // init pool
     (&mut ctx.accounts.pool).init(
         ctx.accounts.authority.key(),
         ctx.accounts.beneficiary.key(),
-        emission,
+        claim_type,
         closeable,
+        emission,
         start_time,
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
-
     Ok(())
 }

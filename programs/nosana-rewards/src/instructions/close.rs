@@ -14,17 +14,8 @@ pub struct Close<'info> {
 }
 
 pub fn handler(ctx: Context<Close>) -> Result<()> {
-    // update stats
+    // get reward and stats account
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    stats.remove_rewards_account(reward.reflection, reward.xnos);
-
-    /*
-        TODO:
-           - make sure stake accounts can only be closed when rewards are closed
-           - what to do when people have extra rewards pending?
-    */
-
-    // finish
+    (&mut ctx.accounts.stats).remove_rewards_account(reward.reflection, reward.xnos);
     Ok(())
 }

@@ -26,17 +26,14 @@ pub struct Enter<'info> {
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
     // get stake, reward, and stats account
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
-    let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
     // initialize the reward account
-    reward.init(
-        *ctx.accounts.authority.key,
+    (&mut ctx.accounts.reward).init(
+        ctx.accounts.authority.key(),
         *ctx.bumps.get("reward").unwrap(),
         stats.add_rewards_account(stake.xnos, 0),
         stake.xnos,
     );
-
-    // finish
     Ok(())
 }

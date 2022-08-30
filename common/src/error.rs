@@ -40,18 +40,6 @@ pub enum NosanaError {
     #[msg("This stake does not match the reward account.")]
     StakeDoesNotMatchReward,
 
-    // pool errors
-    #[msg("This pool as not started yet.")]
-    PoolNotStarted,
-    #[msg("This pool does not have enough funds.")]
-    PoolUnderfunded,
-    #[msg("This pool is not closeable.")]
-    PoolNotCloseable,
-    #[msg("This pool has a different claim type.")]
-    PoolWrongClaimType,
-    #[msg("This pool does not match the beneficiary.")]
-    PoolWrongBeneficiary,
-
     // job errors
     #[msg("This job is not in the Claimed state.")]
     JobNotClaimed,
@@ -71,4 +59,20 @@ pub enum NosanaError {
     NodeNftWrongMetadata,
     #[msg("This NFT does not belong to the right collection.")]
     NodeNftWrongCollection,
+
+    // pool errors
+    #[msg("This pool as not started yet.")]
+    PoolNotStarted,
+    #[msg("This pool does not have enough funds.")]
+    PoolUnderfunded,
+    #[msg("This pool is not closeable.")]
+    PoolNotCloseable,
+    #[msg("This pool has a different claim type.")]
+    PoolWrongClaimType,
+    #[msg("This pool does not match the beneficiary.")]
+    PoolWrongBeneficiary,
+
+    // reward errors
+    #[msg("This account has rewards to claim.")]
+    RewardsToClaim,
 }

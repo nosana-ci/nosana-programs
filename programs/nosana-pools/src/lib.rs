@@ -16,9 +16,10 @@ pub mod nosana_pools {
         ctx: Context<Open>,
         emmission: u64,
         start_time: i64,
+        claim_type: u8,
         closeable: bool,
     ) -> Result<()> {
-        open::handler(ctx, emmission, start_time, closeable)
+        open::handler(ctx, emmission, start_time, claim_type, closeable)
     }
 
     pub fn claim_fee(ctx: Context<ClaimFee>) -> Result<()> {
