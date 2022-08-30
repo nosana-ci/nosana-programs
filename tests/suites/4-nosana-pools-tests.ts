@@ -62,7 +62,7 @@ export default function suite() {
     let startTime = now() - 3;
 
     await global.poolsProgram.methods
-      .open(new BN(this.emission), new BN(startTime), 0, true)
+      .open(new BN(this.emission), new BN(startTime), 1, true)
       .accounts(global.accounts)
       .signers([this.pool])
       .rpc();
