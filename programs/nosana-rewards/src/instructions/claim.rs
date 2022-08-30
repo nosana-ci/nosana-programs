@@ -29,13 +29,14 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
     // determine amount to claim
+    let rate: u128 = stats.rate;
     let amount: u128 = reward.get_amount(stats.rate);
     if amount == 0 {
         return Ok(());
     }
 
     // decrease the reflection pool
-    stats.remove_rewards_account(reward.reflection, reward.xnos);
+    stats.remove_rewards_account(reward.reflection, reward.reflection / rate);
 
     // re-enter the pool with the current stake
     reward.update(
