@@ -201,18 +201,15 @@ export default function suite() {
     await this.claimAndCheck(this.users[3]);
     await this.calcXnosPerc();
 
-    console.log(' DOING A BUNCH OF SYNCS');
-    // await this.sync(this.users[0])
-    // await this.sync(this.users[1])
+    console.log('---> Doing one sync');
     await this.sync(this.users[2]);
-    // await this.sync(this.users[3])
 
     console.log(' - add 1000000 NOS - ');
     await this.addFee('1000000000000');
     await this.claimAndCheck(this.users[2]);
     await this.calcXnosPerc();
 
-    console.log('-----> doing a sync');
+    console.log('-----> Doing an extend and sync');
     await this.calcXnosPerc();
     await this.extend(this.users[2], 10000);
     await this.calcXnosPerc();
