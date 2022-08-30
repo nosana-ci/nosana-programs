@@ -3,6 +3,7 @@ import globals from './suites/0-setup-globals';
 import initTests from './suites/1-initialization-tests';
 import stakingTests from './suites/2-nosana-staking-tests';
 import rewardTests from './suites/3-nosana-rewards-tests';
+import rewardScenario from './suites/6-rewards-scenario-tests';
 import poolTests from './suites/4-nosana-pools-tests';
 import jobTests from './suites/5-nosana-jobs-tests';
 
