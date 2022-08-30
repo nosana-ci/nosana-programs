@@ -20,11 +20,13 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
+    // determine amount to claim
+    let amount: u128 = reward.get_amount(stats.rate);
+
     // decrease the reflection pool
-    stats.remove_rewards_account(reward.reflection, reward.xnos);
+    stats.remove_rewards_account(reward.reflection, reward.xnos + amount);
 
     // re-enter the pool with the current stake
-    let amount: u128 = reward.get_amount(stats.rate);
     reward.update(stats.add_rewards_account(stake.xnos, amount), stake.xnos);
 
     // finish

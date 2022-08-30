@@ -11,7 +11,7 @@ export default function suite() {
     let amount = 0;
     if (!reflection.eqn(0)) {
       amount = reflection.div(global.total.rate).sub(stakeAccount.xnos).toNumber();
-      // console.log(`             ==> amount: ${amount}`);
+      console.log(`             ==> amount: ${amount}`);
       global.total.xnos.isub(stakeAccount.xnos.add(new BN(amount)));
       global.total.reflection.isub(reflection);
     }
@@ -24,9 +24,9 @@ export default function suite() {
       global.total.reflection.iadd(stakeAccount.xnos.mul(global.total.rate));
     }
 
-    // console.log(
-    //   `           ==> Total Xnos: ${global.total.xnos}, Total Reflection: ${global.total.reflection}, Rate: ${global.total.rate}`
-    // );
+    console.log(
+      `           ==> Total Xnos: ${global.total.xnos}, Total Reflection: ${global.total.reflection}, Rate: ${global.total.rate}`
+    );
 
     expect(statsAccount.rate.toString()).to.equal(global.total.rate.toString(), 'Rate error');
     expect(statsAccount.totalXnos.toString()).to.equal(global.total.xnos.toString(), 'Total XNOS error');
@@ -190,11 +190,11 @@ export default function suite() {
         )
       );
 
-      global.total.xnos.iadd(after.xnos.sub(before.xnos));
+      const amount = before.reflection.div(global.total.rate).sub(before.xnos);
+
+      global.total.xnos.iadd(after.xnos.sub(before.xnos.add(amount)));
       global.total.reflection.isub(before.reflection);
-      const reflection = after.xnos
-        .add(before.reflection.div(new anchor.BN(global.total.rate)).sub(before.xnos))
-        .mul(global.total.rate);
+      const reflection = after.xnos.add(amount).mul(global.total.rate);
       global.total.reflection.iadd(reflection);
 
       expect(reflection.toString()).to.equal(after.reflection.toString());
