@@ -16,15 +16,6 @@ pub struct Close<'info> {
 pub fn handler(ctx: Context<Close>) -> Result<()> {
     // get reward and stats account
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-
-    // test that there are no pending rewards
-    require!(
-        reward.get_amount(stats.rate) == 0,
-        NosanaError::RewardsToClaim
-    );
-
-    // safely close account
-    stats.remove_rewards_account(reward.reflection, reward.xnos);
+    (&mut ctx.accounts.stats).remove_rewards_account(reward.reflection, reward.xnos);
     Ok(())
 }
