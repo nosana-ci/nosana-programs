@@ -129,6 +129,7 @@ export default function suite() {
 
         // pools specific
         pool: undefined,
+        beneficiary: undefined,
 
         // jobs specific
         job: global.signers.job.publicKey,

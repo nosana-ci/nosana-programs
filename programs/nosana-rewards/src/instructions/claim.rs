@@ -43,7 +43,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.stake.xnos,
     );
 
-    // pay-out reward
+    // pay-out pending reward
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),

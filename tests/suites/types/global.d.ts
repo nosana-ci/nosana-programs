@@ -63,6 +63,7 @@ declare global {
 
       // pools specific
       pool: PublicKey;
+      beneficiary: PublicKey;
 
       // jobs specific
       job: PublicKey;
