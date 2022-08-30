@@ -36,10 +36,10 @@ export default function suite() {
     // helper to fill the xnosPerc in this.users
     this.calcXnosPerc = async function () {
       const totalXnos = this.totalXnos.add(this.feesAdded).sub(this.feesClaimed).toNumber();
-      console.log('total xnos ', totalXnos);
+      // console.log('total xnos ', totalXnos);
       await this.mapUsers(async function (u) {
         u.xnosPerc = (u.xnos.toNumber() + u.pending) / totalXnos;
-        console.log(u.xnosPerc, '% of pool', ' - pending reward: ', u.pending);
+        // console.log(u.xnosPerc, '% of pool', ' - pending reward: ', u.pending);
         return u;
       });
     };
@@ -79,14 +79,23 @@ export default function suite() {
       let balanceBefore = await utils.getTokenBalance(global.provider, u.user.ata);
       await this.claim(u);
       let balance = await utils.getTokenBalance(global.provider, u.user.ata);
-      console.log('claim. nos', balanceBefore, ' => ', balance);
+      // console.log('claim. nos', balanceBefore, ' => ', balance);
       this.feesClaimed = this.feesClaimed.add(new BN(balance - balanceBefore));
 
-      expect(balance - balanceBefore).to.be.closeTo(Math.round(u.pending), 3);
+      if ((balance - balanceBefore) != Math.round(u.pending)) {
+        console.log('!!!! DETECTED DRIFT OF ', (balance - balanceBefore) - Math.round(u.pending));
+      }
+      expect(balance - balanceBefore).to.be.closeTo(Math.round(u.pending), 5);
       u.received.add(new BN(u.pending));
       u.pending = 0;
       return u;
     };
+
+    this.claimAndCheckIds = async function (ids) {
+      for (let i = 0; i < ids.length; i++) {
+        await this.claimAndCheck(this.users[i]);
+      }
+    }
 
     this.printReflections = async function (u) {
       const r = await global.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
@@ -149,28 +158,24 @@ export default function suite() {
     await this.claimAndCheck(this.users[3]);
     await this.calcXnosPerc();
 
-    // console.log(' - add 100 NOS - ')
-    // await this.addFee('100000000');
-    // await this.claimAndCheck(this.users[2]);
-    // await this.calcXnosPerc();
+    console.log(' - add 1000000 NOS - ')
+    await this.addFee('1000000000000');
+    await this.claimAndCheck(this.users[2]);
+    await this.calcXnosPerc();
 
-    for (let i = 0; i < 25; i++) {
-      console.log(' - add 1540 NOS - ', i);
+    for (let i = 0; i < 20; i++) {
+      console.log(' - add 1540 NOS - iteration', i);
       await this.addFee('1540000000');
       await this.calcXnosPerc();
-      await this.claimAndCheck(this.users[1]);
-      await this.claimAndCheck(this.users[0]);
-      await this.claimAndCheck(this.users[2]);
+      await this.claimAndCheckIds([0, 1, 2]);
       await this.calcXnosPerc();
     }
 
-    for (let i = 0; i < 25; i++) {
-      console.log(' - add 0.259099 NOS - ', i);
+    for (let i = 0; i < 20; i++) {
+      console.log(' - add 0.259099 NOS - iteration: ', i);
       await this.addFee('259099');
       await this.calcXnosPerc();
-      await this.claimAndCheck(this.users[1]);
-      await this.claimAndCheck(this.users[0]);
-      await this.claimAndCheck(this.users[2]);
+      await this.claimAndCheckIds([0, 1, 2]);
       await this.calcXnosPerc();
     }
   });
