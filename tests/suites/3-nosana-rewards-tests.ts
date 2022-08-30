@@ -190,11 +190,11 @@ export default function suite() {
         )
       );
 
-      const amount = before.reflection.div(global.total.rate).sub(before.xnos);
-
-      global.total.xnos.iadd(after.xnos.sub(before.xnos.add(amount)));
+      global.total.xnos.iadd(after.xnos.sub(before.xnos));
       global.total.reflection.isub(before.reflection);
-      const reflection = after.xnos.add(amount).mul(global.total.rate);
+      const reflection = after.xnos
+        .add(before.reflection.div(new anchor.BN(global.total.rate)).sub(before.xnos))
+        .mul(global.total.rate);
       global.total.reflection.iadd(reflection);
 
       expect(reflection.toString()).to.equal(after.reflection.toString());
@@ -207,6 +207,7 @@ export default function suite() {
         'Total reflection error'
       );
       expect(rewardsAccount.rate.toString()).to.equal(global.total.rate.toString(), 'Rate error');
+
     });
 
     it('Add another round of fees to the pool', async function () {
