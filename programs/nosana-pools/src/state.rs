@@ -18,6 +18,7 @@ pub struct PoolAccount {
 }
 
 impl PoolAccount {
+    #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
         authority: Pubkey,

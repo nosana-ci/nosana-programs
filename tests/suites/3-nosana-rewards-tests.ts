@@ -1,6 +1,7 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import * as utils from '../utils';
+import { BN } from '@project-serum/anchor';
 
 export default function suite() {
   async function updateRewards(stakePubkey, statsPubkey, fee = new anchor.BN(0), reflection = new anchor.BN(0)) {
@@ -10,7 +11,8 @@ export default function suite() {
     let amount = 0;
     if (!reflection.eqn(0)) {
       amount = reflection.div(global.total.rate).sub(stakeAccount.xnos).toNumber();
-      global.total.xnos.isub(stakeAccount.xnos);
+      console.log(`             ==> amount: ${amount}`);
+      global.total.xnos.isub(stakeAccount.xnos.add(new BN(amount)));
       global.total.reflection.isub(reflection);
     }
 
@@ -22,7 +24,9 @@ export default function suite() {
       global.total.reflection.iadd(stakeAccount.xnos.mul(global.total.rate));
     }
 
-    // console.log(`           ==> Total Xnos: ${global.xnos}, Total Reflection: ${global.reflection}, Rate: ${rate}`);
+    console.log(
+      `           ==> Total Xnos: ${global.total.xnos}, Total Reflection: ${global.total.reflection}, Rate: ${global.total.rate}`
+    );
 
     expect(statsAccount.rate.toString()).to.equal(global.total.rate.toString(), 'Rate error');
     expect(statsAccount.totalXnos.toString()).to.equal(global.total.xnos.toString(), 'Total XNOS error');
@@ -87,11 +91,9 @@ export default function suite() {
 
   describe('add_fee()', async function () {
     it('can add fees to the pool', async function () {
-      await global.rewardsProgram.methods
-        .addFee(new anchor.BN(global.constants.feeAmount))
-        .accounts(global.accounts)
-        .rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(global.constants.feeAmount));
+      const fee = new BN(global.constants.feeAmount);
+      await global.rewardsProgram.methods.addFee(fee).accounts(global.accounts).rpc();
+      await updateRewards(global.accounts.stake, global.accounts.stats, fee);
       global.balances.user -= global.constants.feeAmount;
       global.balances.vaultRewards += global.constants.feeAmount;
       await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
@@ -188,11 +190,11 @@ export default function suite() {
         )
       );
 
-      global.total.xnos.iadd(after.xnos.sub(before.xnos));
+      const amount = before.reflection.div(global.total.rate).sub(before.xnos);
+
+      global.total.xnos.iadd(after.xnos.sub(before.xnos.add(amount)));
       global.total.reflection.isub(before.reflection);
-      const reflection = after.xnos
-        .add(before.reflection.div(new anchor.BN(global.total.rate)).sub(before.xnos))
-        .mul(global.total.rate);
+      const reflection = after.xnos.add(amount).mul(global.total.rate);
       global.total.reflection.iadd(reflection);
 
       expect(reflection.toString()).to.equal(after.reflection.toString());
