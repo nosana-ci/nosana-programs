@@ -28,21 +28,21 @@ pub struct StatsAccount {
 impl StatsAccount {
     pub fn init(&mut self, bump: u8) {
         self.bump = bump;
+        self.rate = INITIAL_RATE;
         self.total_reflection = 0;
         self.total_xnos = 0;
-        self.rate = INITIAL_RATE;
     }
 
     pub fn add_fee(&mut self, fee: u128) {
         self.total_xnos += fee;
-        self.rate = self.total_reflection / self.total_xnos
+        self.rate = self.total_reflection / self.total_xnos;
     }
 
     pub fn add_rewards_account(&mut self, xnos: u128, reward_xnos: u128) -> u128 {
         let reflection: u128 = (xnos + reward_xnos) * self.rate;
 
-        self.total_xnos += xnos;
         self.total_reflection += reflection;
+        self.total_xnos += xnos;
 
         reflection
     }
