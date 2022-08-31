@@ -82,7 +82,7 @@ export default function suite() {
     });
 
     it('can stake for node 1', async function () {
-      let amount = this.constants.minimumNodeStake - 1;
+      const amount = this.constants.minimumNodeStake - 1;
       await this.stakingProgram.methods
         .stake(new anchor.BN(amount), new anchor.BN(this.constants.stakeDurationMin))
         .accounts({

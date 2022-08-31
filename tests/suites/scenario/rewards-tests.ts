@@ -71,8 +71,8 @@ export default function suite() {
 
     // helper to call sync for a user stake
     this.sync = async function (u) {
-      let reward = await this.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
-      let stake = await this.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      const reward = await this.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(u.user.stake);
       this.totalXnos = this.totalXnos.sub(reward.xnos);
 
       await this.rewardsProgram.methods
@@ -84,7 +84,7 @@ export default function suite() {
         })
         .rpc();
 
-      let reward2 = await this.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
+      const reward2 = await this.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
       u.duration = stake.duration.toNumber();
       u.xnos = stake.xnos;
       this.totalXnos = this.totalXnos.add(reward2.xnos);
@@ -101,9 +101,9 @@ export default function suite() {
     // helper to compare expected pending rewards with actual received
     // rewards. should be called after claim.
     this.claimAndCheck = async function (u) {
-      let balanceBefore = await utils.getTokenBalance(this.provider, u.user.ata);
+      const balanceBefore = await utils.getTokenBalance(this.provider, u.user.ata);
       await this.claim(u);
-      let balance = await utils.getTokenBalance(this.provider, u.user.ata);
+      const balance = await utils.getTokenBalance(this.provider, u.user.ata);
       // console.log('claim. nos', balanceBefore, ' => ', balance);
       this.feesClaimed = this.feesClaimed.add(new BN(balance - balanceBefore));
 
@@ -140,7 +140,7 @@ export default function suite() {
 
   it('stakes', async function () {
     let totalXnos = new BN(0);
-    let ctx = this;
+    const ctx = this;
     await this.mapUsers(async function (u) {
       u.user = await utils.setupSolanaUser(ctx);
       u.pending = 0.0;
@@ -167,7 +167,7 @@ export default function suite() {
         .signers([u.user.user])
         .rpc();
 
-      let stake = await ctx.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      const stake = await ctx.stakingProgram.account.stakeAccount.fetch(u.user.stake);
       expect(stake.xnos.toNumber()).to.equal(u.xnos.toNumber());
       totalXnos = totalXnos.add(stake.xnos);
 
@@ -251,7 +251,7 @@ export default function suite() {
     }
 
     await this.claim(this.users[1]);
-    let balance = await utils.getTokenBalance(this.provider, this.users[0].user.ata);
+    const balance = await utils.getTokenBalance(this.provider, this.users[0].user.ata);
     console.log('Claimed for user[1] = ' + balance);
   });
 }

@@ -40,6 +40,7 @@ describe('nosana programs', async function () {
     this.poolsProgram = anchor.workspace.NosanaPools;
     this.stakingProgram = anchor.workspace.NosanaStaking;
     this.rewardsProgram = anchor.workspace.NosanaRewards;
+    this.rewardsProgram1 = anchor.workspace.NosanaRewards;
     this.metaplex = Metaplex.make(this.connection).use(walletAdapterIdentity(this.wallet));
 
     // constant values

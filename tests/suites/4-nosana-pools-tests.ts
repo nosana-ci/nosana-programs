@@ -61,7 +61,7 @@ export default function suite() {
       this.poolClosed = false;
 
       // start pool 3 second ago
-      let startTime = now() - 3;
+      const startTime = now() - 3;
 
       // open pool
       await this.poolsProgram.methods
@@ -106,11 +106,11 @@ export default function suite() {
 
       // fund for 3 seconds
       await fundPool(this, this.constants.emission * 3);
-      let pool = await getPool(this);
+      const pool = await getPool(this);
 
       // sleep at least 5 second
       await sleep(5000);
-      let elapsed = now() - pool.startTime.toNumber();
+      const elapsed = now() - pool.startTime.toNumber();
       expect(elapsed).to.be.above(1);
 
       // claim fee

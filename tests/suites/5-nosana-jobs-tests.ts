@@ -148,8 +148,8 @@ export default function suite() {
     it('can claim jobs for all other nodes and users', async function () {
       await Promise.all(
         [...Array(10).keys()].map(async (i) => {
-          let user = this.users.users[i];
-          let node = this.users.nodes[i];
+          const user = this.users.users[i];
+          const node = this.users.nodes[i];
 
           // store these temporary to get them easier later
           node.project = user.project;
