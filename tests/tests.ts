@@ -19,6 +19,9 @@ import jobTests from './suites/5-nosana-jobs-tests';
 // local test scenarios
 import rewardScenario from './suites/scenario/rewards-tests';
 
+// types
+import {NosanaAccounts} from "./types/nosana-types";
+
 // run
 describe('nosana programs', async function () {
   before(async function () {
@@ -73,52 +76,30 @@ describe('nosana programs', async function () {
     };
 
     // public keys to be used in the instructions
-    this.accounts = {
-      // programs
-      systemProgram: anchor.web3.SystemProgram.programId,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      stakingProgram: this.stakingProgram.programId,
-      rewardsProgram: this.rewardsProgram.programId,
+    this.accounts = {} as NosanaAccounts;
 
-      // sys vars
-      rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-
-      // main user
-      authority: this.publicKey,
-      feePayer: this.publicKey,
-
-      // token
-      mint: this.mint,
-
-      // token accounts
-      vault: undefined,
-      tokenAccount: await getAssociatedTokenAddress(this.mint, this.publicKey),
-      user: await getAssociatedTokenAddress(this.mint, this.publicKey),
-
-      // staking specific
-      settings: await pda([utf8.encode('settings')], this.stakingProgram.programId),
-      stake: await pda(
-        [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
-        this.stakingProgram.programId
-      ),
-
-      // rewards specific
-      stats: await pda([utf8.encode('stats')], this.rewardsProgram.programId),
-      reward: await pda([utf8.encode('reward'), this.publicKey.toBuffer()], this.rewardsProgram.programId),
-
-      // pools specific
-      beneficiary: this.vaults.rewards,
-      rewardsVault: this.vaults.rewards,
-      rewardsStats: await pda([utf8.encode('stats')], this.rewardsProgram.programId),
-      pool: undefined,
-      poolVault: undefined,
-
-      // jobs specific
-      project: await pda([utf8.encode('project'), this.publicKey.toBuffer()], this.jobsProgram.programId),
-      job: undefined,
-      nft: undefined,
-      metadata: undefined,
-    };
+    // programs
+    this.accounts.systemProgram = anchor.web3.SystemProgram.programId;
+    this.accounts.tokenProgram = TOKEN_PROGRAM_ID;
+    this.accounts.stakingProgram = this.stakingProgram.programId;
+    this.accounts.rewardsProgram = this.rewardsProgram.programId;
+    this.accounts.rent = anchor.web3.SYSVAR_RENT_PUBKEY;
+    this.accounts.authority = this.publicKey;
+    this.accounts.feePayer = this.publicKey;
+    this.accounts.mint = this.mint;
+    this.accounts.tokenAccount = await getAssociatedTokenAddress(this.mint, this.publicKey);
+    this.accounts.user = await getAssociatedTokenAddress(this.mint, this.publicKey);
+    this.accounts.settings = await pda([utf8.encode('settings')], this.stakingProgram.programId);
+    this.accounts.stats = await pda([utf8.encode('stats')], this.rewardsProgram.programId);
+    this.accounts.reward = await pda([utf8.encode('reward'), this.publicKey.toBuffer()], this.rewardsProgram.programId);
+    this.accounts.beneficiary = this.vaults.rewards;
+    this.accounts.rewardsVault = this.vaults.rewards;
+    this.accounts.rewardsStats = await pda([utf8.encode('stats')], this.rewardsProgram.programId);
+    this.accounts.project = await pda([utf8.encode('project'), this.publicKey.toBuffer()], this.jobsProgram.programId);
+    this.accounts.stake = await pda(
+      [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
+      this.stakingProgram.programId
+    );
   });
 
   switch (process.env.TEST_SCENARIO) {
