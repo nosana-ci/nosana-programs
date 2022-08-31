@@ -15,7 +15,7 @@ variables:
       - PROGRAM_NAME: nosana_rewards
         PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
 
-rewards scenario:
+scenario:
   extends: .wallet
   stage: build
   parallel:
