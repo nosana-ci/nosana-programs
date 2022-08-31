@@ -1,7 +1,7 @@
 // external imports
 import { before } from 'mocha';
 import * as anchor from '@project-serum/anchor';
-import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
+import { CreateNftInput, Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
 import { PublicKey } from '@solana/web3.js';
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BN } from '@project-serum/anchor';
@@ -20,7 +20,7 @@ import jobTests from './suites/5-nosana-jobs-tests';
 import rewardScenario from './suites/scenario/rewards-tests';
 
 // types
-import {NosanaAccounts} from "./types/nosana-types";
+import { NosanaAccounts, NosanaVaults } from './types/nosana-types';
 
 // run
 describe('nosana programs', async function () {
@@ -47,15 +47,14 @@ describe('nosana programs', async function () {
     this.mint = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
 
     // nft
-    this.nftConfig = {
-      uri: 'https://arweave.net/123',
-      name: 'Burner Phone NFT',
-      symbol: 'NOS-NFT',
-      sellerFeeBasisPoints: 0,
-      isCollection: true,
-      // we need an Anchor Public Key :/
-      collection: new anchor.web3.PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT'),
-    };
+    this.nftConfig = {} as CreateNftInput;
+    this.nftConfig.uri = 'https://arweave.net/123';
+    this.nftConfig.name = 'Burner Phone NFT';
+    this.nftConfig.symbol = 'NOS-NFT';
+    this.nftConfig.sellerFeeBasisPoints = 0;
+    this.nftConfig.isCollection = true;
+    // we need an Anchor Public Key :/
+    this.nftConfig.collection = new anchor.web3.PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT');
 
     // dynamic values
     this.total = { xnos: new BN(0), reflection: new BN(0), rate: constants.initialRate };
@@ -65,20 +64,16 @@ describe('nosana programs', async function () {
     this.poolClosed = true;
 
     // token vaults public keys
-    this.vaults = {
-      rewards: await pda([this.mint.toBuffer()], this.rewardsProgram.programId),
-      jobs: await pda([this.mint.toBuffer()], this.jobsProgram.programId),
-      pools: undefined,
-      staking: await pda(
-        [utf8.encode('vault'), this.mint.toBuffer(), this.publicKey.toBuffer()],
-        this.stakingProgram.programId
-      ),
-    };
+    this.vaults = {} as NosanaVaults;
+    this.vaults.jobs = await pda([this.mint.toBuffer()], this.jobsProgram.programId);
+    this.vaults.rewards = await pda([this.mint.toBuffer()], this.rewardsProgram.programId);
+    this.vaults.staking = await pda(
+      [utf8.encode('vault'), this.mint.toBuffer(), this.publicKey.toBuffer()],
+      this.stakingProgram.programId
+    );
 
     // public keys to be used in the instructions
     this.accounts = {} as NosanaAccounts;
-
-    // programs
     this.accounts.systemProgram = anchor.web3.SystemProgram.programId;
     this.accounts.tokenProgram = TOKEN_PROGRAM_ID;
     this.accounts.stakingProgram = this.stakingProgram.programId;
