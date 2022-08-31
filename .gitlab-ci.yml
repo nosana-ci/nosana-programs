@@ -17,10 +17,11 @@ variables:
 
 scenario:
   extends: .wallet
-  stage: build
+  stage: test
   parallel:
     matrix:
       - TEST_SCENARIO: rewards
+      - TEST_SCENARIO: all
   script:
     - npm ci
     - anchor test
