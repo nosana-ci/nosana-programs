@@ -7,6 +7,7 @@ import { NosanaStaking } from '../../target/types/nosana_staking';
 import { NosanaPools } from '../../target/types/nosana_pools';
 import { NosanaJobs } from '../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../target/types/nosana_rewards';
+import { constants } from '../contstants';
 
 declare module 'mocha' {
   export interface Context {
@@ -26,8 +27,12 @@ declare module 'mocha' {
     metaplex: Metaplex;
     nftConfig: CreateNftInput;
     // jobs program
-    cancelJob: Keypair;
     ipfsData: number[];
+
+    total: { xnos: BN; reflection: BN; rate: BN };
+    vaults: { staking: PublicKey; rewards: PublicKey; jobs: PublicKey };
+    balances: { user: number; vaultJob: number; vaultStaking: number; vaultRewards: number };
+
     // public key collections
     accounts: {
       // programs
@@ -63,6 +68,7 @@ declare module 'mocha' {
 
       // pools specific
       pool: PublicKey;
+      poolVault: PublicKey;
       beneficiary: PublicKey;
 
       // jobs specific
@@ -71,16 +77,9 @@ declare module 'mocha' {
       nft: PublicKey;
       metadata: PublicKey;
     };
-    vaults: {
-      staking: PublicKey;
-      rewards: PublicKey;
-      jobs: PublicKey;
-    };
+
     //TODO : define types
     constants;
-    signers;
-    balances;
-    total;
     nodes;
     users;
   }

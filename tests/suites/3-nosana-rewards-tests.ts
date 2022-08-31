@@ -6,7 +6,7 @@ import { calculateXnos, getTokenBalance, updateRewards } from '../utils';
 export default function suite() {
   afterEach(async function () {
     expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
-    expect(await getTokenBalance(this.provider, this.ata.vaultRewards)).to.equal(this.balances.vaultRewards);
+    expect(await getTokenBalance(this.provider, this.vaults.rewards)).to.equal(this.balances.vaultRewards);
   });
 
   describe('init()', async function () {
@@ -97,7 +97,7 @@ export default function suite() {
         node.balance += amount;
         this.balances.vaultRewards -= amount;
       }
-      expect(await getTokenBalance(this.provider, this.ata.vaultRewards)).to.be.closeTo(0, 100, 'vault is empty');
+      expect(await getTokenBalance(this.provider, this.vaults.rewards)).to.be.closeTo(0, 100, 'vault is empty');
     });
   });
 
@@ -112,7 +112,7 @@ export default function suite() {
     it('can topup stake', async function () {
       await this.stakingProgram.methods
         .topup(new anchor.BN(this.constants.stakeAmount))
-        .accounts({ ...this.accounts, vault: this.ata.userVaultStaking })
+        .accounts({ ...this.accounts, vault: this.vaults.staking })
         .rpc();
       this.balances.user -= this.constants.stakeAmount;
       this.balances.vaultStaking += this.constants.stakeAmount;

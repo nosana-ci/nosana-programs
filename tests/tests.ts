@@ -42,8 +42,10 @@ describe('nosana programs', async function () {
 
     // public keys
     this.mint = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
-    this.signers = { job: anchor.web3.Keypair.generate() };
-    this.cancelJob = anchor.web3.Keypair.generate();
+    this.keypairs = {
+      job1: anchor.web3.Keypair.generate(),
+      job2: anchor.web3.Keypair.generate(),
+    };
 
     // token accounts
     this.vaults = {
@@ -91,12 +93,13 @@ describe('nosana programs', async function () {
 
       // pools specific
       pool: undefined,
+      poolVault: undefined,
       beneficiary: this.vaults.rewards,
       rewardsVault: this.vaults.rewards,
       rewardsStats: await pda([utf8.encode('stats')], this.rewardsProgram.programId),
 
       // jobs specific
-      job: this.signers.job.publicKey,
+      job: undefined,
       project: await pda([utf8.encode('project'), this.publicKey.toBuffer()], this.jobsProgram.programId),
       nft: undefined,
       metadata: undefined,
@@ -134,7 +137,7 @@ describe('nosana programs', async function () {
   } else {
     describe('staking', stakingTests);
     describe('rewards', rewardTests);
-    describe('pools', poolTests);
+    // describe('pools', poolTests);
     describe('jobs', jobTests);
   }
 });

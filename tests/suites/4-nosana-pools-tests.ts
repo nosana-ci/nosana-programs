@@ -2,7 +2,7 @@ import { getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 import * as anchor from '@project-serum/anchor';
 import { BN } from '@project-serum/anchor';
 import { expect } from 'chai';
-import { getTokenBalance, sleep } from '../utils';
+import { getTokenBalance, pda, sleep } from '../utils';
 import { afterEach } from 'mocha';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
@@ -13,10 +13,7 @@ const now = function () {
 export default function suite() {
   before(async function () {
     this.pool = anchor.web3.Keypair.generate();
-    [this.poolVault] = await anchor.web3.PublicKey.findProgramAddress(
-      [utf8.encode('vault'), this.pool.publicKey.toBuffer()],
-      this.poolsProgram.programId
-    );
+    this.poolVault = await pda([utf8.encode('vault'), this.pool.publicKey.toBuffer()], this.poolsProgram.programId);
 
     // helper to add funds to the pool
     this.fundPool = async function (amount) {
@@ -43,8 +40,6 @@ export default function suite() {
   beforeEach(async function () {
     this.accounts.pool = this.pool.publicKey;
     this.accounts.vault = this.poolVault;
-    this.accounts.rewardsProgram = this.rewardsProgram.programId;
-    this.accounts.beneficiary = this.vaults.rewards;
 
     this.rewardsBalanceBefore = await getTokenBalance(this.provider, this.vaults.rewards);
   });

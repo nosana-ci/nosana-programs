@@ -1,7 +1,6 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import * as utils from '../utils';
-import { getTokenBalance } from '../utils';
+import { buf2hex, getTokenBalance } from '../utils';
 
 export default function suite() {
   afterEach(async function () {
@@ -10,18 +9,18 @@ export default function suite() {
   });
 
   describe('init()', async function () {
-    it('can initialie the jobs vault', async function () {
+    it('can initialize the jobs vault', async function () {
       this.accounts.vault = this.vaults.jobs;
       await this.jobsProgram.methods.init().accounts(this.accounts).rpc();
     });
   });
 
   describe('start_project()', async function () {
-    it('can initilize a project', async function () {
+    it('can start a project', async function () {
       await this.jobsProgram.methods.start().accounts(this.accounts).rpc();
     });
 
-    it('can initialize projects for other users', async function () {
+    it('can start projects for other users', async function () {
       await Promise.all(
         this.users.users.map(async (u) => {
           await this.jobsProgram.methods
@@ -37,7 +36,7 @@ export default function suite() {
       );
     });
 
-    it('can start a project', async function () {
+    it('can fetch a project', async function () {
       const data = await this.jobsProgram.account.projectAccount.fetch(this.accounts.project);
       expect(data.authority.toString()).to.equal(this.accounts.authority.toString());
       expect(data.jobs.length).to.equal(0);
@@ -46,10 +45,13 @@ export default function suite() {
 
   describe('create()', async function () {
     it('can create a job', async function () {
+      const throwAwayKeypair = anchor.web3.Keypair.generate();
+      this.accounts.job = throwAwayKeypair.publicKey;
+
       await this.jobsProgram.methods
         .create(new anchor.BN(this.constants.jobPrice), this.ipfsData)
         .accounts(this.accounts)
-        .signers([this.signers.job])
+        .signers([throwAwayKeypair])
         .rpc();
       this.balances.user -= this.constants.jobPrice;
       this.balances.vaultJob += this.constants.jobPrice;
@@ -57,15 +59,15 @@ export default function suite() {
 
     it('can not create a job in different this.ata', async function () {
       let msg = '';
-      const tempJob = anchor.web3.Keypair.generate();
+      const throwAwayKeypair = anchor.web3.Keypair.generate();
       await this.jobsProgram.methods
         .create(new anchor.BN(this.constants.jobPrice), this.ipfsData)
         .accounts({
           ...this.accounts,
           vault: this.accounts.user,
-          job: tempJob.publicKey,
+          job: throwAwayKeypair.publicKey,
         })
-        .signers([tempJob])
+        .signers([throwAwayKeypair])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal('A seeds constraint was violated');
@@ -92,7 +94,7 @@ export default function suite() {
       );
       await Promise.all(
         this.users.users.map(async (u) => {
-          expect(await utils.getTokenBalance(this.provider, u.ata)).to.equal(u.balance);
+          expect(await getTokenBalance(this.provider, u.ata)).to.equal(u.balance);
         })
       );
     });
@@ -124,7 +126,7 @@ export default function suite() {
     it('can fetch a job', async function () {
       const data = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(data.jobStatus).to.equal(this.constants.jobStatus.created);
-      expect(utils.buf2hex(new Uint8Array(data.ipfsJob))).to.equal(utils.buf2hex(new Uint8Array(this.ipfsData)));
+      expect(buf2hex(new Uint8Array(data.ipfsJob))).to.equal(buf2hex(new Uint8Array(this.ipfsData)));
     });
   });
 
@@ -249,7 +251,7 @@ export default function suite() {
           // update this.balances
           this.balances.vaultJob -= this.constants.jobPrice;
           n.balance += this.constants.jobPrice;
-          expect(await utils.getTokenBalance(this.provider, n.ata)).to.equal(n.balance);
+          expect(await getTokenBalance(this.provider, n.ata)).to.equal(n.balance);
         })
       );
     });
@@ -261,7 +263,7 @@ export default function suite() {
       expect(new Date().getTime() / 1e3).to.be.closeTo(job.timeEnd.toNumber(), this.constants.allowedClockDelta);
       expect(job.jobStatus).to.equal(this.constants.jobStatus.finished, 'job status does not match');
       expect(project.jobs.length).to.equal(0, 'number of jobs do not match');
-      expect(utils.buf2hex(new Uint8Array(job.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(this.ipfsData)));
+      expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.ipfsData)));
 
       await Promise.all(
         this.users.otherNodes.map(async (n) => {
@@ -270,7 +272,7 @@ export default function suite() {
 
           expect(job.jobStatus).to.equal(this.constants.jobStatus.finished);
           expect(project.jobs.length).to.equal(0);
-          expect(utils.buf2hex(new Uint8Array(job.ipfsResult))).to.equal(utils.buf2hex(new Uint8Array(this.ipfsData)));
+          expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.ipfsData)));
         })
       );
     });
@@ -297,16 +299,13 @@ export default function suite() {
 
   describe('cancel()', async function () {
     it('can create a new job and a new project', async function () {
-      this.accounts.job = this.cancelJob.publicKey;
-
-      await this.jobsProgram.methods.stop().accounts(this.accounts).rpc();
-
-      await this.jobsProgram.methods.start().accounts(this.accounts).rpc();
+      const throwAwayKeypair = anchor.web3.Keypair.generate();
+      this.accounts.job = throwAwayKeypair.publicKey;
 
       await this.jobsProgram.methods
         .create(new anchor.BN(this.constants.jobPrice), this.ipfsData)
         .accounts(this.accounts)
-        .signers([this.cancelJob])
+        .signers([throwAwayKeypair])
         .rpc();
 
       this.balances.user -= this.constants.jobPrice;
