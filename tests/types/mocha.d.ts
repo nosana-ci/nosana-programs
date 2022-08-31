@@ -11,29 +11,35 @@ import { constants } from '../contstants';
 
 declare module 'mocha' {
   export interface Context {
+    // anchor
     provider: AnchorProvider;
     connection: Connection;
+
+    // user
     wallet: Wallet;
     payer: Signer;
     publicKey: PublicKey;
+
+    // mint
+    mint: PublicKey;
+
     // main programs
     jobsProgram: Program<NosanaJobs>;
     stakingProgram: Program<NosanaStaking>;
     rewardsProgram: Program<NosanaRewards>;
     poolsProgram: Program<NosanaPools>;
-    // the mint
-    mint: PublicKey;
+
     // metaplex
     metaplex: Metaplex;
     nftConfig: CreateNftInput;
-    // jobs program
-    ipfsData: number[];
 
+    // dynamic values
     total: { xnos: BN; reflection: BN; rate: BN };
-    vaults: { staking: PublicKey; rewards: PublicKey; jobs: PublicKey };
-    balances: { user: number; vaultJob: number; vaultStaking: number; vaultRewards: number };
+    balances: { user: number; vaultJob: number; vaultStaking: number; vaultRewards: number; vaultPool: number };
+    poolClosed: boolean;
 
     // public key collections
+    vaults: { staking: PublicKey; rewards: PublicKey; jobs: PublicKey; pools: PublicKey };
     accounts: {
       // programs
       systemProgram: PublicKey;

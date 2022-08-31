@@ -14,3 +14,19 @@ variables:
         PROGRAM_ID: nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD
       - PROGRAM_NAME: nosana_rewards
         PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
+
+scenario:
+  extends: .wallet
+  stage: build
+  parallel:
+    matrix:
+      - TEST_SCENARIO: rewards
+  script:
+    - npm ci
+    - anchor test
+  rules:
+    - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  cache:
+    key: target
+    paths:
+      - target/

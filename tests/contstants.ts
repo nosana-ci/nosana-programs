@@ -6,6 +6,7 @@ const initialRate = new BN('3402823669209384634633746');
 
 const constants = {
   allowedClockDelta: 3000,
+  emission: 20,
   secondsPerDay,
   stakeDurationMin: 14 * secondsPerDay,
   stakeDurationMax: 365 * secondsPerDay,
@@ -33,6 +34,8 @@ const constants = {
     transfer: 0,
     addFee: 1,
   },
+
+  ipfsData: [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')],
 
   errors: {
     // generic errors

@@ -1,10 +1,12 @@
-import { NosanaRewards } from '../target/types/nosana_rewards';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { parse } from 'csv-parse';
 import { PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, setProvider } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+
+// @ts-ignore
+import { NosanaRewards } from '../target/types/nosana_rewards';
 
 async function main() {
   // setup anchor

@@ -6,6 +6,7 @@ import {
   createMintToInstruction,
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
+  transfer,
 } from '@solana/spl-token';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
@@ -102,6 +103,13 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 /**
  *
+ */
+const now = function () {
+  return Math.floor(Date.now() / 1e3);
+};
+
+/**
+ *
  * @param mochaContext
  * @param stakePubkey
  * @param fee
@@ -192,6 +200,7 @@ export {
   getTokenBalance,
   mintFromFile,
   mintToAccount,
+  now,
   pda,
   setupSolanaUser,
   sleep,

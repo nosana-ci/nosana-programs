@@ -49,7 +49,7 @@ export default function suite() {
       this.accounts.job = throwAwayKeypair.publicKey;
 
       await this.jobsProgram.methods
-        .create(new anchor.BN(this.constants.jobPrice), this.ipfsData)
+        .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
         .accounts(this.accounts)
         .signers([throwAwayKeypair])
         .rpc();
@@ -61,7 +61,7 @@ export default function suite() {
       let msg = '';
       const throwAwayKeypair = anchor.web3.Keypair.generate();
       await this.jobsProgram.methods
-        .create(new anchor.BN(this.constants.jobPrice), this.ipfsData)
+        .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
         .accounts({
           ...this.accounts,
           vault: this.accounts.user,
@@ -77,7 +77,7 @@ export default function suite() {
       await Promise.all(
         this.users.users.map(async (u) => {
           await this.jobsProgram.methods
-            .create(new anchor.BN(this.constants.jobPrice), this.ipfsData)
+            .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
             .accounts({
               ...this.accounts,
               project: u.project,
@@ -108,7 +108,7 @@ export default function suite() {
     await program.rpthis.constants.create(
     bump,
     new anchor.BN(this.constants.jobPrice),
-    this.ipfsData,
+    this.constants.ipfsData,
     {
     accounts: {
     ...accounts,
@@ -126,7 +126,7 @@ export default function suite() {
     it('can fetch a job', async function () {
       const data = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(data.jobStatus).to.equal(this.constants.jobStatus.created);
-      expect(buf2hex(new Uint8Array(data.ipfsJob))).to.equal(buf2hex(new Uint8Array(this.ipfsData)));
+      expect(buf2hex(new Uint8Array(data.ipfsJob))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
     });
   });
 
@@ -181,7 +181,7 @@ export default function suite() {
 
     it('can fetch a claimed job', async function () {
       const data = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(new Date().getTime() / 1e3).to.be.closeTo(
+      expect(Date.now() / 1e3).to.be.closeTo(
         data.timeStart.toNumber(),
         this.constants.allowedClockDelta,
         'times differ too much'
@@ -208,7 +208,7 @@ export default function suite() {
     it('can not finish a job from another node', async function () {
       let msg = '';
       await this.jobsProgram.methods
-        .finish(this.ipfsData)
+        .finish(this.constants.ipfsData)
         .accounts({
           ...this.accounts,
           authority: this.users.user2.publicKey,
@@ -220,7 +220,7 @@ export default function suite() {
     });
 
     it('can finish job', async function () {
-      await this.jobsProgram.methods.finish(this.ipfsData).accounts(this.accounts).rpc();
+      await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
       this.balances.user += this.constants.jobPrice;
       this.balances.vaultJob -= this.constants.jobPrice;
     });
@@ -228,7 +228,7 @@ export default function suite() {
     it('can not finish job that is already finished', async function () {
       let msg = '';
       await this.jobsProgram.methods
-        .finish(this.ipfsData)
+        .finish(this.constants.ipfsData)
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -239,7 +239,7 @@ export default function suite() {
       await Promise.all(
         this.users.otherNodes.map(async (n) => {
           await this.jobsProgram.methods
-            .finish(this.ipfsData)
+            .finish(this.constants.ipfsData)
             .accounts({
               ...this.accounts,
               job: n.job,
@@ -260,10 +260,11 @@ export default function suite() {
       const project = await this.jobsProgram.account.projectAccount.fetch(this.accounts.project);
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
 
-      expect(new Date().getTime() / 1e3).to.be.closeTo(job.timeEnd.toNumber(), this.constants.allowedClockDelta);
+      // test job and project
+      expect(Date.now() / 1e3).to.be.closeTo(job.timeEnd.toNumber(), this.constants.allowedClockDelta);
       expect(job.jobStatus).to.equal(this.constants.jobStatus.finished, 'job status does not match');
       expect(project.jobs.length).to.equal(0, 'number of jobs do not match');
-      expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.ipfsData)));
+      expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
 
       await Promise.all(
         this.users.otherNodes.map(async (n) => {
@@ -272,7 +273,7 @@ export default function suite() {
 
           expect(job.jobStatus).to.equal(this.constants.jobStatus.finished);
           expect(project.jobs.length).to.equal(0);
-          expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.ipfsData)));
+          expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
         })
       );
     });
@@ -289,7 +290,7 @@ export default function suite() {
     it('can not fetch a closed Job', async function () {
       let msg = '';
       await this.jobsProgram.methods
-        .finish(this.ipfsData)
+        .finish(this.constants.ipfsData)
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -303,7 +304,7 @@ export default function suite() {
       this.accounts.job = throwAwayKeypair.publicKey;
 
       await this.jobsProgram.methods
-        .create(new anchor.BN(this.constants.jobPrice), this.ipfsData)
+        .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
         .accounts(this.accounts)
         .signers([throwAwayKeypair])
         .rpc();

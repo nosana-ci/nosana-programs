@@ -19,7 +19,7 @@
     "typescript": "4.8.2"
   },
   "scripts": {
-    "check-types": "tsc --noEmit --skipLibCheck tests/**/*.ts scripts/*.ts",
+    "check-types": "tsc --noEmit --skipLibCheck --downlevelIteration tests/**/*.ts scripts/*.ts",
     "test": "anchor test",
     "lint:fix": "prettier */*.js \"{migrations,scripts,tests}/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"{migrations,scripts,tests}/**/*{.js,.ts}\" --check"

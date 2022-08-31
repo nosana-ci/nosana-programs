@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0 # https://github.com/pre-commit/pre-commit-hooks/releases
+    rev: v4.3.0 # https://github.com/pre-commit/pre-commit-hooks/releases
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer

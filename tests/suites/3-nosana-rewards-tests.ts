@@ -173,7 +173,7 @@ export default function suite() {
       this.balances.vaultRewards += this.constants.feeAmount;
     });
 
-    it('Sync reward reflection for others', async function () {
+    it('can sync reward reflection for others', async function () {
       for (const node of this.users.otherNodes) {
         const before = await this.rewardsProgram.account.rewardAccount.fetch(node.reward);
         await this.rewardsProgram.methods
@@ -189,7 +189,7 @@ export default function suite() {
   });
 
   describe('close()', async function () {
-    it('Close reward account and unstake in the same tx', async function () {
+    it('can close a reward account and unstake in the same tx', async function () {
       let stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
       expect(stake.timeUnstake.toNumber()).to.equal(0);
 
@@ -204,7 +204,7 @@ export default function suite() {
       await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
     });
 
-    it('Close other accounts', async function () {
+    it('can close other reward accounts', async function () {
       for (const node of this.users.otherNodes) {
         await this.rewardsProgram.methods
           .close()
