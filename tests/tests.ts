@@ -1,13 +1,4 @@
-// suites
-import initTests from './suites/1-initialization-tests';
-import stakingTests from './suites/2-nosana-staking-tests';
-import rewardTests from './suites/3-nosana-rewards-tests';
-import poolTests from './suites/4-nosana-pools-tests';
-import jobTests from './suites/5-nosana-jobs-tests';
-
-// scenarios
-import rewardScenario from './suites/scenario/rewards-scenario-tests';
-
+// external imports
 import { before } from 'mocha';
 import * as anchor from '@project-serum/anchor';
 import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
@@ -17,6 +8,16 @@ import { BN } from '@project-serum/anchor';
 import { constants } from './contstants';
 import { pda } from './utils';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+
+// local test suites
+import initTests from './suites/1-initialization-tests';
+import stakingTests from './suites/2-nosana-staking-tests';
+import rewardTests from './suites/3-nosana-rewards-tests';
+import poolTests from './suites/4-nosana-pools-tests';
+import jobTests from './suites/5-nosana-jobs-tests';
+
+// local test scenarios
+import rewardScenario from './suites/scenario/rewards-tests';
 
 // run
 describe('nosana programs', async function () {
@@ -125,8 +126,11 @@ describe('nosana programs', async function () {
   // init
   describe('initialization', initTests);
 
+  // rewards scenario
   if (process.env.TEST_SCENARIO === 'rewards') {
     describe('rewards-scenario', rewardScenario);
+
+    //  main test suite
   } else {
     describe('staking', stakingTests);
     describe('rewards', rewardTests);
