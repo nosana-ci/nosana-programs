@@ -91,9 +91,9 @@ export default function suite() {
     };
 
     this.extend = async function (u, amount) {
-      await this.stakingProgram.methods.extend(new BN(amount))
-        .accounts({...this.accounts, stake: u.user.stake,
-                   authority: u.user.publicKey})
+      await this.stakingProgram.methods
+        .extend(new BN(amount))
+        .accounts({ ...this.accounts, stake: u.user.stake, authority: u.user.publicKey })
         .signers([u.user.user])
         .rpc();
     };
@@ -210,7 +210,7 @@ export default function suite() {
     await this.sync(this.users[2]);
     await this.calcXnosPerc();
 
-    console.log(' - add 1,000,000 NOS - ')
+    console.log(' - add 1,000,000 NOS - ');
     await this.addFee('1000000000000');
     await this.calcXnosPerc();
     await this.claimAndCheck(this.users[2]);
