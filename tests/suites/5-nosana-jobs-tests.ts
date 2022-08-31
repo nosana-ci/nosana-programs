@@ -6,7 +6,7 @@ import { getTokenBalance } from '../utils';
 export default function suite() {
   afterEach(async function () {
     expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
-    expect(await getTokenBalance(this.provider, this.ata.vaultJob)).to.equal(this.balances.vaultJob);
+    expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob);
   });
 
   describe('init()', async function () {

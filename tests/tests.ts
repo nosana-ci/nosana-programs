@@ -88,8 +88,8 @@ describe('nosana programs', async function () {
 
       // pools specific
       pool: undefined,
-      beneficiary: this.ata.vaultRewards,
-      rewardsVault: this.ata.vaultRewards,
+      beneficiary: this.vaults.rewards,
+      rewardsVault: this.vaults.rewards,
       rewardsStats: await pda([utf8.encode('stats')], this.rewardsProgram.programId),
 
       // jobs specific

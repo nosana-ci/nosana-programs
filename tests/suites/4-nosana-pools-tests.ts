@@ -46,7 +46,7 @@ export default function suite() {
     this.accounts.rewardsProgram = this.rewardsProgram.programId;
     this.accounts.beneficiary = this.ata.vaultRewards;
 
-    this.rewardsBalanceBefore = await getTokenBalance(this.provider, this.ata.vaultRewards);
+    this.rewardsBalanceBefore = await getTokenBalance(this.provider, this.vaults.rewards);
   });
 
   afterEach(async function () {
