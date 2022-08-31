@@ -36,7 +36,7 @@ async function main() {
 
   // open pool
   let tx = await program.methods
-    .open(new BN(poolConfig.emission), new BN(poolConfig.startTime), 1, poolConfig.closeable)
+    .open(new BN(poolConfig.emission), new BN(poolConfig.startTime), poolConfig.claimType, poolConfig.closeable)
     .accounts(accounts)
     .signers([keyPair])
     .rpc();
