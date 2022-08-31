@@ -4,11 +4,8 @@ import { parse } from 'csv-parse';
 import { PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, setProvider, Idl } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
-
-// @ts-ignore
 import { NosanaRewards } from '../target/types/nosana_rewards';
 import { pda } from '../tests/utils';
-import type = Mocha.utils.type;
 
 async function main() {
   // setup anchor

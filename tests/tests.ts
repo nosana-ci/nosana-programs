@@ -32,7 +32,6 @@ describe('nosana programs', async function () {
     // main user
     this.wallet = this.provider.wallet;
     this.publicKey = this.wallet.publicKey;
-    // @ts-ignore
     this.payer = this.wallet.payer;
 
     // programs

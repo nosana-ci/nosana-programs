@@ -2,10 +2,10 @@ import { AnchorProvider, Program, setProvider, web3, BN, Idl } from '@project-se
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-
-// @ts-ignore
 import { NosanaPools } from '../target/types/nosana_pools';
 import { pda } from '../tests/utils';
+import poolConfig = require('../pool.json');
+import poolKey = require(poolConfig.poolKey);
 
 async function main() {
   // anchor
@@ -13,8 +13,7 @@ async function main() {
   setProvider(provider);
 
   // pool config
-  const poolConfig = require('../pool.json');
-  const keyPair = Keypair.fromSecretKey(new Uint8Array(require(poolConfig.poolKey)));
+  const keyPair = Keypair.fromSecretKey(new Uint8Array(poolKey));
 
   // public keys
   const mint = new PublicKey(poolConfig.mint);

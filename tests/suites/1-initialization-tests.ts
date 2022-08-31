@@ -6,7 +6,7 @@ import { mintFromFile, mintToAccount, setupSolanaUser, getOrCreateAssociatedSPL,
 export default function suite() {
   describe('mints and users', function () {
     it('can create mint', async function () {
-      expect((await mintFromFile(this.connection, this.payer, this.mint, this.publicKey)).toString()).to.equal(
+      expect((await mintFromFile(this.connection, this.payer, this.publicKey)).toString()).to.equal(
         this.mint.toString()
       );
     });
@@ -49,7 +49,7 @@ export default function suite() {
       this.accounts.metadata = nft.metadataAddress;
 
       await Promise.all(
-        this.users.nodes.map(async (n: any) => {
+        this.users.nodes.map(async (n) => {
           const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
           n.metadata = nft.metadataAddress;
           n.ataNft = await getOrCreateAssociatedSPL(n.provider, n.publicKey, mintAddress);
@@ -64,7 +64,7 @@ export default function suite() {
 
           expect(await getTokenBalance(this.provider, n.ataNft)).to.equal(1);
           expect(nft.name).to.equal(this.nftConfig.name, 'NFT name');
-          expect(nft.collection!.address.toString()).to.equal(this.nftConfig.collection!.toString(), 'Collection pk');
+          expect(nft.collection.address.toString()).to.equal(this.nftConfig.collection.toString(), 'Collection pk');
         })
       );
     });

@@ -126,7 +126,7 @@ export default function suite() {
 
     it('can stake for other nodes', async function () {
       await Promise.all(
-        this.users.otherNodes.map(async (n: any) => {
+        this.users.otherNodes.map(async (n) => {
           await this.stakingProgram.methods
             .stake(new anchor.BN(this.constants.stakeAmount * 2), new anchor.BN(3 * this.constants.stakeDurationMin))
             .accounts({

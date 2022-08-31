@@ -1,9 +1,7 @@
-import { AnchorProvider, Program, setProvider, web3, BN, Idl } from '@project-serum/anchor';
+import { AnchorProvider, Program, setProvider, web3, Idl } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-
-// @ts-ignore
 import { NosanaPools } from '../target/types/nosana_pools';
 import { pda } from '../tests/utils';
 

@@ -22,7 +22,7 @@ export default function suite() {
 
     it('can start projects for other users', async function () {
       await Promise.all(
-        this.users.users.map(async (u: any) => {
+        this.users.users.map(async (u) => {
           await this.jobsProgram.methods
             .start()
             .accounts({
@@ -75,7 +75,7 @@ export default function suite() {
 
     it('can create jobs for other users', async function () {
       await Promise.all(
-        this.users.users.map(async (u: any) => {
+        this.users.users.map(async (u) => {
           await this.jobsProgram.methods
             .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
             .accounts({
@@ -93,7 +93,7 @@ export default function suite() {
         })
       );
       await Promise.all(
-        this.users.users.map(async (u: any) => {
+        this.users.users.map(async (u) => {
           expect(await getTokenBalance(this.provider, u.ata)).to.equal(u.balance);
         })
       );
@@ -237,7 +237,7 @@ export default function suite() {
 
     it('can finish job for all nodes', async function () {
       await Promise.all(
-        this.users.otherNodes.map(async (n: any) => {
+        this.users.otherNodes.map(async (n) => {
           await this.jobsProgram.methods
             .finish(this.constants.ipfsData)
             .accounts({
@@ -267,7 +267,7 @@ export default function suite() {
       expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
 
       await Promise.all(
-        this.users.otherNodes.map(async (n: any) => {
+        this.users.otherNodes.map(async (n) => {
           const project = await this.jobsProgram.account.projectAccount.fetch(n.project);
           const job = await this.jobsProgram.account.jobAccount.fetch(n.job);
 

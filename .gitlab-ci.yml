@@ -15,12 +15,23 @@ variables:
       - PROGRAM_NAME: nosana_rewards
         PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
 
+npm:
+  stage: .pre
+  parallel:
+    matrix:
+      - SCRIPT: [ eslint, check-types, prettier ]
+  script:
+    - npm ci
+    - npm run $SCRIPT
+  rules:
+    - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 scenario:
   extends: .wallet
   stage: test
   parallel:
     matrix:
-      - TEST_SCENARIO: [all, jobs, pools, rewards, staking]
+      - TEST_SCENARIO: [ all, jobs, pools, rewards, staking ]
   script:
     - npm ci
     - anchor test

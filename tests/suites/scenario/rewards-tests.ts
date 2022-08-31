@@ -1,8 +1,7 @@
-import * as anchor from '@project-serum/anchor';
 import { BN } from '@project-serum/anchor';
 import { expect } from 'chai';
 import * as _ from 'lodash';
-import * as utils from '../../utils';
+import { getTokenBalance, mintToAccount, setupSolanaUser } from '../../utils';
 
 export default function suite() {
   before(async function () {
@@ -101,9 +100,9 @@ export default function suite() {
     // helper to compare expected pending rewards with actual received
     // rewards. should be called after claim.
     this.claimAndCheck = async function (u) {
-      const balanceBefore = await utils.getTokenBalance(this.provider, u.user.ata);
+      const balanceBefore = await getTokenBalance(this.provider, u.user.ata);
       await this.claim(u);
-      const balance = await utils.getTokenBalance(this.provider, u.user.ata);
+      const balance = await getTokenBalance(this.provider, u.user.ata);
       // console.log('claim. nos', balanceBefore, ' => ', balance);
       this.feesClaimed = this.feesClaimed.add(new BN(balance - balanceBefore));
 
@@ -140,17 +139,16 @@ export default function suite() {
 
   it('stakes', async function () {
     let totalXnos = new BN(0);
-    const ctx = this;
     await this.mapUsers(async function (u) {
-      u.user = await utils.setupSolanaUser(ctx);
+      u.user = await setupSolanaUser(this);
       u.pending = 0.0;
       u.received = new BN(0);
       u.amount = new BN(u.amount);
       u.xnos = new BN(u.xnos);
 
       const accs = {
-        ...ctx.accounts,
-        stats: ctx.accounts.stats,
+        ...this.accounts,
+        stats: this.accounts.stats,
         stake: u.user.stake,
         reward: u.user.reward,
         authority: u.user.publicKey,
@@ -158,16 +156,16 @@ export default function suite() {
         vault: u.user.vault,
       };
 
-      const rewardOpen = await ctx.rewardsProgram.methods.enter().accounts(accs).instruction();
+      const rewardOpen = await this.rewardsProgram.methods.enter().accounts(accs).instruction();
 
-      await ctx.stakingProgram.methods
+      await this.stakingProgram.methods
         .stake(u.amount, new BN(u.duration))
         .accounts(accs)
         .postInstructions([rewardOpen])
         .signers([u.user.user])
         .rpc();
 
-      const stake = await ctx.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(u.user.stake);
       expect(stake.xnos.toNumber()).to.equal(u.xnos.toNumber());
       totalXnos = totalXnos.add(stake.xnos);
 
@@ -181,7 +179,7 @@ export default function suite() {
 
   it('adds fees', async function () {
     // we are going to reserve a 100 million tokens to distribute
-    await utils.mintToAccount(this.provider, this.mint, this.accounts.user, new BN('100000000000000'));
+    await mintToAccount(this.provider, this.mint, this.accounts.user, 100000000000000);
 
     console.log(' - add 1 NOS - ');
     await this.addFee('1000000');
@@ -251,7 +249,7 @@ export default function suite() {
     }
 
     await this.claim(this.users[1]);
-    const balance = await utils.getTokenBalance(this.provider, this.users[0].user.ata);
+    const balance = await getTokenBalance(this.provider, this.users[0].user.ata);
     console.log('Claimed for user[1] = ' + balance);
   });
 }

@@ -1,4 +1,5 @@
 import * as anchor from '@project-serum/anchor';
+import SecretKey = require('./keys/devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP.json');
 import {
   TOKEN_PROGRAM_ID,
   createMint,
@@ -28,9 +29,8 @@ async function getTokenBalance(provider: AnchorProvider, wallet: PublicKey) {
  * @param key
  * @param authority
  */
-async function mintFromFile(connection: Connection, payer: Signer, key: PublicKey, authority: PublicKey) {
-  const keyData = require(`./keys/${key}.json`);
-  const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData));
+async function mintFromFile(connection: Connection, payer: Signer, authority: PublicKey) {
+  const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(SecretKey));
   return await createMint(connection, payer, authority, null, 6, keyPair);
 }
 
