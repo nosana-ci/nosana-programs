@@ -121,18 +121,17 @@ describe('nosana programs', async function () {
     };
   });
 
-  // init
-  describe('initialization', initTests);
-
-  // rewards scenario
-  if (process.env.TEST_SCENARIO === 'rewards') {
-    describe('rewards-scenario', rewardScenario);
-
-    //  main test suite
-  } else {
-    describe('staking', stakingTests);
-    describe('rewards', rewardTests);
-    describe('pools', poolTests);
-    describe('jobs', jobTests);
+  switch (process.env.TEST_SCENARIO) {
+    default:
+      describe('initialization', initTests);
+      describe('staking', stakingTests);
+      describe('rewards', rewardTests);
+      describe('pools', poolTests);
+      describe('jobs', jobTests);
+      break;
+    case 'rewards':
+      describe('initialization', initTests);
+      describe('rewards-scenario', rewardScenario);
+      break;
   }
 });
