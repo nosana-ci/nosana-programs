@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { parse } from 'csv-parse';
 import { PublicKey } from '@solana/web3.js';
-import {Program, AnchorProvider, setProvider, Idl} from '@project-serum/anchor';
+import { Program, AnchorProvider, setProvider, Idl } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
 // @ts-ignore
@@ -20,7 +20,7 @@ async function main() {
   const stakingId = new PublicKey('nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE');
 
   // setup program
-  const idl = await Program.fetchIdl(rewardsId.toString()) as Idl;
+  const idl = (await Program.fetchIdl(rewardsId.toString())) as Idl;
   const program = new Program(idl, rewardsId) as unknown as Program<NosanaRewards>;
 
   // parse CSV
@@ -47,13 +47,13 @@ async function main() {
   );
 
   type SyncAccounts = {
-    stats: PublicKey,
-    stake: PublicKey,
-    reward: PublicKey,
-  }
+    stats: PublicKey;
+    stake: PublicKey;
+    reward: PublicKey;
+  };
   // PDAs
   const accounts = {} as SyncAccounts;
-  accounts.stats = await pda([utf8.encode('stats')], rewardsId)
+  accounts.stats = await pda([utf8.encode('stats')], rewardsId);
 
   let instructions = [];
   for (const row of rows) {

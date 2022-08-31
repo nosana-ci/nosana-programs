@@ -1,4 +1,4 @@
-import {AnchorProvider, Program, setProvider, web3, BN, Idl} from '@project-serum/anchor';
+import { AnchorProvider, Program, setProvider, web3, BN, Idl } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -21,7 +21,7 @@ async function main() {
   const rewardsId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
 
   // program
-  const idl = await Program.fetchIdl(poolsId.toString()) as Idl;
+  const idl = (await Program.fetchIdl(poolsId.toString())) as Idl;
   const program = new Program(idl, poolsId) as unknown as Program<NosanaPools>;
 
   // PDAs
