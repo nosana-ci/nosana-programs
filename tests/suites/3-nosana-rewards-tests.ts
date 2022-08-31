@@ -1,122 +1,91 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import * as utils from '../utils';
 import { BN } from '@project-serum/anchor';
+import { calculateXnos, getTokenBalance, updateRewards } from '../utils';
 
 export default function suite() {
-  async function updateRewards(stakePubkey, statsPubkey, fee = new anchor.BN(0), reflection = new anchor.BN(0)) {
-    const stakeAccount = await global.stakingProgram.account.stakeAccount.fetch(stakePubkey);
-    const statsAccount = await global.rewardsProgram.account.statsAccount.fetch(statsPubkey);
-
-    let amount = 0;
-    if (!reflection.eqn(0)) {
-      amount = reflection.div(global.total.rate).sub(stakeAccount.xnos).toNumber();
-      console.log(`             ==> amount: ${amount}`);
-      global.total.xnos.isub(stakeAccount.xnos.add(new BN(amount)));
-      global.total.reflection.isub(reflection);
-    }
-
-    if (!fee.eqn(0)) {
-      global.total.xnos.iadd(fee);
-      global.total.rate = global.total.reflection.div(global.total.xnos);
-    } else {
-      global.total.xnos.iadd(stakeAccount.xnos);
-      global.total.reflection.iadd(stakeAccount.xnos.mul(global.total.rate));
-    }
-
-    console.log(
-      `           ==> Total Xnos: ${global.total.xnos}, Total Reflection: ${global.total.reflection}, Rate: ${global.total.rate}`
-    );
-
-    expect(statsAccount.rate.toString()).to.equal(global.total.rate.toString(), 'Rate error');
-    expect(statsAccount.totalXnos.toString()).to.equal(global.total.xnos.toString(), 'Total XNOS error');
-    expect(statsAccount.totalReflection.toString()).to.equal(
-      global.total.reflection.toString(),
-      'Total reflection error'
-    );
-
-    return amount;
-  }
+  afterEach(async function () {
+    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
+    expect(await getTokenBalance(this.provider, this.ata.vaultRewards)).to.equal(this.balances.vaultRewards);
+  });
 
   describe('init()', async function () {
     it('can initialize the rewards vault', async function () {
-      global.accounts.stats = global.stats.rewards;
-      global.accounts.vault = global.ata.vaultRewards;
-      await global.rewardsProgram.methods.init().accounts(global.accounts).rpc();
-      const data = await global.rewardsProgram.account.statsAccount.fetch(global.accounts.stats);
-      expect(data.totalXnos.toString()).to.equal(global.total.xnos.toString());
-      expect(data.totalReflection.toString()).to.equal(global.total.reflection.toString());
-      expect(data.rate.toString()).to.equal(global.constants.initialRate.toString());
-      await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
+      this.accounts.vault = this.ata.vaultRewards;
+      await this.rewardsProgram.methods.init().accounts(this.accounts).rpc();
+
+      // test stats
+      const stats = await this.rewardsProgram.account.statsAccount.fetch(this.accounts.stats);
+      expect(stats.totalXnos.toString()).to.equal(this.total.xnos.toString());
+      expect(stats.totalReflection.toString()).to.equal(this.total.reflection.toString());
+      expect(stats.rate.toString()).to.equal(this.constants.initialRate.toString());
     });
   });
 
   describe('enter()', async function () {
     it('can not enter rewards pool with other stake', async function () {
       let msg = '';
-      await global.rewardsProgram.methods
+      await this.rewardsProgram.methods
         .enter()
-        .accounts({ ...global.accounts, stake: global.users.node1.stake })
+        .accounts({ ...this.accounts, stake: this.users.node1.stake })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.Unauthorized);
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
     it('can enter rewards pool with main wallet', async function () {
-      await global.rewardsProgram.methods.enter().accounts(global.accounts).rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats);
+      await this.rewardsProgram.methods.enter().accounts(this.accounts).rpc();
+      await updateRewards(this, this.accounts.stake);
     });
 
     it('can not unstake while reward is open', async function () {
       let msg = '';
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .unstake()
-        .accounts(global.accounts)
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeHasReward);
+      expect(msg).to.equal(this.constants.errors.StakeHasReward);
     });
 
     it('can enter rewards with the other nodes', async function () {
-      for (const node of global.users.otherNodes) {
-        await global.rewardsProgram.methods
+      for (const node of this.users.otherNodes) {
+        await this.rewardsProgram.methods
           .enter()
-          .accounts({ ...global.accounts, stake: node.stake, reward: node.reward, authority: node.publicKey })
+          .accounts({ ...this.accounts, stake: node.stake, reward: node.reward, authority: node.publicKey })
           .signers([node.user])
           .rpc();
-        await updateRewards(node.stake, global.accounts.stats);
+        await updateRewards(this, node.stake);
       }
     });
   });
 
   describe('add_fee()', async function () {
     it('can add fees to the pool', async function () {
-      const fee = new BN(global.constants.feeAmount);
-      await global.rewardsProgram.methods.addFee(fee).accounts(global.accounts).rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats, fee);
-      global.balances.user -= global.constants.feeAmount;
-      global.balances.vaultRewards += global.constants.feeAmount;
-      await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
+      const fee = new BN(this.constants.feeAmount);
+      await this.rewardsProgram.methods.addFee(fee).accounts(this.accounts).rpc();
+      await updateRewards(this, this.accounts.stake, fee);
+      this.balances.user -= this.constants.feeAmount;
+      this.balances.vaultRewards += this.constants.feeAmount;
     });
 
     it('can claim rewards', async function () {
-      const reflection = (await global.rewardsProgram.account.rewardAccount.fetch(global.accounts.reward)).reflection;
+      const reflection = (await this.rewardsProgram.account.rewardAccount.fetch(this.accounts.reward)).reflection;
 
-      await global.rewardsProgram.methods.claim().accounts(global.accounts).rpc();
-      const amount = await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(0), reflection);
+      await this.rewardsProgram.methods.claim().accounts(this.accounts).rpc();
+      const amount = await updateRewards(this, this.accounts.stake, new anchor.BN(0), reflection);
 
-      global.balances.user += amount;
-      global.balances.vaultRewards -= amount;
-      await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
+      this.balances.user += amount;
+      this.balances.vaultRewards -= amount;
     });
 
-    it('Claim other rewards', async function () {
-      for (const node of global.users.otherNodes) {
-        const reflection = (await global.rewardsProgram.account.rewardAccount.fetch(node.reward)).reflection;
-        await global.rewardsProgram.methods
+    it('can claim rewards with other users', async function () {
+      for (const node of this.users.otherNodes) {
+        const reflection = (await this.rewardsProgram.account.rewardAccount.fetch(node.reward)).reflection;
+        await this.rewardsProgram.methods
           .claim()
           .accounts({
-            ...global.accounts,
+            ...this.accounts,
             stake: node.stake,
             reward: node.reward,
             authority: node.publicKey,
@@ -124,111 +93,95 @@ export default function suite() {
           })
           .signers([node.user])
           .rpc();
-        const amount = await updateRewards(node.stake, global.accounts.stats, new anchor.BN(0), reflection);
+        const amount = await updateRewards(this, node.stake, new anchor.BN(0), reflection);
         node.balance += amount;
-        global.balances.vaultRewards -= amount;
-        await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
+        this.balances.vaultRewards -= amount;
       }
-      expect(await utils.getTokenBalance(global.provider, global.ata.vaultRewards)).to.be.closeTo(
-        0,
-        100,
-        'vault is empty'
-      );
+      expect(await getTokenBalance(this.provider, this.ata.vaultRewards)).to.be.closeTo(0, 100, 'vault is empty');
     });
   });
 
   describe('sync()', async function () {
-    it('Add more fees to the pool', async function () {
-      await global.rewardsProgram.methods
-        .addFee(new anchor.BN(global.constants.feeAmount))
-        .accounts(global.accounts)
-        .rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(global.constants.feeAmount));
-      global.balances.user -= global.constants.feeAmount;
-      global.balances.vaultRewards += global.constants.feeAmount;
-      await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
+    it('can add more fees to the pool', async function () {
+      await this.rewardsProgram.methods.addFee(new anchor.BN(this.constants.feeAmount)).accounts(this.accounts).rpc();
+      await updateRewards(this, this.accounts.stake, new anchor.BN(this.constants.feeAmount));
+      this.balances.user -= this.constants.feeAmount;
+      this.balances.vaultRewards += this.constants.feeAmount;
     });
 
-    it('Topup stake', async function () {
-      await global.stakingProgram.methods
-        .topup(new anchor.BN(global.constants.stakeAmount))
-        .accounts({ ...global.accounts, vault: global.ata.userVaultStaking })
+    it('can topup stake', async function () {
+      await this.stakingProgram.methods
+        .topup(new anchor.BN(this.constants.stakeAmount))
+        .accounts({ ...this.accounts, vault: this.ata.userVaultStaking })
         .rpc();
-      global.balances.user -= global.constants.stakeAmount;
-      global.balances.vaultStaking += global.constants.stakeAmount;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
-      expect((await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake)).xnos.toNumber()).to.equal(
-        utils.calculateXnos(
-          global.constants.stakeDurationMin * 2 + 7,
-          global.constants.stakeAmount * 2 + global.constants.stakeMinimum
+      this.balances.user -= this.constants.stakeAmount;
+      this.balances.vaultStaking += this.constants.stakeAmount;
+      expect((await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).xnos.toNumber()).to.equal(
+        calculateXnos(
+          this.constants.stakeDurationMin * 2 + 7,
+          this.constants.stakeAmount * 2 + this.constants.stakeMinimum
         )
       );
     });
 
     it('can not sync reward reflection for wrong accounts', async function () {
       let msg = '';
-      await global.rewardsProgram.methods
+      await this.rewardsProgram.methods
         .sync()
-        .accounts({ ...global.accounts, reward: global.users.nodes[4].reward })
+        .accounts({ ...this.accounts, reward: this.users.nodes[4].reward })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.Unauthorized);
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
     it('can sync reward reflection', async function () {
-      const before = await global.rewardsProgram.account.rewardAccount.fetch(global.accounts.reward);
-      await global.rewardsProgram.methods.sync().accounts(global.accounts).rpc();
-      const after = await global.rewardsProgram.account.rewardAccount.fetch(global.accounts.reward);
-      const stake = (await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake)).xnos.toNumber();
+      const before = await this.rewardsProgram.account.rewardAccount.fetch(this.accounts.reward);
+      await this.rewardsProgram.methods.sync().accounts(this.accounts).rpc();
+      const after = await this.rewardsProgram.account.rewardAccount.fetch(this.accounts.reward);
+      const stake = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).xnos.toNumber();
 
+      // test xnos before vs after
       expect(before.xnos.toNumber()).to.be.lessThan(after.xnos.toNumber());
       expect(after.xnos.toNumber()).to.equal(stake);
       expect(after.xnos.toNumber()).to.equal(
-        utils.calculateXnos(
-          global.constants.stakeDurationMin * 2 + 7,
-          global.constants.stakeAmount * 2 + global.constants.stakeMinimum
+        calculateXnos(
+          this.constants.stakeDurationMin * 2 + 7,
+          this.constants.stakeAmount * 2 + this.constants.stakeMinimum
         )
       );
 
-      const amount = before.reflection.div(global.total.rate).sub(before.xnos);
-
-      global.total.xnos.iadd(after.xnos.sub(before.xnos.add(amount)));
-      global.total.reflection.isub(before.reflection);
-      const reflection = after.xnos.add(amount).mul(global.total.rate);
-      global.total.reflection.iadd(reflection);
-
+      // update totals
+      this.total.xnos.iadd(after.xnos.sub(before.xnos));
+      this.total.reflection.isub(before.reflection);
+      const reflection = after.xnos
+        .add(before.reflection.div(new anchor.BN(this.total.rate)).sub(before.xnos))
+        .mul(this.total.rate);
+      this.total.reflection.iadd(reflection);
       expect(reflection.toString()).to.equal(after.reflection.toString());
 
-      const rewardsAccount = await global.rewardsProgram.account.statsAccount.fetch(global.stats.rewards);
-
-      expect(rewardsAccount.totalXnos.toString()).to.equal(global.total.xnos.toString(), 'Total XNOS error');
-      expect(rewardsAccount.totalReflection.toString()).to.equal(
-        global.total.reflection.toString(),
-        'Total reflection error'
-      );
-      expect(rewardsAccount.rate.toString()).to.equal(global.total.rate.toString(), 'Rate error');
+      // test stats
+      const stats = await this.rewardsProgram.account.statsAccount.fetch(this.accounts.stats);
+      expect(stats.totalXnos.toString()).to.equal(this.total.xnos.toString(), 'Total XNOS error');
+      expect(stats.totalReflection.toString()).to.equal(this.total.reflection.toString(), 'Total reflection error');
+      expect(stats.rate.toString()).to.equal(this.total.rate.toString(), 'Rate error');
     });
 
-    it('Add another round of fees to the pool', async function () {
-      await global.rewardsProgram.methods
-        .addFee(new anchor.BN(global.constants.feeAmount))
-        .accounts(global.accounts)
-        .rpc();
-      await updateRewards(global.accounts.stake, global.accounts.stats, new anchor.BN(global.constants.feeAmount));
-      global.balances.user -= global.constants.feeAmount;
-      global.balances.vaultRewards += global.constants.feeAmount;
-      await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
+    it('can add another round of fees to the pool', async function () {
+      await this.rewardsProgram.methods.addFee(new anchor.BN(this.constants.feeAmount)).accounts(this.accounts).rpc();
+      await updateRewards(this, this.accounts.stake, new anchor.BN(this.constants.feeAmount));
+      this.balances.user -= this.constants.feeAmount;
+      this.balances.vaultRewards += this.constants.feeAmount;
     });
 
     it('Sync reward reflection for others', async function () {
-      for (const node of global.users.otherNodes) {
-        const before = await global.rewardsProgram.account.rewardAccount.fetch(node.reward);
-        await global.rewardsProgram.methods
+      for (const node of this.users.otherNodes) {
+        const before = await this.rewardsProgram.account.rewardAccount.fetch(node.reward);
+        await this.rewardsProgram.methods
           .sync()
-          .accounts({ ...global.accounts, stake: node.stake, reward: node.reward })
+          .accounts({ ...this.accounts, stake: node.stake, reward: node.reward })
           .rpc();
-        const after = await global.rewardsProgram.account.rewardAccount.fetch(node.reward);
-        const stake = await global.stakingProgram.account.stakeAccount.fetch(node.stake);
+        const after = await this.rewardsProgram.account.rewardAccount.fetch(node.reward);
+        const stake = await this.stakingProgram.account.stakeAccount.fetch(node.stake);
         expect(before.xnos.toNumber()).to.equal(after.xnos.toNumber());
         expect(stake.xnos.toNumber()).to.equal(after.xnos.toNumber());
       }
@@ -237,30 +190,27 @@ export default function suite() {
 
   describe('close()', async function () {
     it('Close reward account and unstake in the same tx', async function () {
-      await utils.assertBalancesRewards(global.provider, global.ata, global.balances);
-
-      let stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
+      let stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
       expect(stake.timeUnstake.toNumber()).to.equal(0);
 
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .unstake()
-        .accounts(global.accounts)
-        .preInstructions([await global.rewardsProgram.methods.close().accounts(global.accounts).instruction()])
+        .accounts(this.accounts)
+        .preInstructions([await this.rewardsProgram.methods.close().accounts(this.accounts).instruction()])
         .rpc();
 
-      stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
+      stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
       expect(stake.timeUnstake.toNumber()).to.not.equal(0);
-      await global.stakingProgram.methods.restake().accounts(global.accounts).rpc();
+      await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
     });
 
     it('Close other accounts', async function () {
-      for (const node of global.users.otherNodes) {
-        await global.rewardsProgram.methods
+      for (const node of this.users.otherNodes) {
+        await this.rewardsProgram.methods
           .close()
           .accounts({
-            ...global.accounts,
+            ...this.accounts,
             reward: node.reward,
-            stake: node.stake,
             authority: node.publicKey,
           })
           .signers([node.user])

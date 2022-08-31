@@ -1,33 +1,33 @@
-import { AnchorProvider, Program } from '@project-serum/anchor';
+import { AnchorProvider, BN, Program } from '@project-serum/anchor';
 import { Connection, Keypair, PublicKey, Signer } from '@solana/web3.js';
+import { Wallet } from '@project-serum/common';
+import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
+
 import { NosanaStaking } from '../../../target/types/nosana_staking';
 import { NosanaPools } from '../../../target/types/nosana_pools';
 import { NosanaJobs } from '../../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../../target/types/nosana_rewards';
-import { Wallet } from '@project-serum/common';
-import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
 
-declare global {
-  var // anchor setup
-    provider: AnchorProvider,
-    connection: Connection,
-    wallet: Wallet,
-    payer: Signer,
-    publicKey: PublicKey,
+declare module 'mocha' {
+  export interface Context {
+    provider: AnchorProvider;
+    connection: Connection;
+    wallet: Wallet;
+    payer: Signer;
+    publicKey: PublicKey;
     // main programs
-    jobsProgram: Program<NosanaJobs>,
-    stakingProgram: Program<NosanaStaking>,
-    rewardsProgram: Program<NosanaRewards>,
-    poolsProgram: Program<NosanaPools>,
-    // single public keys
-    nosID: PublicKey,
-    mint: PublicKey,
+    jobsProgram: Program<NosanaJobs>;
+    stakingProgram: Program<NosanaStaking>;
+    rewardsProgram: Program<NosanaRewards>;
+    poolsProgram: Program<NosanaPools>;
+    // the mint
+    mint: PublicKey;
     // metaplex
-    metaplex: Metaplex,
-    nftConfig: CreateNftInput,
+    metaplex: Metaplex;
+    nftConfig: CreateNftInput;
     // jobs program
-    cancelJob: Keypair,
-    ipfsData: number[],
+    cancelJob: Keypair;
+    ipfsData: number[];
     // public key collections
     accounts: {
       // programs
@@ -70,21 +70,18 @@ declare global {
       project: PublicKey;
       nft: PublicKey;
       metadata: PublicKey;
-    },
+    };
     ata: {
-      user: PublicKey;
-      userVault: PublicKey;
       vaultJob: PublicKey;
       userVaultStaking: PublicKey;
       vaultRewards: PublicKey;
-      nft: PublicKey;
-    },
+    };
     //TODO : define types
-    constants,
-    signers,
-    balances,
-    total,
-    stats,
-    nodes,
+    constants;
+    signers;
+    balances;
+    total;
+    nodes;
     users;
+  }
 }

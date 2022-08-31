@@ -13,6 +13,7 @@ async function main() {
   const pool = new PublicKey('miF9saGY5WS747oia48WR3CMFZMAGG8xt6ajB7rdV3e');
 
   // public keys
+  const mint = new PublicKey('nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7');
   const poolsId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
   const rewardsId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
 

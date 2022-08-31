@@ -1,121 +1,70 @@
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
-import { PublicKey } from '@solana/web3.js';
 import * as _ from 'lodash';
 import { expect } from 'chai';
-import {
-  utf8_encode,
-  mintFromFile,
-  mintToAccount,
-  setupSolanaUser,
-  getOrCreateAssociatedSPL,
-  getTokenBalance,
-} from '../utils';
+import { mintFromFile, mintToAccount, setupSolanaUser, getOrCreateAssociatedSPL, getTokenBalance } from '../utils';
 
 export default function suite() {
-  describe('mints and PDAs', function () {
-    it('can create NOS mint and derive PDAs', async function () {
-      // create main mint
-      global.accounts.mint = global.mint = await mintFromFile(global.nosID.toString(), global.wallet.publicKey);
-      expect(global.nosID.toString()).to.equal(global.mint.toString());
-
-      // stats
-      [global.stats.staking] = await PublicKey.findProgramAddress(
-        [utf8_encode('settings')],
-        global.stakingProgram.programId
-      );
-      [global.stats.rewards] = await PublicKey.findProgramAddress(
-        [utf8_encode('stats')],
-        global.rewardsProgram.programId
-      );
-
-      // token vault
-      [global.ata.vaultJob] = await PublicKey.findProgramAddress(
-        [global.mint.toBuffer()],
-        global.jobsProgram.programId
-      );
-      [global.ata.vaultRewards] = await PublicKey.findProgramAddress(
-        [global.mint.toBuffer()],
-        global.rewardsProgram.programId
-      );
-      [global.ata.userVaultStaking] = await PublicKey.findProgramAddress(
-        [utf8_encode('vault'), global.mint.toBuffer(), global.publicKey.toBuffer()],
-        global.stakingProgram.programId
-      );
-
-      // main accounts
-      [global.accounts.project] = await PublicKey.findProgramAddress(
-        [utf8_encode('project'), global.publicKey.toBuffer()],
-        global.jobsProgram.programId
-      );
-      [global.accounts.stake] = await PublicKey.findProgramAddress(
-        [utf8_encode('stake'), global.mint.toBuffer(), global.publicKey.toBuffer()],
-        global.stakingProgram.programId
-      );
-      [global.accounts.reward] = await PublicKey.findProgramAddress(
-        [utf8_encode('reward'), global.publicKey.toBuffer()],
-        global.rewardsProgram.programId
-      );
+  describe('mints and users', function () {
+    it('can create mint', async function () {
+      expect(
+        (await mintFromFile(this.connection, this.payer, this.mint.toString(), this.publicKey)).toString()
+      ).to.equal(this.mint.toString());
     });
 
-    it('can create more users, token accounts and mint additional NOS tokens', async function () {
-      // create associated token accounts
-      global.ata.user =
-        global.accounts.user =
-        global.accounts.tokenAccount =
-          await createAssociatedTokenAccount(
-            global.provider.connection,
-            global.payer,
-            global.mint,
-            global.provider.wallet.publicKey
-          );
+    it('can create main user and fund mint', async function () {
+      // ata
+      expect(
+        (await createAssociatedTokenAccount(this.connection, this.payer, this.mint, this.publicKey)).toString()
+      ).to.equal(this.accounts.user.toString());
 
-      // fund users
-      await mintToAccount(global.provider, global.mint, global.ata.user, global.constants.mintSupply);
-      global.balances.user += global.constants.mintSupply;
+      // fund user
+      await mintToAccount(this.provider, this.mint, this.accounts.user, this.constants.mintSupply);
+      this.balances.user += this.constants.mintSupply;
+    });
 
-      // setup users and nodes
-      let users = await Promise.all(
+    it('can create more funded users and nodes', async function () {
+      // users
+      this.users.users = await Promise.all(
         _.map(new Array(10), async () => {
-          return await setupSolanaUser(global.mint, global.constants.userSupply, global.provider);
+          return await setupSolanaUser(this);
         })
       );
-      global.users.users = users;
-      [global.users.user1, global.users.user2, global.users.user3, global.users.user4, ...global.users.otherUsers] =
-        users;
+      [this.users.user1, this.users.user2, this.users.user3, this.users.user4, ...this.users.otherUsers] =
+        this.users.users;
 
-      let nodes = await Promise.all(
+      // nodes
+      this.users.nodes = await Promise.all(
         _.map(new Array(10), async () => {
-          return await setupSolanaUser(global.mint, global.constants.userSupply, global.provider);
+          return await setupSolanaUser(this);
         })
       );
-      global.users.nodes = nodes;
-      [global.users.node1, global.users.node2, ...global.users.otherNodes] = nodes;
+      [this.users.node1, this.users.node2, ...this.users.otherNodes] = this.users.nodes;
     });
 
     it('can mint NFTs', async function () {
-      const { nft, mintAddress } = await global.metaplex.nfts().create(global.nftConfig).run();
-      global.accounts.nft = await getAssociatedTokenAddress(mintAddress, global.wallet.publicKey);
-      expect(await getTokenBalance(global.provider, global.accounts.nft)).to.equal(1);
+      const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
+      this.accounts.nft = await getAssociatedTokenAddress(mintAddress, this.publicKey);
+      expect(await getTokenBalance(this.provider, this.accounts.nft)).to.equal(1);
 
-      global.accounts.metadata = nft.metadataAddress;
+      this.accounts.metadata = nft.metadataAddress;
 
       await Promise.all(
-        global.users.nodes.map(async (n) => {
-          const { nft, mintAddress } = await global.metaplex.nfts().create(global.nftConfig).run();
+        this.users.nodes.map(async (n) => {
+          const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
           n.metadata = nft.metadataAddress;
           n.ataNft = await getOrCreateAssociatedSPL(n.provider, n.publicKey, mintAddress);
           await transfer(
-            global.connection,
-            global.payer,
-            await getAssociatedTokenAddress(mintAddress, global.wallet.publicKey),
+            this.connection,
+            this.payer,
+            await getAssociatedTokenAddress(mintAddress, this.publicKey),
             n.ataNft,
-            global.payer,
+            this.payer,
             1
           );
 
-          expect(await getTokenBalance(global.provider, n.ataNft)).to.equal(1);
-          expect(nft.name).to.equal(global.nftConfig.name, 'NFT name');
-          expect(nft.collection.address.toString()).to.equal(global.nftConfig.collection.toString(), 'Collection pk');
+          expect(await getTokenBalance(this.provider, n.ataNft)).to.equal(1);
+          expect(nft.name).to.equal(this.nftConfig.name, 'NFT name');
+          expect(nft.collection.address.toString()).to.equal(this.nftConfig.collection.toString(), 'Collection pk');
         })
       );
     });

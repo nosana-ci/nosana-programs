@@ -9,15 +9,15 @@ export default function suite() {
     this.users = require('../users.json');
 
     // init staking
-    await global.stakingProgram.methods
+    await this.teststakingProgram.methods
       .init()
-      .accounts({ ...global.accounts, settings: global.stats.staking })
+      .accounts({ ...this.testaccounts, settings: this.teststats.staking })
       .rpc();
 
     // init rewards
-    await global.rewardsProgram.methods
+    await this.testrewardsProgram.methods
       .init()
-      .accounts({ ...global.accounts, stats: global.stats.rewards, vault: global.ata.vaultRewards })
+      .accounts({ ...this.testaccounts, stats: this.teststats.rewards, vault: this.testata.vaultRewards })
       .rpc();
 
     // helper to apply a function to each user
@@ -26,7 +26,7 @@ export default function suite() {
     };
 
     await this.mapUsers(async (u) => {
-      u.user = await utils.setupSolanaUser(global.mint, u.amount, global.provider);
+      u.user = await utils.setupSolanaUser(this);
       u.pending = 0.0;
       u.received = new BN(0);
       return u;
@@ -46,9 +46,9 @@ export default function suite() {
     // helper to add a fee and update pending rewards for users
     this.addFee = async function (amount) {
       const amountBn = new BN(amount);
-      await global.rewardsProgram.methods
+      await this.testrewardsProgram.methods
         .addFee(amountBn)
-        .accounts({ ...global.accounts, stats: global.stats.rewards, vault: global.ata.vaultRewards })
+        .accounts({ ...this.testaccounts, stats: this.teststats.rewards, vault: this.testata.vaultRewards })
         .rpc();
 
       await this.mapUsers((u) => {
@@ -64,28 +64,28 @@ export default function suite() {
 
     // helper to claim rewards for a user
     this.claim = async function (u) {
-      await global.rewardsProgram.methods
+      await this.testrewardsProgram.methods
         .claim()
         .accounts({
-          ...global.accounts,
+          ...this.testaccounts,
           stake: u.user.stake,
           reward: u.user.reward,
           authority: u.user.publicKey,
           user: u.user.ata,
-          vault: global.ata.vaultRewards,
-          stats: global.stats.rewards,
+          vault: this.testata.vaultRewards,
+          stats: this.teststats.rewards,
         })
         .signers([u.user.user])
         .rpc();
     };
 
     this.sync = async function (u) {
-      await global.rewardsProgram.methods
+      await this.testrewardsProgram.methods
         .sync()
         .accounts({
           stake: u.user.stake,
           reward: u.user.reward,
-          stats: global.stats.rewards,
+          stats: this.teststats.rewards,
         })
         .rpc();
     };
@@ -93,9 +93,9 @@ export default function suite() {
     // helper to compare expected pending rewards with actual received
     // rewards. should be called after claim.
     this.claimAndCheck = async function (u) {
-      let balanceBefore = await utils.getTokenBalance(global.provider, u.user.ata);
+      let balanceBefore = await utils.getTokenBalance(this.testprovider, u.user.ata);
       await this.claim(u);
-      let balance = await utils.getTokenBalance(global.provider, u.user.ata);
+      let balance = await utils.getTokenBalance(this.testprovider, u.user.ata);
       // console.log('claim. nos', balanceBefore, ' => ', balance);
       this.feesClaimed = this.feesClaimed.add(new BN(balance - balanceBefore));
 
@@ -117,8 +117,8 @@ export default function suite() {
     };
 
     this.printReflections = async function (u) {
-      const r = await global.rewardsProgram.account.rewardAccount.fetch(u.user.reward);
-      const stats = await global.rewardsProgram.account.statsAccount.fetch(global.stats.rewards);
+      const r = await this.testrewardsProgram.account.rewardAccount.fetch(u.user.reward);
+      const stats = await this.testrewardsProgram.account.statsAccount.fetch(this.teststats.rewards);
 
       console.log('reflection: ', r.reflection.toString(), ' xnos: ', r.xnos.toString());
       console.log('rate: ', stats.rate.toString());
@@ -136,8 +136,8 @@ export default function suite() {
       u.amount = new BN(u.amount);
       u.xnos = new BN(u.xnos);
       const accs = {
-        ...global.accounts,
-        stats: global.stats.rewards,
+        ...this.testaccounts,
+        stats: this.teststats.rewards,
         stake: u.user.stake,
         reward: u.user.reward,
         authority: u.user.publicKey,
@@ -145,16 +145,16 @@ export default function suite() {
         vault: u.user.vault,
       };
 
-      const rewardOpen = await global.rewardsProgram.methods.enter().accounts(accs).instruction();
+      const rewardOpen = await this.testrewardsProgram.methods.enter().accounts(accs).instruction();
 
-      await global.stakingProgram.methods
+      await this.teststakingProgram.methods
         .stake(u.amount, new BN(u.duration))
         .accounts(accs)
         .postInstructions([rewardOpen])
         .signers([u.user.user])
         .rpc();
 
-      let stake = await global.stakingProgram.account.stakeAccount.fetch(u.user.stake);
+      let stake = await this.teststakingProgram.account.stakeAccount.fetch(u.user.stake);
       expect(stake.xnos.toNumber()).to.equal(u.xnos.toNumber());
       totalXnos = totalXnos.add(stake.xnos);
 
@@ -167,7 +167,7 @@ export default function suite() {
 
   it('adds fees', async function () {
     // we are going to reserve a 100 million tokens to distribute
-    await utils.mintToAccount(global.provider, global.mint, global.ata.user, new BN('100000000000000'));
+    await utils.mintToAccount(this.testprovider, this.testmint, this.testata.user, new BN('100000000000000'));
 
     console.log(' - add 1 NOS - ');
     await this.addFee('1000000');
@@ -225,7 +225,7 @@ export default function suite() {
     }
 
     await this.claim(this.users[1]);
-    let balance = await utils.getTokenBalance(global.provider, this.users[0].user.ata);
+    let balance = await utils.getTokenBalance(this.testprovider, this.users[0].user.ata);
     console.log('Claimed for user[1] = ' + balance);
   });
 }
