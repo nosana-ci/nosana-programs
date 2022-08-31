@@ -20,8 +20,7 @@ scenario:
   stage: test
   parallel:
     matrix:
-      - TEST_SCENARIO: rewards
-      - TEST_SCENARIO: all
+      - TEST_SCENARIO: [all, jobs, pools, rewards]
   script:
     - npm ci
     - anchor test
