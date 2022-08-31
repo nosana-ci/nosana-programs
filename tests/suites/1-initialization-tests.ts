@@ -6,9 +6,9 @@ import { mintFromFile, mintToAccount, setupSolanaUser, getOrCreateAssociatedSPL,
 export default function suite() {
   describe('mints and users', function () {
     it('can create mint', async function () {
-      expect(
-        (await mintFromFile(this.connection, this.payer, this.mint.toString(), this.publicKey)).toString()
-      ).to.equal(this.mint.toString());
+      expect((await mintFromFile(this.connection, this.payer, this.mint, this.publicKey)).toString()).to.equal(
+        this.mint.toString()
+      );
     });
 
     it('can create main user and fund mint', async function () {

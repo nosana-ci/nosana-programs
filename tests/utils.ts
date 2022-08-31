@@ -5,7 +5,6 @@ import {
   createMintToInstruction,
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
-  createAssociatedTokenAccount,
 } from '@solana/spl-token';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
@@ -29,7 +28,7 @@ async function getTokenBalance(provider: AnchorProvider, wallet: PublicKey) {
  * @param key
  * @param authority
  */
-async function mintFromFile(connection: Connection, payer: Signer, key: string, authority: PublicKey) {
+async function mintFromFile(connection: Connection, payer: Signer, key: PublicKey, authority: PublicKey) {
   const keyData = require(`./keys/${key}.json`);
   const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData));
   return await createMint(connection, payer, authority, null, 6, keyPair);

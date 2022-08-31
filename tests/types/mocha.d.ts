@@ -7,7 +7,7 @@ import { NosanaStaking } from '../../target/types/nosana_staking';
 import { NosanaPools } from '../../target/types/nosana_pools';
 import { NosanaJobs } from '../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../target/types/nosana_rewards';
-import { NosanaAccounts, NosanaBalances, NosanaTotals, NosanaVaults } from './nosana-types';
+import { NosanaAccounts, NosanaBalances, NosanaTotals, NosanaVaults } from './nosana';
 
 declare module 'mocha' {
   export interface Context {

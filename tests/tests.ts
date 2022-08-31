@@ -20,7 +20,7 @@ import jobTests from './suites/5-nosana-jobs-tests';
 import rewardScenario from './suites/scenario/rewards-tests';
 
 // types
-import { NosanaAccounts, NosanaVaults } from './types/nosana-types';
+import { NosanaAccounts, NosanaVaults } from './types/nosana';
 
 // run
 describe('nosana programs', async function () {
