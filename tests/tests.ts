@@ -123,9 +123,6 @@ describe('nosana programs', async function () {
 
   switch (process.env.TEST_SCENARIO) {
     default:
-      describe('initialization', initTests);
-      describe('staking', stakingTests);
-      break;
     case 'all':
       describe('initialization', initTests);
       describe('staking', stakingTests);
@@ -147,6 +144,10 @@ describe('nosana programs', async function () {
     case 'rewards':
       describe('initialization', initTests);
       describe('rewards-scenario', rewardScenario);
+      break;
+    case 'staking':
+      describe('initialization', initTests);
+      describe('staking', stakingTests);
       break;
   }
 });
