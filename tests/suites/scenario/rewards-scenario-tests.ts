@@ -2,11 +2,11 @@ import * as anchor from '@project-serum/anchor';
 import { BN } from '@project-serum/anchor';
 import { expect } from 'chai';
 import * as _ from 'lodash';
-import * as utils from '../utils';
+import * as utils from '../../utils';
 
 export default function suite() {
   before(async function () {
-    this.users = require('../users.json');
+    this.users = require('../../data/users.json');
 
     // init staking
     await this.teststakingProgram.methods

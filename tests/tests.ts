@@ -2,9 +2,11 @@
 import initTests from './suites/1-initialization-tests';
 import stakingTests from './suites/2-nosana-staking-tests';
 import rewardTests from './suites/3-nosana-rewards-tests';
-import rewardScenario from './suites/6-rewards-scenario-tests';
 import poolTests from './suites/4-nosana-pools-tests';
 import jobTests from './suites/5-nosana-jobs-tests';
+
+// scenarios
+import rewardScenario from './suites/scenario/rewards-scenario-tests';
 
 import { before } from 'mocha';
 import * as anchor from '@project-serum/anchor';
@@ -120,11 +122,15 @@ describe('nosana programs', async function () {
     this.balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0 };
   });
 
+  // init
   describe('initialization', initTests);
-  describe('staking', stakingTests);
-  describe('rewards', rewardTests);
-  describe('pools', poolTests);
-  describe('jobs', jobTests);
 
-  // describe('rewards-scenario', rewardScenario);
+  if (process.env.TEST_SCENARIO === 'rewards') {
+    describe('rewards-scenario', rewardScenario);
+  } else {
+    describe('staking', stakingTests);
+    describe('rewards', rewardTests);
+    describe('pools', poolTests);
+    describe('jobs', jobTests);
+  }
 });
