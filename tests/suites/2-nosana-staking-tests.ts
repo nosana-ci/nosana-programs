@@ -10,7 +10,7 @@ export default function suite() {
 
   describe('init()', async function () {
     it('can initialize', async function () {
-      this.accounts.vault = this.ata.userVaultStaking;
+      this.accounts.vault = this.vaults.staking;
       await this.stakingProgram.methods.init().accounts(this.accounts).rpc();
     });
   });

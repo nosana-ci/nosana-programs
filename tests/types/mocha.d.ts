@@ -3,10 +3,10 @@ import { Connection, Keypair, PublicKey, Signer } from '@solana/web3.js';
 import { Wallet } from '@project-serum/common';
 import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
 
-import { NosanaStaking } from '../../../target/types/nosana_staking';
-import { NosanaPools } from '../../../target/types/nosana_pools';
-import { NosanaJobs } from '../../../target/types/nosana_jobs';
-import { NosanaRewards } from '../../../target/types/nosana_rewards';
+import { NosanaStaking } from '../../target/types/nosana_staking';
+import { NosanaPools } from '../../target/types/nosana_pools';
+import { NosanaJobs } from '../../target/types/nosana_jobs';
+import { NosanaRewards } from '../../target/types/nosana_rewards';
 
 declare module 'mocha' {
   export interface Context {
@@ -71,10 +71,10 @@ declare module 'mocha' {
       nft: PublicKey;
       metadata: PublicKey;
     };
-    ata: {
-      vaultJob: PublicKey;
-      userVaultStaking: PublicKey;
-      vaultRewards: PublicKey;
+    vaults: {
+      staking: PublicKey;
+      rewards: PublicKey;
+      jobs: PublicKey;
     };
     //TODO : define types
     constants;

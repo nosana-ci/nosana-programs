@@ -43,13 +43,13 @@ describe('nosana programs', async function () {
     this.cancelJob = anchor.web3.Keypair.generate();
 
     // token accounts
-    this.ata = {
-      vaultJob: await pda([this.mint.toBuffer()], this.jobsProgram.programId),
-      userVaultStaking: await pda(
+    this.vaults = {
+      rewards: await pda([this.mint.toBuffer()], this.rewardsProgram.programId),
+      jobs: await pda([this.mint.toBuffer()], this.jobsProgram.programId),
+      staking: await pda(
         [utf8.encode('vault'), this.mint.toBuffer(), this.publicKey.toBuffer()],
         this.stakingProgram.programId
       ),
-      vaultRewards: await pda([this.mint.toBuffer()], this.rewardsProgram.programId),
     };
 
     // public keys

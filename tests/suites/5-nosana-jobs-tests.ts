@@ -11,7 +11,7 @@ export default function suite() {
 
   describe('init()', async function () {
     it('can initialie the jobs vault', async function () {
-      this.accounts.vault = this.ata.vaultJob;
+      this.accounts.vault = this.vaults.jobs;
       await this.jobsProgram.methods.init().accounts(this.accounts).rpc();
     });
   });

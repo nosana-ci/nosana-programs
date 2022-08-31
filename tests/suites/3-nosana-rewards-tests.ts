@@ -11,7 +11,7 @@ export default function suite() {
 
   describe('init()', async function () {
     it('can initialize the rewards vault', async function () {
-      this.accounts.vault = this.ata.vaultRewards;
+      this.accounts.vault = this.vaults.rewards;
       await this.rewardsProgram.methods.init().accounts(this.accounts).rpc();
 
       // test stats
