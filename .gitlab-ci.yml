@@ -28,6 +28,6 @@ scenario:
   rules:
     - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   cache:
-    key: target
+    key: target-devnet
     paths:
       - target/
