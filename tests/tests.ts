@@ -25,6 +25,8 @@ describe('nosana programs', async function () {
     // anchor
     this.provider = anchor.AnchorProvider.env();
     this.connection = this.provider.connection;
+
+    // main user
     this.wallet = this.provider.wallet;
     this.publicKey = this.wallet.publicKey;
     // @ts-ignore
@@ -39,25 +41,37 @@ describe('nosana programs', async function () {
 
     // constant values
     this.constants = constants;
-
-    // public keys
     this.mint = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
-    this.keypairs = {
-      job1: anchor.web3.Keypair.generate(),
-      job2: anchor.web3.Keypair.generate(),
+
+    // nft
+    this.nftConfig = {
+      uri: 'https://arweave.net/123',
+      name: 'Burner Phone NFT',
+      symbol: 'NOS-NFT',
+      sellerFeeBasisPoints: 0,
+      isCollection: true,
+      // we need an Anchor Public Key :/
+      collection: new anchor.web3.PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT'),
     };
 
-    // token accounts
+    // dynamic values
+    this.total = { xnos: new BN(0), reflection: new BN(0), rate: constants.initialRate };
+    this.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
+    this.nodes = { node1: null, node2: null, otherNodes: null };
+    this.balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
+
+    // token vaults public keys
     this.vaults = {
       rewards: await pda([this.mint.toBuffer()], this.rewardsProgram.programId),
       jobs: await pda([this.mint.toBuffer()], this.jobsProgram.programId),
+      pools: undefined,
       staking: await pda(
         [utf8.encode('vault'), this.mint.toBuffer(), this.publicKey.toBuffer()],
         this.stakingProgram.programId
       ),
     };
 
-    // public keys
+    // public keys to be used in the instructions
     this.accounts = {
       // programs
       systemProgram: anchor.web3.SystemProgram.programId,
@@ -92,38 +106,18 @@ describe('nosana programs', async function () {
       reward: await pda([utf8.encode('reward'), this.publicKey.toBuffer()], this.rewardsProgram.programId),
 
       // pools specific
-      pool: undefined,
-      poolVault: undefined,
       beneficiary: this.vaults.rewards,
       rewardsVault: this.vaults.rewards,
       rewardsStats: await pda([utf8.encode('stats')], this.rewardsProgram.programId),
+      pool: undefined,
+      poolVault: undefined,
 
       // jobs specific
-      job: undefined,
       project: await pda([utf8.encode('project'), this.publicKey.toBuffer()], this.jobsProgram.programId),
+      job: undefined,
       nft: undefined,
       metadata: undefined,
     };
-
-    // ipfs
-    this.ipfsData = [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')];
-
-    // nft
-    this.nftConfig = {
-      uri: 'https://arweave.net/123',
-      name: 'Burner Phone NFT',
-      symbol: 'NOS-NFT',
-      sellerFeeBasisPoints: 0,
-      isCollection: true,
-      // we need an Anchor Public Key :/
-      collection: new anchor.web3.PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT'),
-    };
-
-    // dynamic values
-    this.total = { xnos: new BN(0), reflection: new BN(0), rate: constants.initialRate };
-    this.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
-    this.nodes = { node1: null, node2: null, otherNodes: null };
-    this.balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0 };
   });
 
   // init
@@ -137,7 +131,7 @@ describe('nosana programs', async function () {
   } else {
     describe('staking', stakingTests);
     describe('rewards', rewardTests);
-    // describe('pools', poolTests);
+    describe('pools', poolTests);
     describe('jobs', jobTests);
   }
 });
