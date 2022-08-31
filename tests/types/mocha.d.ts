@@ -36,6 +36,7 @@ declare module 'mocha' {
     // dynamic values
     total: { xnos: BN; reflection: BN; rate: BN };
     balances: { user: number; vaultJob: number; vaultStaking: number; vaultRewards: number; vaultPool: number };
+    poolClosed: boolean;
 
     // public key collections
     vaults: { staking: PublicKey; rewards: PublicKey; jobs: PublicKey; pools: PublicKey };

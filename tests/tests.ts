@@ -59,6 +59,7 @@ describe('nosana programs', async function () {
     this.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
     this.nodes = { node1: null, node2: null, otherNodes: null };
     this.balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
+    this.poolClosed = true;
 
     // token vaults public keys
     this.vaults = {
@@ -83,8 +84,8 @@ describe('nosana programs', async function () {
       rent: anchor.web3.SYSVAR_RENT_PUBKEY,
 
       // main user
-      authority: this.provider.wallet.publicKey,
-      feePayer: this.provider.wallet.publicKey,
+      authority: this.publicKey,
+      feePayer: this.publicKey,
 
       // token
       mint: this.mint,
