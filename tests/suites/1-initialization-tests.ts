@@ -49,7 +49,7 @@ export default function suite() {
       this.accounts.metadata = nft.metadataAddress;
 
       await Promise.all(
-        this.users.nodes.map(async (n) => {
+        this.users.nodes.map(async (n: any) => {
           const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
           n.metadata = nft.metadataAddress;
           n.ataNft = await getOrCreateAssociatedSPL(n.provider, n.publicKey, mintAddress);
@@ -64,7 +64,7 @@ export default function suite() {
 
           expect(await getTokenBalance(this.provider, n.ataNft)).to.equal(1);
           expect(nft.name).to.equal(this.nftConfig.name, 'NFT name');
-          expect(nft.collection.address.toString()).to.equal(this.nftConfig.collection.toString(), 'Collection pk');
+          expect(nft.collection!.address.toString()).to.equal(this.nftConfig.collection!.toString(), 'Collection pk');
         })
       );
     });

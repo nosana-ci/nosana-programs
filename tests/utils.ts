@@ -1,17 +1,16 @@
 import * as anchor from '@project-serum/anchor';
-import * as serumCmn from '@project-serum/common';
 import {
   TOKEN_PROGRAM_ID,
   createMint,
   createMintToInstruction,
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
-  transfer,
+  createAssociatedTokenAccount,
 } from '@solana/spl-token';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Context } from 'mocha';
-import { BN } from '@project-serum/anchor';
+import { AnchorProvider, BN } from '@project-serum/anchor';
 import { expect } from 'chai';
 
 /**
@@ -19,7 +18,7 @@ import { expect } from 'chai';
  * @param provider
  * @param wallet
  */
-async function getTokenBalance(provider, wallet) {
+async function getTokenBalance(provider: AnchorProvider, wallet: PublicKey) {
   return parseInt((await provider.connection.getTokenAccountBalance(wallet)).value.amount);
 }
 
@@ -30,7 +29,7 @@ async function getTokenBalance(provider, wallet) {
  * @param key
  * @param authority
  */
-async function mintFromFile(connection, payer, key, authority) {
+async function mintFromFile(connection: Connection, payer: Signer, key: string, authority: PublicKey) {
   const keyData = require(`./keys/${key}.json`);
   const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(keyData));
   return await createMint(connection, payer, authority, null, 6, keyPair);
@@ -43,7 +42,7 @@ async function mintFromFile(connection, payer, key, authority) {
  * @param destination
  * @param amount
  */
-async function mintToAccount(provider, mint, destination, amount) {
+async function mintToAccount(provider: AnchorProvider, mint: PublicKey, destination: PublicKey, amount: number) {
   const tx = new anchor.web3.Transaction();
   tx.add(createMintToInstruction(mint, destination, provider.wallet.publicKey, amount, [], TOKEN_PROGRAM_ID));
   await provider.sendAndConfirm(tx);
@@ -53,7 +52,7 @@ async function mintToAccount(provider, mint, destination, amount) {
  *
  * @param buffer
  */
-function buf2hex(buffer) {
+function buf2hex(buffer: Iterable<number>) {
   // buffer is an ArrayBuffer
   return [...new Uint8Array(buffer)].map((x) => x.toString().padStart(2, '0')).join('');
 }
@@ -64,14 +63,14 @@ function buf2hex(buffer) {
  * @param owner
  * @param mint
  */
-async function getOrCreateAssociatedSPL(provider, owner, mint) {
+async function getOrCreateAssociatedSPL(provider: AnchorProvider, owner: PublicKey, mint: PublicKey) {
   const ata = await getAssociatedTokenAddress(mint, owner);
   try {
-    await serumCmn.getTokenAccount(provider, ata);
-  } catch (error) {
     const tx = new anchor.web3.Transaction();
     tx.add(createAssociatedTokenAccountInstruction(owner, ata, owner, mint));
     await provider.sendAndConfirm(tx, [], {});
+  } catch (error) {
+    console.log('exists!');
   }
   return ata;
 }
@@ -81,7 +80,7 @@ async function getOrCreateAssociatedSPL(provider, owner, mint) {
  * @param seeds
  * @param programId
  */
-async function pda(seeds, programId) {
+async function pda(seeds: Array<Buffer | Uint8Array>, programId: PublicKey) {
   return (await PublicKey.findProgramAddress(seeds, programId))[0];
 }
 
@@ -90,7 +89,7 @@ async function pda(seeds, programId) {
  * @param duration
  * @param amount
  */
-function calculateXnos(duration, amount) {
+function calculateXnos(duration: number, amount: number) {
   const xnosDiv = ((365 * 24 * 60 * 60) / 12) * 4;
   return Math.floor((duration / xnosDiv + 1) * amount);
 }
@@ -99,7 +98,7 @@ function calculateXnos(duration, amount) {
  *
  * @param ms
  */
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 /**
  *
@@ -117,7 +116,7 @@ const now = function () {
  */
 async function updateRewards(
   mochaContext: Context,
-  stakePubkey,
+  stakePubkey: PublicKey,
   fee = new anchor.BN(0),
   reflection = new anchor.BN(0)
 ) {
@@ -154,7 +153,7 @@ async function setupSolanaUser(mochaContext: Context) {
   const user = anchor.web3.Keypair.generate();
   const publicKey = user.publicKey;
   const wallet = new anchor.Wallet(user);
-  const provider = new anchor.AnchorProvider(mochaContext.connection, wallet, undefined);
+  const provider = new anchor.AnchorProvider(mochaContext.connection, wallet, {});
 
   // fund SOL
   await mochaContext.connection.confirmTransaction(

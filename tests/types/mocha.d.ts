@@ -1,5 +1,5 @@
 import { AnchorProvider, BN, Program } from '@project-serum/anchor';
-import { Connection, Keypair, PublicKey, Signer } from '@solana/web3.js';
+import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Wallet } from '@project-serum/common';
 import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
 
@@ -7,7 +7,6 @@ import { NosanaStaking } from '../../target/types/nosana_staking';
 import { NosanaPools } from '../../target/types/nosana_pools';
 import { NosanaJobs } from '../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../target/types/nosana_rewards';
-import { constants } from '../contstants';
 
 declare module 'mocha' {
   export interface Context {
