@@ -59,7 +59,7 @@ const constants = {
     JobQueueNotFound: 'This job queue not found.',
 
     // pool errors
-    PoolNotStarted: 'This pool as not started yet.',
+    PoolNotStarted: 'This pool has not started yet.',
     PoolUnderfunded: 'This pool does not have enough funds.',
 
     // node errors
