@@ -44,7 +44,7 @@ export default function suite() {
     this.accounts.pool = this.pool.publicKey;
     this.accounts.vault = this.poolVault;
     this.accounts.rewardsProgram = this.rewardsProgram.programId;
-    this.accounts.beneficiary = this.ata.vaultRewards;
+    this.accounts.beneficiary = this.vaults.rewards;
 
     this.rewardsBalanceBefore = await getTokenBalance(this.provider, this.vaults.rewards);
   });
@@ -104,7 +104,7 @@ export default function suite() {
     expect(elapsed).to.be.above(1);
     await this.poolsProgram.methods.claimFee().accounts(this.accounts).rpc();
 
-    const after = await getTokenBalance(this.provider, this.ata.vaultRewards);
+    const after = await getTokenBalance(this.provider, this.vaults.rewards);
     let claimed = after - this.rewardsBalanceBefore;
 
     // allow a second of drift
