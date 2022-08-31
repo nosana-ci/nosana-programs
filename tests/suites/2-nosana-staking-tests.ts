@@ -1,7 +1,6 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import * as utils from '../utils';
-import { getTokenBalance } from '../utils';
+import { calculateXnos, getTokenBalance } from '../utils';
 
 export default function suite() {
   afterEach(async function () {
@@ -61,7 +60,7 @@ export default function suite() {
       expect(stake.authority.toString()).to.equal(this.accounts.authority.toString(), 'authority');
       expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin, 'duration');
       expect(stake.xnos.toNumber()).to.equal(
-        utils.calculateXnos(this.constants.stakeDurationMin, this.constants.stakeMinimum),
+        calculateXnos(this.constants.stakeDurationMin, this.constants.stakeMinimum),
         'xnos'
       );
     });
@@ -141,7 +140,7 @@ export default function suite() {
             .rpc();
           this.balances.vaultStaking += this.constants.stakeAmount * 2;
           n.balance -= this.constants.stakeAmount * 2;
-          expect(await utils.getTokenBalance(this.provider, n.ata)).to.equal(n.balance);
+          expect(await getTokenBalance(this.provider, n.ata)).to.equal(n.balance);
         })
       );
     });
@@ -176,7 +175,7 @@ export default function suite() {
       expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin * 2 + 7);
       expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum);
       expect(stake.xnos.toNumber()).to.equal(
-        utils.calculateXnos(this.constants.stakeDurationMin * 2 + 7, this.constants.stakeMinimum),
+        calculateXnos(this.constants.stakeDurationMin * 2 + 7, this.constants.stakeMinimum),
         'xnos'
       );
     });
@@ -253,7 +252,7 @@ export default function suite() {
       expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin * 2 + 7, 'duration');
       expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum + this.constants.stakeAmount, 'amount');
       expect(stake.xnos.toNumber()).to.equal(
-        utils.calculateXnos(
+        calculateXnos(
           this.constants.stakeDurationMin * 2 + 7,
           this.constants.stakeMinimum + this.constants.stakeAmount
         ),
@@ -290,25 +289,27 @@ export default function suite() {
     //
     //          constraint = stake.time_unstake + i64::try_from(5).unwrap() <
     //                                                          ^
+
     /*
-      it('Claim after unstake duration', async function () {
-      let balanceBefore = await utils.getTokenBalance(this.provider, this.users.node2.ata);
-      await utils.sleep(5000);
+    it('Claim after unstake duration', async function () {
+      let balanceBefore = await getTokenBalance(this.provider, this.users.node2.ata);
+      await sleep(5000);
       await this.stakingProgram.methods
-      .claim()
-      .accounts({
-      ...this.accounts,
-      user: this.users.node2.ata,
-      stake: this.users.node2.stake,
-      authority: this.users.node2.publicKey,
-      vault: this.users.node2.vault,
-      })
-      .signers([this.users.node2.user])
-      .rpc();
-      let balanceAfter = await utils.getTokenBalance(this.provider, this.users.node2.ata);
+        .claim()
+        .accounts({
+          ...this.accounts,
+          user: this.users.node2.ata,
+          stake: this.users.node2.stake,
+          authority: this.users.node2.publicKey,
+          vault: this.users.node2.vault,
+        })
+        .signers([this.users.node2.user])
+        .rpc();
+      let balanceAfter = await getTokenBalance(this.provider, this.users.node2.ata);
       expect(balanceAfter).to.equal(balanceBefore + this.constants.stakeAmount);
-      });
-    */
+    });
+
+     */
   });
 
   describe('slash(), update_authority()', async function () {
