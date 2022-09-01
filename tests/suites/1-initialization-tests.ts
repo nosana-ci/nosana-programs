@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
-import { mintFromFile, mintToAccount, setupSolanaUser, getOrCreateAssociatedSPL, getTokenBalance } from '../utils';
+import { mintFromFile, mintToAccount, getOrCreateAssociatedSPL, getTokenBalance, getUsers } from '../utils';
 
 export default function suite() {
   describe('mints and users', function () {
@@ -19,17 +19,13 @@ export default function suite() {
       // fund user
       await mintToAccount(this.provider, this.mint, this.accounts.user, this.constants.mintSupply);
       this.balances.user += this.constants.mintSupply;
-      expect(getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
+      expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
     });
 
     it('can create more funded users and nodes', async function () {
-      // users
-      this.users.nodes = [];
-      this.users.users = [];
-      for (const i in Array(10)) {
-        this.users.nodes[i](await setupSolanaUser(this));
-        this.users.users[i](await setupSolanaUser(this));
-      }
+      // users & nodes
+      this.users.users = await getUsers(this, 10);
+      this.users.nodes = await getUsers(this, 10);
       [this.users.node1, this.users.node2, ...this.users.otherNodes] = this.users.nodes;
       [this.users.user1, this.users.user2, this.users.user3, this.users.user4, ...this.users.otherUsers] =
         this.users.users;

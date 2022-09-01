@@ -12,6 +12,7 @@ import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Context } from 'mocha';
 import { AnchorProvider, BN } from '@project-serum/anchor';
 import { expect } from 'chai';
+import _ = require('lodash');
 
 /**
  *
@@ -186,11 +187,20 @@ async function setupSolanaUser(mochaContext: Context) {
   };
 }
 
+async function getUsers(mochaContext: Context, amount: number) {
+  return await Promise.all(
+    _.map(new Array(amount), async () => {
+      return await setupSolanaUser(mochaContext);
+    })
+  );
+}
+
 export {
   buf2hex,
   calculateXnos,
   getOrCreateAssociatedSPL,
   getTokenBalance,
+  getUsers,
   mintFromFile,
   mintToAccount,
   now,

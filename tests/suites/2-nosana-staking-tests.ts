@@ -125,7 +125,7 @@ export default function suite() {
     });
 
     it('can stake for other nodes', async function () {
-      for (const node of this.users.nodes) {
+      for (const node of this.users.otherNodes) {
         await this.stakingProgram.methods
           .stake(new anchor.BN(this.constants.stakeAmount * 2), new anchor.BN(3 * this.constants.stakeDurationMin))
           .accounts({
@@ -217,7 +217,7 @@ export default function suite() {
     it('can unstake', async function () {
       await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
       const data = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
-      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
+      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 3);
 
       // check stake
       const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);

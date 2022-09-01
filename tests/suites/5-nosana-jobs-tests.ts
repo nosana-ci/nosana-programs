@@ -116,7 +116,7 @@ export default function suite() {
     });
 
     it('can claim jobs for all other nodes and users', async function () {
-      for (const i of Array(10)) {
+      for (const i of [...Array(10).keys()]) {
         const user = this.users.users[i];
         const node = this.users.nodes[i];
 
@@ -129,7 +129,7 @@ export default function suite() {
           .claim()
           .accounts({
             authority: node.publicKey,
-            project: user.project,
+            project: node.project,
             job: node.job,
             stake: node.stake,
             nft: node.ataNft,
@@ -198,10 +198,7 @@ export default function suite() {
     });
 
     it('can finish job for all nodes', async function () {
-      console.log('hello')
       for (const node of this.users.otherNodes) {
-        console.log(node.publicKey.toString())
-        console.log(node.job.toString())
         await this.jobsProgram.methods
           .finish(this.constants.ipfsData)
           .accounts({
