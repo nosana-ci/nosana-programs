@@ -36,6 +36,15 @@ async function mintFromFile(connection: Connection, payer: Signer, authority: Pu
 
 /**
  *
+ * @param users
+ * @param f
+ */
+async function mapUsers(users, f) {
+  return await Promise.all(_.map(users, f));
+}
+
+/**
+ *
  * @param provider
  * @param mint
  * @param destination
@@ -208,4 +217,5 @@ export {
   setupSolanaUser,
   sleep,
   updateRewards,
+  mapUsers,
 };

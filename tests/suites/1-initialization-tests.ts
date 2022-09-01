@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
-import { mintFromFile, mintToAccount, getOrCreateAssociatedSPL, getTokenBalance, getUsers } from '../utils';
+import { mintFromFile, mintToAccount, getOrCreateAssociatedSPL, getTokenBalance, getUsers, mapUsers } from '../utils';
 
 export default function suite() {
   describe('mints and users', function () {
@@ -31,30 +31,34 @@ export default function suite() {
         this.users.users;
     });
 
-    it('can mint NFTs', async function () {
+    it('can mint NFT', async function () {
       const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
       this.accounts.nft = await getAssociatedTokenAddress(mintAddress, this.publicKey);
       expect(await getTokenBalance(this.provider, this.accounts.nft)).to.equal(1);
 
+      // set metadata
       this.accounts.metadata = nft.metadataAddress;
+    });
 
-      for (const node of this.users.nodes) {
-        const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
+    it('can mint more NFTs', async function () {
+      const vm = this;
+      await mapUsers(this.users.nodes, async function (node) {
+        const { nft, mintAddress } = await vm.metaplex.nfts().create(vm.nftConfig).run();
         node.metadata = nft.metadataAddress;
         node.ataNft = await getOrCreateAssociatedSPL(node.provider, node.publicKey, mintAddress);
         await transfer(
-          this.connection,
-          this.payer,
-          await getAssociatedTokenAddress(mintAddress, this.publicKey),
+          vm.connection,
+          vm.payer,
+          await getAssociatedTokenAddress(mintAddress, vm.publicKey),
           node.ataNft,
-          this.payer,
+          vm.payer,
           1
         );
 
-        expect(await getTokenBalance(this.provider, node.ataNft)).to.equal(1);
-        expect(nft.name).to.equal(this.nftConfig.name, 'NFT name');
-        expect(nft.collection.address.toString()).to.equal(this.nftConfig.collection.toString(), 'Collection pk');
-      }
+        expect(await getTokenBalance(vm.provider, node.ataNft)).to.equal(1);
+        expect(nft.name).to.equal(vm.nftConfig.name, 'NFT name');
+        expect(nft.collection.address.toString()).to.equal(vm.nftConfig.collection.toString(), 'Collection pk');
+      });
     });
   });
 }
