@@ -41,23 +41,26 @@ export default function suite() {
     });
 
     it('can mint more NFTs', async function () {
-      const vm = this;
+      const mochaContext = this;
       await mapUsers(this.users.nodes, async function (node) {
-        const { nft, mintAddress } = await vm.metaplex.nfts().create(vm.nftConfig).run();
+        const { nft, mintAddress } = await mochaContext.metaplex.nfts().create(mochaContext.nftConfig).run();
         node.metadata = nft.metadataAddress;
         node.ataNft = await getOrCreateAssociatedSPL(node.provider, node.publicKey, mintAddress);
         await transfer(
-          vm.connection,
-          vm.payer,
-          await getAssociatedTokenAddress(mintAddress, vm.publicKey),
+          mochaContext.connection,
+          mochaContext.payer,
+          await getAssociatedTokenAddress(mintAddress, mochaContext.publicKey),
           node.ataNft,
-          vm.payer,
+          mochaContext.payer,
           1
         );
 
-        expect(await getTokenBalance(vm.provider, node.ataNft)).to.equal(1);
-        expect(nft.name).to.equal(vm.nftConfig.name, 'NFT name');
-        expect(nft.collection.address.toString()).to.equal(vm.nftConfig.collection.toString(), 'Collection pk');
+        expect(await getTokenBalance(mochaContext.provider, node.ataNft)).to.equal(1);
+        expect(nft.name).to.equal(mochaContext.nftConfig.name, 'NFT name');
+        expect(nft.collection.address.toString()).to.equal(
+          mochaContext.nftConfig.collection.toString(),
+          'Collection pk'
+        );
       });
     });
   });

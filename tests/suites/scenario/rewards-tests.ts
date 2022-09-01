@@ -11,10 +11,10 @@ import { Context } from 'mocha';
  */
 async function calcXnosPerc(mochaContext: Context) {
   const totalXnos = mochaContext.totalXnos.add(mochaContext.feesAdded).sub(mochaContext.feesClaimed).toNumber();
-  await mapUsers(mochaContext.stakers, async function (u) {
-    u.xnosPerc = (u.xnos.toNumber() + u.pending) / totalXnos;
+  await mapUsers(mochaContext.stakers, async function (user) {
+    user.xnosPerc = (user.xnos.toNumber() + user.pending) / totalXnos;
     // console.log(u.xnosPerc, '% of pool', ' - pending reward: ', u.pending);
-    return u;
+    return user;
   });
 }
 
@@ -132,14 +132,22 @@ async function claimAndCheckIds(mochaContext: Context, step: number) {
   }
 }
 
+/**
+ *
+ * @param mochaContext
+ * @param user
+ */
 async function printReflections(mochaContext: Context, user) {
-  const reward = await mochaContext.rewardsProgram.account.rewardAccount.fetch(user.reward);
+  const reward = await mochaContext.rewardsProgram.account.rewardAccount.fetch(user.user.reward);
   const stats = await mochaContext.rewardsProgram.account.statsAccount.fetch(mochaContext.accounts.stats);
 
   console.log('reflection: ', reward.reflection.toString(), ' xnos: ', reward.xnos.toString());
   console.log('rate: ', stats.rate.toString());
 }
 
+/**
+ * MAIN SCENARIO SUITE
+ */
 export default function suite() {
   it('init staking vault', async function () {
     await this.stakingProgram.methods.init().accounts(this.accounts).rpc();
@@ -165,19 +173,19 @@ export default function suite() {
 
   it('setup stakes', async function () {
     const totalXnos = new BN(0);
-    const vm = this;
+    const mochaContext = this;
     await mapUsers(this.stakers, async function (user) {
-      user.user = await setupSolanaUser(vm);
+      user.user = await setupSolanaUser(mochaContext);
       user.pending = 0.0;
       user.received = new BN(0);
       user.amount = new BN(user.amount);
       user.xnos = new BN(user.xnos);
 
       // make sure the users have enough funds
-      await mintToAccount(vm.provider, vm.mint, user.user.ata, user.amount.toNumber());
+      await mintToAccount(mochaContext.provider, mochaContext.mint, user.user.ata, user.amount.toNumber());
 
       const accounts = {
-        ...vm.accounts,
+        ...mochaContext.accounts,
         stake: user.user.stake,
         reward: user.user.reward,
         authority: user.user.publicKey,
@@ -185,14 +193,14 @@ export default function suite() {
         vault: user.user.vault,
       };
 
-      await vm.stakingProgram.methods
+      await mochaContext.stakingProgram.methods
         .stake(user.amount, new BN(user.duration))
         .accounts(accounts)
-        .postInstructions([await vm.rewardsProgram.methods.enter().accounts(accounts).instruction()])
+        .postInstructions([await mochaContext.rewardsProgram.methods.enter().accounts(accounts).instruction()])
         .signers([user.user.user])
         .rpc();
 
-      const stake = await vm.stakingProgram.account.stakeAccount.fetch(user.user.stake);
+      const stake = await mochaContext.stakingProgram.account.stakeAccount.fetch(user.user.stake);
       expect(stake.xnos.toNumber()).to.equal(user.xnos.toNumber());
       totalXnos.iadd(stake.xnos);
       return user;

@@ -13,7 +13,7 @@
       {
         "allowDestructuring": true,
         "allowedNames": [
-          "vm"
+          "mochaContext"
         ]
       }
     ]
