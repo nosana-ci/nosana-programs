@@ -128,13 +128,12 @@ export default function suite() {
         await this.jobsProgram.methods
           .claim()
           .accounts({
-            ...this.accounts,
             authority: node.publicKey,
+            project: user.project,
+            job: node.job,
             stake: node.stake,
             nft: node.ataNft,
             metadata: node.metadata,
-            job: node.job,
-            project: node.project,
           })
           .signers([node.user])
           .rpc()
@@ -199,12 +198,10 @@ export default function suite() {
     });
 
     it('can finish job for all nodes', async function () {
-      console.log('hello');
-      console.log('hello');
+      console.log('hello')
       for (const node of this.users.otherNodes) {
-        console.log(node.publicKey.toString());
-        console.log(node.job.toString());
-
+        console.log(node.publicKey.toString())
+        console.log(node.job.toString())
         await this.jobsProgram.methods
           .finish(this.constants.ipfsData)
           .accounts({

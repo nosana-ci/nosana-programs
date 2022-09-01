@@ -61,7 +61,7 @@ function buf2hex(buffer: Iterable<number>) {
  * @param owner
  * @param mint
  */
-async function getOrCreateAssociatedSPL(provider: AnchorProvider, owner, mint: PublicKey) {
+async function getOrCreateAssociatedSPL(provider: AnchorProvider, owner: PublicKey, mint: PublicKey) {
   const ata = await getAssociatedTokenAddress(mint, owner);
   try {
     const tx = new anchor.web3.Transaction();

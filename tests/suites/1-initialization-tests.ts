@@ -1,5 +1,5 @@
-import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 import { expect } from 'chai';
+import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 import { mintFromFile, mintToAccount, setupSolanaUser, getOrCreateAssociatedSPL, getTokenBalance } from '../utils';
 
 export default function suite() {
