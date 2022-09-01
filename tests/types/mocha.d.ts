@@ -1,12 +1,12 @@
-import { AnchorProvider, Program } from '@project-serum/anchor';
+import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
-import { Wallet } from '@project-serum/anchor/dist/cjs/provider';
 
 import { NosanaStaking } from '../../target/types/nosana_staking';
 import { NosanaPools } from '../../target/types/nosana_pools';
 import { NosanaJobs } from '../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../target/types/nosana_rewards';
+import { constants } from '../contstants';
 import { NosanaAccounts, NosanaBalances, NosanaTotals, NosanaVaults } from './nosana';
 
 declare module 'mocha' {
@@ -42,8 +42,10 @@ declare module 'mocha' {
     vaults: NosanaVaults;
     accounts: NosanaAccounts;
 
-    //TODO : define types
-    constants;
+    // th constant values
+    constants: constants;
+
+    //TODO : define Solana user types
     nodes;
     users;
   }

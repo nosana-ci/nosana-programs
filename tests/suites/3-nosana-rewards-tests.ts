@@ -5,8 +5,8 @@ import { calculateXnos, getTokenBalance, updateRewards } from '../utils';
 
 export default function suite() {
   afterEach(async function () {
-    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
-    expect(await getTokenBalance(this.provider, this.vaults.rewards)).to.equal(this.balances.vaultRewards);
+    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user, 'user balance');
+    expect(await getTokenBalance(this.provider, this.vaults.rewards)).to.equal(this.balances.vaultRewards, 'vault');
   });
 
   describe('init()', async function () {

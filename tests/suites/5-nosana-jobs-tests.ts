@@ -21,19 +21,17 @@ export default function suite() {
     });
 
     it('can start projects for other users', async function () {
-      await Promise.all(
-        this.users.users.map(async (u) => {
-          await this.jobsProgram.methods
-            .start()
-            .accounts({
-              systemProgram: this.accounts.systemProgram,
-              authority: u.publicKey,
-              project: u.project,
-            })
-            .signers([u.user])
-            .rpc();
-        })
-      );
+      for (const user of this.users.users) {
+        await this.jobsProgram.methods
+          .start()
+          .accounts({
+            systemProgram: this.accounts.systemProgram,
+            authority: user.publicKey,
+            project: user.project,
+          })
+          .signers([user.user])
+          .rpc();
+      }
     });
 
     it('can fetch a project', async function () {
@@ -57,7 +55,7 @@ export default function suite() {
       this.balances.vaultJob += this.constants.jobPrice;
     });
 
-    it('can not create a job in different this.ata', async function () {
+    it('can not create a job in different vault', async function () {
       let msg = '';
       const throwAwayKeypair = anchor.web3.Keypair.generate();
       await this.jobsProgram.methods
@@ -74,59 +72,31 @@ export default function suite() {
     });
 
     it('can create jobs for other users', async function () {
-      await Promise.all(
-        this.users.users.map(async (u) => {
-          await this.jobsProgram.methods
-            .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
-            .accounts({
-              ...this.accounts,
-              project: u.project,
-              job: u.signers.job.publicKey,
-              user: u.ata,
-              authority: u.publicKey,
-            })
-            .signers([u.user, u.signers.job])
-            .rpc();
-          // update this.balances
-          this.balances.vaultJob += this.constants.jobPrice;
-          u.balance -= this.constants.jobPrice;
-        })
-      );
-      await Promise.all(
-        this.users.users.map(async (u) => {
-          expect(await getTokenBalance(this.provider, u.ata)).to.equal(u.balance);
-        })
-      );
+      for (const user of this.users.users) {
+        const throwAwayKeypair = anchor.web3.Keypair.generate();
+        user.job = throwAwayKeypair.publicKey;
+        await this.jobsProgram.methods
+          .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
+          .accounts({
+            ...this.accounts,
+            project: user.project,
+            job: user.job,
+            user: user.ata,
+            authority: user.publicKey,
+          })
+          .signers([user.user, throwAwayKeypair])
+          .rpc();
+        // update this.balances
+        this.balances.vaultJob += this.constants.jobPrice;
+        user.balance -= this.constants.jobPrice;
+        expect(await getTokenBalance(this.provider, user.ata)).to.equal(user.balance);
+      }
     });
-
-    /*
-    // create
-    it('Create max jobs', async function () {
-    for (let i = 0; i < 10; i++) {
-    console.log(i);
-    let job = anchor.web3.Keypair.generate();
-    await program.rpthis.constants.create(
-    bump,
-    new anchor.BN(this.constants.jobPrice),
-    this.constants.ipfsData,
-    {
-    accounts: {
-    ...accounts,
-    job: job.publicKey,
-    }, signers: [job]});
-    this.balances.user -= this.constants.jobPrice
-    this.balances.vault += this.constants.jobPrice
-    }
-
-    // tests
-    await utils.assertBalancesJobs(this.provider, this.ata, this.balances)
-    });
-    */
 
     it('can fetch a job', async function () {
-      const data = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(data.jobStatus).to.equal(this.constants.jobStatus.created);
-      expect(buf2hex(new Uint8Array(data.ipfsJob))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(job.jobStatus).to.equal(this.constants.jobStatus.created);
+      expect(buf2hex(new Uint8Array(job.ipfsJob))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
     });
   });
 
@@ -146,49 +116,42 @@ export default function suite() {
     });
 
     it('can claim jobs for all other nodes and users', async function () {
-      await Promise.all(
-        [...Array(10).keys()].map(async (i) => {
-          const user = this.users.users[i];
-          const node = this.users.nodes[i];
+      for (const i of Array(10)) {
+        const user = this.users.users[i];
+        const node = this.users.nodes[i];
 
-          // store these temporary to get them easier later
-          node.project = user.project;
-          node.job = user.signers.job.publicKey;
+        // store job and project on the nodes for later
+        node.project = user.project;
+        node.job = user.job;
 
-          let msg = '';
-          await this.jobsProgram.methods
-            .claim()
-            .accounts({
-              ...this.accounts,
-              authority: node.publicKey,
-              stake: node.stake,
-              nft: node.ataNft,
-              metadata: node.metadata,
+        let msg = '';
+        await this.jobsProgram.methods
+          .claim()
+          .accounts({
+            ...this.accounts,
+            authority: node.publicKey,
+            stake: node.stake,
+            nft: node.ataNft,
+            metadata: node.metadata,
+            job: node.job,
+            project: node.project,
+          })
+          .signers([node.user])
+          .rpc()
+          .catch((e) => (msg = e.error.errorMessage));
 
-              job: node.job,
-              project: user.project,
-            })
-            .signers([node.user])
-            .rpc()
-            .catch((e) => (msg = e.error.errorMessage));
-
-          if (i === 0) expect(msg).to.equal(this.constants.errors.NodeUnqualifiedStakeAmount);
-          else if (i === 1) expect(msg).to.equal(this.constants.errors.NodeUnqualifiedUnstaked);
-          else expect(msg).to.equal('');
-        })
-      );
+        if (i === 0) expect(msg).to.equal(this.constants.errors.NodeUnqualifiedStakeAmount);
+        else if (i === 1) expect(msg).to.equal(this.constants.errors.NodeUnqualifiedUnstaked);
+        else expect(msg).to.equal('');
+      }
     });
 
     it('can fetch a claimed job', async function () {
-      const data = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(Date.now() / 1e3).to.be.closeTo(
-        data.timeStart.toNumber(),
-        this.constants.allowedClockDelta,
-        'times differ too much'
-      );
-      expect(data.jobStatus).to.equal(this.constants.jobStatus.claimed);
-      expect(data.node.toString()).to.equal(this.provider.wallet.publicKey.toString());
-      expect(data.tokens.toString()).to.equal(this.constants.jobPrice.toString());
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(Date.now() / 1e3).to.be.closeTo(job.timeStart.toNumber(), this.constants.allowedClockDelta, 'time');
+      expect(job.jobStatus).to.equal(this.constants.jobStatus.claimed);
+      expect(job.node.toString()).to.equal(this.provider.wallet.publicKey.toString());
+      expect(job.tokens.toString()).to.equal(this.constants.jobPrice.toString());
     });
   });
 
@@ -236,24 +199,27 @@ export default function suite() {
     });
 
     it('can finish job for all nodes', async function () {
-      await Promise.all(
-        this.users.otherNodes.map(async (n) => {
-          await this.jobsProgram.methods
-            .finish(this.constants.ipfsData)
-            .accounts({
-              ...this.accounts,
-              job: n.job,
-              user: n.ata,
-              authority: n.publicKey,
-            })
-            .signers([n.user])
-            .rpc();
-          // update this.balances
-          this.balances.vaultJob -= this.constants.jobPrice;
-          n.balance += this.constants.jobPrice;
-          expect(await getTokenBalance(this.provider, n.ata)).to.equal(n.balance);
-        })
-      );
+      console.log('hello');
+      console.log('hello');
+      for (const node of this.users.otherNodes) {
+        console.log(node.publicKey.toString());
+        console.log(node.job.toString());
+
+        await this.jobsProgram.methods
+          .finish(this.constants.ipfsData)
+          .accounts({
+            ...this.accounts,
+            job: node.job,
+            user: node.ata,
+            authority: node.publicKey,
+          })
+          .signers([node.user])
+          .rpc();
+        // update balances
+        this.balances.vaultJob -= this.constants.jobPrice;
+        node.balance += this.constants.jobPrice;
+        expect(await getTokenBalance(this.provider, node.ata)).to.equal(node.balance);
+      }
     });
 
     it('can fetch a finished job', async function () {
@@ -266,16 +232,14 @@ export default function suite() {
       expect(project.jobs.length).to.equal(0, 'number of jobs do not match');
       expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
 
-      await Promise.all(
-        this.users.otherNodes.map(async (n) => {
-          const project = await this.jobsProgram.account.projectAccount.fetch(n.project);
-          const job = await this.jobsProgram.account.jobAccount.fetch(n.job);
+      for (const node of this.users.otherNodes) {
+        const project = await this.jobsProgram.account.projectAccount.fetch(node.project);
+        const job = await this.jobsProgram.account.jobAccount.fetch(node.job);
 
-          expect(job.jobStatus).to.equal(this.constants.jobStatus.finished);
-          expect(project.jobs.length).to.equal(0);
-          expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
-        })
-      );
+        expect(job.jobStatus).to.equal(this.constants.jobStatus.finished);
+        expect(project.jobs.length).to.equal(0);
+        expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
+      }
     });
   });
 

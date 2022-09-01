@@ -26,7 +26,6 @@ async function getTokenBalance(provider: AnchorProvider, wallet: PublicKey) {
  *
  * @param connection
  * @param payer
- * @param key
  * @param authority
  */
 async function mintFromFile(connection: Connection, payer: Signer, authority: PublicKey) {
@@ -62,7 +61,7 @@ function buf2hex(buffer: Iterable<number>) {
  * @param owner
  * @param mint
  */
-async function getOrCreateAssociatedSPL(provider: AnchorProvider, owner: PublicKey, mint: PublicKey) {
+async function getOrCreateAssociatedSPL(provider: AnchorProvider, owner, mint: PublicKey) {
   const ata = await getAssociatedTokenAddress(mint, owner);
   try {
     const tx = new anchor.web3.Transaction();
@@ -168,11 +167,7 @@ async function setupSolanaUser(mochaContext: Context) {
     ata,
     provider,
     wallet,
-    signers: {
-      job: anchor.web3.Keypair.generate(),
-    },
     balance: mochaContext.constants.userSupply,
-
     // pdas
     project: await pda([utf8.encode('project'), publicKey.toBuffer()], mochaContext.jobsProgram.programId),
     stake: await pda(

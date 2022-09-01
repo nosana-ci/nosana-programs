@@ -30,7 +30,7 @@ describe('nosana programs', async function () {
     this.connection = this.provider.connection;
 
     // main user
-    this.wallet = this.provider.wallet;
+    this.wallet = this.provider.wallet as anchor.Wallet;
     this.publicKey = this.wallet.publicKey;
     this.payer = this.wallet.payer;
 
@@ -39,7 +39,6 @@ describe('nosana programs', async function () {
     this.poolsProgram = anchor.workspace.NosanaPools;
     this.stakingProgram = anchor.workspace.NosanaStaking;
     this.rewardsProgram = anchor.workspace.NosanaRewards;
-    this.rewardsProgram1 = anchor.workspace.NosanaRewards;
     this.metaplex = Metaplex.make(this.connection).use(walletAdapterIdentity(this.wallet));
 
     // constant values
@@ -82,15 +81,15 @@ describe('nosana programs', async function () {
     this.accounts.authority = this.publicKey;
     this.accounts.feePayer = this.publicKey;
     this.accounts.mint = this.mint;
-    this.accounts.tokenAccount = await getAssociatedTokenAddress(this.mint, this.publicKey);
     this.accounts.user = await getAssociatedTokenAddress(this.mint, this.publicKey);
-    this.accounts.settings = await pda([utf8.encode('settings')], this.stakingProgram.programId);
     this.accounts.stats = await pda([utf8.encode('stats')], this.rewardsProgram.programId);
     this.accounts.reward = await pda([utf8.encode('reward'), this.publicKey.toBuffer()], this.rewardsProgram.programId);
-    this.accounts.beneficiary = this.vaults.rewards;
-    this.accounts.rewardsVault = this.vaults.rewards;
-    this.accounts.rewardsStats = await pda([utf8.encode('stats')], this.rewardsProgram.programId);
     this.accounts.project = await pda([utf8.encode('project'), this.publicKey.toBuffer()], this.jobsProgram.programId);
+    this.accounts.settings = await pda([utf8.encode('settings')], this.stakingProgram.programId);
+    this.accounts.beneficiary = this.vaults.rewards;
+    this.accounts.tokenAccount = this.accounts.user;
+    this.accounts.rewardsVault = this.vaults.rewards;
+    this.accounts.rewardsStats = this.accounts.stats;
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId

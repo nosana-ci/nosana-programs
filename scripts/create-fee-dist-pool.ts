@@ -4,8 +4,7 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { NosanaPools } from '../target/types/nosana_pools';
 import { pda } from '../tests/utils';
-import poolConfig = require('../pool.json');
-import poolKey = require(poolConfig.poolKey);
+import poolConfig = require('../tests/data/pool.json');
 
 async function main() {
   // anchor
@@ -13,7 +12,7 @@ async function main() {
   setProvider(provider);
 
   // pool config
-  const keyPair = Keypair.fromSecretKey(new Uint8Array(poolKey));
+  const keyPair = Keypair.generate();
 
   // public keys
   const mint = new PublicKey(poolConfig.mint);

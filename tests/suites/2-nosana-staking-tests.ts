@@ -125,24 +125,22 @@ export default function suite() {
     });
 
     it('can stake for other nodes', async function () {
-      await Promise.all(
-        this.users.otherNodes.map(async (n) => {
-          await this.stakingProgram.methods
-            .stake(new anchor.BN(this.constants.stakeAmount * 2), new anchor.BN(3 * this.constants.stakeDurationMin))
-            .accounts({
-              ...this.accounts,
-              user: n.ata,
-              authority: n.publicKey,
-              stake: n.stake,
-              vault: n.vault,
-            })
-            .signers([n.user])
-            .rpc();
-          this.balances.vaultStaking += this.constants.stakeAmount * 2;
-          n.balance -= this.constants.stakeAmount * 2;
-          expect(await getTokenBalance(this.provider, n.ata)).to.equal(n.balance);
-        })
-      );
+      for (const node of this.users.nodes) {
+        await this.stakingProgram.methods
+          .stake(new anchor.BN(this.constants.stakeAmount * 2), new anchor.BN(3 * this.constants.stakeDurationMin))
+          .accounts({
+            ...this.accounts,
+            user: node.ata,
+            authority: node.publicKey,
+            stake: node.stake,
+            vault: node.vault,
+          })
+          .signers([node.user])
+          .rpc();
+        this.balances.vaultStaking += this.constants.stakeAmount * 2;
+        node.balance -= this.constants.stakeAmount * 2;
+        expect(await getTokenBalance(this.provider, node.ata)).to.equal(node.balance);
+      }
     });
   });
 
