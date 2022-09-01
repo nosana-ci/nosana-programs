@@ -1,8 +1,9 @@
 import { AnchorProvider, Idl, Program, setProvider, web3 } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
-import { NosanaRewards } from '../target/types/nosana_rewards';
 import { pda } from '../tests/utils';
+// @ts-ignore
+import { NosanaRewards } from '../target/types/nosana_rewards';
 
 async function main() {
   // anchor
