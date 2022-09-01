@@ -1,8 +1,11 @@
-import { AnchorProvider, Program, setProvider, web3, BN } from '@project-serum/anchor';
+import { AnchorProvider, Program, setProvider, web3, BN, Idl } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { pda } from '../tests/utils';
+import poolConfig = require('../tests/data/pool.json');
+// @ts-ignore
 import { NosanaPools } from '../target/types/nosana_pools';
-import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 async function main() {
   // anchor
@@ -10,8 +13,7 @@ async function main() {
   setProvider(provider);
 
   // pool config
-  const poolConfig = require('../pool.json');
-  const keyPair = Keypair.fromSecretKey(new Uint8Array(require(poolConfig.poolKey)));
+  const keyPair = Keypair.generate();
 
   // public keys
   const mint = new PublicKey(poolConfig.mint);
@@ -19,24 +21,24 @@ async function main() {
   const rewardsId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
 
   // program
-  const idl = await Program.fetchIdl(poolsId.toString());
-  const program = new Program(idl, poolsId) as Program<NosanaPools>;
+  const idl = (await Program.fetchIdl(poolsId.toString())) as Idl;
+  const program = new Program(idl, poolsId) as unknown as Program<NosanaPools>;
 
   // PDAs
   const accounts = {
     authority: provider.wallet.publicKey,
-    beneficiary: (await PublicKey.findProgramAddress([mint.toBuffer()], rewardsId))[0],
+    beneficiary: await pda([mint.toBuffer()], rewardsId),
     mint,
     pool: keyPair.publicKey,
     rent: web3.SYSVAR_RENT_PUBKEY,
     systemProgram: web3.SystemProgram.programId,
     tokenProgram: TOKEN_PROGRAM_ID,
-    vault: (await PublicKey.findProgramAddress([utf8.encode('vault'), keyPair.publicKey.toBuffer()], poolsId))[0],
+    vault: await pda([utf8.encode('vault'), keyPair.publicKey.toBuffer()], poolsId),
   };
 
   // open pool
-  let tx = await program.methods
-    .open(new BN(poolConfig.emission), new BN(poolConfig.startTime), poolConfig.closeable)
+  const tx = await program.methods
+    .open(new BN(poolConfig.emission), new BN(poolConfig.startTime), poolConfig.claimType, poolConfig.closeable)
     .accounts(accounts)
     .signers([keyPair])
     .rpc();

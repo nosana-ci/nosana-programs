@@ -16,10 +16,9 @@ pub struct AddFee<'info> {
 
 pub fn handler(ctx: Context<AddFee>, amount: u64) -> Result<()> {
     // update stats
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
-    stats.add_fee(u128::from(amount));
+    (&mut ctx.accounts.stats).add_fee(u128::from(amount));
 
-    // finish
+    // send fee
     transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),

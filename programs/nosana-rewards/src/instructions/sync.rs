@@ -15,8 +15,7 @@ pub struct Sync<'info> {
 }
 
 pub fn handler(ctx: Context<Sync>) -> Result<()> {
-    // get and check stake + reward account
-    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
+    // get reward and stats account
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
     let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
 
@@ -25,8 +24,9 @@ pub fn handler(ctx: Context<Sync>) -> Result<()> {
 
     // re-enter the pool with the current stake
     let amount: u128 = reward.get_amount(stats.rate);
-    reward.update(stats.add_rewards_account(stake.xnos, amount), stake.xnos);
-
-    // finish
+    reward.update(
+        stats.add_rewards_account(ctx.accounts.stake.xnos, amount),
+        ctx.accounts.stake.xnos,
+    );
     Ok(())
 }

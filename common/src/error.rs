@@ -61,7 +61,7 @@ pub enum NosanaError {
     NodeNftWrongCollection,
 
     // pool errors
-    #[msg("This pool as not started yet.")]
+    #[msg("This pool has not started yet.")]
     PoolNotStarted,
     #[msg("This pool does not have enough funds.")]
     PoolUnderfunded,
@@ -71,8 +71,4 @@ pub enum NosanaError {
     PoolWrongClaimType,
     #[msg("This pool does not match the beneficiary.")]
     PoolWrongBeneficiary,
-
-    // reward errors
-    #[msg("This account has rewards to claim.")]
-    RewardsToClaim,
 }

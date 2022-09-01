@@ -1,282 +1,258 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import * as utils from '../utils';
+import { calculateXnos, getTokenBalance } from '../utils';
 
 export default function suite() {
-  beforeEach(function () {
-    global.accounts.vault = global.ata.userVaultStaking;
+  afterEach(async function () {
+    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
   });
 
   describe('init()', async function () {
     it('can initialize', async function () {
-      global.accounts.settings = global.stats.staking;
-      await global.stakingProgram.methods.init().accounts(global.accounts).rpc();
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      this.accounts.vault = this.vaults.staking;
+      await this.stakingProgram.methods.init().accounts(this.accounts).rpc();
     });
   });
 
   describe('stake()', async function () {
     it('can not stake too short', async function () {
       let msg = '';
-      await global.stakingProgram.methods
-        .stake(new anchor.BN(global.constants.stakeAmount), new anchor.BN(global.constants.stakeDurationMin - 1))
-        .accounts(global.accounts)
+      await this.stakingProgram.methods
+        .stake(new anchor.BN(this.constants.stakeAmount), new anchor.BN(this.constants.stakeDurationMin - 1))
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeDurationTooShort);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.StakeDurationTooShort);
     });
 
     it('can not stake too long', async function () {
       let msg = '';
-      await global.stakingProgram.methods
-        .stake(new anchor.BN(global.constants.stakeAmount), new anchor.BN(global.constants.stakeDurationMax + 1))
-        .accounts(global.accounts)
+      await this.stakingProgram.methods
+        .stake(new anchor.BN(this.constants.stakeAmount), new anchor.BN(this.constants.stakeDurationMax + 1))
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeDurationTooLong);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.StakeDurationTooLong);
     });
 
     it('can not stake too little', async function () {
       let msg = '';
-      await global.stakingProgram.methods
-        .stake(new anchor.BN(global.constants.stakeMinimum - 1), new anchor.BN(global.constants.stakeDurationMax))
-        .accounts(global.accounts)
+      await this.stakingProgram.methods
+        .stake(new anchor.BN(this.constants.stakeMinimum - 1), new anchor.BN(this.constants.stakeDurationMax))
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeAmountNotEnough);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.StakeAmountNotEnough);
     });
 
     it('can stake minimum', async function () {
-      await global.stakingProgram.methods
-        .stake(new anchor.BN(global.constants.stakeMinimum), new anchor.BN(global.constants.stakeDurationMin))
-        .accounts(global.accounts)
+      await this.stakingProgram.methods
+        .stake(new anchor.BN(this.constants.stakeMinimum), new anchor.BN(this.constants.stakeDurationMin))
+        .accounts(this.accounts)
         .rpc();
+      this.balances.user -= this.constants.stakeMinimum;
+      this.balances.vaultStaking += this.constants.stakeMinimum;
 
-      // test global.balances
-      global.balances.user -= global.constants.stakeMinimum;
-      global.balances.vaultStaking += global.constants.stakeMinimum;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
-
-      // test staking account
-      const stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
-      expect(stake.amount.toNumber()).to.equal(global.constants.stakeMinimum, 'amount');
-      expect(stake.vault.toString()).to.equal(global.accounts.vault.toString(), 'vault');
-      expect(stake.authority.toString()).to.equal(global.accounts.authority.toString(), 'authority');
-      expect(stake.duration.toNumber()).to.equal(global.constants.stakeDurationMin, 'duration');
+      // test stake
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum, 'amount');
+      expect(stake.vault.toString()).to.equal(this.accounts.vault.toString(), 'vault');
+      expect(stake.authority.toString()).to.equal(this.accounts.authority.toString(), 'authority');
+      expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin, 'duration');
       expect(stake.xnos.toNumber()).to.equal(
-        utils.calculateXnos(global.constants.stakeDurationMin, global.constants.stakeMinimum),
+        calculateXnos(this.constants.stakeDurationMin, this.constants.stakeMinimum),
         'xnos'
       );
     });
 
     it('can stake maximum', async function () {
-      await global.stakingProgram.methods
-        .stake(new anchor.BN(global.constants.stakeAmount), new anchor.BN(global.constants.stakeDurationMax))
+      await this.stakingProgram.methods
+        .stake(new anchor.BN(this.constants.stakeAmount), new anchor.BN(this.constants.stakeDurationMax))
         .accounts({
-          ...global.accounts,
-          user: global.users.user4.ata,
-          authority: global.users.user4.publicKey,
-          stake: global.users.user4.stake,
-          vault: global.users.user4.vault,
+          ...this.accounts,
+          user: this.users.user4.ata,
+          authority: this.users.user4.publicKey,
+          stake: this.users.user4.stake,
+          vault: this.users.user4.vault,
         })
-        .signers([global.users.user4.user])
+        .signers([this.users.user4.user])
         .rpc();
-      global.users.user4.balance -= global.constants.stakeAmount;
-      global.balances.vaultStaking += global.constants.stakeAmount;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      this.users.user4.balance -= this.constants.stakeAmount;
+      this.balances.vaultStaking += this.constants.stakeAmount;
     });
 
-    it('Stake for node 1, not enough for jobs', async function () {
-      let amount = global.constants.minimumNodeStake - 1;
-      await global.stakingProgram.methods
-        .stake(new anchor.BN(amount), new anchor.BN(global.constants.stakeDurationMin))
+    it('can stake for node 1', async function () {
+      const amount = this.constants.minimumNodeStake - 1;
+      await this.stakingProgram.methods
+        .stake(new anchor.BN(amount), new anchor.BN(this.constants.stakeDurationMin))
         .accounts({
-          ...global.accounts,
-          user: global.users.node1.ata,
-          authority: global.users.node1.publicKey,
-          stake: global.users.node1.stake,
-          vault: global.users.node1.vault,
+          ...this.accounts,
+          user: this.users.node1.ata,
+          authority: this.users.node1.publicKey,
+          stake: this.users.node1.stake,
+          vault: this.users.node1.vault,
         })
-        .signers([global.users.node1.user])
+        .signers([this.users.node1.user])
         .rpc();
-      global.users.node1.balance -= amount;
-      global.balances.vaultStaking += amount;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      this.users.node1.balance -= amount;
+      this.balances.vaultStaking += amount;
     });
 
-    it('Stake for node 2, and unstake', async function () {
-      await global.stakingProgram.methods
-        .stake(new anchor.BN(global.constants.minimumNodeStake), new anchor.BN(global.constants.stakeDurationMin))
+    it('can stake for node 2, and unstake', async function () {
+      await this.stakingProgram.methods
+        .stake(new anchor.BN(this.constants.minimumNodeStake), new anchor.BN(this.constants.stakeDurationMin))
         .accounts({
-          ...global.accounts,
-          user: global.users.node2.ata,
-          authority: global.users.node2.publicKey,
-          stake: global.users.node2.stake,
-          vault: global.users.node2.vault,
+          ...this.accounts,
+          user: this.users.node2.ata,
+          authority: this.users.node2.publicKey,
+          stake: this.users.node2.stake,
+          vault: this.users.node2.vault,
         })
-        .signers([global.users.node2.user])
+        .signers([this.users.node2.user])
         .rpc();
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .unstake()
         .accounts({
-          ...global.accounts,
-          authority: global.users.node2.publicKey,
-          reward: global.users.node2.reward,
-          stake: global.users.node2.stake,
+          ...this.accounts,
+          authority: this.users.node2.publicKey,
+          reward: this.users.node2.reward,
+          stake: this.users.node2.stake,
         })
-        .signers([global.users.node2.user])
+        .signers([this.users.node2.user])
         .rpc();
-      global.users.node2.balance -= global.constants.minimumNodeStake;
-      global.balances.vaultStaking += global.constants.minimumNodeStake;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      this.users.node2.balance -= this.constants.minimumNodeStake;
+      this.balances.vaultStaking += this.constants.minimumNodeStake;
     });
 
-    it('Stake for other nodes', async function () {
-      await Promise.all(
-        global.users.otherNodes.map(async (n) => {
-          await global.stakingProgram.methods
-            .stake(
-              new anchor.BN(global.constants.stakeAmount * 2),
-              new anchor.BN(3 * global.constants.stakeDurationMin)
-            )
-            .accounts({
-              ...global.accounts,
-              user: n.ata,
-              authority: n.publicKey,
-              stake: n.stake,
-              vault: n.vault,
-            })
-            .signers([n.user])
-            .rpc();
-          global.balances.vaultStaking += global.constants.stakeAmount * 2;
-          n.balance -= global.constants.stakeAmount * 2;
-          expect(await utils.getTokenBalance(global.provider, n.ata)).to.equal(n.balance);
-        })
-      );
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+    it('can stake for other nodes', async function () {
+      for (const node of this.users.otherNodes) {
+        await this.stakingProgram.methods
+          .stake(new anchor.BN(this.constants.stakeAmount * 2), new anchor.BN(3 * this.constants.stakeDurationMin))
+          .accounts({
+            ...this.accounts,
+            user: node.ata,
+            authority: node.publicKey,
+            stake: node.stake,
+            vault: node.vault,
+          })
+          .signers([node.user])
+          .rpc();
+        this.balances.vaultStaking += this.constants.stakeAmount * 2;
+        node.balance -= this.constants.stakeAmount * 2;
+        expect(await getTokenBalance(this.provider, node.ata)).to.equal(node.balance);
+      }
     });
   });
 
   describe('extend()', async function () {
-    it('can not extend with negative duration', async function () {
-      const accountBefore = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
-      await global.stakingProgram.methods.extend(new anchor.BN(-7)).accounts(global.accounts).rpc();
-      const accountAfter = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
+    it('can extend with negative duration', async function () {
+      const accountBefore = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      await this.stakingProgram.methods.extend(new anchor.BN(-7)).accounts(this.accounts).rpc();
+      const accountAfter = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
       expect(accountAfter.duration.toNumber()).to.equal(accountBefore.duration.toNumber() + 7);
     });
 
-    it('Extend a stake too long', async function () {
+    it('can not extend a stake that is too long', async function () {
       let msg = '';
-      await global.stakingProgram.methods
-        .extend(new anchor.BN(global.constants.stakeDurationMax))
-        .accounts(global.accounts)
+      await this.stakingProgram.methods
+        .extend(new anchor.BN(this.constants.stakeDurationMax))
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeDurationTooLong);
+      expect(msg).to.equal(this.constants.errors.StakeDurationTooLong);
     });
 
-    it('Extend a stake', async function () {
-      await global.stakingProgram.methods
-        .extend(new anchor.BN(global.constants.stakeDurationMin))
-        .accounts(global.accounts)
+    it('can extend a stake', async function () {
+      await this.stakingProgram.methods
+        .extend(new anchor.BN(this.constants.stakeDurationMin))
+        .accounts(this.accounts)
         .rpc();
 
       // check stake
-      const stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
-      expect(stake.duration.toNumber()).to.equal(global.constants.stakeDurationMin * 2 + 7);
-      expect(stake.amount.toNumber()).to.equal(global.constants.stakeMinimum);
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin * 2 + 7);
+      expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum);
       expect(stake.xnos.toNumber()).to.equal(
-        utils.calculateXnos(global.constants.stakeDurationMin * 2 + 7, global.constants.stakeMinimum),
+        calculateXnos(this.constants.stakeDurationMin * 2 + 7, this.constants.stakeMinimum),
         'xnos'
       );
     });
   });
 
   describe('unstake()', async function () {
-    it('Unstake from other account', async function () {
+    it('can unstake from other account', async function () {
       let msg = '';
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .unstake()
-        .accounts({ ...global.accounts, authority: global.users.user3.publicKey })
-        .signers([global.users.user3.user])
+        .accounts({ ...this.accounts, authority: this.users.user3.publicKey })
+        .signers([this.users.user3.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.Unauthorized);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
-    it('Can not unstake with invalid reward account', async function () {
+    it('can not unstake with invalid reward account', async function () {
       let msg = '';
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .unstake()
         .accounts({
-          ...global.accounts,
+          ...this.accounts,
           reward: anchor.web3.Keypair.generate().publicKey,
         })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeDoesNotMatchReward);
+      expect(msg).to.equal(this.constants.errors.StakeDoesNotMatchReward);
 
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .unstake()
         .accounts({
-          ...global.accounts,
-          reward: global.accounts.stake,
+          ...this.accounts,
+          reward: this.accounts.stake,
         })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeHasReward);
+      expect(msg).to.equal(this.constants.errors.StakeHasReward);
     });
 
-    it('Can unstake', async function () {
-      await global.stakingProgram.methods.unstake().accounts(global.accounts).rpc();
-      const data = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
-      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 2);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+    it('can unstake', async function () {
+      await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
+      const data = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 3);
 
       // check stake
-      const stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
       expect(stake.xnos.toNumber()).to.equal(0);
     });
   });
 
   describe('topup(), restake()', async function () {
-    it('Topup after unstake', async function () {
+    it('can not topup after unstake', async function () {
       let msg = '';
-      await global.stakingProgram.methods
-        .topup(new anchor.BN(global.constants.stakeAmount))
-        .accounts(global.accounts)
+      await this.stakingProgram.methods
+        .topup(new anchor.BN(this.constants.stakeAmount))
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeAlreadyUnstaked);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.StakeAlreadyUnstaked);
     });
 
-    it('Restake', async function () {
-      await global.stakingProgram.methods.restake().accounts(global.accounts).rpc();
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+    it('can restake', async function () {
+      await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
     });
 
-    it('Topup', async function () {
-      await global.stakingProgram.methods
-        .topup(new anchor.BN(global.constants.stakeAmount))
-        .accounts(global.accounts)
-        .rpc();
-      global.balances.user -= global.constants.stakeAmount;
-      global.balances.vaultStaking += global.constants.stakeAmount;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+    it('can topup', async function () {
+      await this.stakingProgram.methods.topup(new anchor.BN(this.constants.stakeAmount)).accounts(this.accounts).rpc();
+      this.balances.user -= this.constants.stakeAmount;
+      this.balances.vaultStaking += this.constants.stakeAmount;
 
       // check stake
-      const stake = await global.stakingProgram.account.stakeAccount.fetch(global.accounts.stake);
-      expect(stake.duration.toNumber()).to.equal(global.constants.stakeDurationMin * 2 + 7, 'duration');
-      expect(stake.amount.toNumber()).to.equal(global.constants.stakeMinimum + global.constants.stakeAmount, 'amount');
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin * 2 + 7, 'duration');
+      expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum + this.constants.stakeAmount, 'amount');
       expect(stake.xnos.toNumber()).to.equal(
-        utils.calculateXnos(
-          global.constants.stakeDurationMin * 2 + 7,
-          global.constants.stakeMinimum + global.constants.stakeAmount
+        calculateXnos(
+          this.constants.stakeDurationMin * 2 + 7,
+          this.constants.stakeMinimum + this.constants.stakeAmount
         ),
         'xnos'
       );
@@ -284,28 +260,26 @@ export default function suite() {
   });
 
   describe('claim()', async function () {
-    it('Claim before unstake', async function () {
+    it('can not claim before unstake', async function () {
       let msg = '';
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .claim()
-        .accounts(global.accounts)
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeNotUnstaked);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.StakeNotUnstaked);
     });
 
-    it('Claim after too soon unstake', async function () {
-      await global.stakingProgram.methods.unstake().accounts(global.accounts).rpc();
+    it('can not claim after too soon unstake', async function () {
+      await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
       let msg = '';
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .claim()
-        .accounts(global.accounts)
+        .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.StakeLocked);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
-      await global.stakingProgram.methods.restake().accounts(global.accounts).rpc();
+      expect(msg).to.equal(this.constants.errors.StakeLocked);
+      await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
     });
 
     //
@@ -313,108 +287,106 @@ export default function suite() {
     //
     //          constraint = stake.time_unstake + i64::try_from(5).unwrap() <
     //                                                          ^
+
     /*
-      it('Claim after unstake duration', async function () {
-      let balanceBefore = await utils.getTokenBalance(global.provider, global.users.node2.ata);
-      await utils.sleep(5000);
-      await global.stakingProgram.methods
-      .claim()
-      .accounts({
-      ...global.accounts,
-      user: global.users.node2.ata,
-      stake: global.users.node2.stake,
-      authority: global.users.node2.publicKey,
-      vault: global.users.node2.vault,
-      })
-      .signers([global.users.node2.user])
-      .rpc();
-      let balanceAfter = await utils.getTokenBalance(global.provider, global.users.node2.ata);
-      expect(balanceAfter).to.equal(balanceBefore + global.constants.stakeAmount);
-      });
-    */
+    it('Claim after unstake duration', async function () {
+      let balanceBefore = await getTokenBalance(this.provider, this.users.node2.ata);
+      await sleep(5000);
+      await this.stakingProgram.methods
+        .claim()
+        .accounts({
+          ...this.accounts,
+          user: this.users.node2.ata,
+          stake: this.users.node2.stake,
+          authority: this.users.node2.publicKey,
+          vault: this.users.node2.vault,
+        })
+        .signers([this.users.node2.user])
+        .rpc();
+      let balanceAfter = await getTokenBalance(this.provider, this.users.node2.ata);
+      expect(balanceAfter).to.equal(balanceBefore + this.constants.stakeAmount);
+    });
+
+     */
   });
 
   describe('slash(), update_authority()', async function () {
-    it('Slash', async function () {
-      const stakeBefore = await global.stakingProgram.account.stakeAccount.fetch(global.users.nodes[2].stake);
+    it('can slash', async function () {
+      const stakeBefore = await this.stakingProgram.account.stakeAccount.fetch(this.users.nodes[2].stake);
 
-      await global.stakingProgram.methods
-        .slash(new anchor.BN(global.constants.slashAmount))
+      await this.stakingProgram.methods
+        .slash(new anchor.BN(this.constants.slashAmount))
         .accounts({
-          ...global.accounts,
-          stake: global.users.nodes[2].stake,
-          vault: global.users.nodes[2].vault,
+          ...this.accounts,
+          stake: this.users.nodes[2].stake,
+          vault: this.users.nodes[2].vault,
         })
         .rpc();
 
-      global.balances.user += global.constants.slashAmount;
-      global.balances.vaultStaking -= global.constants.slashAmount;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
-      const stakeAfter = await global.stakingProgram.account.stakeAccount.fetch(global.users.nodes[2].stake);
-      expect(stakeAfter.amount.toNumber()).to.equal(stakeBefore.amount.toNumber() - global.constants.slashAmount);
+      this.balances.user += this.constants.slashAmount;
+      this.balances.vaultStaking -= this.constants.slashAmount;
+      const stakeAfter = await this.stakingProgram.account.stakeAccount.fetch(this.users.nodes[2].stake);
+      expect(stakeAfter.amount.toNumber()).to.equal(stakeBefore.amount.toNumber() - this.constants.slashAmount);
     });
 
     it('can not slash unauthorized', async function () {
       let msg = '';
-      await global.stakingProgram.methods
-        .slash(new anchor.BN(global.constants.slashAmount))
-        .accounts({ ...global.accounts, authority: global.users.node1.publicKey })
-        .signers([global.users.node1.user])
+      await this.stakingProgram.methods
+        .slash(new anchor.BN(this.constants.slashAmount))
+        .accounts({ ...this.accounts, authority: this.users.node1.publicKey })
+        .signers([this.users.node1.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.Unauthorized);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
     it('can not slash unauthorized hack 2', async function () {
       let msg = '';
-      await global.stakingProgram.methods
-        .slash(new anchor.BN(global.constants.slashAmount))
-        .accounts({ ...global.accounts, settings: global.accounts.stake })
+      await this.stakingProgram.methods
+        .slash(new anchor.BN(this.constants.slashAmount))
+        .accounts({ ...this.accounts, settings: this.accounts.stake })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(global.constants.errors.Solana8ByteConstraint);
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      expect(msg).to.equal(this.constants.errors.Solana8ByteConstraint);
     });
 
     it('can update slash authority', async function () {
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .updateAuthority()
-        .accounts({ ...global.accounts, newAuthority: global.users.node1.publicKey })
+        .accounts({ ...this.accounts, newAuthority: this.users.node1.publicKey })
         .rpc();
-      const stats = await global.stakingProgram.account.settingsAccount.fetch(global.accounts.settings);
-      expect(stats.authority.toString()).to.equal(global.users.node1.publicKey.toString());
+      const stats = await this.stakingProgram.account.settingsAccount.fetch(this.accounts.settings);
+      expect(stats.authority.toString()).to.equal(this.users.node1.publicKey.toString());
     });
 
     it('can slash with node 1', async function () {
-      await global.stakingProgram.methods
-        .slash(new anchor.BN(global.constants.slashAmount))
+      await this.stakingProgram.methods
+        .slash(new anchor.BN(this.constants.slashAmount))
         .accounts({
-          ...global.accounts,
-          stake: global.users.nodes[2].stake,
-          authority: global.users.node1.publicKey,
-          vault: global.users.nodes[2].vault,
+          ...this.accounts,
+          stake: this.users.nodes[2].stake,
+          authority: this.users.node1.publicKey,
+          vault: this.users.nodes[2].vault,
         })
-        .signers([global.users.node1.user])
+        .signers([this.users.node1.user])
         .rpc();
 
-      global.balances.user += global.constants.slashAmount;
-      global.balances.vaultStaking -= global.constants.slashAmount;
-      await utils.assertBalancesStaking(global.provider, global.ata, global.balances);
+      this.balances.user += this.constants.slashAmount;
+      this.balances.vaultStaking -= this.constants.slashAmount;
     });
 
     it('can update settings authority back', async function () {
-      await global.stakingProgram.methods
+      await this.stakingProgram.methods
         .updateAuthority()
         .accounts({
-          ...global.accounts,
-          authority: global.users.node1.publicKey,
-          newAuthority: global.accounts.authority,
+          ...this.accounts,
+          authority: this.users.node1.publicKey,
+          newAuthority: this.accounts.authority,
         })
-        .signers([global.users.node1.user])
+        .signers([this.users.node1.user])
         .rpc();
-      const stats = await global.stakingProgram.account.settingsAccount.fetch(global.accounts.settings);
-      expect(stats.authority.toString()).to.equal(global.accounts.authority.toString());
+      const stats = await this.stakingProgram.account.settingsAccount.fetch(this.accounts.settings);
+      expect(stats.authority.toString()).to.equal(this.accounts.authority.toString());
     });
   });
 }

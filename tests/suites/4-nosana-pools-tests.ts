@@ -1,129 +1,142 @@
-import { getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 import * as anchor from '@project-serum/anchor';
 import { BN } from '@project-serum/anchor';
 import { expect } from 'chai';
-import * as utils from '../utils';
-import { getTokenBalance, sleep } from '../utils';
-import { afterEach } from 'mocha';
+import { getTokenBalance, pda, sleep, now } from '../utils';
+import { afterEach, Context } from 'mocha';
+import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { transfer } from '@solana/spl-token';
 
-const now = function () {
-  return Math.floor(Date.now() / 1e3);
-};
+/**
+ * Function to add additional funds to the vault from the pool
+ * @param mochaContext
+ * @param amount
+ */
+async function fundPool(mochaContext: Context, amount: number) {
+  await transfer(
+    mochaContext.connection,
+    mochaContext.payer,
+    mochaContext.accounts.user,
+    mochaContext.vaults.pools,
+    mochaContext.payer,
+    amount
+  );
+  mochaContext.balances.user -= amount;
+  mochaContext.balances.vaultPool += amount;
+}
 
+/**
+ * Function to fetch the pool account
+ * @param mochaContext
+ */
+async function getPool(mochaContext: Context) {
+  return await mochaContext.poolsProgram.account.poolAccount.fetch(mochaContext.accounts.pool);
+}
+
+/**
+ *
+ */
 export default function suite() {
-  before(async function () {
-    this.pool = anchor.web3.Keypair.generate();
-    [this.poolVault] = await anchor.web3.PublicKey.findProgramAddress(
-      [utils.utf8_encode('vault'), this.pool.publicKey.toBuffer()],
-      global.poolsProgram.programId
-    );
-
-    // helper to add funds to the pool
-    this.fundPool = async function (amount) {
-      await transfer(
-        global.connection,
-        global.payer,
-        await getAssociatedTokenAddress(global.accounts.mint, global.wallet.publicKey),
-        this.poolVault,
-        global.payer,
-        amount
-      );
-      global.balances.user -= amount;
-      this.amount += amount;
-    };
-
-    this.getPool = async function () {
-      return await global.poolsProgram.account.poolAccount.fetch(this.pool.publicKey);
-    };
-
-    this.emission = 20;
-    this.amount = 0;
-  });
-
   beforeEach(async function () {
-    global.accounts.pool = this.pool.publicKey;
-    global.accounts.vault = this.poolVault;
-
-    global.accounts.rewardsStats = global.stats.rewards;
-    global.accounts.rewardsVault = global.ata.vaultRewards;
-    global.accounts.rewardsProgram = global.rewardsProgram.programId;
-
-    global.accounts.beneficiary = global.ata.vaultRewards;
-
-    this.rewardsBalanceBefore = await getTokenBalance(global.provider, global.ata.vaultRewards);
+    if (!this.poolClosed) this.poolsBalanceBefore = await getTokenBalance(this.provider, this.vaults.pools);
+    this.rewardsBalanceBefore = await getTokenBalance(this.provider, this.vaults.rewards);
   });
 
   afterEach(async function () {
-    expect(await getTokenBalance(global.provider, global.ata.user)).to.equal(global.balances.user, 'user');
+    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user, 'user');
+    if (!this.poolClosed)
+      expect(await getTokenBalance(this.provider, this.vaults.pools)).to.equal(this.balances.vaultPool, 'vaultPool');
+    expect(await getTokenBalance(this.provider, this.vaults.rewards)).to.equal(
+      this.balances.vaultRewards,
+      'vaultRewards'
+    );
   });
 
-  it('can open a pool', async function () {
-    // start pool 3 second ago
-    let startTime = now() - 3;
+  describe('open()', async function () {
+    it('can open a pool', async function () {
+      // define pool account
+      const throwAwayKeypair = anchor.web3.Keypair.generate();
+      this.accounts.pool = throwAwayKeypair.publicKey;
+      this.vaults.pools = await pda([utf8.encode('vault'), this.accounts.pool.toBuffer()], this.poolsProgram.programId);
+      this.accounts.vault = this.vaults.pools;
+      this.poolClosed = false;
 
-    await global.poolsProgram.methods
-      .open(new BN(this.emission), new BN(startTime), 1, true)
-      .accounts(global.accounts)
-      .signers([this.pool])
-      .rpc();
+      // start pool 3 second ago
+      const startTime = now() - 3;
 
-    const pool = await this.getPool();
+      // open pool
+      await this.poolsProgram.methods
+        .open(new BN(this.constants.emission), new BN(startTime), this.constants.claimType.addFee, true)
+        .accounts(this.accounts)
+        .signers([throwAwayKeypair])
+        .rpc();
 
-    expect(pool.emission.toNumber()).to.equal(this.emission);
-    expect(pool.startTime.toNumber()).to.equal(startTime);
-    expect(pool.claimedTokens.toNumber()).to.equal(0);
-    expect(pool.closeable).to.equal(true);
+      // test pool
+      const pool = await getPool(this);
+      expect(pool.emission.toNumber()).to.equal(this.constants.emission);
+      expect(pool.startTime.toNumber()).to.equal(startTime);
+      expect(pool.claimedTokens.toNumber()).to.equal(0);
+      expect(pool.closeable).to.equal(true);
+    });
   });
 
-  it('can fill pool vault', async function () {
-    await this.fundPool(14);
-    expect(await getTokenBalance(global.provider, this.poolVault)).to.equal(this.amount);
+  describe('claim_fee()', async function () {
+    it('can fill pool vault', async function () {
+      await fundPool(this, 14);
+    });
+
+    it('can claim underfunded', async function () {
+      await this.poolsProgram.methods.claimFee().accounts(this.accounts).rpc();
+      expect(this.rewardsBalanceBefore).to.equal(await getTokenBalance(this.provider, this.vaults.rewards));
+    });
+
+    it('can claim a multiple of emission', async function () {
+      await fundPool(this, this.constants.emission * 3);
+      await this.poolsProgram.methods.claimFee().accounts(this.accounts).rpc();
+      const rewardsBalanceAfter = await getTokenBalance(this.provider, this.vaults.rewards);
+      expect(this.rewardsBalanceBefore).to.be.lessThan(rewardsBalanceAfter, 'rewards have increased');
+
+      // update balances
+      const reward = rewardsBalanceAfter - this.rewardsBalanceBefore;
+      this.balances.vaultRewards += reward;
+      this.balances.vaultPool -= reward;
+    });
+
+    it('can claim for full elapsed time', async function () {
+      const poolsBalanceBefore = await getTokenBalance(this.provider, this.vaults.pools);
+
+      // fund for 3 seconds
+      await fundPool(this, this.constants.emission * 3);
+      const pool = await getPool(this);
+
+      // sleep at least 5 second
+      await sleep(5000);
+      const elapsed = now() - pool.startTime.toNumber();
+      expect(elapsed).to.be.above(1);
+
+      // claim fee
+      await this.poolsProgram.methods.claimFee().accounts(this.accounts).rpc();
+
+      // determine reward
+      const reward = (await getTokenBalance(this.provider, this.vaults.rewards)) - this.rewardsBalanceBefore;
+      expect(reward).to.equal(this.constants.emission * 3 + poolsBalanceBefore);
+      this.balances.vaultRewards += reward;
+      this.balances.vaultPool -= reward;
+    });
   });
 
-  it('can not claim underfunded', async function () {
-    let msg = '';
-    await global.poolsProgram.methods
-      .claimFee()
-      .accounts(global.accounts)
-      .rpc()
-      .catch((e) => (msg = e.error.errorMessage));
-    expect(msg).to.equal('');
+  describe('claim_transfer()', async function () {
+    it('can claim a transfer', async function () {
+      console.log('        ❌ TODO!!');
+    });
   });
 
-  it('can claim a multiple of emission', async function () {
-    await this.fundPool(this.emission * 3);
-
-    await sleep(5000);
-
-    expect(await getTokenBalance(global.provider, this.poolVault)).to.equal(this.amount, 'vault balance');
-
-    await global.poolsProgram.methods.claimFee().accounts(global.accounts).rpc();
-    expect(await getTokenBalance(global.provider, this.poolVault)).to.equal(0);
-  });
-
-  it('can claim for full elapsed time', async function () {
-    // fund for 5 seconds
-    await this.fundPool(this.emission * 5);
-
-    let pool = await this.getPool();
-
-    // sleep at least 1 second
-    await utils.sleep(1000);
-
-    let elapsed = now() - pool.startTime;
-    expect(elapsed).to.be.above(1);
-    await global.poolsProgram.methods.claimFee().accounts(global.accounts).rpc();
-
-    const after = await getTokenBalance(global.provider, global.ata.vaultRewards);
-    let claimed = after - this.rewardsBalanceBefore;
-
-    // allow a second of drift
-    expect(claimed).to.equal(this.emission * 5);
-  });
-
-  it('can close', async function () {
-    const amount = await getTokenBalance(global.provider, this.poolVault);
-    global.balances.user += amount;
-    await global.poolsProgram.methods.close().accounts(global.accounts).rpc();
+  describe('close()', async function () {
+    it('can close a pool', async function () {
+      const amount = await getTokenBalance(this.provider, this.accounts.vault);
+      await this.poolsProgram.methods.close().accounts(this.accounts).rpc();
+      this.balances.user += amount;
+      this.balances.vaultPool -= amount;
+      this.poolClosed = true;
+    });
   });
 }
