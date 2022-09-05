@@ -18,6 +18,7 @@ import jobTests from './suites/5-nosana-jobs-tests';
 
 // local test scenarios
 import rewardScenario from './suites/scenario/rewards-tests';
+import claimTransferScenario from './suites/scenario/claim-transfer-tests';
 
 // types
 import { NosanaAccounts, NosanaVaults } from './types/nosana';
@@ -59,7 +60,7 @@ describe('nosana programs', async function () {
     this.total = { xnos: new BN(0), reflection: new BN(0), rate: constants.initialRate };
     this.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
     this.nodes = { node1: null, node2: null, otherNodes: null };
-    this.balances = { user: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
+    this.balances = { user: 0, beneficiary: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
     this.poolClosed = true;
 
     // token vaults public keys
@@ -104,6 +105,10 @@ describe('nosana programs', async function () {
       describe('rewards', rewardTests);
       describe('pools', poolTests);
       describe('jobs', jobTests);
+      break;
+    case 'claim-transfer':
+      describe('initialization', initTests);
+      describe('claim-transfer-scenario', claimTransferScenario);
       break;
     case 'jobs':
       describe('initialization', initTests);

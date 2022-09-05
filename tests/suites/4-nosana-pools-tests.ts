@@ -124,12 +124,6 @@ export default function suite() {
     });
   });
 
-  describe('claim_transfer()', async function () {
-    it('can claim a transfer', async function () {
-      console.log('        ❌ TODO!!');
-    });
-  });
-
   describe('close()', async function () {
     it('can close a pool', async function () {
       const amount = await getTokenBalance(this.provider, this.accounts.vault);
