@@ -39,7 +39,12 @@ async function main() {
 
   // open pool
   let tx = await program.methods
-    .open(new BN(vestingConfig.emission), new BN(vestingConfig.startTime), vestingConfig.claimType, vestingConfig.closeable)
+    .open(
+      new BN(vestingConfig.emission),
+      new BN(vestingConfig.startTime),
+      vestingConfig.claimType,
+      vestingConfig.closeable
+    )
     .accounts(accounts)
     .signers([throwAwayKeypair])
     .rpc();
