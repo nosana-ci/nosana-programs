@@ -3,22 +3,23 @@ import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID, transfer } from '@solana/spl-token';
 import { pda } from '../tests/utils';
-import poolConfig = require('../tests/data/vesting.json');
+import vestingConfig = require('../tests/data/vesting.json');
 // @ts-ignore
 import { NosanaPools } from '../target/types/nosana_pools';
 
 async function main() {
   // anchor
   const provider = AnchorProvider.env();
-  const wallet = provider.wallet as Wallet;
   setProvider(provider);
+  const wallet = provider.wallet as Wallet;
 
   // pool config
   const throwAwayKeypair = Keypair.generate();
 
   // public keys
-  const mint = new PublicKey(poolConfig.mint);
+  const mint = new PublicKey(vestingConfig.mint);
   const poolsId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
+  const beneficiary = new PublicKey(vestingConfig.beneficiary);
 
   // program
   const idl = (await Program.fetchIdl(poolsId.toString())) as Idl;
@@ -27,7 +28,7 @@ async function main() {
   // PDAs
   const accounts = {
     authority: wallet.publicKey,
-    beneficiary: await getAssociatedTokenAddress(mint, new PublicKey(poolConfig.beneficiary)),
+    beneficiary: await getAssociatedTokenAddress(mint, beneficiary),
     mint,
     pool: throwAwayKeypair.publicKey,
     rent: web3.SYSVAR_RENT_PUBKEY,
@@ -38,7 +39,7 @@ async function main() {
 
   // open pool
   let tx = await program.methods
-    .open(new BN(poolConfig.emission), new BN(poolConfig.startTime), poolConfig.claimType, poolConfig.closeable)
+    .open(new BN(vestingConfig.emission), new BN(vestingConfig.startTime), vestingConfig.claimType, vestingConfig.closeable)
     .accounts(accounts)
     .signers([throwAwayKeypair])
     .rpc();
