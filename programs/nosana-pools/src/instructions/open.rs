@@ -18,6 +18,7 @@ pub struct Open<'info> {
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
+    #[account(token::mint = mint)]
     pub beneficiary: Account<'info, TokenAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
