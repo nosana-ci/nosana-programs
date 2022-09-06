@@ -18,7 +18,6 @@ pub struct Open<'info> {
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
-    #[account(mut)]
     pub beneficiary: Account<'info, TokenAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
