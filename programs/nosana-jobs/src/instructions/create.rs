@@ -3,11 +3,11 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Create<'info> {
-    #[account(init, payer = fee_payer, space = JOB_SIZE)]
-    pub job: Account<'info, JobAccount>,
-    #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
-    pub project: Account<'info, ProjectAccount>,
-    #[account(mut, seeds = [ id::TST_TOKEN.as_ref() ], bump)]
+    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
+    pub queue: Account<'info, JobsAccount>,
+    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
+    pub running: Account<'info, JobsAccount>,
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
@@ -19,11 +19,19 @@ pub struct Create<'info> {
 }
 
 pub fn handler(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
-    // create job
-    (&mut ctx.accounts.job).create(data, amount);
+    // retrieve job
+    let job: &mut Job = &mut ctx.accounts.queue.get_job(RequesterType::Project as u8);
 
-    // add job to the project
-    (&mut ctx.accounts.project).add_job(ctx.accounts.job.key());
+    // create job
+    job.create(ctx.accounts.authority.key(), amount, data);
+
+    // check if there is a node ready
+    (if job.has_node() {
+        &mut ctx.accounts.running
+    } else {
+        &mut ctx.accounts.queue
+    })
+    .add_job(job.copy());
 
     // finish
     transfer(

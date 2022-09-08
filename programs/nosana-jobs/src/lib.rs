@@ -1,3 +1,5 @@
+extern crate core;
+
 mod instructions;
 mod security;
 mod state;
@@ -13,16 +15,8 @@ declare_id!(id::JOBS_PROGRAM);
 pub mod nosana_jobs {
     use super::*;
 
-    pub fn init(_ctx: Context<Init>) -> Result<()> {
-        init::handler()
-    }
-
-    pub fn start(ctx: Context<Start>) -> Result<()> {
-        start::handler(ctx)
-    }
-
-    pub fn stop(_ctx: Context<Stop>) -> Result<()> {
-        stop::handler()
+    pub fn init(ctx: Context<Init>, job_size: u8) -> Result<()> {
+        init::handler(ctx, job_size)
     }
 
     pub fn create(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
@@ -33,19 +27,7 @@ pub mod nosana_jobs {
         claim::handler(ctx)
     }
 
-    pub fn close(ctx: Context<Close>) -> Result<()> {
-        close::handler(ctx)
-    }
-
-    pub fn reclaim(ctx: Context<Reclaim>) -> Result<()> {
-        reclaim::handler(ctx)
-    }
-
     pub fn finish(ctx: Context<Finish>, data: [u8; 32]) -> Result<()> {
         finish::handler(ctx, data)
-    }
-
-    pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
-        cancel::handler(ctx)
     }
 }

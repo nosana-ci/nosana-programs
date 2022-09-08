@@ -8,17 +8,16 @@ use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
+    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
+    pub queue: Account<'info, JobsAccount>,
+    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
+    pub running: Account<'info, JobsAccount>,
     #[account(mut)]
-    pub project: Account<'info, ProjectAccount>,
-    #[account(
-        mut,
-        constraint = job.job_status == JobStatus::Initialized as u8 @ NosanaError::JobNotInitialized
-    )]
-    pub job: Account<'info, JobAccount>,
+    pub vault: Account<'info, TokenAccount>,
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.amount >= 10_000 * constants::NOS_DECIMALS @ NosanaError::NodeNotEnoughStake,
+        constraint = stake.amount >= NODE_STAKE_MINIMUM @ NosanaError::NodeNotEnoughStake,
         constraint = stake.time_unstake == 0 @ NosanaError::NodeNoStake,
     )]
     pub stake: Account<'info, StakeAccount>,
@@ -38,9 +37,20 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
         NosanaError::NodeNftWrongCollection
     );
 
-    // get job and claim it
-    (&mut ctx.accounts.job).claim(ctx.accounts.authority.key(), Clock::get()?.unix_timestamp);
+    // retrieve job
+    let job: &mut Job = &mut ctx.accounts.queue.get_job(RequesterType::Node as u8);
 
-    // get project and remove the job from the list
-    (&mut ctx.accounts.project).remove_job(&ctx.accounts.job.key())
+    // claim job
+    job.claim(Clock::get()?.unix_timestamp, ctx.accounts.authority.key());
+
+    // check if there is a node ready
+    (if job.has_data() {
+        &mut ctx.accounts.running
+    } else {
+        &mut ctx.accounts.queue
+    })
+    .add_job(job.copy());
+
+    // finish
+    Ok(())
 }

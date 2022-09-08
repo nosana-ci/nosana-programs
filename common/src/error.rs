@@ -49,6 +49,8 @@ pub enum NosanaError {
     JobNotTimedOut,
     #[msg("This job queue not found.")]
     JobQueueNotFound,
+    #[msg("This jobs account has an invalid vault.")]
+    JobInvalidVault,
 
     // node errors
     #[msg("This nodes' stake has been unstaked.")]

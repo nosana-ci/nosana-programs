@@ -3,11 +3,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Open<'info> {
-    #[account(
-        init,
-        payer = authority,
-        space = POOL_SIZE,
-    )]
+    #[account(init, payer = authority, space = POOL_SIZE)]
     pub pool: Account<'info, PoolAccount>,
     #[account(
         init,
