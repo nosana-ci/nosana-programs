@@ -3,10 +3,10 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Create<'info> {
+    #[account(init, payer = fee_payer, space = JOB_SIZE)]
+    pub job: Account<'info, JobAccount>,
     #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
-    pub queue: Account<'info, JobsAccount>,
-    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
-    pub running: Account<'info, JobsAccount>,
+    pub nodes: Account<'info, NodesAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -18,22 +18,23 @@ pub struct Create<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
-    // retrieve job
-    let job: &mut Job = &mut ctx.accounts.queue.get_job(RequesterType::Project as u8);
+pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
+    // create empty job
+    let job: &mut JobAccount = &mut ctx.accounts.job;
+    job.create(
+        ctx.accounts.authority.key(),
+        ipfs_job,
+        ctx.accounts.nodes.job_price,
+        ctx.accounts.vault.key(),
+    );
 
-    // create job
-    job.create(ctx.accounts.authority.key(), amount, data);
+    // there might be a node ready to claim this job immediately
+    let node: Pubkey = ctx.accounts.nodes.get();
+    if node != id::SYSTEM_PROGRAM {
+        job.claim(Clock::get()?.unix_timestamp, node);
+    }
 
-    // check if there is a node ready
-    (if job.has_node() {
-        &mut ctx.accounts.running
-    } else {
-        &mut ctx.accounts.queue
-    })
-    .add_job(job.copy());
-
-    // finish
+    // deposit tokens
     transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -43,6 +44,6 @@ pub fn handler(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> 
                 authority: ctx.accounts.authority.to_account_info(),
             },
         ),
-        amount,
+        job.tokens,
     )
 }

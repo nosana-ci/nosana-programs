@@ -3,8 +3,13 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Finish<'info> {
-    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
-    pub running: Account<'info, JobsAccount>,
+    #[account(
+        mut,
+        has_one = vault @ NosanaError::JobInvalidVault,
+        constraint = job.node == authority.key() @ NosanaError::Unauthorized,
+        constraint = job.status == JobStatus::Running as u8 @ NosanaError::Unauthorized
+    )]
+    pub job: Account<'info, JobAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -13,12 +18,10 @@ pub struct Finish<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Finish>, _data: [u8; 32]) -> Result<()> {
+pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
     // get job and finish it
-    let job: Job = ctx
-        .accounts
-        .running
-        .finish_job(ctx.accounts.authority.key());
+    let job: &mut JobAccount = &mut ctx.accounts.job;
+    job.finish(ipfs_result, Clock::get()?.unix_timestamp);
 
     // payout tokens
     transfer(
