@@ -5,11 +5,11 @@ use std::mem::size_of;
 /// # Constants
 
 pub const NODE_STAKE_MINIMUM: u64 = 10_000 * constants::NOS_DECIMALS;
-pub const QUEUE_LENGTH: usize = 1_000;
 
 /// # NodesAccount
 
-pub const QUEUE_SIZE: usize = 8 + size_of::<NodesAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
+pub const QUEUE_LENGTH: usize = 1_000;
+pub const NODES_SIZE: usize = 8 + size_of::<NodesAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
 
 #[account]
 pub struct NodesAccount {
@@ -17,7 +17,7 @@ pub struct NodesAccount {
     pub job_timeout: i64,
     pub job_type: u8,
     pub vault: Pubkey,
-    pub accounts: Vec<Pubkey>,
+    pub nodes: Vec<Pubkey>,
 }
 
 impl NodesAccount {
@@ -26,32 +26,30 @@ impl NodesAccount {
         self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.vault = vault;
-        self.accounts = Vec::new();
+        self.nodes = Vec::new();
     }
 
-    pub fn enter(&mut self, account: Pubkey) {
-        if self.find(&account).is_none() {
-            self.accounts.push(account)
+    pub fn enter(&mut self, node: Pubkey) {
+        if self.find(&node).is_none() {
+            self.nodes.push(node)
         };
     }
 
     pub fn get(&mut self) -> Pubkey {
-        if self.accounts.is_empty() {
+        if self.nodes.is_empty() {
             id::SYSTEM_PROGRAM
         } else {
-            self.accounts.pop().unwrap()
+            self.nodes.pop().unwrap()
         }
     }
 
-    pub fn find(&mut self, account: &Pubkey) -> Option<usize> {
-        self.accounts
-            .iter()
-            .position(|pubkey: &Pubkey| pubkey == account)
+    pub fn find(&mut self, node: &Pubkey) -> Option<usize> {
+        self.nodes.iter().position(|item: &Pubkey| item == node)
     }
 
-    pub fn exit(&mut self, account: &Pubkey) {
-        let index: Option<usize> = self.find(account);
-        self.accounts.remove(index.unwrap());
+    pub fn exit(&mut self, node: &Pubkey) {
+        let index: Option<usize> = self.find(node);
+        self.nodes.remove(index.unwrap());
     }
 }
 
