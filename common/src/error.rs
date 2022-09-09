@@ -49,9 +49,9 @@ pub enum NosanaError {
     JobNotTimedOut,
     #[msg("This job queue not found.")]
     JobQueueNotFound,
-    #[msg("This jobs account has an invalid vault.")]
+    #[msg("This account has an invalid vault.")]
     JobInvalidVault,
-    #[msg("This jobs adoes not have the right state.")]
+    #[msg("This job does not have the right status.")]
     JobInWrongState,
 
     // node errors

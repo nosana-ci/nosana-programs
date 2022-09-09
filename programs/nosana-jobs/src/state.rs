@@ -55,7 +55,7 @@ impl NodesAccount {
 
 /// # JobAccount
 
-pub const JOB_SIZE: usize = 8 + std::mem::size_of::<JobAccount>();
+pub const JOB_SIZE: usize = 8 + size_of::<JobAccount>();
 
 #[account]
 pub struct JobAccount {
