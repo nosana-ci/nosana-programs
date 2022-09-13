@@ -10,15 +10,15 @@ The staked NOS is the amount of tokens that the vault actually holds for the use
 
 ## Instructions
 
-### InitVault
+### Init
 
-Initializes the Associated-Token-Account of the NOS token for the staking account.
-All staked tokens end up here.
+Initializes the SettingsAccount of the staking program.
 
 ### Stake
 
 Create a new stake for `authority`.
-This will transfer `amount` of NOS tokens from `ata_from` to the `ata_vault` locked for at least `amount` seconds of time.
+Initializes a unique `vault` for the staker.
+This will transfer `amount` of NOS tokens from `user` to the `vault` locked for at least `amount` seconds of time.
 The new stake account is a PDA based on the `authority`.
 
 ### Topup
@@ -43,9 +43,10 @@ The tokens that are slashed will be sent to the provided ~ata_to~ account.
 
 Slashing is a feature used by the Nosana protocol to punish bad actors.
 
-### UpdateAuthority
+### UpdateSetting
 
-Set the slashing authority in ~stats.authority~ to a new account.
+Set the slashing authority in ~settings.authority~ to a new account.
+Set the token account in ~settings.token_account~ to a new account.
 This can only by called by the current slashing authority.
 
 ### Restake
