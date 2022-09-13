@@ -8,7 +8,7 @@ pub const NODE_STAKE_MINIMUM: u64 = 10_000 * constants::NOS_DECIMALS;
 
 /// # NodesAccount
 
-pub const QUEUE_LENGTH: usize = 1_000;
+pub const QUEUE_LENGTH: usize = 100;
 pub const NODES_SIZE: usize = 8 + size_of::<NodesAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
 
 #[account]
@@ -17,22 +17,29 @@ pub struct NodesAccount {
     pub job_timeout: i64,
     pub job_type: u8,
     pub vault: Pubkey,
+    pub vault_bump: u8,
     pub nodes: Vec<Pubkey>,
 }
 
 impl NodesAccount {
-    pub fn init(&mut self, job_price: u64, job_timeout: i64, job_type: u8, vault: Pubkey) {
+    pub fn init(
+        &mut self,
+        job_price: u64,
+        job_timeout: i64,
+        job_type: u8,
+        vault: Pubkey,
+        vault_bump: u8,
+    ) {
         self.job_price = job_price;
         self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.vault = vault;
+        self.vault_bump = vault_bump;
         self.nodes = Vec::new();
     }
 
     pub fn enter(&mut self, node: Pubkey) {
-        if self.find(&node).is_none() {
-            self.nodes.push(node)
-        };
+        self.nodes.push(node)
     }
 
     pub fn get(&mut self) -> Pubkey {
@@ -44,7 +51,7 @@ impl NodesAccount {
     }
 
     pub fn find(&mut self, node: &Pubkey) -> Option<usize> {
-        self.nodes.iter().position(|item: &Pubkey| item == node)
+        self.nodes.iter().position(|pubkey: &Pubkey| pubkey == node)
     }
 
     pub fn exit(&mut self, node: &Pubkey) {
@@ -67,16 +74,14 @@ pub struct JobAccount {
     pub time_start: i64,
     pub time_end: i64,
     pub tokens: u64,
-    pub vault: Pubkey,
 }
 
 impl JobAccount {
-    pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], tokens: u64, vault: Pubkey) {
+    pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], tokens: u64) {
         self.authority = authority;
         self.ipfs_job = ipfs_job;
         self.status = JobStatus::Queued as u8;
         self.tokens = tokens;
-        self.vault = vault;
     }
 
     pub fn claim(&mut self, time: i64, node: Pubkey) {

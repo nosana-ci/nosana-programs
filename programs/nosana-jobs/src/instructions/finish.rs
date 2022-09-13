@@ -5,11 +5,12 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 pub struct Finish<'info> {
     #[account(
         mut,
-        has_one = vault @ NosanaError::JobInvalidVault,
         constraint = job.node == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.status == JobStatus::Running as u8 @ NosanaError::Unauthorized
+        constraint = job.status == JobStatus::Running as u8 @ NosanaError::JobInWrongState
     )]
     pub job: Account<'info, JobAccount>,
+    #[account(has_one = vault @ NosanaError::JobInvalidVault)]
+    pub nodes: Account<'info, NodesAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -32,7 +33,11 @@ pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
                 to: ctx.accounts.user.to_account_info(),
                 authority: ctx.accounts.vault.to_account_info(),
             },
-            &[&[id::NOS_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
+            &[&[
+                ctx.accounts.nodes.key().as_ref(),
+                id::NOS_TOKEN.as_ref(),
+                &[ctx.accounts.nodes.vault_bump],
+            ]],
         ),
         job.tokens,
     )

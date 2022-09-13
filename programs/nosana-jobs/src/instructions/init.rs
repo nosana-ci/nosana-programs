@@ -25,6 +25,12 @@ pub struct Init<'info> {
 }
 
 pub fn handler(ctx: Context<Init>, job_price: u64, job_timeout: i64, job_type: u8) -> Result<()> {
-    (&mut ctx.accounts.nodes).init(job_price, job_timeout, job_type, ctx.accounts.vault.key());
+    (&mut ctx.accounts.nodes).init(
+        job_price,
+        job_timeout,
+        job_type,
+        ctx.accounts.vault.key(),
+        *ctx.bumps.get("vault").unwrap(),
+    );
     Ok(())
 }

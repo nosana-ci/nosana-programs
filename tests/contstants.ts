@@ -19,14 +19,18 @@ const constants = {
   slashAmount: 1e3 * decimals,
   minimumNodeStake: 1e4 * decimals,
   feeAmount: 1e5 * decimals,
-
+  jobTimeout: 60 * 60,
   initialRate,
 
   // status options for jobs
   jobStatus: {
-    created: 0,
-    claimed: 1,
-    finished: 2,
+    queued: 0,
+    running: 1,
+    done: 2,
+  },
+
+  jobType: {
+    default: 0,
   },
 
   // type for claim
@@ -60,6 +64,7 @@ const constants = {
     JobNotInitialized: 'This job is not in the Initialized state.',
     JobNotTimedOut: 'This job is not timed out.',
     JobQueueNotFound: 'This job queue not found.',
+    JobInWrongState: 'This job does not have the right status.',
 
     // pool errors
     PoolNotStarted: 'This pool has not started yet.',
@@ -68,6 +73,7 @@ const constants = {
     // node errors
     NodeUnqualifiedUnstaked: "This nodes' stake has been unstaked.",
     NodeUnqualifiedStakeAmount: 'This node has not staked enough tokens.',
+    NodeAlreadyQueued: 'This node is already present in the queue.',
 
     // anchor errors
     Solana8ByteConstraint: '8 byte discriminator did not match what was expected',

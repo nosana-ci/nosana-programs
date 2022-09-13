@@ -41,8 +41,6 @@ pub enum NosanaError {
     StakeDoesNotMatchReward,
 
     // job errors
-    #[msg("This job is not in the Claimed state.")]
-    JobNotClaimed,
     #[msg("This job is not in the Initialized state.")]
     JobNotInitialized,
     #[msg("This job is not timed out.")]
@@ -59,6 +57,8 @@ pub enum NosanaError {
     NodeNoStake,
     #[msg("This node has not staked enough tokens.")]
     NodeNotEnoughStake,
+    #[msg("This node is already present in the queue.")]
+    NodeAlreadyQueued,
     #[msg("This metadata does not have the correct address.")]
     NodeNftWrongMetadata,
     #[msg("This NFT does not belong to the right collection.")]

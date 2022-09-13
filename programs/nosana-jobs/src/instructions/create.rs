@@ -25,7 +25,6 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
         ctx.accounts.authority.key(),
         ipfs_job,
         ctx.accounts.nodes.job_price,
-        ctx.accounts.vault.key(),
     );
 
     // there might be a node ready to claim this job immediately

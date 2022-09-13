@@ -1,6 +1,7 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import { buf2hex, getTokenBalance } from '../utils';
+import { buf2hex, getTokenBalance, now, pda } from '../utils';
+import { BN } from '@project-serum/anchor';
 
 export default function suite() {
   afterEach(async function () {
@@ -10,44 +11,37 @@ export default function suite() {
 
   describe('init()', async function () {
     it('can initialize the jobs vault', async function () {
-      this.accounts.vault = this.vaults.jobs;
-      await this.jobsProgram.methods.init().accounts(this.accounts).rpc();
-    });
-  });
+      const throwAwayKeypair = anchor.web3.Keypair.generate();
+      this.accounts.nodes = throwAwayKeypair.publicKey;
+      this.accounts.vault = await pda(
+        [this.accounts.nodes.toBuffer(), this.accounts.mint.toBuffer()],
+        this.jobsProgram.programId
+      );
+      this.vaults.jobs = this.accounts.vault;
 
-  describe('start_project()', async function () {
-    it('can start a project', async function () {
-      await this.jobsProgram.methods.start().accounts(this.accounts).rpc();
-    });
-
-    it('can start projects for other users', async function () {
-      for (const user of this.users.users) {
-        await this.jobsProgram.methods
-          .start()
-          .accounts({
-            systemProgram: this.accounts.systemProgram,
-            authority: user.publicKey,
-            project: user.project,
-          })
-          .signers([user.user])
-          .rpc();
-      }
+      await this.jobsProgram.methods
+        .init(new BN(this.constants.jobPrice), new BN(this.constants.jobTimeout), this.constants.jobType.default)
+        .accounts(this.accounts)
+        .signers([throwAwayKeypair])
+        .rpc();
     });
 
-    it('can fetch a project', async function () {
-      const data = await this.jobsProgram.account.projectAccount.fetch(this.accounts.project);
-      expect(data.authority.toString()).to.equal(this.accounts.authority.toString());
-      expect(data.jobs.length).to.equal(0);
+    it('can fetch the queue', async function () {
+      const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
+      expect(nodes.jobType).to.equal(this.constants.jobType.default);
+      expect(nodes.jobTimeout.toNumber()).to.equal(this.constants.jobTimeout);
+      expect(nodes.jobPrice.toNumber()).to.equal(this.constants.jobPrice);
+      expect(nodes.nodes.length).to.equal(0);
     });
   });
 
   describe('create()', async function () {
-    it('can create a job', async function () {
+    it('can create a job when there are no nodes', async function () {
       const throwAwayKeypair = anchor.web3.Keypair.generate();
       this.accounts.job = throwAwayKeypair.publicKey;
 
       await this.jobsProgram.methods
-        .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
+        .create(this.constants.ipfsData)
         .accounts(this.accounts)
         .signers([throwAwayKeypair])
         .rpc();
@@ -55,114 +49,59 @@ export default function suite() {
       this.balances.vaultJob += this.constants.jobPrice;
     });
 
-    it('can not create a job in different vault', async function () {
+    it('can fetch a queued job', async function () {
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(job.status).to.equal(this.constants.jobStatus.queued);
+      expect(job.authority.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
+      expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
+    });
+  });
+
+  describe('enter()', async function () {
+    it('can enter the queue', async function () {
+      await this.jobsProgram.methods.enter().accounts(this.accounts).rpc();
+    });
+
+    it('can see the node in the queue', async function () {
+      const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
+      expect(nodes.nodes.length).to.equal(1);
+      expect(nodes.nodes[0].toString()).to.equal(this.accounts.authority.toString());
+    });
+
+    it('can not enter the queue twice', async function () {
       let msg = '';
+      await this.jobsProgram.methods
+        .enter()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.NodeAlreadyQueued);
+    });
+  });
+
+  describe('create()', async function () {
+    it('can create another job', async function () {
       const throwAwayKeypair = anchor.web3.Keypair.generate();
+      this.accounts.job = throwAwayKeypair.publicKey;
+
       await this.jobsProgram.methods
-        .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
-        .accounts({
-          ...this.accounts,
-          vault: this.accounts.user,
-          job: throwAwayKeypair.publicKey,
-        })
+        .create(this.constants.ipfsData)
+        .accounts(this.accounts)
         .signers([throwAwayKeypair])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal('A seeds constraint was violated');
+        .rpc();
+      this.balances.user -= this.constants.jobPrice;
+      this.balances.vaultJob += this.constants.jobPrice;
     });
 
-    it('can create jobs for other users', async function () {
-      for (const user of this.users.users) {
-        const throwAwayKeypair = anchor.web3.Keypair.generate();
-        user.job = throwAwayKeypair.publicKey;
-        await this.jobsProgram.methods
-          .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
-          .accounts({
-            ...this.accounts,
-            project: user.project,
-            job: user.job,
-            user: user.ata,
-            authority: user.publicKey,
-          })
-          .signers([user.user, throwAwayKeypair])
-          .rpc();
-        // update this.balances
-        this.balances.vaultJob += this.constants.jobPrice;
-        user.balance -= this.constants.jobPrice;
-        expect(await getTokenBalance(this.provider, user.ata)).to.equal(user.balance);
-      }
-    });
-
-    it('can fetch a job', async function () {
+    it('can fetch a running job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.jobStatus).to.equal(this.constants.jobStatus.created);
-      expect(buf2hex(new Uint8Array(job.ipfsJob))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
-    });
-  });
-
-  describe('claim()', async function () {
-    it('can claim a job', async function () {
-      await this.jobsProgram.methods.claim().accounts(this.accounts).rpc();
-    });
-
-    it('can not claim a job that is already claimed', async function () {
-      let msg = '';
-      await this.jobsProgram.methods
-        .claim()
-        .accounts(this.accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobNotInitialized);
-    });
-
-    it('can claim jobs for all other nodes and users', async function () {
-      for (const i of [...Array(10).keys()]) {
-        const user = this.users.users[i];
-        const node = this.users.nodes[i];
-
-        // store job and project on the nodes for later
-        node.project = user.project;
-        node.job = user.job;
-
-        let msg = '';
-        await this.jobsProgram.methods
-          .claim()
-          .accounts({
-            authority: node.publicKey,
-            project: node.project,
-            job: node.job,
-            stake: node.stake,
-            nft: node.ataNft,
-            metadata: node.metadata,
-          })
-          .signers([node.user])
-          .rpc()
-          .catch((e) => (msg = e.error.errorMessage));
-
-        if (i === 0) expect(msg).to.equal(this.constants.errors.NodeUnqualifiedStakeAmount);
-        else if (i === 1) expect(msg).to.equal(this.constants.errors.NodeUnqualifiedUnstaked);
-        else expect(msg).to.equal('');
-      }
-    });
-
-    it('can fetch a claimed job', async function () {
-      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(Date.now() / 1e3).to.be.closeTo(job.timeStart.toNumber(), this.constants.allowedClockDelta, 'time');
-      expect(job.jobStatus).to.equal(this.constants.jobStatus.claimed);
-      expect(job.node.toString()).to.equal(this.provider.wallet.publicKey.toString());
-      expect(job.tokens.toString()).to.equal(this.constants.jobPrice.toString());
-    });
-  });
-
-  describe('reclaim()', async function () {
-    it('can reclaim job too soon', async function () {
-      let msg = '';
-      await this.jobsProgram.methods
-        .reclaim()
-        .accounts(this.accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobNotTimedOut);
+      expect(job.status).to.equal(this.constants.jobStatus.running);
+      expect(job.node.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.authority.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.timeStart.toNumber()).to.be.closeTo(now(), 100);
+      expect(job.timeEnd.toNumber()).to.equal(0);
+      expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
   });
 
@@ -187,6 +126,11 @@ export default function suite() {
       this.balances.vaultJob -= this.constants.jobPrice;
     });
 
+    it('can see the node has left the queue', async function () {
+      const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
+      expect(nodes.nodes.length).to.equal(0);
+    });
+
     it('can not finish job that is already finished', async function () {
       let msg = '';
       await this.jobsProgram.methods
@@ -194,46 +138,50 @@ export default function suite() {
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobNotClaimed);
-    });
-
-    it('can finish job for all nodes', async function () {
-      for (const node of this.users.otherNodes) {
-        await this.jobsProgram.methods
-          .finish(this.constants.ipfsData)
-          .accounts({
-            ...this.accounts,
-            job: node.job,
-            user: node.ata,
-            authority: node.publicKey,
-          })
-          .signers([node.user])
-          .rpc();
-        // update balances
-        this.balances.vaultJob -= this.constants.jobPrice;
-        node.balance += this.constants.jobPrice;
-        expect(await getTokenBalance(this.provider, node.ata)).to.equal(node.balance);
-      }
+      expect(msg).to.equal(this.constants.errors.JobInWrongState);
     });
 
     it('can fetch a finished job', async function () {
-      const project = await this.jobsProgram.account.projectAccount.fetch(this.accounts.project);
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
+    });
+  });
 
-      // test job and project
-      expect(Date.now() / 1e3).to.be.closeTo(job.timeEnd.toNumber(), this.constants.allowedClockDelta);
-      expect(job.jobStatus).to.equal(this.constants.jobStatus.finished, 'job status does not match');
-      expect(project.jobs.length).to.equal(0, 'number of jobs do not match');
-      expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
+  describe('claim()', async function () {
+    it('can find an unclaimed job', async function () {
+      const jobs = await this.jobsProgram.account.jobAccount.all([
+        {
+          memcmp: {
+            /** offset into program account data to start comparison */
+            offset: 96,
+            /** data to match, as base-58 encoded string and limited to less than 129 bytes */
+            bytes: this.accounts.systemProgram.toBase58(),
+          },
+        },
+      ]);
 
-      for (const node of this.users.otherNodes) {
-        const project = await this.jobsProgram.account.projectAccount.fetch(node.project);
-        const job = await this.jobsProgram.account.jobAccount.fetch(node.job);
+      expect(jobs.length).to.equal(1);
 
-        expect(job.jobStatus).to.equal(this.constants.jobStatus.finished);
-        expect(project.jobs.length).to.equal(0);
-        expect(buf2hex(new Uint8Array(job.ipfsResult))).to.equal(buf2hex(new Uint8Array(this.constants.ipfsData)));
-      }
+      const job = jobs[0];
+
+      expect(job.account.node.toString()).to.equal(this.accounts.systemProgram.toString());
+      expect(job.account.status).to.equal(this.constants.jobStatus.queued);
+      this.accounts.job = job.publicKey;
+    });
+
+    it('can claim a job', async function () {
+      await this.jobsProgram.methods.claim().accounts(this.accounts).rpc();
+    });
+
+    it('can fetch a claimed job', async function () {
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(job.status).to.equal(this.constants.jobStatus.running);
+    });
+
+    it('can finish job', async function () {
+      await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
+      this.balances.user += this.constants.jobPrice;
+      this.balances.vaultJob -= this.constants.jobPrice;
     });
   });
 
@@ -257,12 +205,16 @@ export default function suite() {
   });
 
   describe('cancel()', async function () {
+    it('can enter the queue', async function () {
+      await this.jobsProgram.methods.enter().accounts(this.accounts).rpc();
+    });
+
     it('can create a new job and a new project', async function () {
       const throwAwayKeypair = anchor.web3.Keypair.generate();
       this.accounts.job = throwAwayKeypair.publicKey;
 
       await this.jobsProgram.methods
-        .create(new anchor.BN(this.constants.jobPrice), this.constants.ipfsData)
+        .create(this.constants.ipfsData)
         .accounts(this.accounts)
         .signers([throwAwayKeypair])
         .rpc();
@@ -271,7 +223,7 @@ export default function suite() {
       this.balances.vaultJob += this.constants.jobPrice;
     });
 
-    it('can not cancel a job from another user', async function () {
+    it('can not cancel a job from another node', async function () {
       let msg = '';
       await this.jobsProgram.methods
         .cancel()
@@ -284,18 +236,6 @@ export default function suite() {
 
     it('can cancel a job', async function () {
       await this.jobsProgram.methods.cancel().accounts(this.accounts).rpc();
-      this.balances.user += this.constants.jobPrice;
-      this.balances.vaultJob -= this.constants.jobPrice;
-    });
-
-    it('can not cancel a job in wrong state', async function () {
-      let msg = '';
-      await this.jobsProgram.methods
-        .cancel()
-        .accounts(this.accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobNotInitialized);
     });
   });
 }

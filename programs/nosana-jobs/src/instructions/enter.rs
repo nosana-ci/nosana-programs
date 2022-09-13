@@ -34,10 +34,15 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
         metadata.collection.unwrap().key == id::NFT_COLLECTION,
         NosanaError::NodeNftWrongCollection
     );
+    require!(
+        ctx.accounts
+            .nodes
+            .find(ctx.accounts.authority.key)
+            .is_none(),
+        NosanaError::NodeAlreadyQueued
+    );
 
     // enter the queue
     ctx.accounts.nodes.enter(ctx.accounts.authority.key());
-
-    // finish
     Ok(())
 }

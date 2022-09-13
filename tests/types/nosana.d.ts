@@ -61,7 +61,7 @@ type NosanaAccounts = {
 
   // jobs specific
   job: PublicKey;
-  project: PublicKey;
+  nodes: PublicKey;
   nft: PublicKey;
   metadata: PublicKey;
 };

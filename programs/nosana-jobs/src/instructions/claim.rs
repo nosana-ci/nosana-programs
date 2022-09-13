@@ -10,7 +10,6 @@ use nosana_staking::StakeAccount;
 pub struct Claim<'info> {
     #[account(
         mut,
-        has_one = vault @ NosanaError::JobInvalidVault,
         constraint = job.status == JobStatus::Queued as u8 || job.status == JobStatus::Running as u8
             && Clock::get()?.unix_timestamp - job.time_start > nodes.job_timeout @ NosanaError::Unauthorized,
     )]
@@ -44,7 +43,5 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
 
     // claim job
     (&mut ctx.accounts.job).claim(Clock::get()?.unix_timestamp, ctx.accounts.authority.key());
-
-    // finish
     Ok(())
 }
