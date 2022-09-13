@@ -47,7 +47,7 @@ pub enum NosanaError {
     JobInWrongState,
 
     // node errors
-    #[msg("This does not have an active stake.")]
+    #[msg("This node does not have an active stake.")]
     NodeNoStake,
     #[msg("This node queue does not match.")]
     NodeQueueDoesNotMatch,

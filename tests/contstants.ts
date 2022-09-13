@@ -68,7 +68,7 @@ const constants = {
     JobInWrongState: 'This job does not have the right status.',
 
     // node errors
-    NodeNoStake: 'This does not have an active stake.',
+    NodeNoStake: 'This node does not have an active stake.',
     NodeQueueDoesNotMatch: 'This node queue does not match.',
     NodeNotEnoughStake: 'This node has not staked enough tokens.',
     NodeAlreadyQueued: 'This node is already present in the queue.',
