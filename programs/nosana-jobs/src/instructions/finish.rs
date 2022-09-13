@@ -20,11 +20,10 @@ pub struct Finish<'info> {
 }
 
 pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
-    // get job and finish it
-    let job: &mut JobAccount = &mut ctx.accounts.job;
-    job.finish(ipfs_result, Clock::get()?.unix_timestamp);
+    // finish the job
+    (&mut ctx.accounts.job).finish(ipfs_result, Clock::get()?.unix_timestamp);
 
-    // payout tokens
+    // reimburse the node
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -39,6 +38,6 @@ pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
                 &[ctx.accounts.nodes.vault_bump],
             ]],
         ),
-        job.tokens,
+        ctx.accounts.nodes.job_price,
     )
 }

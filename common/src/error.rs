@@ -55,6 +55,8 @@ pub enum NosanaError {
     // node errors
     #[msg("This nodes' stake has been unstaked.")]
     NodeNoStake,
+    #[msg("This node queue does not match.")]
+    NodeQueueDoesNotMatch,
     #[msg("This node has not staked enough tokens.")]
     NodeNotEnoughStake,
     #[msg("This node is already present in the queue.")]

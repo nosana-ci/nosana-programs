@@ -23,8 +23,8 @@ pub mod nosana_jobs {
         claim::handler(ctx)
     }
 
-    pub fn close(_ctx: Context<Close>) -> Result<()> {
-        close::handler()
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        close::handler(ctx)
     }
 
     pub fn create(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {

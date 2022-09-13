@@ -70,29 +70,29 @@ pub struct JobAccount {
     pub ipfs_job: [u8; 32],
     pub ipfs_result: [u8; 32],
     pub node: Pubkey,
+    pub nodes: Pubkey,
     pub status: u8,
     pub time_start: i64,
     pub time_end: i64,
-    pub tokens: u64,
 }
 
 impl JobAccount {
-    pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], tokens: u64) {
+    pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], nodes: Pubkey) {
         self.authority = authority;
         self.ipfs_job = ipfs_job;
+        self.nodes = nodes;
         self.status = JobStatus::Queued as u8;
-        self.tokens = tokens;
     }
 
-    pub fn claim(&mut self, time: i64, node: Pubkey) {
-        self.status = JobStatus::Running as u8;
+    pub fn claim(&mut self, node: Pubkey, time: i64) {
         self.node = node;
+        self.status = JobStatus::Running as u8;
         self.time_start = time;
     }
 
     pub fn cancel(&mut self) {
-        self.status = JobStatus::Queued as u8;
         self.node = id::SYSTEM_PROGRAM;
+        self.status = JobStatus::Queued as u8;
         self.time_start = 0;
     }
 

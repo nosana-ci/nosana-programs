@@ -18,7 +18,6 @@ pub struct Init<'info> {
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
-    // required
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,

@@ -19,21 +19,21 @@ pub struct Create<'info> {
 }
 
 pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
-    // create empty job
+    // queue the job
     let job: &mut JobAccount = &mut ctx.accounts.job;
     job.create(
         ctx.accounts.authority.key(),
         ipfs_job,
-        ctx.accounts.nodes.job_price,
+        ctx.accounts.nodes.key(),
     );
 
-    // there might be a node ready to claim this job immediately
+    // claim the job for a node that might be queued
     let node: Pubkey = ctx.accounts.nodes.get();
     if node != id::SYSTEM_PROGRAM {
-        job.claim(Clock::get()?.unix_timestamp, node);
+        job.claim(node, Clock::get()?.unix_timestamp);
     }
 
-    // deposit tokens
+    // deposit tokens for the job
     transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -43,6 +43,6 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
                 authority: ctx.accounts.authority.to_account_info(),
             },
         ),
-        job.tokens,
+        ctx.accounts.nodes.job_price,
     )
 }

@@ -42,6 +42,6 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     );
 
     // claim job
-    (&mut ctx.accounts.job).claim(Clock::get()?.unix_timestamp, ctx.accounts.authority.key());
+    (&mut ctx.accounts.job).claim(ctx.accounts.authority.key(), Clock::get()?.unix_timestamp);
     Ok(())
 }
