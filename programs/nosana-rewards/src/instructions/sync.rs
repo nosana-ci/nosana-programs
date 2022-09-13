@@ -10,7 +10,7 @@ pub struct Sync<'info> {
         constraint = stake.authority == reward.authority @ NosanaError::Unauthorized,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump)]
+    #[account(mut)]
     pub stats: Account<'info, StatsAccount>,
 }
 
