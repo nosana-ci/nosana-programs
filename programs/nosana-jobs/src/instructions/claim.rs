@@ -14,7 +14,7 @@ pub struct Claim<'info> {
             && Clock::get()?.unix_timestamp - job.time_start > nodes.job_timeout @ NosanaError::Unauthorized,
     )]
     pub job: Account<'info, JobAccount>,
-    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub nodes: Account<'info, NodesAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,

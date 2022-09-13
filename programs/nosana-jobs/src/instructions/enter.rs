@@ -9,7 +9,7 @@ use nosana_staking::StakeAccount;
 #[derive(Accounts)]
 pub struct Enter<'info> {
     pub authority: Signer<'info>,
-    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub nodes: Account<'info, NodesAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,

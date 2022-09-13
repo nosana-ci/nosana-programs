@@ -12,7 +12,7 @@ pub struct Close<'info> {
             @ NosanaError::JobInWrongState
     )]
     pub job: Account<'info, JobAccount>,
-    #[account(has_one = vault @ NosanaError::JobInvalidVault)]
+    #[account(has_one = vault @ NosanaError::InvalidVault)]
     pub nodes: Account<'info, NodesAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,

@@ -5,7 +5,7 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 pub struct Create<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Account<'info, JobAccount>,
-    #[account(mut, has_one = vault @ NosanaError::JobInvalidVault)]
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub nodes: Account<'info, NodesAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,

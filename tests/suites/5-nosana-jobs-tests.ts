@@ -31,7 +31,7 @@ export default function suite() {
       expect(nodes.jobType).to.equal(this.constants.jobType.default);
       expect(nodes.jobTimeout.toNumber()).to.equal(this.constants.jobTimeout);
       expect(nodes.jobPrice.toNumber()).to.equal(this.constants.jobPrice);
-      expect(nodes.nodes.length).to.equal(0);
+      expect(nodes.queue.length).to.equal(0);
     });
   });
 
@@ -65,8 +65,8 @@ export default function suite() {
 
     it('can see the node in the queue', async function () {
       const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
-      expect(nodes.nodes.length).to.equal(1);
-      expect(nodes.nodes[0].toString()).to.equal(this.accounts.authority.toString());
+      expect(nodes.queue.length).to.equal(1);
+      expect(nodes.queue[0].toString()).to.equal(this.accounts.authority.toString());
     });
 
     it('can not enter the queue twice', async function () {
@@ -128,7 +128,7 @@ export default function suite() {
 
     it('can see the node has left the queue', async function () {
       const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
-      expect(nodes.nodes.length).to.equal(0);
+      expect(nodes.queue.length).to.equal(0);
     });
 
     it('can not finish job that is already finished', async function () {

@@ -18,7 +18,7 @@ pub struct NodesAccount {
     pub job_type: u8,
     pub vault: Pubkey,
     pub vault_bump: u8,
-    pub nodes: Vec<Pubkey>,
+    pub queue: Vec<Pubkey>,
 }
 
 impl NodesAccount {
@@ -35,28 +35,28 @@ impl NodesAccount {
         self.job_type = job_type;
         self.vault = vault;
         self.vault_bump = vault_bump;
-        self.nodes = Vec::new();
+        self.queue = Vec::new();
     }
 
     pub fn enter(&mut self, node: Pubkey) {
-        self.nodes.push(node)
+        self.queue.push(node)
     }
 
     pub fn get(&mut self) -> Pubkey {
-        if self.nodes.is_empty() {
+        if self.queue.is_empty() {
             id::SYSTEM_PROGRAM
         } else {
-            self.nodes.pop().unwrap()
+            self.queue.pop().unwrap()
         }
     }
 
     pub fn find(&mut self, node: &Pubkey) -> Option<usize> {
-        self.nodes.iter().position(|pubkey: &Pubkey| pubkey == node)
+        self.queue.iter().position(|pubkey: &Pubkey| pubkey == node)
     }
 
     pub fn exit(&mut self, node: &Pubkey) {
         let index: Option<usize> = self.find(node);
-        self.nodes.remove(index.unwrap());
+        self.queue.remove(index.unwrap());
     }
 }
 
