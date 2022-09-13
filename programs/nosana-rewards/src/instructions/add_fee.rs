@@ -5,9 +5,9 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 pub struct AddFee<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump = stats.bump)]
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub stats: Account<'info, StatsAccount>,
-    #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

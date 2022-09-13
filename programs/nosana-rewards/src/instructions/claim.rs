@@ -6,9 +6,9 @@ use nosana_staking::StakeAccount;
 pub struct Claim<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump = stats.bump)]
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
     pub reward: Account<'info, RewardAccount>,
@@ -52,7 +52,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
                 to: ctx.accounts.user.to_account_info(),
                 authority: ctx.accounts.vault.to_account_info(),
             },
-            &[&[id::NOS_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
+            &[&[id::NOS_TOKEN.as_ref(), &[stats.vault_bump]]],
         ),
         u64::try_from(amount).unwrap(),
     )

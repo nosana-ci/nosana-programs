@@ -31,6 +31,6 @@ pub struct Init<'info> {
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
     // init stats account
-    (&mut ctx.accounts.stats).init(*ctx.bumps.get("stats").unwrap());
+    (&mut ctx.accounts.stats).init(ctx.accounts.vault.key(), *ctx.bumps.get("vault").unwrap());
     Ok(())
 }

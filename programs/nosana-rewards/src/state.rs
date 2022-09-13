@@ -19,18 +19,20 @@ pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
 
 #[account]
 pub struct StatsAccount {
-    pub bump: u8,
     pub rate: u128,
     pub total_reflection: u128,
     pub total_xnos: u128,
+    pub vault: Pubkey,
+    pub vault_bump: u8,
 }
 
 impl StatsAccount {
-    pub fn init(&mut self, bump: u8) {
-        self.bump = bump;
+    pub fn init(&mut self, vault: Pubkey, vault_bump: u8) {
         self.rate = INITIAL_RATE;
         self.total_reflection = 0;
         self.total_xnos = 0;
+        self.vault = vault;
+        self.vault_bump = vault_bump;
     }
 
     pub fn add_fee(&mut self, fee: u128) {
