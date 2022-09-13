@@ -2,7 +2,13 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct Init<'info> {
-    #[account(init, payer = authority, space = SETTINGS_SIZE, seeds = [ b"settings" ], bump)]
+    #[account(
+        init,
+        payer = authority,
+        space = SETTINGS_SIZE,
+        seeds = [ constants::PREFIX_SETTINGS.as_bytes() ],
+        bump,
+    )]
     pub settings: Account<'info, SettingsAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,

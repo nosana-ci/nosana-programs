@@ -3,7 +3,11 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Slash<'info> {
-    #[account(has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
+    #[account(
+        has_one = authority @ NosanaError::Unauthorized,
+        seeds = [ constants::PREFIX_SETTINGS.as_ref() ],
+        bump,
+    )]
     pub settings: Account<'info, SettingsAccount>,
     #[account(mut)]
     pub stake: Account<'info, StakeAccount>,
@@ -35,7 +39,7 @@ pub fn handler(ctx: Context<Slash>, amount: u64) -> Result<()> {
                 authority: ctx.accounts.vault.to_account_info(),
             },
             &[&[
-                b"vault".as_ref(),
+                constants::PREFIX_VAULT.as_ref(),
                 id::NOS_TOKEN.as_ref(),
                 stake.authority.as_ref(),
                 &[stake.vault_bump],

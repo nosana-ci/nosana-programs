@@ -1,43 +1,27 @@
-use crate::id;
-use anchor_lang::__private::CLOSED_ACCOUNT_DISCRIMINATOR;
-use anchor_lang::prelude::*;
-use anchor_spl::token;
-
-pub fn transfer_tokens<'info>(
-    program: AccountInfo<'info>,
-    from: AccountInfo<'info>,
-    to: AccountInfo<'info>,
-    authority: AccountInfo<'info>,
-    nonce: u8,
-    amount: u64,
-) -> Result<()> {
-    let accounts = token::Transfer {
-        from,
-        to,
-        authority,
-    };
-
-    if nonce == 0 {
-        token::transfer(CpiContext::new(program, accounts), amount)
-    } else {
-        token::transfer(
-            CpiContext::new_with_signer(program, accounts, &[&[id::NOS_TOKEN.as_ref(), &[nonce]]]),
-            amount,
-        )
-    }
-}
+use crate::{
+    constants::{PREFIX_REWARDS, PREFIX_STAKE},
+    id,
+};
+use anchor_lang::{__private::CLOSED_ACCOUNT_DISCRIMINATOR, prelude::*};
 
 pub fn get_address(seeds: &[&[u8]], program_id: &Pubkey) -> Pubkey {
     Pubkey::find_program_address(seeds, program_id).0
 }
 
 pub fn get_reward_address(authority: &Pubkey) -> Pubkey {
-    get_address(&[b"reward", authority.as_ref()], &id::REWARDS_PROGRAM)
+    get_address(
+        &[PREFIX_REWARDS.as_ref(), authority.as_ref()],
+        &id::REWARDS_PROGRAM,
+    )
 }
 
 pub fn get_staking_address(authority: &Pubkey) -> Pubkey {
     get_address(
-        &[b"stake", id::NOS_TOKEN.as_ref(), authority.as_ref()],
+        &[
+            PREFIX_STAKE.as_ref(),
+            id::NOS_TOKEN.as_ref(),
+            authority.as_ref(),
+        ],
         &id::STAKING_PROGRAM,
     )
 }

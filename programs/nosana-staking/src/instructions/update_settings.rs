@@ -7,7 +7,12 @@ pub struct UpdateSettings<'info> {
     pub new_authority: AccountInfo<'info>,
     #[account(token::mint = id::NOS_TOKEN)]
     pub token_account: Account<'info, TokenAccount>,
-    #[account(mut, has_one = authority @ NosanaError::Unauthorized, seeds = [ b"settings" ], bump)]
+    #[account(
+        mut,
+        has_one = authority @ NosanaError::Unauthorized,
+        seeds = [ constants::PREFIX_SETTINGS.as_ref() ],
+        bump
+    )]
     pub settings: Account<'info, SettingsAccount>,
     pub authority: Signer<'info>,
 }
