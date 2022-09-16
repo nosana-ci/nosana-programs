@@ -1,5 +1,4 @@
 use crate::*;
-use anchor_spl::token::Token;
 
 #[derive(Accounts)]
 pub struct Extend<'info> {
@@ -10,7 +9,6 @@ pub struct Extend<'info> {
     )]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
-    pub token_program: Program<'info, Token>,
 }
 
 pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
