@@ -14,7 +14,7 @@ Library of Solana programs used in the Nosana Network.
 
 ## Nosana Programs
 
-Four Nosana programs can be found in this repository, together with the [Nosana Common](docs/common.md) crate.
+Four Nosana programs can be found in this repository, together with the [Nosana Common](https://github.com/nosana-ci/nosana-programs/blob/main/docs/common.md) crate.
 
 
 | program                                                   | program address                               | devnet                                                                                              | mainnet                                                                              |
@@ -29,17 +29,17 @@ Four Nosana programs can be found in this repository, together with the [Nosana 
 
 The external audits of the following Nosana programs are published in this repository:
 
-| program        | report                                                            | auditor                            | date       | status |
-|----------------|-------------------------------------------------------------------|------------------------------------|------------|--------|
-| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](audits/NOSANA_STAKING_REPORT_1.pdf) | [Op Codes](https://opcodes.fr/en/) | 10-08-2022 | ✅      |
-| Nosana Staking | [NOSANA_STAKING_REPORT_2.pdf](audits/NOSANA_STAKING_REPORT_2.pdf) | [Op Codes](https://opcodes.fr/en/) | 23-08-2022 | ✅      |
+| program        | report                                                                                                                   | auditor                            | date       | status |
+|----------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------|------------|--------|
+| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](https://github.com/nosana-ci/nosana-programs/blob/main/audits/NOSANA_STAKING_REPORT_1.pdf) | [Op Codes](https://opcodes.fr/en/) | 10-08-2022 | ✅      |
+| Nosana Staking | [NOSANA_STAKING_REPORT_2.pdf](https://github.com/nosana-ci/nosana-programs/blob/main/audits/NOSANA_STAKING_REPORT_2.pdf) | [Op Codes](https://opcodes.fr/en/) | 23-08-2022 | ✅      |
 
 ## Contribution
 
-See [CONTRIBUTING](CONTRIBUTING.md) guidelines.
+See [CONTRIBUTING](https://github.com/nosana-ci/nosana-programs/blob/main/CONTRIBUTING.md) guidelines.
 
-Significant contributions to the source code may be compensated with a grant from the Nosana Foundation.
+Significant contributions to the source code may be compensated with a grant from the [Nosana Foundation](https://nosana.foundation/).
 
 ## License
 
-This Nosana Programs are licensed under the [MIT license](LICENSE).
+This Nosana Programs are licensed under the [MIT license](https://github.com/nosana-ci/nosana-programs/blob/main/LICENSE).
