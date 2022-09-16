@@ -57,7 +57,7 @@ async function main() {
     await getAssociatedTokenAddress(mint, provider.wallet.publicKey),
     accounts.vault,
     wallet.payer,
-    100_000 * 1e6
+    vestingConfig.amount * 1e6
   );
   console.log(`https://explorer.solana.com/tx/${tx}`);
 }

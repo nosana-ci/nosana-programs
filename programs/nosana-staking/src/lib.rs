@@ -44,7 +44,7 @@ pub mod nosana_staking {
         slash::handler(ctx, amount)
     }
 
-    pub fn update_authority(ctx: Context<UpdateSettings>) -> Result<()> {
+    pub fn update_settings(ctx: Context<UpdateSettings>) -> Result<()> {
         update_settings::handler(ctx)
     }
 }
