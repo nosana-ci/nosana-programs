@@ -2,7 +2,6 @@ import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import { buf2hex, getTokenBalance, now, pda } from '../utils';
 import { BN } from '@project-serum/anchor';
-import {PublicKey} from "@solana/web3.js";
 
 export default function suite() {
   afterEach(async function () {
