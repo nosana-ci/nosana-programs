@@ -39,6 +39,8 @@ const constants = {
     addFee: 1,
   },
 
+  discriminator: 8,
+
   ipfsData: [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')],
 
   errors: {

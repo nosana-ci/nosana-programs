@@ -152,10 +152,20 @@ export default function suite() {
       const jobs = await this.jobsProgram.account.jobAccount.all([
         {
           memcmp: {
-            /** offset into program account data to start comparison */
-            offset: 96,
-            /** data to match, as base-58 encoded string and limited to less than 129 bytes */
+            offset: this.constants.discriminator + 32 * 3,
             bytes: this.accounts.systemProgram.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: this.constants.discriminator + 32 * 4,
+            bytes: this.accounts.nodes.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: this.constants.discriminator + 32 * 5,
+            bytes: '1',
           },
         },
       ]);
@@ -176,6 +186,30 @@ export default function suite() {
     it('can fetch a claimed job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.status).to.equal(this.constants.jobStatus.running);
+    });
+
+    it('can find a running job', async function () {
+      const jobs = await this.jobsProgram.account.jobAccount.all([
+        {
+          memcmp: {
+            offset: this.constants.discriminator + 32 * 4,
+            bytes: this.accounts.nodes.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: this.constants.discriminator + 32 * 5,
+            bytes: '2',
+          },
+        },
+      ]);
+
+      expect(jobs.length).to.equal(1);
+
+      const job = jobs[0];
+
+      expect(job.account.node.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.account.status).to.equal(this.constants.jobStatus.running);
     });
 
     it('can finish job', async function () {
