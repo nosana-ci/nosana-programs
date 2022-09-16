@@ -352,7 +352,7 @@ export default function suite() {
 
     it('can update slash authority', async function () {
       await this.stakingProgram.methods
-        .updateAuthority()
+        .updateSettings()
         .accounts({ ...this.accounts, newAuthority: this.users.node1.publicKey })
         .rpc();
       const stats = await this.stakingProgram.account.settingsAccount.fetch(this.accounts.settings);
@@ -377,7 +377,7 @@ export default function suite() {
 
     it('can update settings authority back', async function () {
       await this.stakingProgram.methods
-        .updateAuthority()
+        .updateSettings()
         .accounts({
           ...this.accounts,
           authority: this.users.node1.publicKey,
