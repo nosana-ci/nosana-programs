@@ -2,7 +2,7 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct Close<'info> {
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
+    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, close = authority, has_one = authority @ NosanaError::Unauthorized)]
     pub reward: Account<'info, RewardAccount>,

@@ -5,9 +5,9 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 pub struct Create<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Account<'info, JobAccount>,
-    #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
-    pub project: Account<'info, ProjectAccount>,
-    #[account(mut, seeds = [ id::TST_TOKEN.as_ref() ], bump)]
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
+    pub nodes: Account<'info, NodesAccount>,
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
@@ -18,14 +18,22 @@ pub struct Create<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
-    // create job
-    (&mut ctx.accounts.job).create(data, amount);
+pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
+    // queue the job
+    let job: &mut JobAccount = &mut ctx.accounts.job;
+    job.create(
+        ctx.accounts.authority.key(),
+        ipfs_job,
+        ctx.accounts.nodes.key(),
+    );
 
-    // add job to the project
-    (&mut ctx.accounts.project).add_job(ctx.accounts.job.key());
+    // claim the job for a node that might be queued
+    let node: Pubkey = ctx.accounts.nodes.get();
+    if node != id::SYSTEM_PROGRAM {
+        job.claim(node, Clock::get()?.unix_timestamp);
+    }
 
-    // finish
+    // deposit tokens for the job
     transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -35,6 +43,6 @@ pub fn handler(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> 
                 authority: ctx.accounts.authority.to_account_info(),
             },
         ),
-        amount,
+        ctx.accounts.nodes.job_price,
     )
 }

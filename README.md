@@ -17,12 +17,13 @@ Library of Solana programs used in the Nosana Network.
 Four Nosana programs can be found in this repository, together with the [Nosana Common](docs/common.md) crate.
 
 
-| program                           | program address                               | devnet                                                                                               | mainnet                                                                                |
-|-----------------------------------|-----------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| [Nosana Staking](docs/staking.md) | `nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE` | [✅](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE?cluster=devnet)  | [✅](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE)   |
-| [Nosana Rewards](docs/rewards.md) | `nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp` | [✅](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp?cluster=devnet)  | [✅](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp)   |
-| [Nosana Pools](docs/pools.md)     | `nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD` | [✅](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD?cluster=devnet)  | [✅](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD)   |
-| [Nosana Jobs](docs/jobs.md)       | `nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM` | [✅](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM?cluster=devnet)  | [✅](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)   |
+| program                                                   | program address                               | devnet                                                                                              | mainnet                                                                              |
+|-----------------------------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [Nosana Staking](https://docs.nosana.io/programs/staking) | `nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE` | [✅](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE?cluster=devnet) | [✅](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE) |
+| [Nosana Rewards](https://docs.nosana.io/programs/rewards) | `nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp` | [✅](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp?cluster=devnet) | [✅](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp) |
+| [Nosana Pools](https://docs.nosana.io/programs/pools)     | `nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD` | [✅](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD?cluster=devnet) | [✅](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD) |
+| [Nosana Jobs](https://docs.nosana.io/programs/jobs)       | `nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM` | [✅](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM?cluster=devnet) | [✅](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM) |
+| [Nosana Voting](https://docs.nosana.io/programs/voting)   | `tbd`                                         | ⛔️                                                                                                  | ⛔ ️                                                                                  |
 
 ## Audits
 

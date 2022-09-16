@@ -39,7 +39,11 @@ pub fn handler(ctx: Context<ClaimTransfer>) -> Result<()> {
                 to: ctx.accounts.beneficiary.to_account_info(),
                 authority: vault.to_account_info(),
             },
-            &[&[b"vault".as_ref(), pool.key().as_ref(), &[pool.vault_bump]]],
+            &[&[
+                constants::PREFIX_VAULT.as_ref(),
+                pool.key().as_ref(),
+                &[pool.vault_bump],
+            ]],
         ),
         amount,
     )

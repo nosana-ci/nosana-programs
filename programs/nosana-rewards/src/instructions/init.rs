@@ -5,7 +5,13 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 pub struct Init<'info> {
     #[account(address = id::NOS_TOKEN @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
-    #[account(init, payer = authority, space = STATS_SIZE, seeds = [ b"stats" ], bump)]
+    #[account(
+        init,
+        payer = authority,
+        space = STATS_SIZE,
+        seeds = [ constants::PREFIX_STATS.as_ref() ],
+        bump
+    )]
     pub stats: Account<'info, StatsAccount>,
     #[account(
         init,

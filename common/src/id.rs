@@ -39,15 +39,6 @@ mod nos_token {
     declare_id!("devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP");
 }
 
-pub use tst_token::ID as TST_TOKEN;
-mod tst_token {
-    use super::*;
-    #[cfg(feature = "mainnet")]
-    declare_id!("TSTntXiYheDFtAdQ1pNBM2QQncA22PCFLLRr53uBa8i");
-    #[cfg(not(feature = "mainnet"))]
-    declare_id!("devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP");
-}
-
 pub use authority::ID as AUTHORITY;
 mod authority {
     use super::*;

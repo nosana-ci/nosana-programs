@@ -1,96 +1,125 @@
 use anchor_lang::prelude::*;
-use nosana_common::NosanaError;
+use nosana_common::{constants, id};
+use std::mem::size_of;
 
-/// # Project
-/// Account for holding jobs of a certain Project
-/// - __authority__ is the payer and initial projects' creator
-/// - __jobs__ is list of Jobs
+/// # Constants
+
+pub const NODE_STAKE_MINIMUM: u64 = 10_000 * constants::NOS_DECIMALS;
+
+/// # NodesAccount
+
+pub const QUEUE_LENGTH: usize = 100;
+pub const NODES_SIZE: usize = 8 + size_of::<NodesAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
+
 #[account]
-pub struct ProjectAccount {
-    pub authority: Pubkey,
-    pub jobs: Vec<Pubkey>,
+pub struct NodesAccount {
+    pub job_price: u64,
+    pub job_timeout: i64,
+    pub job_type: u8,
+    pub vault: Pubkey,
+    pub vault_bump: u8,
+    pub queue: Vec<Pubkey>,
 }
 
-// size of a jobs struct, in bytes
-pub const PROJECT_SIZE: usize = 8 + std::mem::size_of::<ProjectAccount>() + 32 * 100 + 16;
-
-impl ProjectAccount {
-    pub fn init(&mut self, authority: Pubkey) {
-        self.authority = authority;
-        self.jobs = Vec::new();
+impl NodesAccount {
+    pub fn init(
+        &mut self,
+        job_price: u64,
+        job_timeout: i64,
+        job_type: u8,
+        vault: Pubkey,
+        vault_bump: u8,
+    ) {
+        self.job_price = job_price;
+        self.job_timeout = job_timeout;
+        self.job_type = job_type;
+        self.vault = vault;
+        self.vault_bump = vault_bump;
+        self.queue = Vec::new();
     }
 
-    pub fn add_job(&mut self, job_key: Pubkey) {
-        self.jobs.push(job_key);
+    pub fn enter(&mut self, node: Pubkey) {
+        self.queue.push(node)
     }
 
-    pub fn remove_job(&mut self, job_key: &Pubkey) -> Result<()> {
-        // find job in queue
-        let index: Option<usize> = self.jobs.iter().position(|key: &Pubkey| key == job_key);
+    pub fn get(&mut self) -> Pubkey {
+        if self.queue.is_empty() {
+            id::SYSTEM_PROGRAM
+        } else {
+            self.queue.pop().unwrap()
+        }
+    }
 
-        // check if job is found
-        require!(index.is_some(), NosanaError::JobQueueNotFound);
+    pub fn find(&mut self, node: &Pubkey) -> Option<usize> {
+        self.queue.iter().position(|pubkey: &Pubkey| pubkey == node)
+    }
 
-        // remove job from jobs list
-        self.jobs.remove(index.unwrap());
-        Ok(())
+    pub fn exit(&mut self, node: &Pubkey) {
+        let index: Option<usize> = self.find(node);
+        self.queue.remove(index.unwrap());
     }
 }
 
-/// # Job
-/// Object that holds relevant information for a single Job
-/// - __node__ is the ID of the node that claims the Job
-/// - __job_status__ is the JobStatus the current Job
-/// - __ipfs_result__ is the IPFS hash pointing to the job instructions
-/// - __ipfs_result__ is the IPFS hash pointing to the job results
-/// - __tokens__ is amount of tokens
+/// # JobAccount
+
+pub const JOB_SIZE: usize = 8 + size_of::<JobAccount>();
+
 #[account]
 pub struct JobAccount {
-    pub node: Pubkey,
-    pub job_status: u8,
-    pub time_start: i64,
-    pub time_end: i64,
+    pub authority: Pubkey,
     pub ipfs_job: [u8; 32],
     pub ipfs_result: [u8; 32],
-    pub tokens: u64,
+    pub node: Pubkey,
+    pub nodes: Pubkey,
+    pub status: u8,
+    pub time_start: i64,
+    pub time_end: i64,
 }
 
-// size of a job in bytes
-pub const JOB_SIZE: usize = 8 + std::mem::size_of::<JobAccount>();
-
-// timeout of a job in seconds
-pub const TIMEOUT: i64 = 60 * 60;
-
 impl JobAccount {
-    pub fn create(&mut self, data: [u8; 32], amount: u64) {
-        self.job_status = JobStatus::Initialized as u8;
-        self.ipfs_job = data;
-        self.tokens = amount;
+    pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], nodes: Pubkey) {
+        self.authority = authority;
+        self.ipfs_job = ipfs_job;
+        self.nodes = nodes;
+        self.status = JobStatus::Queued as u8;
     }
 
     pub fn claim(&mut self, node: Pubkey, time: i64) {
-        self.job_status = JobStatus::Claimed as u8;
         self.node = node;
+        self.status = JobStatus::Running as u8;
         self.time_start = time;
     }
 
-    pub fn finish(&mut self, time: i64, data: [u8; 32]) {
-        self.job_status = JobStatus::Finished as u8;
-        self.ipfs_result = data;
-        self.time_end = time;
+    pub fn cancel(&mut self) {
+        self.node = id::SYSTEM_PROGRAM;
+        self.status = JobStatus::Queued as u8;
+        self.time_start = 0;
     }
 
-    pub fn cancel(&mut self) {
-        self.job_status = JobStatus::Cancelled as u8;
+    pub fn finish(&mut self, ipfs_result: [u8; 32], time_end: i64) {
+        self.ipfs_result = ipfs_result;
+        self.status = JobStatus::Done as u8;
+        self.time_end = time_end;
     }
 }
 
 /// # JobStatus
-/// Enumeration for the different states a Job can have
+
 #[repr(u8)]
 pub enum JobStatus {
-    Initialized = 0,
-    Claimed = 1,
-    Finished = 2,
-    Cancelled = 3,
+    Queued = 0,
+    Running = 1,
+    Done = 2,
+}
+
+/// # JobType
+
+#[allow(dead_code)]
+#[repr(u8)]
+pub enum JobType {
+    Default = 0,
+    Small = 1,
+    Medium = 2,
+    Large = 3,
+    Gpu = 4,
 }

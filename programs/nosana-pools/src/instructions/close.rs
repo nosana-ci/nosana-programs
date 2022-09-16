@@ -23,7 +23,7 @@ pub struct Close<'info> {
 pub fn handler(ctx: Context<Close>) -> Result<()> {
     let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
     let seeds: &[&[u8]; 3] = &[
-        b"vault".as_ref(),
+        constants::PREFIX_VAULT.as_ref(),
         pool.to_account_info().key.as_ref(),
         &[pool.vault_bump],
     ];

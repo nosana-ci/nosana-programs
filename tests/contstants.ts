@@ -19,14 +19,18 @@ const constants = {
   slashAmount: 1e3 * decimals,
   minimumNodeStake: 1e4 * decimals,
   feeAmount: 1e5 * decimals,
-
+  jobTimeout: 60 * 60,
   initialRate,
 
   // status options for jobs
   jobStatus: {
-    created: 0,
-    claimed: 1,
-    finished: 2,
+    queued: 0,
+    running: 1,
+    done: 2,
+  },
+
+  jobType: {
+    default: 0,
   },
 
   // type for claim
@@ -41,33 +45,42 @@ const constants = {
     // generic errors
     Unauthorized: 'This account is not authorized to perform this action.',
     InvalidOwner: 'This account is owned by an invalid program.',
+    InvalidTokenAccount: 'This token account is not valid.',
     InvalidMint: 'This mint is invalid.',
+    InvalidVault: 'This account has an invalid vault.',
 
     // stake errors
     StakeAmountNotEnough: 'This amount is not enough.',
     StakeAlreadyInitialized: 'This stake is already running.',
-    StakeAlreadyStaked: 'This stake is already unstaked.',
+    StakeAlreadyClaimed: 'This stake is already claimed.',
+    StakeAlreadyStaked: 'This stake is already staked.',
     StakeAlreadyUnstaked: 'This stake is already unstaked.',
     StakeNotUnstaked: 'This stake is not yet unstaked.',
     StakeLocked: 'This stake is still locked.',
     StakeDurationTooShort: 'This stake duration is not long enough.',
     StakeDurationTooLong: 'This stake duration is too long.',
+    StakeDoesNotExist: 'This stake account does not exist.',
+    StakeDecreased: 'This stake is not allowed to decrease.',
     StakeHasReward: 'This stake still has a reward account.',
     StakeDoesNotMatchReward: 'This stake does not match the reward account.',
 
     // job errors
-    JobNotClaimed: 'This job is not in the Claimed state.',
-    JobNotInitialized: 'This job is not in the Initialized state.',
-    JobNotTimedOut: 'This job is not timed out.',
-    JobQueueNotFound: 'This job queue not found.',
+    JobInWrongState: 'This job does not have the right status.',
+
+    // node errors
+    NodeNoStake: 'This node does not have an active stake.',
+    NodeQueueDoesNotMatch: 'This node queue does not match.',
+    NodeNotEnoughStake: 'This node has not staked enough tokens.',
+    NodeAlreadyQueued: 'This node is already present in the queue.',
+    NodeNftWrongMetadata: 'This metadata does not have the correct address.',
+    NodeNftWrongCollection: 'This NFT does not belong to the right collection.',
 
     // pool errors
     PoolNotStarted: 'This pool has not started yet.',
     PoolUnderfunded: 'This pool does not have enough funds.',
-
-    // node errors
-    NodeUnqualifiedUnstaked: "This nodes' stake has been unstaked.",
-    NodeUnqualifiedStakeAmount: 'This node has not staked enough tokens.',
+    PoolNotCloseable: 'This pool is not closeable.',
+    PoolWrongClaimType: 'This pool has a different claim type.',
+    PoolWrongBeneficiary: 'This pool does not match the beneficiary.',
 
     // anchor errors
     Solana8ByteConstraint: '8 byte discriminator did not match what was expected',

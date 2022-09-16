@@ -11,6 +11,8 @@ pub enum NosanaError {
     InvalidTokenAccount,
     #[msg("This mint is invalid.")]
     InvalidMint,
+    #[msg("This account has an invalid vault.")]
+    InvalidVault,
 
     // stake errors
     #[msg("This amount is not enough.")]
@@ -41,20 +43,18 @@ pub enum NosanaError {
     StakeDoesNotMatchReward,
 
     // job errors
-    #[msg("This job is not in the Claimed state.")]
-    JobNotClaimed,
-    #[msg("This job is not in the Initialized state.")]
-    JobNotInitialized,
-    #[msg("This job is not timed out.")]
-    JobNotTimedOut,
-    #[msg("This job queue not found.")]
-    JobQueueNotFound,
+    #[msg("This job does not have the right status.")]
+    JobInWrongState,
 
     // node errors
-    #[msg("This nodes' stake has been unstaked.")]
+    #[msg("This node does not have an active stake.")]
     NodeNoStake,
+    #[msg("This node queue does not match.")]
+    NodeQueueDoesNotMatch,
     #[msg("This node has not staked enough tokens.")]
     NodeNotEnoughStake,
+    #[msg("This node is already present in the queue.")]
+    NodeAlreadyQueued,
     #[msg("This metadata does not have the correct address.")]
     NodeNftWrongMetadata,
     #[msg("This NFT does not belong to the right collection.")]

@@ -3,18 +3,14 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Open<'info> {
-    #[account(
-        init,
-        payer = authority,
-        space = POOL_SIZE,
-    )]
+    #[account(init, payer = authority, space = POOL_SIZE)]
     pub pool: Account<'info, PoolAccount>,
     #[account(
         init,
         payer = authority,
         token::mint = mint,
         token::authority = vault,
-        seeds = [ b"vault", pool.key().as_ref() ],
+        seeds = [ constants::PREFIX_VAULT.as_ref(), pool.key().as_ref() ],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,

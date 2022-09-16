@@ -5,7 +5,7 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 pub struct AddFee<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
+    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
     pub vault: Account<'info, TokenAccount>,

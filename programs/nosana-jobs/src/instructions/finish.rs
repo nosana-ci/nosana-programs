@@ -3,26 +3,27 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Finish<'info> {
-    #[account(mut)]
-    pub user: Account<'info, TokenAccount>,
     #[account(
         mut,
         constraint = job.node == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.job_status == JobStatus::Claimed as u8 @ NosanaError::JobNotClaimed,
+        constraint = job.status == JobStatus::Running as u8 @ NosanaError::JobInWrongState
     )]
     pub job: Account<'info, JobAccount>,
-    #[account(mut, seeds = [ id::TST_TOKEN.as_ref() ], bump)]
+    #[account(has_one = vault @ NosanaError::InvalidVault)]
+    pub nodes: Account<'info, NodesAccount>,
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub user: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Finish>, data: [u8; 32]) -> Result<()> {
-    // get job and finish it
-    let job: &mut Account<JobAccount> = &mut ctx.accounts.job;
-    job.finish(Clock::get()?.unix_timestamp, data);
+pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
+    // finish the job
+    (&mut ctx.accounts.job).finish(ipfs_result, Clock::get()?.unix_timestamp);
 
-    // payout tokens
+    // reimburse the node
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -31,8 +32,12 @@ pub fn handler(ctx: Context<Finish>, data: [u8; 32]) -> Result<()> {
                 to: ctx.accounts.user.to_account_info(),
                 authority: ctx.accounts.vault.to_account_info(),
             },
-            &[&[id::TST_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
+            &[&[
+                ctx.accounts.nodes.key().as_ref(),
+                id::NOS_TOKEN.as_ref(),
+                &[ctx.accounts.nodes.vault_bump],
+            ]],
         ),
-        job.tokens,
+        ctx.accounts.nodes.job_price,
     )
 }

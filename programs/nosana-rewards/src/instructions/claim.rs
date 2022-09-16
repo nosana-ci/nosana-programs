@@ -8,7 +8,7 @@ pub struct Claim<'info> {
     pub user: Account<'info, TokenAccount>,
     #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
     pub vault: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ b"stats" ], bump = stats.bump)]
+    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump = stats.bump)]
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
     pub reward: Account<'info, RewardAccount>,

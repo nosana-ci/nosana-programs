@@ -1,3 +1,5 @@
+extern crate core;
+
 mod instructions;
 mod security;
 mod state;
@@ -13,20 +15,8 @@ declare_id!(id::JOBS_PROGRAM);
 pub mod nosana_jobs {
     use super::*;
 
-    pub fn init(_ctx: Context<Init>) -> Result<()> {
-        init::handler()
-    }
-
-    pub fn start(ctx: Context<Start>) -> Result<()> {
-        start::handler(ctx)
-    }
-
-    pub fn stop(_ctx: Context<Stop>) -> Result<()> {
-        stop::handler()
-    }
-
-    pub fn create(ctx: Context<Create>, amount: u64, data: [u8; 32]) -> Result<()> {
-        create::handler(ctx, amount, data)
+    pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
+        cancel::handler(ctx)
     }
 
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
@@ -37,15 +27,23 @@ pub mod nosana_jobs {
         close::handler(ctx)
     }
 
-    pub fn reclaim(ctx: Context<Reclaim>) -> Result<()> {
-        reclaim::handler(ctx)
+    pub fn create(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
+        create::handler(ctx, ipfs_job)
     }
 
-    pub fn finish(ctx: Context<Finish>, data: [u8; 32]) -> Result<()> {
-        finish::handler(ctx, data)
+    pub fn enter(ctx: Context<Enter>) -> Result<()> {
+        enter::handler(ctx)
     }
 
-    pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
-        cancel::handler(ctx)
+    pub fn exit(ctx: Context<Exit>) -> Result<()> {
+        exit::handler(ctx)
+    }
+
+    pub fn finish(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
+        finish::handler(ctx, ipfs_result)
+    }
+
+    pub fn init(ctx: Context<Init>, job_price: u64, job_timeout: i64, job_type: u8) -> Result<()> {
+        init::handler(ctx, job_price, job_timeout, job_type)
     }
 }

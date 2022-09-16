@@ -49,7 +49,11 @@ pub fn handler(ctx: Context<ClaimFee>) -> Result<()> {
                 authority: ctx.accounts.vault.to_account_info(),
                 token_program: ctx.accounts.token_program.to_account_info(),
             },
-            &[&[b"vault".as_ref(), pool.key().as_ref(), &[pool.vault_bump]]],
+            &[&[
+                constants::PREFIX_VAULT.as_ref(),
+                pool.key().as_ref(),
+                &[pool.vault_bump],
+            ]],
         ),
         amount,
     )
