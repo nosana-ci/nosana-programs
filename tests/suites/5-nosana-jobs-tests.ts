@@ -2,6 +2,7 @@ import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import { buf2hex, getTokenBalance, now, pda } from '../utils';
 import { BN } from '@project-serum/anchor';
+import {PublicKey} from "@solana/web3.js";
 
 export default function suite() {
   afterEach(async function () {
@@ -152,8 +153,20 @@ export default function suite() {
       const jobs = await this.jobsProgram.account.jobAccount.all([
         {
           memcmp: {
-            offset: 8 + 32 * 3,
+            offset: this.constants.discriminator + 32 * 3,
             bytes: this.accounts.systemProgram.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: this.constants.discriminator + 32 * 4,
+            bytes: this.accounts.nodes.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: this.constants.discriminator + 32 * 5,
+            bytes: '1',
           },
         },
       ]);
@@ -180,7 +193,13 @@ export default function suite() {
       const jobs = await this.jobsProgram.account.jobAccount.all([
         {
           memcmp: {
-            offset: 8 + 32 * 5,
+            offset: this.constants.discriminator + 32 * 4,
+            bytes: this.accounts.nodes.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: this.constants.discriminator + 32 * 5,
             bytes: '2',
           },
         },
