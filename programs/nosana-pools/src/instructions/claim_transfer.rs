@@ -17,7 +17,6 @@ pub struct ClaimTransfer<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
-    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<ClaimTransfer>) -> Result<()> {

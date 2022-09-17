@@ -21,7 +21,6 @@ pub struct ClaimFee<'info> {
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
     pub rewards_program: Program<'info, NosanaRewards>,
-    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<ClaimFee>) -> Result<()> {
@@ -45,7 +44,6 @@ pub fn handler(ctx: Context<ClaimFee>) -> Result<()> {
                 user: vault.to_account_info(),
                 stats: ctx.accounts.rewards_stats.to_account_info(),
                 vault: ctx.accounts.rewards_vault.to_account_info(),
-                system_program: ctx.accounts.system_program.to_account_info(),
                 authority: ctx.accounts.vault.to_account_info(),
                 token_program: ctx.accounts.token_program.to_account_info(),
             },
