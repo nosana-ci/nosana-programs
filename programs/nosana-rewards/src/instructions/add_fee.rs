@@ -9,7 +9,6 @@ pub struct AddFee<'info> {
     pub stats: Account<'info, StatsAccount>,
     #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
     pub vault: Account<'info, TokenAccount>,
-    pub system_program: Program<'info, System>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
