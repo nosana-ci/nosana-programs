@@ -8,11 +8,11 @@ pub struct Init<'info> {
     #[account(
         init,
         payer = authority,
-        space = STATS_SIZE,
-        seeds = [ constants::PREFIX_STATS.as_ref() ],
+        space = REFLECTION_SIZE,
+        seeds = [ constants::PREFIX_REFLECTION.as_ref() ],
         bump
     )]
-    pub stats: Account<'info, StatsAccount>,
+    pub reflection: Account<'info, ReflectionAccount>,
     #[account(
         init,
         payer = authority,
@@ -30,7 +30,7 @@ pub struct Init<'info> {
 }
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
-    // init stats account
-    (&mut ctx.accounts.stats).init(ctx.accounts.vault.key(), *ctx.bumps.get("vault").unwrap());
+    // init reflection account
+    (&mut ctx.accounts.reflection).init(ctx.accounts.vault.key(), *ctx.bumps.get("vault").unwrap());
     Ok(())
 }

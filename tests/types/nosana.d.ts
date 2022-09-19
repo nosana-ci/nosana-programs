@@ -49,10 +49,10 @@ type NosanaAccounts = {
   stake: PublicKey;
 
   // rewards specific
-  stats: PublicKey;
+  reflection: PublicKey;
   reward: PublicKey;
   rewardsVault: PublicKey;
-  rewardsStats: PublicKey;
+  rewardsReflection: PublicKey;
 
   // pools specific
   pool: PublicKey;

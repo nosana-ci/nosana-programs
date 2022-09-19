@@ -83,13 +83,13 @@ describe('nosana programs', async function () {
     this.accounts.feePayer = this.publicKey;
     this.accounts.mint = this.mint;
     this.accounts.user = await getAssociatedTokenAddress(this.mint, this.publicKey);
-    this.accounts.stats = await pda([utf8.encode('stats')], this.rewardsProgram.programId);
+    this.accounts.reflection = await pda([utf8.encode('reflection')], this.rewardsProgram.programId);
     this.accounts.reward = await pda([utf8.encode('reward'), this.publicKey.toBuffer()], this.rewardsProgram.programId);
     this.accounts.settings = await pda([utf8.encode('settings')], this.stakingProgram.programId);
     this.accounts.beneficiary = this.vaults.rewards;
     this.accounts.tokenAccount = this.accounts.user;
     this.accounts.rewardsVault = this.vaults.rewards;
-    this.accounts.rewardsStats = this.accounts.stats;
+    this.accounts.rewardsReflection = this.accounts.reflection;
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId

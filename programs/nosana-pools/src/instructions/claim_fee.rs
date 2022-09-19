@@ -1,13 +1,13 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, StatsAccount};
+use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, ReflectionAccount};
 
 #[derive(Accounts)]
 pub struct ClaimFee<'info> {
     #[account(mut, address = pool.vault @ NosanaError::InvalidTokenAccount)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub rewards_stats: Account<'info, StatsAccount>,
+    pub rewards_reflection: Account<'info, ReflectionAccount>,
     #[account(mut)]
     pub rewards_vault: Account<'info, TokenAccount>,
     #[account(
@@ -42,7 +42,7 @@ pub fn handler(ctx: Context<ClaimFee>) -> Result<()> {
             ctx.accounts.rewards_program.to_account_info(),
             AddFee {
                 user: vault.to_account_info(),
-                stats: ctx.accounts.rewards_stats.to_account_info(),
+                reflection: ctx.accounts.rewards_reflection.to_account_info(),
                 vault: ctx.accounts.rewards_vault.to_account_info(),
                 authority: ctx.accounts.vault.to_account_info(),
                 token_program: ctx.accounts.token_program.to_account_info(),

@@ -13,12 +13,22 @@ use nosana_common::constants::NOS_TOTAL_SUPPLY;
 pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
 // pub const INITIAL_RATE: u128 = u128::pow(10, 15);
 
-/// # Stats
-
-pub const STATS_SIZE: usize = 8 + std::mem::size_of::<StatsAccount>();
+/// # Old Stats Account
 
 #[account]
 pub struct StatsAccount {
+    pub bump: u8,
+    pub rate: u128,
+    pub total_reflection: u128,
+    pub total_xnos: u128,
+}
+
+/// # Reflection
+
+pub const REFLECTION_SIZE: usize = 8 + std::mem::size_of::<ReflectionAccount>();
+
+#[account]
+pub struct ReflectionAccount {
     pub rate: u128,
     pub total_reflection: u128,
     pub total_xnos: u128,
@@ -26,11 +36,26 @@ pub struct StatsAccount {
     pub vault_bump: u8,
 }
 
-impl StatsAccount {
+impl ReflectionAccount {
     pub fn init(&mut self, vault: Pubkey, vault_bump: u8) {
         self.rate = INITIAL_RATE;
         self.total_reflection = 0;
         self.total_xnos = 0;
+        self.vault = vault;
+        self.vault_bump = vault_bump;
+    }
+
+    pub fn migrate(
+        &mut self,
+        rate: u128,
+        reflection: u128,
+        xnos: u128,
+        vault: Pubkey,
+        vault_bump: u8,
+    ) {
+        self.rate = rate;
+        self.total_reflection = reflection;
+        self.total_xnos = xnos;
         self.vault = vault;
         self.vault_bump = vault_bump;
     }

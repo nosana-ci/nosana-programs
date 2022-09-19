@@ -6,7 +6,7 @@ pub struct AddFee<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
     #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
-    pub stats: Account<'info, StatsAccount>,
+    pub reflection: Account<'info, ReflectionAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
@@ -15,7 +15,7 @@ pub struct AddFee<'info> {
 
 pub fn handler(ctx: Context<AddFee>, amount: u64) -> Result<()> {
     // update stats
-    (&mut ctx.accounts.stats).add_fee(u128::from(amount));
+    (&mut ctx.accounts.reflection).add_fee(u128::from(amount));
 
     // send fee
     transfer(
