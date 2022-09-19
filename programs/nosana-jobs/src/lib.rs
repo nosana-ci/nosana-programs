@@ -1,5 +1,3 @@
-extern crate core;
-
 mod instructions;
 mod security;
 mod state;
