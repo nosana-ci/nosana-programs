@@ -5,6 +5,7 @@ use std::mem::size_of;
 /// # Constants
 
 pub const NODE_STAKE_MINIMUM: u64 = 10_000 * constants::NOS_DECIMALS;
+pub const JOB_FEE_FRACTION: u64 = 10;
 
 /// # NodesAccount
 
