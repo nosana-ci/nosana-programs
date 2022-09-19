@@ -29,10 +29,10 @@ Four Nosana programs can be found in this repository, together with the [Nosana 
 
 The external audits of the following Nosana programs are published in this repository:
 
-| program        | report                                                                                                                   | auditor                            | date       | status |
-|----------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------|------------|--------|
-| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](https://github.com/nosana-ci/nosana-programs/blob/main/audits/NOSANA_STAKING_REPORT_1.pdf) | [Op Codes](https://opcodes.fr/en/) | 10-08-2022 | ✅      |
-| Nosana Staking | [NOSANA_STAKING_REPORT_2.pdf](https://github.com/nosana-ci/nosana-programs/blob/main/audits/NOSANA_STAKING_REPORT_2.pdf) | [Op Codes](https://opcodes.fr/en/) | 23-08-2022 | ✅      |
+| program        | report                                                                                                                   | auditor                        | date       | status |
+|----------------|--------------------------------------------------------------------------------------------------------------------------|--------------------------------|------------|--------|
+| Nosana Staking | [NOSANA_STAKING_REPORT_1.pdf](https://github.com/nosana-ci/nosana-programs/blob/main/audits/NOSANA_STAKING_REPORT_1.pdf) | [Op Codes](https://opcodes.fr) | 10-08-2022 | ✅      |
+| Nosana Staking | [NOSANA_STAKING_REPORT_2.pdf](https://github.com/nosana-ci/nosana-programs/blob/main/audits/NOSANA_STAKING_REPORT_2.pdf) | [Op Codes](https://opcodes.fr) | 23-08-2022 | ✅      |
 
 ## Contribution
 
