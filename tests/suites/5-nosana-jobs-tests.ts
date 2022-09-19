@@ -46,6 +46,7 @@ export default function suite() {
         .signers([throwAwayKeypair])
         .rpc();
       this.balances.user -= this.constants.jobPrice;
+      this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
     });
 
@@ -91,6 +92,7 @@ export default function suite() {
         .signers([throwAwayKeypair])
         .rpc();
       this.balances.user -= this.constants.jobPrice;
+      this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
     });
 
@@ -254,6 +256,7 @@ export default function suite() {
         .rpc();
 
       this.balances.user -= this.constants.jobPrice;
+      this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
     });
 

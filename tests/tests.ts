@@ -112,6 +112,7 @@ describe('nosana programs', async function () {
     case 'jobs':
       describe('initialization', initTests);
       describe('staking', stakingTests);
+      describe('rewards', rewardTests);
       describe('jobs', jobTests);
       break;
     case 'pools':

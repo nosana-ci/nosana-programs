@@ -829,6 +829,7 @@ dependencies = [
  "anchor-spl",
  "mpl-token-metadata",
  "nosana-common",
+ "nosana-rewards",
  "nosana-staking",
 ]
 
