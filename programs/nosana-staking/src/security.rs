@@ -1,3 +1,4 @@
+/*
 use nosana_common::security_txt;
 
 security_txt! {
@@ -8,3 +9,4 @@ security_txt! {
     source_code: "https://github.com/nosana-ci/nosana-programs",
     auditors: "https://opcodes.fr/"
 }
+ */

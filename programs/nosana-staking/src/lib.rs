@@ -1,5 +1,5 @@
 mod instructions;
-// mod security;
+mod security;
 mod state;
 
 use anchor_lang::prelude::*;
