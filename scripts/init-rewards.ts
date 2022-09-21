@@ -21,8 +21,8 @@ async function main() {
     .accounts({
       systemProgram: web3.SystemProgram.programId,
       rent: web3.SYSVAR_RENT_PUBKEY,
-      stats: await pda([mint.toBuffer()], programId),
-      vault: await pda([utf8.encode('stats')], programId),
+      vault: await pda([mint.toBuffer()], programId),
+      reflection: await pda([utf8.encode('reflection')], programId),
       mint,
     })
     .rpc();

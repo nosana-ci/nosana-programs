@@ -15,7 +15,7 @@ export default function suite() {
       await this.rewardsProgram.methods.init().accounts(this.accounts).rpc();
 
       // test stats
-      const stats = await this.rewardsProgram.account.statsAccount.fetch(this.accounts.stats);
+      const stats = await this.rewardsProgram.account.reflectionAccount.fetch(this.accounts.reflection);
       expect(stats.totalXnos.toString()).to.equal(this.total.xnos.toString());
       expect(stats.totalReflection.toString()).to.equal(this.total.reflection.toString());
       expect(stats.rate.toString()).to.equal(this.constants.initialRate.toString());
@@ -160,7 +160,7 @@ export default function suite() {
       expect(reflection.toString()).to.equal(after.reflection.toString());
 
       // test stats
-      const stats = await this.rewardsProgram.account.statsAccount.fetch(this.accounts.stats);
+      const stats = await this.rewardsProgram.account.reflectionAccount.fetch(this.accounts.reflection);
       expect(stats.totalXnos.toString()).to.equal(this.total.xnos.toString(), 'Total XNOS error');
       expect(stats.totalReflection.toString()).to.equal(this.total.reflection.toString(), 'Total reflection error');
       expect(stats.rate.toString()).to.equal(this.total.rate.toString(), 'Rate error');

@@ -10,22 +10,22 @@ pub struct Sync<'info> {
         constraint = stake.authority == reward.authority @ NosanaError::Unauthorized,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump = stats.bump)]
-    pub stats: Account<'info, StatsAccount>,
+    #[account(mut)]
+    pub reflection: Account<'info, ReflectionAccount>,
 }
 
 pub fn handler(ctx: Context<Sync>) -> Result<()> {
     // get reward and stats account
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+    let reflection: &mut Account<ReflectionAccount> = &mut ctx.accounts.reflection;
 
     // decrease the reflection pool
-    stats.remove_rewards_account(reward.reflection, reward.xnos);
+    reflection.remove_rewards_account(reward.reflection, reward.xnos);
 
     // re-enter the pool with the current stake
-    let amount: u128 = reward.get_amount(stats.rate);
+    let amount: u128 = reward.get_amount(reflection.rate);
     reward.update(
-        stats.add_rewards_account(ctx.accounts.stake.xnos, amount),
+        reflection.add_rewards_account(ctx.accounts.stake.xnos, amount),
         ctx.accounts.stake.xnos,
     );
     Ok(())

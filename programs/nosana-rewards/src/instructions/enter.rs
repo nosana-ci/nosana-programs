@@ -4,7 +4,7 @@ use nosana_staking::StakeAccount;
 #[derive(Accounts)]
 pub struct Enter<'info> {
     #[account(mut)]
-    pub stats: Account<'info, StatsAccount>,
+    pub reflection: Account<'info, ReflectionAccount>,
     #[account(
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
@@ -26,13 +26,13 @@ pub struct Enter<'info> {
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
     // get stake, reward, and stats account
     let stake: &Account<StakeAccount> = &ctx.accounts.stake;
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+    let reflection: &mut Account<ReflectionAccount> = &mut ctx.accounts.reflection;
 
     // initialize the reward account
     (&mut ctx.accounts.reward).init(
         ctx.accounts.authority.key(),
         *ctx.bumps.get("reward").unwrap(),
-        stats.add_rewards_account(stake.xnos, 0),
+        reflection.add_rewards_account(stake.xnos, 0),
         stake.xnos,
     );
     Ok(())

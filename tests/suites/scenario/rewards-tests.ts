@@ -27,7 +27,11 @@ async function addFee(mochaContext: Context, amount: number) {
   const amountBn = new BN(amount);
   await mochaContext.rewardsProgram.methods
     .addFee(amountBn)
-    .accounts({ ...mochaContext.accounts, stats: mochaContext.accounts.stats, vault: mochaContext.vaults.rewards })
+    .accounts({
+      ...mochaContext.accounts,
+      reflection: mochaContext.accounts.reflection,
+      vault: mochaContext.vaults.rewards,
+    })
     .rpc();
 
   await mapUsers(mochaContext.stakers, function (user) {
@@ -52,7 +56,7 @@ async function claim(mochaContext: Context, user) {
       authority: user.user.publicKey,
       user: user.user.ata,
       vault: mochaContext.vaults.rewards,
-      stats: mochaContext.accounts.stats,
+      reflection: mochaContext.accounts.reflection,
     })
     .signers([user.user.user])
     .rpc();
@@ -73,7 +77,7 @@ async function sync(mochaContext: Context, user) {
     .accounts({
       stake: user.user.stake,
       reward: user.user.reward,
-      stats: mochaContext.accounts.stats,
+      reflection: mochaContext.accounts.reflection,
     })
     .rpc();
 
@@ -139,10 +143,12 @@ async function claimAndCheckIds(mochaContext: Context, step: number) {
  */
 async function printReflections(mochaContext: Context, user) {
   const reward = await mochaContext.rewardsProgram.account.rewardAccount.fetch(user.user.reward);
-  const stats = await mochaContext.rewardsProgram.account.statsAccount.fetch(mochaContext.accounts.stats);
+  const reflection = await mochaContext.rewardsProgram.account.reflectionAccount.fetch(
+    mochaContext.accounts.reflection
+  );
 
   console.log('reflection: ', reward.reflection.toString(), ' xnos: ', reward.xnos.toString());
-  console.log('rate: ', stats.rate.toString());
+  console.log('rate: ', reflection.rate.toString());
 }
 
 /**
@@ -156,7 +162,7 @@ export default function suite() {
   it('init rewards vault', async function () {
     await this.rewardsProgram.methods
       .init()
-      .accounts({ ...this.accounts, stats: this.accounts.stats, vault: this.vaults.rewards })
+      .accounts({ ...this.accounts, reflection: this.accounts.reflection, vault: this.vaults.rewards })
       .rpc();
   });
 
