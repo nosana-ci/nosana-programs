@@ -1,11 +1,8 @@
-const fs = require('fs')
-import { AnchorProvider, Idl, Program, setProvider, web3, BN } from '@project-serum/anchor';
-import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { fs } from 'fs';
+import { AnchorProvider, Idl, Program, setProvider, BN } from '@project-serum/anchor';
 import { PublicKey } from '@solana/web3.js';
 import { NosanaStaking } from '../target/types/nosana_staking';
-import { sha256 } from "js-sha256";
-import bs58 from 'bs58';
-import { sleep } from '../tests/utils'
+import { sleep } from '../tests/utils';
 
 const outPrefix = './202209_';
 const ticketsFile = `${outPrefix}_tickets.csv`;
@@ -25,8 +22,8 @@ const getTiers = (maxRank) => [
   Math.floor(0.2 * maxRank) + Math.floor(0.2 * maxRank) + Math.floor(0.2 * maxRank) + 20,
   Math.floor(0.2 * maxRank) + Math.floor(0.2 * maxRank) + 20,
   Math.floor(0.2 * maxRank + 20),
-  20
-]
+  20,
+];
 
 // Below imlementation is more straighforward but has different rounding than the frontend:
 // const getTiers = (maxRank) => [1.0, 0.6, 0.4, 0.2, 0.0].map(
@@ -39,11 +36,10 @@ const getTiers = (maxRank) => [
 const calculateTickets = (rank, tiers) => {
   const tickets = [1, 3, 6, 15, 0];
   for (let tier = 4; tier >= 0; tier--) {
-    if (rank < tiers[tier])
-      return tickets[tier];
+    if (rank < tiers[tier]) return tickets[tier];
   }
   return 0;
-}
+};
 
 /**
  * Create a CSV file with the stakes
@@ -58,35 +54,32 @@ async function makeTicketsCsv() {
 
   // wait for the specific block near which we want to make the snapshot
   if (waitForBlock) {
-    let lastBlock = (await provider.connection.getBlockHeight());
+    let lastBlock = await provider.connection.getBlockHeight();
     while (lastBlock < waitForBlock) {
       console.log(`Waiting ${waitForBlock - lastBlock} more blocks`);
       await sleep(1500);
-      lastBlock = (await provider.connection.getBlockHeight());
+      lastBlock = await provider.connection.getBlockHeight();
     }
   }
 
-  let stakes = await program.account.stakeAccount.all([]);
+  const stakes = await program.account.stakeAccount.all([]);
   // let blockhash = await provider.connection.getBlock(
   //   waitForBlock, {commitment: "finalized"}
   // ).blockhash;
   console.log(`Found ${stakes.length} stakes`);
 
-  let minXnos = new BN(1000).mul(new BN(1e6));
-  let ranks = stakes
-    .map(e => e.account)
-    .filter(e => e.xnos.gt(minXnos))
+  const minXnos = new BN(1000).mul(new BN(1e6));
+  const ranks = stakes
+    .map((e) => e.account)
+    .filter((e) => e.xnos.gt(minXnos))
     .sort((e1, e2) => (e1.xnos.gt(e2.xnos) ? -1 : 1));
 
   console.log(`Found ${ranks.length} qualified stakes`);
   const tiers = getTiers(ranks.length);
 
-  let tickets = ranks
-    .map((e, i) => [e.authority.toString(), e.xnos.toString(), calculateTickets(i, tiers)])
+  const tickets = ranks.map((e, i) => [e.authority.toString(), e.xnos.toString(), calculateTickets(i, tiers)]);
 
-  let ticketsCsv = tickets
-    .map(e => e.join(','))
-    .join('\n');
+  const ticketsCsv = tickets.map((e) => e.join(',')).join('\n');
   fs.writeFileSync(ticketsFile, ticketsCsv);
   console.log(`Wrote tickets CSV to ${ticketsFile}`);
 
@@ -98,13 +91,13 @@ async function makeTicketsCsv() {
  */
 function drawWinners(tickets) {
   // array of the winning user addresses
-  let selected = tickets.reduce((v, [addr,, n]) => n == 0 ? v.concat(addr) : v, []);
+  const selected = tickets.reduce((v, [addr, , n]) => (n == 0 ? v.concat(addr) : v), []);
 
   // keeps track of remaining vote weight of all electible users
   let totalWeight = tickets.reduce((tot, row) => tot + (row[2] as number), 0);
 
   // holds {"user-address" => # tickets} for the users that are electible for draw
-  let userWeight = tickets.reduce((map, [auth, xnos, n]) => map.set(auth, n), new Map());
+  const userWeight = tickets.reduce((map, [auth, , n]) => map.set(auth, n), new Map());
 
   const leftToDraw = totalDraws - selected.length;
   for (let i = 0; i < leftToDraw; i++) {
@@ -125,13 +118,15 @@ function drawWinners(tickets) {
     }
   }
 
-  let winnersCsv = selected.reduce((s, addr) => s + `\n${addr},1,`, 'recipient,amount,lockup_date');
+  const winnersCsv = selected.reduce((s, addr) => s + `\n${addr},1,`, 'recipient,amount,lockup_date');
   fs.writeFileSync(winnersFile, winnersCsv);
-  console.log(`Wrote winners CSV to ${winnersFile}. Use as:
+  console.log(
+    `Wrote winners CSV to ${winnersFile}. Use as:
 
 solana-tokens distribute-tokens --from <KEYPAIR>` +
-    ` --input-csv ${winnersFile} --fee-payer <KEYPAIR>
-`);
+      ` --input-csv ${winnersFile} --fee-payer <KEYPAIR>
+`
+  );
 }
 
 console.log('Drawing Burner Phone Lottery.');
