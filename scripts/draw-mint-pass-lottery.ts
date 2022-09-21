@@ -4,13 +4,14 @@ import { PublicKey } from '@solana/web3.js';
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { sleep } from '../tests/utils';
 
-const outPrefix = './202209_';
+const date = new Date();
+const outPrefix = `./${date.getUTCFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}_`;
 const ticketsFile = `${outPrefix}_tickets.csv`;
 const winnersFile = `${outPrefix}_winners.csv`;
 
 const totalDraws = 50;
 
-const waitForBlock = 136834015;
+const waitForBlock = process.argv.slice(2)[0];
 
 /**
  * Returns a vector of tier edges. The index in the array is the Tier
@@ -87,7 +88,7 @@ async function makeTicketsCsv() {
 }
 
 /**
- * Create a CSV file with the stakes
+ * Create a CSV file with the winners
  */
 function drawWinners(tickets) {
   // array of the winning user addresses
