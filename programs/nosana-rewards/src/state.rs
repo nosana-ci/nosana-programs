@@ -13,16 +13,6 @@ use nosana_common::constants::NOS_TOTAL_SUPPLY;
 pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
 // pub const INITIAL_RATE: u128 = u128::pow(10, 15);
 
-/// # Old Stats Account
-
-#[account]
-pub struct StatsAccount {
-    pub bump: u8,
-    pub rate: u128,
-    pub total_reflection: u128,
-    pub total_xnos: u128,
-}
-
 /// # Reflection
 
 pub const REFLECTION_SIZE: usize = 8 + std::mem::size_of::<ReflectionAccount>();

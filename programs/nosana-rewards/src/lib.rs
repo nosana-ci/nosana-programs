@@ -18,10 +18,6 @@ pub mod nosana_rewards {
         init::handler(ctx)
     }
 
-    pub fn migrate_stats(ctx: Context<MigrateStats>) -> Result<()> {
-        migrate_stats::handler(ctx)
-    }
-
     pub fn enter(ctx: Context<Enter>) -> Result<()> {
         enter::handler(ctx)
     }
