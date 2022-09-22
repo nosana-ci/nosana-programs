@@ -21,7 +21,7 @@ pub struct Claim<'info> {
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.amount >= NODE_STAKE_MINIMUM @ NosanaError::NodeNotEnoughStake,
+        constraint = stake.amount >= nodes.stake_minimum @ NosanaError::NodeNotEnoughStake,
         constraint = stake.time_unstake == 0 @ NosanaError::NodeNoStake,
     )]
     pub stake: Account<'info, StakeAccount>,
@@ -37,7 +37,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and verify our nft collection in the metadata
     let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
     require!(
-        metadata.collection.unwrap().key == id::NFT_COLLECTION,
+        metadata.collection.unwrap().key == ctx.accounts.nodes.access_key,
         NosanaError::NodeNftWrongCollection
     );
 

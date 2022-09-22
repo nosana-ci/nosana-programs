@@ -60,8 +60,5 @@ mod token_account {
 pub use nft_collection::ID as NFT_COLLECTION;
 mod nft_collection {
     use super::*;
-    #[cfg(feature = "mainnet")]
-    declare_id!("mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT");
-    #[cfg(not(feature = "mainnet"))]
-    declare_id!("mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT");
+    declare_id!("nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3");
 }

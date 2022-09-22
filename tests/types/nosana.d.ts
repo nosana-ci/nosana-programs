@@ -64,4 +64,5 @@ type NosanaAccounts = {
   nodes: PublicKey;
   nft: PublicKey;
   metadata: PublicKey;
+  accessKey: PublicKey;
 };

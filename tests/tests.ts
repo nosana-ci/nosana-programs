@@ -54,7 +54,7 @@ describe('nosana programs', async function () {
     this.nftConfig.sellerFeeBasisPoints = 0;
     this.nftConfig.isCollection = true;
     // we need an Anchor Public Key :/
-    this.nftConfig.collection = new anchor.web3.PublicKey('mxAC93BiaqQ6RrzaMpGD6QotuTd8gUTSJ9sCPkyJmHT');
+    this.nftConfig.collection = new anchor.web3.PublicKey('nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3');
 
     // dynamic values
     this.total = { xnos: new BN(0), reflection: new BN(0), rate: constants.initialRate };
@@ -90,6 +90,7 @@ describe('nosana programs', async function () {
     this.accounts.tokenAccount = this.accounts.user;
     this.accounts.rewardsVault = this.vaults.rewards;
     this.accounts.rewardsReflection = this.accounts.reflection;
+    this.accounts.accessKey = new PublicKey('nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3');
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId
