@@ -18,16 +18,26 @@ pub struct Init<'info> {
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    /// CHECK: Only the account address is needed for an access key
+    pub access_key: AccountInfo<'info>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Init>, job_price: u64, job_timeout: i64, job_type: u8) -> Result<()> {
+pub fn handler(
+    ctx: Context<Init>,
+    job_price: u64,
+    job_timeout: i64,
+    job_type: u8,
+    stake_minimum: u64,
+) -> Result<()> {
     (&mut ctx.accounts.nodes).init(
         job_price,
         job_timeout,
         job_type,
+        ctx.accounts.access_key.key(),
+        stake_minimum,
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
