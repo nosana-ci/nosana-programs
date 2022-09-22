@@ -25,7 +25,13 @@ pub struct Init<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Init>, job_price: u64, job_timeout: i64, job_type: u8, stake_minimum: u64) -> Result<()> {
+pub fn handler(
+    ctx: Context<Init>,
+    job_price: u64,
+    job_timeout: i64,
+    job_type: u8,
+    stake_minimum: u64,
+) -> Result<()> {
     (&mut ctx.accounts.nodes).init(
         job_price,
         job_timeout,

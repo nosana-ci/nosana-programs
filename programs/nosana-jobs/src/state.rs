@@ -24,6 +24,7 @@ pub struct NodesAccount {
 }
 
 impl NodesAccount {
+    #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
         job_price: u64,
