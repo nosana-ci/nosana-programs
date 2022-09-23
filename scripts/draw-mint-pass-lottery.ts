@@ -1,6 +1,7 @@
-import { fs } from 'fs';
+import * as fs from 'fs';
 import { AnchorProvider, Idl, Program, setProvider, BN } from '@project-serum/anchor';
 import { PublicKey } from '@solana/web3.js';
+// @ts-ignore
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { sleep } from '../tests/utils';
 
@@ -11,7 +12,7 @@ const winnersFile = `${outPrefix}_winners.csv`;
 
 const totalDraws = 50;
 
-const waitForBlock = process.argv.slice(2)[0];
+const waitForBlock = parseInt(process.argv.slice(2)[0]);
 
 /**
  * Returns a vector of tier edges. The index in the array is the Tier
