@@ -4,7 +4,7 @@ import { PublicKey } from '@solana/web3.js';
 // @ts-ignore
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { sleep } from '../tests/utils';
-import { default as seedrandom } from 'seedrandom'
+import { default as seedrandom } from 'seedrandom';
 
 const date = new Date();
 
@@ -67,9 +67,7 @@ async function makeTicketsCsv() {
       lastTime = await provider.connection.getBlockTime(lastHeight);
     }
   }
-  const blockhash = (await provider.connection.getBlock(
-    lastHeight, {commitment: "finalized"}
-  )).blockhash;
+  const blockhash = (await provider.connection.getBlock(lastHeight, { commitment: 'finalized' })).blockhash;
   console.log(`Using block ${lastHeight} for PRNG seed: ${blockhash}`);
 
   const stakes = await program.account.stakeAccount.all([]);
