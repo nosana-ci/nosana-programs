@@ -32,5 +32,8 @@ In the top of the file configure the following parameters:
 - `waitForBlock`: optional: A Solana blockheight to wait for before making the snapshot
 
 ```shell
-npx ts-node draw-mint-pass-lottery.ts
+npx ts-node draw-mint-pass-lottery.ts <wait_for_block_time>
 ```
+
+The `<wait_for_block_time>` is the block time we will wait for before
+drawing, and will be used for seeding the PRNG.

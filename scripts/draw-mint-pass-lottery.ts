@@ -4,8 +4,10 @@ import { PublicKey } from '@solana/web3.js';
 // @ts-ignore
 import { NosanaStaking } from '../target/types/nosana_staking';
 import { sleep } from '../tests/utils';
+import { default as seedrandom } from 'seedrandom'
 
 const date = new Date();
+
 const outPrefix = `./${date.getUTCFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}_`;
 const ticketsFile = `${outPrefix}_tickets.csv`;
 const winnersFile = `${outPrefix}_winners.csv`;
@@ -55,19 +57,23 @@ async function makeTicketsCsv() {
   const program = new Program(idl, programId) as unknown as Program<NosanaStaking>;
 
   // wait for the specific block near which we want to make the snapshot
+  let lastHeight = await provider.connection.getBlockHeight();
   if (waitForBlock) {
-    let lastBlock = await provider.connection.getBlockHeight();
-    while (lastBlock < waitForBlock) {
-      console.log(`Waiting ${waitForBlock - lastBlock} more blocks`);
+    let lastTime = await provider.connection.getBlockTime(lastHeight);
+    while (lastTime < waitForBlock) {
+      console.log(`Waiting ${waitForBlock - lastTime} more seconds (${lastTime})`);
       await sleep(1500);
-      lastBlock = await provider.connection.getBlockHeight();
+      lastHeight = await provider.connection.getBlockHeight();
+      lastTime = await provider.connection.getBlockTime(lastHeight);
     }
   }
+  const blockhash = (await provider.connection.getBlock(
+    lastHeight, {commitment: "finalized"}
+  )).blockhash;
+  console.log(`Using block ${lastHeight} for PRNG seed: ${blockhash}`);
 
   const stakes = await program.account.stakeAccount.all([]);
-  // let blockhash = await provider.connection.getBlock(
-  //   waitForBlock, {commitment: "finalized"}
-  // ).blockhash;
+
   console.log(`Found ${stakes.length} stakes`);
 
   const minXnos = new BN(1000).mul(new BN(1e6));
@@ -85,13 +91,15 @@ async function makeTicketsCsv() {
   fs.writeFileSync(ticketsFile, ticketsCsv);
   console.log(`Wrote tickets CSV to ${ticketsFile}`);
 
-  return tickets;
+  return [blockhash, tickets];
 }
 
 /**
  * Create a CSV file with the winners
  */
-function drawWinners(tickets) {
+function drawWinners(seed, tickets) {
+  const prng = seedrandom(seed);
+
   // array of the winning user addresses
   const selected = tickets.reduce((v, [addr, , n]) => (n == 0 ? v.concat(addr) : v), []);
 
@@ -104,7 +112,7 @@ function drawWinners(tickets) {
   const leftToDraw = totalDraws - selected.length;
   for (let i = 0; i < leftToDraw; i++) {
     // pick a point on the ticket weight scale
-    const draw = Math.floor(Math.random() * totalWeight);
+    const draw = Math.floor(prng() * totalWeight);
 
     // find and select the user on this point
     let idx = 0;
@@ -132,7 +140,7 @@ solana-tokens distribute-tokens --from <KEYPAIR>` +
 }
 
 console.log('Drawing Burner Phone Lottery.');
-makeTicketsCsv().then((res) => {
-  drawWinners(res);
+makeTicketsCsv().then(([seed, res]) => {
+  drawWinners(seed, res);
   console.log('Done!');
 });
