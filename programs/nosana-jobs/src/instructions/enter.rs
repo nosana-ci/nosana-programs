@@ -10,13 +10,13 @@ use nosana_staking::StakeAccount;
 pub struct Enter<'info> {
     pub authority: Signer<'info>,
     #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
-    pub nodes: Account<'info, NodesAccount>,
+    pub market: Account<'info, MarketAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.amount >= nodes.stake_minimum @ NosanaError::NodeNotEnoughStake,
+        constraint = stake.amount >= market.node_stake_minimum @ NosanaError::NodeNotEnoughStake,
         constraint = stake.time_unstake == 0 @ NosanaError::NodeNoStake,
     )]
     pub stake: Account<'info, StakeAccount>,
@@ -31,18 +31,18 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
     // get and verify our nft collection in the metadata
     let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
     require!(
-        metadata.collection.unwrap().key == ctx.accounts.nodes.access_key,
+        metadata.collection.unwrap().key == ctx.accounts.market.node_access_key,
         NosanaError::NodeNftWrongCollection
     );
     require!(
         ctx.accounts
-            .nodes
+            .market
             .find(ctx.accounts.authority.key)
             .is_none(),
         NosanaError::NodeAlreadyQueued
     );
 
     // enter the queue
-    ctx.accounts.nodes.enter(ctx.accounts.authority.key());
+    ctx.accounts.market.enter(ctx.accounts.authority.key());
     Ok(())
 }

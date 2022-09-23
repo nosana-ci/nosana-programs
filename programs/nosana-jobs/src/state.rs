@@ -9,61 +9,66 @@ pub const JOB_FEE_FRACTION: u64 = 10;
 /// # NodesAccount
 
 pub const QUEUE_LENGTH: usize = 100;
-pub const NODES_SIZE: usize = 8 + size_of::<NodesAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
+pub const MARKET_SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
 
 #[account]
-pub struct NodesAccount {
+pub struct MarketAccount {
+    pub authority: Pubkey,
     pub job_price: u64,
     pub job_timeout: i64,
     pub job_type: u8,
-    pub access_key: Pubkey,
-    pub stake_minimum: u64,
     pub vault: Pubkey,
     pub vault_bump: u8,
-    pub queue: Vec<Pubkey>,
+    pub node_access_key: Pubkey,
+    pub node_stake_minimum: u64,
+    pub node_queue: Vec<Pubkey>,
 }
 
-impl NodesAccount {
+impl MarketAccount {
     #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
+        authority: Pubkey,
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
-        access_key: Pubkey,
-        stake_minimum: u64,
+        node_access_key: Pubkey,
+        node_stake_minimum: u64,
         vault: Pubkey,
         vault_bump: u8,
     ) {
+        self.authority = authority;
         self.job_price = job_price;
         self.job_timeout = job_timeout;
         self.job_type = job_type;
-        self.access_key = access_key;
-        self.stake_minimum = stake_minimum;
+        self.node_access_key = node_access_key;
+        self.node_queue = Vec::new();
+        self.node_stake_minimum = node_stake_minimum;
         self.vault = vault;
         self.vault_bump = vault_bump;
-        self.queue = Vec::new();
     }
 
     pub fn enter(&mut self, node: Pubkey) {
-        self.queue.push(node)
+        self.node_queue.push(node)
     }
 
     pub fn get(&mut self) -> Pubkey {
-        if self.queue.is_empty() {
+        if self.node_queue.is_empty() {
             id::SYSTEM_PROGRAM
         } else {
-            self.queue.pop().unwrap()
+            self.node_queue.pop().unwrap()
         }
     }
 
     pub fn find(&mut self, node: &Pubkey) -> Option<usize> {
-        self.queue.iter().position(|pubkey: &Pubkey| pubkey == node)
+        self.node_queue
+            .iter()
+            .position(|pubkey: &Pubkey| pubkey == node)
     }
 
     pub fn exit(&mut self, node: &Pubkey) {
         let index: Option<usize> = self.find(node);
-        self.queue.remove(index.unwrap());
+        self.node_queue.remove(index.unwrap());
     }
 }
 
@@ -77,17 +82,19 @@ pub struct JobAccount {
     pub ipfs_job: [u8; 32],
     pub ipfs_result: [u8; 32],
     pub node: Pubkey,
-    pub nodes: Pubkey,
+    pub market: Pubkey,
+    pub price: u64,
     pub status: u8,
     pub time_start: i64,
     pub time_end: i64,
 }
 
 impl JobAccount {
-    pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], nodes: Pubkey) {
+    pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], market: Pubkey, price: u64) {
         self.authority = authority;
         self.ipfs_job = ipfs_job;
-        self.nodes = nodes;
+        self.market = market;
+        self.price = price;
         self.status = JobStatus::Queued as u8;
     }
 

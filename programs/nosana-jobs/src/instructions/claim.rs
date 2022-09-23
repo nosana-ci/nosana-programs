@@ -11,17 +11,17 @@ pub struct Claim<'info> {
     #[account(
         mut,
         constraint = job.status == JobStatus::Queued as u8 || job.status == JobStatus::Running as u8
-            && Clock::get()?.unix_timestamp - job.time_start > nodes.job_timeout @ NosanaError::Unauthorized,
+            && Clock::get()?.unix_timestamp - job.time_start > market.job_timeout @ NosanaError::Unauthorized,
     )]
     pub job: Account<'info, JobAccount>,
     #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
-    pub nodes: Account<'info, NodesAccount>,
+    pub market: Account<'info, MarketAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.amount >= nodes.stake_minimum @ NosanaError::NodeNotEnoughStake,
+        constraint = stake.amount >= market.node_stake_minimum @ NosanaError::NodeNotEnoughStake,
         constraint = stake.time_unstake == 0 @ NosanaError::NodeNoStake,
     )]
     pub stake: Account<'info, StakeAccount>,
@@ -37,7 +37,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and verify our nft collection in the metadata
     let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
     require!(
-        metadata.collection.unwrap().key == ctx.accounts.nodes.access_key,
+        metadata.collection.unwrap().key == ctx.accounts.market.node_access_key,
         NosanaError::NodeNftWrongCollection
     );
 

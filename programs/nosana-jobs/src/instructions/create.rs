@@ -7,7 +7,7 @@ pub struct Create<'info> {
     #[account(init, payer = fee_payer, space = JOB_SIZE)]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
     #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
-    pub nodes: Account<'info, NodesAccount>,
+    pub market: Account<'info, MarketAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -30,11 +30,12 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
     job.create(
         ctx.accounts.authority.key(),
         ipfs_job,
-        ctx.accounts.nodes.key(),
+        ctx.accounts.market.key(),
+        ctx.accounts.market.job_price,
     );
 
     // claim the job for a node that might be queued
-    let node: Pubkey = ctx.accounts.nodes.get();
+    let node: Pubkey = ctx.accounts.market.get();
     if node != id::SYSTEM_PROGRAM {
         job.claim(node, Clock::get()?.unix_timestamp);
     }
@@ -49,7 +50,7 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
                 authority: ctx.accounts.authority.to_account_info(),
             },
         ),
-        ctx.accounts.nodes.job_price,
+        job.price,
     )?;
 
     // send fee to stakers
@@ -64,6 +65,6 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
                 token_program: ctx.accounts.token_program.to_account_info(),
             },
         ),
-        ctx.accounts.nodes.job_price / JOB_FEE_FRACTION,
+        job.price / JOB_FEE_FRACTION,
     )
 }
