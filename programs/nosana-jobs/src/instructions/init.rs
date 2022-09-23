@@ -5,14 +5,14 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 pub struct Init<'info> {
     #[account(address = id::NOS_TOKEN @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
-    #[account(init, payer = authority, space = NODES_SIZE)]
-    pub nodes: Account<'info, NodesAccount>,
+    #[account(init, payer = authority, space = MARKET_SIZE)]
+    pub market: Account<'info, MarketAccount>,
     #[account(
         init,
         payer = authority,
         token::mint = mint,
         token::authority = vault,
-        seeds = [ nodes.key().as_ref(), mint.key().as_ref() ],
+        seeds = [ market.key().as_ref(), mint.key().as_ref() ],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
@@ -30,14 +30,15 @@ pub fn handler(
     job_price: u64,
     job_timeout: i64,
     job_type: u8,
-    stake_minimum: u64,
+    node_stake_minimum: u64,
 ) -> Result<()> {
-    (&mut ctx.accounts.nodes).init(
+    (&mut ctx.accounts.market).init(
+        ctx.accounts.authority.key(),
         job_price,
         job_timeout,
         job_type,
         ctx.accounts.access_key.key(),
-        stake_minimum,
+        node_stake_minimum,
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );

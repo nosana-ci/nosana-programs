@@ -7,13 +7,13 @@ pub struct Close<'info> {
         mut,
         close = authority,
         has_one = authority @ NosanaError::Unauthorized,
-        has_one = nodes @ NosanaError::NodeQueueDoesNotMatch,
+        has_one = market @ NosanaError::NodeQueueDoesNotMatch,
         constraint = job.status == JobStatus::Queued as u8 || job.status == JobStatus::Done as u8
             @ NosanaError::JobInWrongState
     )]
     pub job: Account<'info, JobAccount>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
-    pub nodes: Account<'info, NodesAccount>,
+    pub market: Account<'info, MarketAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -34,12 +34,12 @@ pub fn handler(ctx: Context<Close>) -> Result<()> {
                     authority: ctx.accounts.vault.to_account_info(),
                 },
                 &[&[
-                    ctx.accounts.nodes.key().as_ref(),
+                    ctx.accounts.market.key().as_ref(),
                     id::NOS_TOKEN.as_ref(),
-                    &[ctx.accounts.nodes.vault_bump],
+                    &[ctx.accounts.market.vault_bump],
                 ]],
             ),
-            ctx.accounts.nodes.job_price,
+            ctx.accounts.market.job_price,
         )
     } else {
         Ok(())

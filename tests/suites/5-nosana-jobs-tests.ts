@@ -10,11 +10,11 @@ export default function suite() {
   });
 
   describe('init()', async function () {
-    it('can initialize the a nodes queue with jobs vault', async function () {
+    it('can initialize a market with vault', async function () {
       const throwAwayKeypair = anchor.web3.Keypair.generate();
-      this.accounts.nodes = throwAwayKeypair.publicKey;
+      this.accounts.market = throwAwayKeypair.publicKey;
       this.accounts.vault = await pda(
-        [this.accounts.nodes.toBuffer(), this.accounts.mint.toBuffer()],
+        [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
         this.jobsProgram.programId
       );
       this.vaults.jobs = this.accounts.vault;
@@ -32,11 +32,11 @@ export default function suite() {
     });
 
     it('can fetch the queue', async function () {
-      const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
-      expect(nodes.jobType).to.equal(this.constants.jobType.default);
-      expect(nodes.jobTimeout.toNumber()).to.equal(this.constants.jobTimeout);
-      expect(nodes.jobPrice.toNumber()).to.equal(this.constants.jobPrice);
-      expect(nodes.queue.length).to.equal(0);
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.jobType).to.equal(this.constants.jobType.default);
+      expect(market.jobTimeout.toNumber()).to.equal(this.constants.jobTimeout);
+      expect(market.jobPrice.toNumber()).to.equal(this.constants.jobPrice);
+      expect(market.nodeQueue.length).to.equal(0);
     });
   });
 
@@ -70,9 +70,9 @@ export default function suite() {
     });
 
     it('can see the node in the queue', async function () {
-      const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
-      expect(nodes.queue.length).to.equal(1);
-      expect(nodes.queue[0].toString()).to.equal(this.accounts.authority.toString());
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.nodeQueue.length).to.equal(1);
+      expect(market.nodeQueue[0].toString()).to.equal(this.accounts.authority.toString());
     });
 
     it('can not enter the queue twice', async function () {
@@ -134,8 +134,8 @@ export default function suite() {
     });
 
     it('can see the node has left the queue', async function () {
-      const nodes = await this.jobsProgram.account.nodesAccount.fetch(this.accounts.nodes);
-      expect(nodes.queue.length).to.equal(0);
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.nodeQueue.length).to.equal(0);
     });
 
     it('can not finish job that is already finished', async function () {
@@ -166,12 +166,12 @@ export default function suite() {
         {
           memcmp: {
             offset: this.constants.discriminator + 32 * 4,
-            bytes: this.accounts.nodes.toBase58(),
+            bytes: this.accounts.market.toBase58(),
           },
         },
         {
           memcmp: {
-            offset: this.constants.discriminator + 32 * 5,
+            offset: this.constants.discriminator + 32 * 5 + 8,
             bytes: '1',
           },
         },
@@ -200,12 +200,12 @@ export default function suite() {
         {
           memcmp: {
             offset: this.constants.discriminator + 32 * 4,
-            bytes: this.accounts.nodes.toBase58(),
+            bytes: this.accounts.market.toBase58(),
           },
         },
         {
           memcmp: {
-            offset: this.constants.discriminator + 32 * 5,
+            offset: this.constants.discriminator + 32 * 5 + 8,
             bytes: '2',
           },
         },

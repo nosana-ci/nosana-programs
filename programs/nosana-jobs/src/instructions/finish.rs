@@ -10,7 +10,7 @@ pub struct Finish<'info> {
     )]
     pub job: Account<'info, JobAccount>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
-    pub nodes: Account<'info, NodesAccount>,
+    pub market: Account<'info, MarketAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -33,11 +33,11 @@ pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
                 authority: ctx.accounts.vault.to_account_info(),
             },
             &[&[
-                ctx.accounts.nodes.key().as_ref(),
+                ctx.accounts.market.key().as_ref(),
                 id::NOS_TOKEN.as_ref(),
-                &[ctx.accounts.nodes.vault_bump],
+                &[ctx.accounts.market.vault_bump],
             ]],
         ),
-        ctx.accounts.nodes.job_price,
+        ctx.accounts.job.price,
     )
 }
