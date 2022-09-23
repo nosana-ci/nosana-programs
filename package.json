@@ -2,6 +2,7 @@
   "license": "MIT",
   "dependencies": {
     "@metaplex-foundation/js": "0.15.0",
+    "@metaplex-foundation/mpl-token-metadata": "2.2.4",
     "@project-serum/anchor": "0.25.0",
     "@solana/spl-token": "0.3.5"
   },
@@ -21,6 +22,8 @@
     "typescript": "4.8.3"
   },
   "scripts": {
+    "lint": "npm run prettier && npm run eslint && npm run check-types",
+    "lint:fix": "npm run prettier:fix && npm run eslint:fix && npm run check-types",
     "check-types": "tsc -p .",
     "eslint": "eslint '{scripts,tests}/**/*.ts'",
     "eslint:fix": "eslint '{scripts,tests}/**/*.ts' --fix",

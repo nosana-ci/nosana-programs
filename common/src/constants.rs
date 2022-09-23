@@ -9,6 +9,7 @@ pub const NOS_TOTAL_SUPPLY: u128 = 100_000_000 * NOS_DECIMALS as u128;
 // https://en.wikipedia.org/wiki/Collision_attack#Chosen-prefix_collision_attack
 pub const PREFIX_REWARDS: &str = "reward";
 pub const PREFIX_SETTINGS: &str = "settings";
+pub const PREFIX_REFLECTION: &str = "reflection";
 pub const PREFIX_STAKE: &str = "stake";
 pub const PREFIX_STATS: &str = "stats";
 pub const PREFIX_VAULT: &str = "vault";

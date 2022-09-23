@@ -129,7 +129,7 @@ async function updateRewards(
   reflection = new anchor.BN(0)
 ) {
   const stake = await mochaContext.stakingProgram.account.stakeAccount.fetch(stakePubkey);
-  const stats = await mochaContext.rewardsProgram.account.statsAccount.fetch(mochaContext.accounts.stats);
+  const stats = await mochaContext.rewardsProgram.account.reflectionAccount.fetch(mochaContext.accounts.reflection);
 
   let amount = 0;
   if (!reflection.eqn(0)) {

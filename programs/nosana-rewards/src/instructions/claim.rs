@@ -6,10 +6,10 @@ use nosana_staking::StakeAccount;
 pub struct Claim<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ id::NOS_TOKEN.as_ref() ], bump)]
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
-    #[account(mut, seeds = [ constants::PREFIX_STATS.as_ref() ], bump = stats.bump)]
-    pub stats: Account<'info, StatsAccount>,
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
+    pub reflection: Account<'info, ReflectionAccount>,
     #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
     pub reward: Account<'info, RewardAccount>,
     #[account(
@@ -26,20 +26,20 @@ pub struct Claim<'info> {
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get rewards and stats account
     let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
-    let stats: &mut Account<StatsAccount> = &mut ctx.accounts.stats;
+    let reflection: &mut Account<ReflectionAccount> = &mut ctx.accounts.reflection;
 
     // determine amount to claim
-    let amount: u128 = reward.get_amount(stats.rate);
+    let amount: u128 = reward.get_amount(reflection.rate);
     if amount == 0 {
         return Ok(());
     }
 
     // decrease the reflection pool
-    stats.remove_rewards_account(reward.reflection, reward.xnos + amount);
+    reflection.remove_rewards_account(reward.reflection, reward.xnos + amount);
 
     // re-enter the pool with the current stake
     reward.update(
-        stats.add_rewards_account(ctx.accounts.stake.xnos, 0),
+        reflection.add_rewards_account(ctx.accounts.stake.xnos, 0),
         ctx.accounts.stake.xnos,
     );
 
@@ -52,7 +52,7 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
                 to: ctx.accounts.user.to_account_info(),
                 authority: ctx.accounts.vault.to_account_info(),
             },
-            &[&[id::NOS_TOKEN.as_ref(), &[*ctx.bumps.get("vault").unwrap()]]],
+            &[&[id::NOS_TOKEN.as_ref(), &[reflection.vault_bump]]],
         ),
         u64::try_from(amount).unwrap(),
     )

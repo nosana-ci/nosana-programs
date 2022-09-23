@@ -1,10 +1,9 @@
 use anchor_lang::prelude::*;
-use nosana_common::{constants, id};
+use nosana_common::id;
 use std::mem::size_of;
 
 /// # Constants
 
-pub const NODE_STAKE_MINIMUM: u64 = 10_000 * constants::NOS_DECIMALS;
 pub const JOB_FEE_FRACTION: u64 = 10;
 
 /// # NodesAccount
@@ -17,23 +16,30 @@ pub struct NodesAccount {
     pub job_price: u64,
     pub job_timeout: i64,
     pub job_type: u8,
+    pub access_key: Pubkey,
+    pub stake_minimum: u64,
     pub vault: Pubkey,
     pub vault_bump: u8,
     pub queue: Vec<Pubkey>,
 }
 
 impl NodesAccount {
+    #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
+        access_key: Pubkey,
+        stake_minimum: u64,
         vault: Pubkey,
         vault_bump: u8,
     ) {
         self.job_price = job_price;
         self.job_timeout = job_timeout;
         self.job_type = job_type;
+        self.access_key = access_key;
+        self.stake_minimum = stake_minimum;
         self.vault = vault;
         self.vault_bump = vault_bump;
         self.queue = Vec::new();

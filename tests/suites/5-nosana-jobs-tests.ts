@@ -10,7 +10,7 @@ export default function suite() {
   });
 
   describe('init()', async function () {
-    it('can initialize the jobs vault', async function () {
+    it('can initialize the a nodes queue with jobs vault', async function () {
       const throwAwayKeypair = anchor.web3.Keypair.generate();
       this.accounts.nodes = throwAwayKeypair.publicKey;
       this.accounts.vault = await pda(
@@ -20,7 +20,12 @@ export default function suite() {
       this.vaults.jobs = this.accounts.vault;
 
       await this.jobsProgram.methods
-        .init(new BN(this.constants.jobPrice), new BN(this.constants.jobTimeout), this.constants.jobType.default)
+        .init(
+          new BN(this.constants.jobPrice),
+          new BN(this.constants.jobTimeout),
+          this.constants.jobType.default,
+          new BN(this.constants.stakeMinimum)
+        )
         .accounts(this.accounts)
         .signers([throwAwayKeypair])
         .rpc();
