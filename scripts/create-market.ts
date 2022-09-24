@@ -13,11 +13,11 @@ async function main() {
   const wallet = provider.wallet as Wallet;
 
   // throw away keypair
-  const nodesKey = Keypair.generate();
+  const marketKey = Keypair.generate();
 
   // public keys
   const mint = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
-  const nodes = nodesKey.publicKey;
+  const market = marketKey.publicKey;
   const programId = new PublicKey('nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM');
 
   // program
@@ -27,26 +27,26 @@ async function main() {
   // open pool
   const tx = await program.methods
     .init(
-      new BN(constants.decimals), // job price = 1 NOS
+      new BN(100 * constants.decimals), // job price = 1 NOS
       new BN(60 * 60), // job timeout = 1 hour
       constants.jobType.default, // job type = default
       new BN(10_000 * constants.decimals) // minimum stake = 10,000.- NOS
     )
     .accounts({
       mint,
-      nodes,
-      vault: await pda([nodes.toBuffer(), mint.toBuffer()], programId),
+      market,
+      vault: await pda([market.toBuffer(), mint.toBuffer()], programId),
       authority: wallet.publicKey,
       accessKey: new PublicKey('nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3'),
       rent: web3.SYSVAR_RENT_PUBKEY,
       systemProgram: web3.SystemProgram.programId,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
-    .signers([nodesKey])
+    .signers([marketKey])
     .rpc();
 
   // log data
-  console.log(`https://explorer.solana.com/address/${nodes}?cluster=devnet`);
+  console.log(`https://explorer.solana.com/address/${market}?cluster=devnet`);
   console.log(`https://explorer.solana.com/tx/${tx}?cluster=devnet`);
 }
 
