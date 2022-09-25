@@ -160,13 +160,13 @@ export default function suite() {
         {
           memcmp: {
             offset: this.constants.discriminator + 32 * 3,
-            bytes: this.accounts.systemProgram.toBase58(),
+            bytes: this.accounts.market.toBase58(),
           },
         },
         {
           memcmp: {
             offset: this.constants.discriminator + 32 * 4,
-            bytes: this.accounts.market.toBase58(),
+            bytes: this.accounts.systemProgram.toBase58(),
           },
         },
         {
@@ -199,7 +199,7 @@ export default function suite() {
       const jobs = await this.jobsProgram.account.jobAccount.all([
         {
           memcmp: {
-            offset: this.constants.discriminator + 32 * 4,
+            offset: this.constants.discriminator + 32 * 3,
             bytes: this.accounts.market.toBase58(),
           },
         },

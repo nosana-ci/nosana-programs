@@ -98,10 +98,10 @@ impl JobAccount {
         self.status = JobStatus::Queued as u8;
     }
 
-    pub fn claim(&mut self, node: Pubkey, time: i64) {
+    pub fn claim(&mut self, node: Pubkey, time_start: i64) {
         self.node = node;
         self.status = JobStatus::Running as u8;
-        self.time_start = time;
+        self.time_start = time_start;
     }
 
     pub fn cancel(&mut self) {
