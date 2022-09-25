@@ -6,7 +6,7 @@ use std::mem::size_of;
 
 pub const JOB_FEE_FRACTION: u64 = 10;
 
-/// # NodesAccount
+/// # MarketAccount
 
 pub const QUEUE_LENGTH: usize = 100;
 pub const MARKET_SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
@@ -81,12 +81,12 @@ pub struct JobAccount {
     pub authority: Pubkey,
     pub ipfs_job: [u8; 32],
     pub ipfs_result: [u8; 32],
-    pub node: Pubkey,
     pub market: Pubkey,
+    pub node: Pubkey,
     pub price: u64,
     pub status: u8,
-    pub time_start: i64,
     pub time_end: i64,
+    pub time_start: i64,
 }
 
 impl JobAccount {
