@@ -2,8 +2,6 @@
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { pda } from '../tests/utils';
-// @ts-ignore
-import { NosanaRewards } from '../target/types/nosana_rewards';
 
 async function main() {
   const programId = new PublicKey('nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE');
