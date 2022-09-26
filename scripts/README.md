@@ -48,11 +48,19 @@ In the top of the file configure the following parameters:
 - `waitForBlock`: optional: A Solana blockheight to wait for before making the snapshot
 
 ```shell
-npm run script:draw-mint-pass-lottery -- <wait_for_block_time>
+npm run script:draw-mint-pass-lottery $WAIT_FOR_BLOCK_TIME
 ```
 
 The `<wait_for_block_time>` is the block time we will wait for before
 drawing, and will be used for seeding the PRNG.
+
+### Get Staking Address
+
+Get a [StakingAccount](https://docs.nosana.io/programs/staking.html#stake-account) address for a given public key.
+
+```shell
+npm run script:get-staking-address $PUBLIC_KEY
+```
 
 ### Init Rewards
 
