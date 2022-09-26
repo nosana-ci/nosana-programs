@@ -9,6 +9,6 @@ pub struct Exit<'info> {
 
 pub fn handler(ctx: Context<Exit>) -> Result<()> {
     // exit the queue
-    ctx.accounts.market.exit(ctx.accounts.authority.key)?;
+    ctx.accounts.market.exit_queue(ctx.accounts.authority.key);
     Ok(())
 }

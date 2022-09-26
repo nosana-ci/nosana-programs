@@ -35,7 +35,7 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
     );
 
     // claim the job for a node that might be queued
-    let node: Pubkey = ctx.accounts.market.get();
+    let node: Pubkey = ctx.accounts.market.get_node();
     if node != id::SYSTEM_PROGRAM {
         job.claim(node, Clock::get()?.unix_timestamp);
     }

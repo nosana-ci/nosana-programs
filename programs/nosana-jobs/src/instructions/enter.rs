@@ -38,12 +38,14 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
     require!(
         ctx.accounts
             .market
-            .find(ctx.accounts.authority.key)
+            .find_node(ctx.accounts.authority.key)
             .is_none(),
         NosanaError::NodeAlreadyQueued
     );
 
     // enter the queue
-    ctx.accounts.market.enter(ctx.accounts.authority.key());
+    ctx.accounts
+        .market
+        .enter_queue(ctx.accounts.authority.key());
     Ok(())
 }

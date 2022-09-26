@@ -18,7 +18,7 @@ pub struct MarketAccount {
 }
 
 impl MarketAccount {
-    pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<Pubkey>() * 100;
+    pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Pubkey; 100]>();
     pub const JOB_FEE_FRACTION: u64 = 10;
 
     #[allow(clippy::too_many_arguments)]
@@ -59,27 +59,29 @@ impl MarketAccount {
         self.node_stake_minimum = node_stake_minimum;
     }
 
-    pub fn enter(&mut self, node: Pubkey) {
-        self.node_queue.push(node)
-    }
-
-    pub fn get(&mut self) -> Pubkey {
-        if self.node_queue.is_empty() {
-            id::SYSTEM_PROGRAM
-        } else {
-            self.node_queue.pop().unwrap()
+    pub fn enter_queue(&mut self, node: Pubkey) {
+        if self.job_type != JobType::Unknown as u8 {
+            self.node_queue.push(node)
         }
     }
 
-    pub fn find(&mut self, node: &Pubkey) -> Option<usize> {
+    pub fn exit_queue(&mut self, node: &Pubkey) -> Pubkey {
+        let index: usize = self.find_node(node).unwrap();
+        self.node_queue.remove(index)
+    }
+
+    pub fn find_node(&mut self, node: &Pubkey) -> Option<usize> {
         self.node_queue
             .iter()
             .position(|pubkey: &Pubkey| pubkey == node)
     }
 
-    pub fn exit(&mut self, node: &Pubkey) {
-        let index: Option<usize> = self.find(node);
-        self.node_queue.remove(index.unwrap());
+    pub fn get_node(&mut self) -> Pubkey {
+        if self.node_queue.is_empty() {
+            id::SYSTEM_PROGRAM
+        } else {
+            self.node_queue.pop().unwrap()
+        }
     }
 }
 

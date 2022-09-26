@@ -51,6 +51,10 @@ pub mod nosana_jobs {
         init::handler(ctx, job_price, job_timeout, job_type, node_stake_minimum)
     }
 
+    pub fn stop(ctx: Context<Stop>) -> Result<()> {
+        stop::handler(ctx)
+    }
+
     pub fn update(
         ctx: Context<Update>,
         job_price: u64,
