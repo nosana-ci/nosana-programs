@@ -10,9 +10,7 @@ pub const DURATION_MAX: u128 = 365 * SECONDS_PER_DAY; // 1 year
 pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
 pub const XNOS_DIV: u128 = 4 * DURATION_MAX / 12; // 0.25 growth per month
 
-/// # Settings
-
-pub const SETTINGS_SIZE: usize = 8 + std::mem::size_of::<SettingsAccount>();
+/// # Settings Account
 
 #[account]
 pub struct SettingsAccount {
@@ -21,15 +19,15 @@ pub struct SettingsAccount {
 }
 
 impl SettingsAccount {
+    pub const SIZE: usize = 8 + std::mem::size_of::<SettingsAccount>();
+
     pub fn set(&mut self, authority: Pubkey, token_account: Pubkey) {
         self.authority = authority;
         self.token_account = token_account;
     }
 }
 
-/// # Stake
-
-pub const STAKE_SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();
+/// # Stake Account
 
 #[account]
 pub struct StakeAccount {
@@ -43,6 +41,8 @@ pub struct StakeAccount {
 }
 
 impl StakeAccount {
+    pub const SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();
+
     pub fn init(
         &mut self,
         amount: u64,

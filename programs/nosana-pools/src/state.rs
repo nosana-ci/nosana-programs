@@ -2,8 +2,6 @@ use anchor_lang::prelude::*;
 
 /// # Pool Account
 
-pub const POOL_SIZE: usize = 8 + std::mem::size_of::<PoolAccount>();
-
 #[account]
 pub struct PoolAccount {
     pub authority: Pubkey,
@@ -18,6 +16,8 @@ pub struct PoolAccount {
 }
 
 impl PoolAccount {
+    pub const SIZE: usize = 8 + std::mem::size_of::<PoolAccount>();
+
     #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
@@ -52,9 +52,21 @@ impl PoolAccount {
     }
 }
 
-/// # Claim types
+/// # Claim Types
+
 #[repr(u8)]
 pub enum ClaimType {
     Transfer = 0,
     AddFee = 1,
+    Unknown = 255,
+}
+
+impl From<u8> for ClaimType {
+    fn from(job_type: u8) -> Self {
+        match job_type {
+            0 => ClaimType::Transfer,
+            1 => ClaimType::AddFee,
+            _ => ClaimType::Unknown,
+        }
+    }
 }

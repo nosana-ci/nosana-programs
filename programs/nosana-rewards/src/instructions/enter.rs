@@ -13,7 +13,7 @@ pub struct Enter<'info> {
     #[account(
         init,
         payer = authority,
-        space = REWARD_SIZE,
+        space = RewardAccount::SIZE,
         seeds = [ constants::PREFIX_REWARDS.as_ref(), authority.key().as_ref() ],
         bump,
     )]

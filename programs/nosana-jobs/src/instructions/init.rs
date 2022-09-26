@@ -5,7 +5,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 pub struct Init<'info> {
     #[account(address = id::NOS_TOKEN @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
-    #[account(init, payer = authority, space = MARKET_SIZE)]
+    #[account(init, payer = authority, space = MarketAccount::SIZE)]
     pub market: Account<'info, MarketAccount>,
     #[account(
         init,
@@ -36,7 +36,7 @@ pub fn handler(
         ctx.accounts.authority.key(),
         job_price,
         job_timeout,
-        job_type,
+        JobType::from(job_type) as u8,
         ctx.accounts.access_key.key(),
         node_stake_minimum,
         ctx.accounts.vault.key(),

@@ -2,14 +2,7 @@ use anchor_lang::prelude::*;
 use nosana_common::id;
 use std::mem::size_of;
 
-/// # Constants
-
-pub const JOB_FEE_FRACTION: u64 = 10;
-
-/// # MarketAccount
-
-pub const QUEUE_LENGTH: usize = 100;
-pub const MARKET_SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
+/// # Market Account
 
 #[account]
 pub struct MarketAccount {
@@ -25,6 +18,9 @@ pub struct MarketAccount {
 }
 
 impl MarketAccount {
+    pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<Pubkey>() * 100;
+    pub const JOB_FEE_FRACTION: u64 = 10;
+
     #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
@@ -87,9 +83,7 @@ impl MarketAccount {
     }
 }
 
-/// # JobAccount
-
-pub const JOB_SIZE: usize = 8 + size_of::<JobAccount>();
+/// # Job Account
 
 #[account]
 pub struct JobAccount {
@@ -105,6 +99,8 @@ pub struct JobAccount {
 }
 
 impl JobAccount {
+    pub const SIZE: usize = 8 + size_of::<JobAccount>();
+
     pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], market: Pubkey, price: u64) {
         self.authority = authority;
         self.ipfs_job = ipfs_job;
@@ -132,7 +128,7 @@ impl JobAccount {
     }
 }
 
-/// # JobStatus
+/// # Job Status
 
 #[repr(u8)]
 pub enum JobStatus {
@@ -141,9 +137,8 @@ pub enum JobStatus {
     Done = 2,
 }
 
-/// # JobType
+/// # Job Type
 
-#[allow(dead_code)]
 #[repr(u8)]
 pub enum JobType {
     Default = 0,
@@ -151,4 +146,18 @@ pub enum JobType {
     Medium = 2,
     Large = 3,
     Gpu = 4,
+    Unknown = 255,
+}
+
+impl From<u8> for JobType {
+    fn from(job_type: u8) -> Self {
+        match job_type {
+            0 => JobType::Default,
+            1 => JobType::Small,
+            2 => JobType::Medium,
+            3 => JobType::Large,
+            4 => JobType::Gpu,
+            _ => JobType::Unknown,
+        }
+    }
 }

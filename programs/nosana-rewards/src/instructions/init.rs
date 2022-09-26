@@ -8,7 +8,7 @@ pub struct Init<'info> {
     #[account(
         init,
         payer = authority,
-        space = REFLECTION_SIZE,
+        space = ReflectionAccount::SIZE,
         seeds = [ constants::PREFIX_REFLECTION.as_ref() ],
         bump
     )]
