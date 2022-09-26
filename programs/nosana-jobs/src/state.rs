@@ -48,6 +48,21 @@ impl MarketAccount {
         self.vault_bump = vault_bump;
     }
 
+    pub fn update(
+        &mut self,
+        job_price: u64,
+        job_timeout: i64,
+        job_type: u8,
+        node_access_key: Pubkey,
+        node_stake_minimum: u64,
+    ) {
+        self.job_price = job_price;
+        self.job_timeout = job_timeout;
+        self.job_type = job_type;
+        self.node_access_key = node_access_key;
+        self.node_stake_minimum = node_stake_minimum;
+    }
+
     pub fn enter(&mut self, node: Pubkey) {
         self.node_queue.push(node)
     }

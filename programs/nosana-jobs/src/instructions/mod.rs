@@ -8,6 +8,7 @@ pub mod enter;
 pub mod exit;
 pub mod finish;
 pub mod init;
+pub mod update;
 
 pub use cancel::*;
 pub use claim::*;
@@ -17,3 +18,4 @@ pub use enter::*;
 pub use exit::*;
 pub use finish::*;
 pub use init::*;
+pub use update::*;
