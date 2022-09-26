@@ -32,6 +32,7 @@
     "script:create-fee-dist-pool": "ts-node scripts/create-fee-dist-pool",
     "script:create-market": "ts-node scripts/create-market",
     "script:draw-mint-pass-lottery": "ts-node scripts/draw-mint-pass-lottery",
+    "script:get-staking-address": "ts-node scripts/get-staking-address",
     "script:init-rewards": "ts-node scripts/init-rewards",
     "script:sync-rewards": "ts-node scripts/sync-rewards",
     "test": "anchor test"
