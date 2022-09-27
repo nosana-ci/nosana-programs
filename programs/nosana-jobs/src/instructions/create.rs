@@ -4,7 +4,7 @@ use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, ReflectionAc
 
 #[derive(Accounts)]
 pub struct Create<'info> {
-    #[account(init, payer = fee_payer, space = JOB_SIZE)]
+    #[account(init, payer = fee_payer, space = JobAccount::SIZE)]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
     #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
@@ -35,7 +35,7 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
     );
 
     // claim the job for a node that might be queued
-    let node: Pubkey = ctx.accounts.market.get();
+    let node: Pubkey = ctx.accounts.market.get_node();
     if node != id::SYSTEM_PROGRAM {
         job.claim(node, Clock::get()?.unix_timestamp);
     }
@@ -65,6 +65,6 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
                 token_program: ctx.accounts.token_program.to_account_info(),
             },
         ),
-        job.price / JOB_FEE_FRACTION,
+        job.price / MarketAccount::JOB_FEE_FRACTION,
     )
 }

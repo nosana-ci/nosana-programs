@@ -31,18 +31,21 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
     // get and verify our nft collection in the metadata
     let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
     require!(
-        metadata.collection.unwrap().key == ctx.accounts.market.node_access_key,
+        ctx.accounts.market.node_access_key == id::SYSTEM_PROGRAM
+            || metadata.collection.unwrap().key == ctx.accounts.market.node_access_key,
         NosanaError::NodeNftWrongCollection
     );
     require!(
         ctx.accounts
             .market
-            .find(ctx.accounts.authority.key)
+            .find_node(ctx.accounts.authority.key)
             .is_none(),
         NosanaError::NodeAlreadyQueued
     );
 
     // enter the queue
-    ctx.accounts.market.enter(ctx.accounts.authority.key());
+    ctx.accounts
+        .market
+        .enter_queue(ctx.accounts.authority.key());
     Ok(())
 }

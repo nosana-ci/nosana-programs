@@ -2,15 +2,10 @@ use anchor_lang::prelude::*;
 use nosana_common::id;
 use std::mem::size_of;
 
-/// # Constants
-
-pub const JOB_FEE_FRACTION: u64 = 10;
-
-/// # MarketAccount
-
-pub const QUEUE_LENGTH: usize = 100;
-pub const MARKET_SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<Pubkey>() * QUEUE_LENGTH;
-
+/// ### Market Account
+///
+/// The `MarketAccount` struct holds all the information about jobs and the nodes queue.
+///
 #[account]
 pub struct MarketAccount {
     pub authority: Pubkey,
@@ -25,6 +20,9 @@ pub struct MarketAccount {
 }
 
 impl MarketAccount {
+    pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Pubkey; 100]>();
+    pub const JOB_FEE_FRACTION: u64 = 10;
+
     #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
@@ -48,34 +46,51 @@ impl MarketAccount {
         self.vault_bump = vault_bump;
     }
 
-    pub fn enter(&mut self, node: Pubkey) {
-        self.node_queue.push(node)
+    pub fn update(
+        &mut self,
+        job_price: u64,
+        job_timeout: i64,
+        job_type: u8,
+        node_access_key: Pubkey,
+        node_stake_minimum: u64,
+    ) {
+        self.job_price = job_price;
+        self.job_timeout = job_timeout;
+        self.job_type = job_type;
+        self.node_access_key = node_access_key;
+        self.node_stake_minimum = node_stake_minimum;
     }
 
-    pub fn get(&mut self) -> Pubkey {
+    pub fn enter_queue(&mut self, node: Pubkey) {
+        if self.job_type != JobType::Unknown as u8 {
+            self.node_queue.push(node)
+        }
+    }
+
+    pub fn exit_queue(&mut self, node: &Pubkey) -> Pubkey {
+        let index: usize = self.find_node(node).unwrap();
+        self.node_queue.remove(index)
+    }
+
+    pub fn find_node(&mut self, node: &Pubkey) -> Option<usize> {
+        self.node_queue
+            .iter()
+            .position(|pubkey: &Pubkey| pubkey == node)
+    }
+
+    pub fn get_node(&mut self) -> Pubkey {
         if self.node_queue.is_empty() {
             id::SYSTEM_PROGRAM
         } else {
             self.node_queue.pop().unwrap()
         }
     }
-
-    pub fn find(&mut self, node: &Pubkey) -> Option<usize> {
-        self.node_queue
-            .iter()
-            .position(|pubkey: &Pubkey| pubkey == node)
-    }
-
-    pub fn exit(&mut self, node: &Pubkey) {
-        let index: Option<usize> = self.find(node);
-        self.node_queue.remove(index.unwrap());
-    }
 }
 
-/// # JobAccount
-
-pub const JOB_SIZE: usize = 8 + size_of::<JobAccount>();
-
+/// ### Job Account
+///
+/// The `JobAccount` struct holds all the information about any individual jobs.
+///
 #[account]
 pub struct JobAccount {
     pub authority: Pubkey,
@@ -90,6 +105,8 @@ pub struct JobAccount {
 }
 
 impl JobAccount {
+    pub const SIZE: usize = 8 + size_of::<JobAccount>();
+
     pub fn create(&mut self, authority: Pubkey, ipfs_job: [u8; 32], market: Pubkey, price: u64) {
         self.authority = authority;
         self.ipfs_job = ipfs_job;
@@ -117,7 +134,7 @@ impl JobAccount {
     }
 }
 
-/// # JobStatus
+/// # Job Status
 
 #[repr(u8)]
 pub enum JobStatus {
@@ -126,9 +143,8 @@ pub enum JobStatus {
     Done = 2,
 }
 
-/// # JobType
+/// # Job Type
 
-#[allow(dead_code)]
 #[repr(u8)]
 pub enum JobType {
     Default = 0,
@@ -136,4 +152,18 @@ pub enum JobType {
     Medium = 2,
     Large = 3,
     Gpu = 4,
+    Unknown = 255,
+}
+
+impl From<u8> for JobType {
+    fn from(job_type: u8) -> Self {
+        match job_type {
+            0 => JobType::Default,
+            1 => JobType::Small,
+            2 => JobType::Medium,
+            3 => JobType::Large,
+            4 => JobType::Gpu,
+            _ => JobType::Unknown,
+        }
+    }
 }

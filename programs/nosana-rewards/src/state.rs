@@ -1,22 +1,10 @@
 use anchor_lang::prelude::*;
 use nosana_common::constants::NOS_TOTAL_SUPPLY;
 
-// This number should be as high as possible wihtout causing overflows.
-//
-// Rate gets multiplied by tokens to get reflections, and is the divisor of
-// reflections to get the xnos. A higher initial rate makes sure that
-// reflections will be large numbers. This is nice as total_xnos will be forever
-// increasing.
-//
-// The formula below makes initial rate as large as it can be, and rounds it
-// down a little to a clean multiple of the total supply.
-pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
-// pub const INITIAL_RATE: u128 = u128::pow(10, 15);
-
-/// # Reflection
-
-pub const REFLECTION_SIZE: usize = 8 + std::mem::size_of::<ReflectionAccount>();
-
+/// ### Reflection Account
+///
+/// The `ReflectionAccount` struct holds all the information on the reflection pool.
+///
 #[account]
 pub struct ReflectionAccount {
     pub rate: u128,
@@ -27,8 +15,24 @@ pub struct ReflectionAccount {
 }
 
 impl ReflectionAccount {
+    pub const SIZE: usize = 8 + std::mem::size_of::<ReflectionAccount>();
+
+    /*
+    This number should be as high as possible wihtout causing overflows.
+
+    Rate gets multiplied by tokens to get reflections, and is the divisor of
+    reflections to get the xnos. A higher initial rate makes sure that
+    reflections will be large numbers. This is nice as total_xnos will be forever
+    increasing.
+
+    The formula below makes initial rate as large as it can be, and rounds it
+    down a little to a clean multiple of the total supply.
+    */
+    pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
+    // pub const INITIAL_RATE: u128 = u128::pow(10, 15);
+
     pub fn init(&mut self, vault: Pubkey, vault_bump: u8) {
-        self.rate = INITIAL_RATE;
+        self.rate = ReflectionAccount::INITIAL_RATE;
         self.total_reflection = 0;
         self.total_xnos = 0;
         self.vault = vault;
@@ -70,10 +74,10 @@ impl ReflectionAccount {
     }
 }
 
-/// # Reward
-
-pub const REWARD_SIZE: usize = 8 + std::mem::size_of::<RewardAccount>();
-
+/// ### Reward Account
+///
+/// The `RewardAccount` struct holds all the information for any given user account.
+///
 #[account]
 pub struct RewardAccount {
     pub authority: Pubkey,
@@ -83,6 +87,8 @@ pub struct RewardAccount {
 }
 
 impl RewardAccount {
+    pub const SIZE: usize = 8 + std::mem::size_of::<RewardAccount>();
+
     pub fn init(&mut self, authority: Pubkey, bump: u8, reflection: u128, tokens: u128) {
         self.authority = authority;
         self.bump = bump;

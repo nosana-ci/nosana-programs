@@ -42,17 +42,36 @@ Nosana tier and their number of tickets, and perform a lottery for
 selecting winners of the SFT. It can optionally wait for a block
 height nearby which it will attempt to make the snapshot.
 
-In the top of the file configure the following parameters:
-
-- `totalDraws`: How many mint passes will be distributed
-- `waitForBlock`: optional: A Solana blockheight to wait for before making the snapshot
-
 ```shell
-npm run script:draw-mint-pass-lottery -- <wait_for_block_time>
+npm run script:draw-mint-pass-lottery $WAIT_FOR_BLOCK_TIME $TOTAL_DRAWS
 ```
 
-The `<wait_for_block_time>` is the block time we will wait for before
+- The `$WAIT_FOR_BLOCK_TIME` is the block time we will wait for before
 drawing, and will be used for seeding the PRNG.
+- The `$TOTAL_DRAWS`: How many mint passes will be distributed
+
+### Generate docs
+
+To compile standard Nosana Documentation from the rust code
+
+```shell
+npm run script:generate-docs
+```
+
+To replace existing documentation.
+
+```shell
+npm run script:generate-docs $PATH_TO_DOCS_PROGRAMS
+```
+
+### Get Staking Address
+
+Get a [StakingAccount](https://docs.nosana.io/programs/staking.html#stake-account)
+address for a given public key.
+
+```shell
+npm run script:get-staking-address $PUBLIC_KEY
+```
 
 ### Init Rewards
 

@@ -13,6 +13,8 @@ pub enum NosanaError {
     InvalidMint,
     #[msg("This account has an invalid vault.")]
     InvalidVault,
+    #[msg("This vault is not empty.")]
+    VaultNotEmpty,
 
     // stake errors
     #[msg("This amount is not enough.")]

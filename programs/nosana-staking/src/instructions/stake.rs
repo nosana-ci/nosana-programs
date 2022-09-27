@@ -19,7 +19,7 @@ pub struct Stake<'info> {
     #[account(
         init,
         payer = authority,
-        space = STAKE_SIZE,
+        space = StakeAccount::SIZE,
         seeds = [ constants::PREFIX_STAKE.as_ref(), mint.key().as_ref(), authority.key().as_ref() ],
         bump,
     )]

@@ -37,7 +37,8 @@ pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and verify our nft collection in the metadata
     let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
     require!(
-        metadata.collection.unwrap().key == ctx.accounts.market.node_access_key,
+        ctx.accounts.market.node_access_key == id::SYSTEM_PROGRAM
+            || metadata.collection.unwrap().key == ctx.accounts.market.node_access_key,
         NosanaError::NodeNftWrongCollection
     );
 

@@ -12,9 +12,8 @@ const outPrefix = `./${date.getUTCFullYear()}${('0' + (date.getMonth() + 1)).sli
 const ticketsFile = `${outPrefix}_tickets.csv`;
 const winnersFile = `${outPrefix}_winners.csv`;
 
-const totalDraws = 50;
-
 const waitForBlock = parseInt(process.argv.slice(2)[0]);
+const totalDraws = parseInt(process.argv.slice(2)[1]);
 
 /**
  * Returns a vector of tier edges. The index in the array is the Tier

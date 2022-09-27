@@ -3,7 +3,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Open<'info> {
-    #[account(init, payer = authority, space = POOL_SIZE)]
+    #[account(init, payer = authority, space = PoolAccount::SIZE)]
     pub pool: Account<'info, PoolAccount>,
     #[account(
         init,
@@ -35,7 +35,7 @@ pub fn handler(
     (&mut ctx.accounts.pool).init(
         ctx.accounts.authority.key(),
         ctx.accounts.beneficiary.key(),
-        claim_type,
+        ClaimType::from(claim_type) as u8,
         closeable,
         emission,
         start_time,
