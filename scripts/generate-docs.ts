@@ -89,7 +89,7 @@ function main() {
       // table
       data.push('| Name | Type |', '| ---- | ---- |');
       for (const field of account.type.fields) {
-        data.push(`| \`${field.name}\` | \`${field.type}\` | `);
+        data.push(`| \`${field.name}\` | \`${field.type}\` |`);
       }
       data.push('');
     }

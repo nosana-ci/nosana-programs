@@ -10,7 +10,7 @@ pub const DURATION_MAX: u128 = 365 * SECONDS_PER_DAY; // 1 year
 pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
 pub const XNOS_DIV: u128 = 4 * DURATION_MAX / 12; // 0.25 growth per month
 
-/// # Settings Account
+/// ### Settings Account
 ///
 /// The `SettingsAccount` struct holds the information about the
 /// slashing authority and token account.

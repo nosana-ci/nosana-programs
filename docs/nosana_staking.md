@@ -199,7 +199,7 @@ A number of 2 accounts make up for the Nosana Staking Program's state.
 
 The `VaultAccount` is a regular Solana Token Account.
 
-# Settings Account
+### Settings Account
 
 The `SettingsAccount` struct holds the information about the
 slashing authority and token account.

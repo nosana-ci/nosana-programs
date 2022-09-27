@@ -50,9 +50,24 @@ npm run script:draw-mint-pass-lottery $WAIT_FOR_BLOCK_TIME $TOTAL_DRAWS
 drawing, and will be used for seeding the PRNG.
 - The `$TOTAL_DRAWS`: How many mint passes will be distributed
 
+### Generate docs
+
+To compile standard Nosana Documentation from the rust code
+
+```shell
+npm run script:generate-docs
+```
+
+To replace existing documentation.
+
+```shell
+npm run script:generate-docs $PATH_TO_DOCS_PROGRAMS
+```
+
 ### Get Staking Address
 
-Get a [StakingAccount](https://docs.nosana.io/programs/staking.html#stake-account) address for a given public key.
+Get a [StakingAccount](https://docs.nosana.io/programs/staking.html#stake-account)
+address for a given public key.
 
 ```shell
 npm run script:get-staking-address $PUBLIC_KEY
