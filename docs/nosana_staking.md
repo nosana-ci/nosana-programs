@@ -1,5 +1,17 @@
 # Nosana Staking
 
+## Program Information
+
+| Info            | Description                                                                                                                         |
+|-----------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| Type            | [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                            |
+| Source Code     | [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)                                                                         |
+| Build Status    | [✅ Anchor Verified](https://www.apr.dev/program/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE)                                        |
+| Program Address | [🧭 `nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE`](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE) |
+| Accounts        | [`3` account types](#accounts)                                                                                                      |
+| Instructions    | [`10` instructions](#instructions)                                                                                                  |
+| Domain          | 🌐 `nosana-staking.sol`                                                                                                             |
+
 ## Instructions
 
 A number of 9 instruction are defined in the Nosana Staking program.
@@ -20,10 +32,10 @@ of the Nosana Staking program.
 let tx = await program.methods
   .init()
   .accounts({
-    settings, // ✓ writable, 𐄂 signer
-    authority, // ✓ writable, ✓ signer
-    systemProgram, // 𐄂 writable, 𐄂 signer
-    rent, // 𐄂 writable, 𐄂 signer
+    settings,          // ✓ writable, 𐄂 signer
+    authority,         // ✓ writable, ✓ signer
+    systemProgram,     // 𐄂 writable, 𐄂 signer
+    rent,              // 𐄂 writable, 𐄂 signer
   })
   .rpc();
 ```
@@ -39,16 +51,19 @@ The stake account is a PDA based on the authority.
 
 ```typescript
 let tx = await program.methods
-  .stake()
+  .stake(
+    amount             // type: u64
+    duration           // type: u128
+  )
   .accounts({
-    mint, // 𐄂 writable, 𐄂 signer
-    user, // ✓ writable, 𐄂 signer
-    vault, // ✓ writable, 𐄂 signer
-    stake, // ✓ writable, 𐄂 signer
-    authority, // ✓ writable, ✓ signer
-    systemProgram, // 𐄂 writable, 𐄂 signer
-    tokenProgram, // 𐄂 writable, 𐄂 signer
-    rent, // 𐄂 writable, 𐄂 signer
+    mint,              // 𐄂 writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    stake,             // ✓ writable, 𐄂 signer
+    authority,         // ✓ writable, ✓ signer
+    systemProgram,     // 𐄂 writable, 𐄂 signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+    rent,              // 𐄂 writable, 𐄂 signer
   })
   .rpc();
 ```
@@ -61,9 +76,9 @@ The `unstake()` instruction will initiate the unstake delay.
 let tx = await program.methods
   .unstake()
   .accounts({
-    stake, // ✓ writable, 𐄂 signer
-    reward, // 𐄂 writable, 𐄂 signer
-    authority, // 𐄂 writable, ✓ signer
+    stake,             // ✓ writable, 𐄂 signer
+    reward,            // 𐄂 writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
   })
   .rpc();
 ```
@@ -77,8 +92,8 @@ This will make a stake active again and reset the unstake time.
 let tx = await program.methods
   .restake()
   .accounts({
-    stake, // ✓ writable, 𐄂 signer
-    authority, // 𐄂 writable, ✓ signer
+    stake,             // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
   })
   .rpc();
 ```
@@ -93,13 +108,15 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 
 ```typescript
 let tx = await program.methods
-  .topup()
+  .topup(
+    amount             // type: u64
+  )
   .accounts({
-    user, // ✓ writable, 𐄂 signer
-    vault, // ✓ writable, 𐄂 signer
-    stake, // ✓ writable, 𐄂 signer
-    authority, // 𐄂 writable, ✓ signer
-    tokenProgram, // 𐄂 writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    stake,             // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
   .rpc();
 ```
@@ -111,10 +128,12 @@ The duration can only be increased which will result in a higher `xnos`.
 
 ```typescript
 let tx = await program.methods
-  .extend()
+  .extend(
+    duration           // type: u64
+  )
   .accounts({
-    stake, // ✓ writable, 𐄂 signer
-    authority, // 𐄂 writable, ✓ signer
+    stake,             // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
   })
   .rpc();
 ```
@@ -130,11 +149,11 @@ Claiming will close the [StakeAccount](#stake-account) and
 let tx = await program.methods
   .claim()
   .accounts({
-    user, // ✓ writable, 𐄂 signer
-    vault, // ✓ writable, 𐄂 signer
-    stake, // ✓ writable, 𐄂 signer
-    authority, // ✓ writable, ✓ signer
-    tokenProgram, // 𐄂 writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    stake,             // ✓ writable, 𐄂 signer
+    authority,         // ✓ writable, ✓ signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
   .rpc();
 ```
@@ -151,14 +170,16 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
 ```typescript
 let tx = await program.methods
-  .slash()
+  .slash(
+    amount             // type: u64
+  )
   .accounts({
-    settings, // 𐄂 writable, 𐄂 signer
-    stake, // ✓ writable, 𐄂 signer
-    tokenAccount, // ✓ writable, 𐄂 signer
-    vault, // ✓ writable, 𐄂 signer
-    authority, // 𐄂 writable, ✓ signer
-    tokenProgram, // 𐄂 writable, 𐄂 signer
+    settings,          // 𐄂 writable, 𐄂 signer
+    stake,             // ✓ writable, 𐄂 signer
+    tokenAccount,      // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
   .rpc();
 ```
@@ -174,17 +195,17 @@ new token account. This can only by called by the current authority.
 let tx = await program.methods
   .updateSettings()
   .accounts({
-    newAuthority, // 𐄂 writable, 𐄂 signer
-    tokenAccount, // 𐄂 writable, 𐄂 signer
-    settings, // ✓ writable, 𐄂 signer
-    authority, // 𐄂 writable, ✓ signer
+    newAuthority,      // 𐄂 writable, 𐄂 signer
+    tokenAccount,      // 𐄂 writable, 𐄂 signer
+    settings,          // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
   })
   .rpc();
 ```
 
 ## Accounts
 
-A number of 2 accounts make up for the Nosana Staking Program's state.
+A number of 3 accounts make up for the Nosana Staking Program's state.
 
 ### Vault Account
 
@@ -195,21 +216,21 @@ The `VaultAccount` is a regular Solana Token Account.
 The `SettingsAccount` struct holds the information about the
 slashing authority and token account.
 
-| Name | Type |
-| ---- | ---- |
-| `authority` | `publicKey` |
-| `tokenAccount` | `publicKey` |
+| Name                                  | Type                                  |
+|---------------------------------------|---------------------------------------|
+| `authority`                           | `publicKey`                           |
+| `tokenAccount`                        | `publicKey`                           |
 
 ### Stake Account
 
 The `StakeAccount` struct holds all the information for any given stake.
 
-| Name | Type |
-| ---- | ---- |
-| `amount` | `u64` |
-| `authority` | `publicKey` |
-| `duration` | `u64` |
-| `timeUnstake` | `i64` |
-| `vault` | `publicKey` |
-| `vaultBump` | `u8` |
-| `xnos` | `u128` |
+| Name                                  | Type                                  |
+|---------------------------------------|---------------------------------------|
+| `amount`                              | `u64`                                 |
+| `authority`                           | `publicKey`                           |
+| `duration`                            | `u64`                                 |
+| `timeUnstake`                         | `i64`                                 |
+| `vault`                               | `publicKey`                           |
+| `vaultBump`                           | `u8`                                  |
+| `xnos`                                | `u128`                                |

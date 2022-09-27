@@ -85,66 +85,6 @@ pub mod nosana_jobs {
     /// - In the Queued (`0`) state.
     /// - In the Running (`1`) state, but after is has expired.
     ///
-    /// #### Unclaimed Jobs
-    ///
-    /// To find unclaimed jobs with Anchor:
-    ///
-    /// ```typescript
-    /// const jobs = await program.account.jobAccount.all([
-    ///   {
-    ///     memcmp: {
-    ///       offset: 8 + 32 * 3, /// the assigned node must be NULL
-    ///       bytes: systemProgram.toBase58(),
-    ///     },
-    ///   },
-    ///   {
-    ///     memcmp: {
-    ///       offset: 8 + 32 * 4, /// the nodes queue
-    ///       bytes: nodes.toBase58(),
-    ///     },
-    ///   },
-    ///   {
-    ///     memcmp: {
-    ///       offset: 8 + 32 * 5 + 8, /// the job status
-    ///       bytes: '1',
-    ///     },
-    ///   },
-    /// ]);
-    /// ```
-    /// Note: leave the nodes out to find jobs across all node queues.
-    ///
-    /// #### Expired Jobs
-    ///
-    /// To find jobs that have timed out, we first find all running jobs.
-    ///
-    /// ```typescript
-    /// const jobs = await program.account.jobAccount.all([
-    ///   {
-    ///     memcmp: {
-    ///       offset: 8 + 32 * 4, // the nodes queue
-    ///       bytes: nodes.toBase58(),
-    ///     },
-    ///   },
-    ///   {
-    ///     memcmp: {
-    ///       offset: 8 + 32 * 5 + 8, ///the job status
-    ///       bytes: '2',
-    ///     },
-    ///   },
-    /// ]);
-    /// ```
-    ///
-    /// With the retrieved running jobs we can find jobs that have expired,
-    /// by checking their start time:
-    ///
-    /// ```typescript
-    /// for (const job of jobs) {
-    ///   if (job.account.timeStart > (Date.now() / 1e3 - nodes.jobTimeout)) {
-    ///     /// claim job!
-    ///   }
-    /// }
-    /// ```
-    ///
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         claim::handler(ctx)
     }

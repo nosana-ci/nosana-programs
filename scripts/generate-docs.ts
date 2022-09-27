@@ -8,6 +8,8 @@ import nosanaRewards from '../target/idl/nosana_rewards.json';
 import nosanaStaking from '../target/idl/nosana_staking.json';
 import { writeFileSync, readFileSync } from 'fs';
 
+const commentPadding = 23;
+
 /**
  *
  * @param s
@@ -22,15 +24,55 @@ const title = (s) =>
 
 /**
  *
+ * @param field
+ */
+const typeToString = (field) =>
+  typeof field.type === 'string'
+    ? field.type
+    : 'vec' in field.type
+    ? `Vec<${field.type.vec}>`
+    : 'array' in field.type
+    ? `[${field.type.array[0]}; ${field.type.array[1]}]`
+    : field.toString();
+
+/**
+ *
  */
 function main() {
   for (const idl of [nosanaPools, nosanaJobs, nosanaRewards, nosanaStaking]) {
+    console.log(`Generating docs for ${title(idl.name)}`);
+
+    // we're going to load all documentatation into this data array
     const data = [];
 
     /**
      * INSTRUCTIONS
      */
+    const pLeft = 18;
+    const pRight = 134;
     data.push(
+      '## Program Information',
+      '',
+      '| Info'.padEnd(pLeft) + '| Description'.padEnd(pRight) + '|',
+      '|'.padEnd(pLeft, '-') + '|'.padEnd(pRight, '-') + '|',
+      '| Type'.padEnd(pLeft) +
+        `| [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`.padEnd(pRight) +
+        '|',
+      '| Source Code'.padEnd(pLeft) + `| [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)`.padEnd(pRight) + '|',
+      '| Build Status'.padEnd(pLeft) +
+        `| [✅ Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`.padEnd(pRight) +
+        '|',
+      '| Program Address'.padEnd(pLeft) +
+        `| [🧭 \`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`.padEnd(
+          pRight
+        ) +
+        '|',
+      '| Accounts'.padEnd(pLeft) + `| [\`${idl.accounts.length + 1}\` account types](#accounts)`.padEnd(pRight) + '|',
+      '| Instructions'.padEnd(pLeft) +
+        `| [\`${idl.instructions.length + 1}\` instructions](#instructions)`.padEnd(pRight) +
+        '|',
+      '| Domain'.padEnd(pLeft) + `| 🌐 \`nosana-${idl.name.split('_')[1]}.sol\``.padEnd(pRight) + '|',
+      '',
       '## Instructions',
       '',
       `A number of ${idl.instructions.length} instruction are defined in the ${title(idl.name)} program.`,
@@ -53,12 +95,22 @@ function main() {
       }
 
       // example
-      data.push('```typescript', 'let tx = await program.methods', `  .${instruction.name}()`, '  .accounts({');
+      data.push('```typescript', 'let tx = await program.methods');
+      if (instruction.args.length === 0) {
+        data.push(`  .${instruction.name}()`);
+      } else {
+        data.push(`  .${instruction.name}(`);
+        for (const arg of instruction.args) {
+          data.push(`    ${arg.name}`.padEnd(commentPadding) + `// type: ${typeToString(arg)}`);
+        }
+        data.push(`  )`);
+      }
+
+      data.push('  .accounts({');
       for (const account of instruction.accounts) {
         data.push(
-          `    ${account.name}, // ${
-            (account.isMut ? '✓' : '𐄂') + ' writable, ' + (account.isSigner ? '✓' : '𐄂') + ' signer'
-          }`
+          `    ${account.name},`.padEnd(commentPadding) +
+            `// ${(account.isMut ? '✓' : '𐄂') + ' writable, ' + (account.isSigner ? '✓' : '𐄂') + ' signer'}`
         );
       }
       data.push('  })', '  .rpc();', '```', '');
@@ -70,7 +122,7 @@ function main() {
     data.push(
       '## Accounts',
       '',
-      `A number of ${idl.accounts.length} accounts make up for the ${title(idl.name)} Program's state.`,
+      `A number of ${idl.accounts.length + 1} accounts make up for the ${title(idl.name)} Program's state.`,
       '',
       '### Vault Account',
       '',
@@ -87,9 +139,13 @@ function main() {
       }
 
       // table
-      data.push('| Name | Type |', '| ---- | ---- |');
+      const padding = 40;
+      data.push(
+        '| Name'.padEnd(padding) + '| Type'.padEnd(padding) + '|',
+        '|'.padEnd(padding, '-') + '|'.padEnd(padding, '-') + '|'
+      );
       for (const field of account.type.fields) {
-        data.push(`| \`${field.name}\` | \`${field.type}\` |`);
+        data.push(`| \`${field.name}\``.padEnd(padding) + `| \`${typeToString(field)}\``.padEnd(padding) + `|`);
       }
       data.push('');
     }
@@ -97,7 +153,7 @@ function main() {
     // write result
     if (process.argv.slice(2)[0]) {
       const file = `${process.argv.slice(2)[0]}/${idl.name.split('_')[1]}.md`;
-      console.log(`Reading from file to file ${file}`);
+      console.log(`   => ..reading from file ${file}`);
       const doc = readFileSync(file).toString().split('\n');
 
       const begin = doc.indexOf('<!-- BEGIN_NOS_DOCS -->');
@@ -108,9 +164,10 @@ function main() {
       doc.splice(begin + 2, end - begin - 2, ...data);
 
       writeFileSync(file, doc.join('\n'), { flag: 'w' });
+      console.log(`   => ..done writing to file ${file}`);
     } else {
       const file = `./docs/${idl.name}.md`;
-      console.log(`Writing to file ${file}`);
+      console.log(`    => writing to file ${file}!`);
       data.splice(0, 0, `# ${title(idl.name)}`, '');
       writeFileSync(file, data.join('\n'), { flag: 'w' });
     }
