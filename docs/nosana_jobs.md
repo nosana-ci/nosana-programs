@@ -7,10 +7,10 @@
 | Type            | [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                            |
 | Source Code     | [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)                                                                         |
 | Build Status    | [✅ Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                        |
-| Program Address | [🧭 `nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM) |
 | Accounts        | [`3` account types](#accounts)                                                                                                      |
-| Instructions    | [`11` instructions](#instructions)                                                                                                  |
+| Instructions    | [`10` instructions](#instructions)                                                                                                  |
 | Domain          | 🌐 `nosana-jobs.sol`                                                                                                                |
+| Program Address | [🧭 `nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM) |
 
 ## Instructions
 
@@ -267,3 +267,32 @@ The `JobAccount` struct holds all the information about any individual jobs.
 | `status`                              | `u8`                                  |
 | `timeEnd`                             | `i64`                                 |
 | `timeStart`                           | `i64`                                 |
+
+## Types
+
+A number of 2 type variants are defined in the Nosana Jobs Program's state.
+
+### Job Status
+
+The `JobStatus` describes the status of any job
+
+A number of 3 variants are defined:
+| Name                                  | byte                                  |
+|---------------------------------------|---------------------------------------|
+| `Queued`                              | `0`                                   |
+| `Running`                             | `1`                                   |
+| `Done`                                | `2`                                   |
+
+### Job Type
+
+The `JobType` describes the type of any job.
+
+A number of 6 variants are defined:
+| Name                                  | byte                                  |
+|---------------------------------------|---------------------------------------|
+| `Default`                             | `0`                                   |
+| `Small`                               | `1`                                   |
+| `Medium`                              | `2`                                   |
+| `Large`                               | `3`                                   |
+| `Gpu`                                 | `4`                                   |
+| `Unknown`                             | `255`                                 |

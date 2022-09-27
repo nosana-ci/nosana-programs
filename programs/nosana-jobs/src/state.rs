@@ -134,8 +134,10 @@ impl JobAccount {
     }
 }
 
-/// # Job Status
-
+/// ### Job Status
+///
+/// The `JobStatus` describes the status of any job
+///
 #[repr(u8)]
 pub enum JobStatus {
     Queued = 0,
@@ -143,8 +145,10 @@ pub enum JobStatus {
     Done = 2,
 }
 
-/// # Job Type
-
+/// ### Job Type
+///
+/// The `JobType` describes the type of any job.
+///
 #[repr(u8)]
 pub enum JobType {
     Default = 0,

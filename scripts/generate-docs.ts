@@ -12,10 +12,10 @@ const commentPadding = 23;
 
 /**
  *
- * @param s
+ * @param string
  */
-const title = (s) =>
-  s
+const title = (string) =>
+  string
     .replace(/^[-_]*(.)/, (_, c) => c.toUpperCase()) // Initial char (after -/_)
     .replace(/[-_]+(.)/g, (_, c) => ' ' + c.toUpperCase()) // First char after each -/_
     .replace(/[A-Z]/g, ' $&') // Insert spaces before Capitals
@@ -38,6 +38,27 @@ const typeToString = (field) =>
 /**
  *
  */
+class MarkdownTable {
+  private left: number;
+  private right: number;
+
+  constructor(left: number, right: number) {
+    this.left = left;
+    this.right = right;
+  }
+
+  row(left: string, right: string) {
+    return `| ${left}`.padEnd(this.left) + `| ${right}`.padEnd(this.right) + '|';
+  }
+
+  sep() {
+    return `|`.padEnd(this.left, '-') + `|`.padEnd(this.right, '-') + '|';
+  }
+}
+
+/**
+ *
+ */
 function main() {
   for (const idl of [nosanaPools, nosanaJobs, nosanaRewards, nosanaStaking]) {
     console.log(`Generating docs for ${title(idl.name)}`);
@@ -48,30 +69,22 @@ function main() {
     /**
      * INSTRUCTIONS
      */
-    const pLeft = 18;
-    const pRight = 134;
+    const pt = new MarkdownTable(18, 134);
     data.push(
       '## Program Information',
       '',
-      '| Info'.padEnd(pLeft) + '| Description'.padEnd(pRight) + '|',
-      '|'.padEnd(pLeft, '-') + '|'.padEnd(pRight, '-') + '|',
-      '| Type'.padEnd(pLeft) +
-        `| [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`.padEnd(pRight) +
-        '|',
-      '| Source Code'.padEnd(pLeft) + `| [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)`.padEnd(pRight) + '|',
-      '| Build Status'.padEnd(pLeft) +
-        `| [✅ Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`.padEnd(pRight) +
-        '|',
-      '| Program Address'.padEnd(pLeft) +
-        `| [🧭 \`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`.padEnd(
-          pRight
-        ) +
-        '|',
-      '| Accounts'.padEnd(pLeft) + `| [\`${idl.accounts.length + 1}\` account types](#accounts)`.padEnd(pRight) + '|',
-      '| Instructions'.padEnd(pLeft) +
-        `| [\`${idl.instructions.length + 1}\` instructions](#instructions)`.padEnd(pRight) +
-        '|',
-      '| Domain'.padEnd(pLeft) + `| 🌐 \`nosana-${idl.name.split('_')[1]}.sol\``.padEnd(pRight) + '|',
+      pt.row('Info', 'Description'),
+      pt.sep(),
+      pt.row('Type', `[⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`),
+      pt.row('Source Code', `[👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)`),
+      pt.row('Build Status', `[✅ Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`),
+      pt.row('Accounts', `[\`${idl.accounts.length + 1}\` account types](#accounts)`),
+      pt.row('Instructions', `[\`${idl.instructions.length}\` instructions](#instructions)`),
+      pt.row('Domain', `🌐 \`nosana-${idl.name.split('_')[1]}.sol\``),
+      pt.row(
+        'Program Address',
+        `[🧭 \`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`
+      ),
       '',
       '## Instructions',
       '',
@@ -138,16 +151,45 @@ function main() {
         data.push(`### ${title(account.name)}`, '\n');
       }
 
-      // table
-      const padding = 40;
-      data.push(
-        '| Name'.padEnd(padding) + '| Type'.padEnd(padding) + '|',
-        '|'.padEnd(padding, '-') + '|'.padEnd(padding, '-') + '|'
-      );
+      // accounts table
+      const at = new MarkdownTable(40, 40);
+      data.push(at.row('Name', 'Type'), at.sep());
       for (const field of account.type.fields) {
-        data.push(`| \`${field.name}\``.padEnd(padding) + `| \`${typeToString(field)}\``.padEnd(padding) + `|`);
+        data.push(at.row(`\`${field.name}\``, `\`${typeToString(field)}\``));
       }
       data.push('');
+    }
+
+    /**
+     * TYPES
+     */
+    if ('types' in idl) {
+      data.push(
+        '## Types',
+        '',
+        `A number of ${idl.types.length} type variants are defined in the ${title(idl.name)} Program's state.`,
+        ''
+      );
+
+      for (const t of idl.types) {
+        // title
+        try {
+          data.push(...t['docs']);
+        } catch (e) {
+          data.push(`### ${title(t.name)}`, '\n');
+        }
+
+        // types table
+        data.push(`A number of ${t.type.variants.length} variants are defined:`);
+        const tt = new MarkdownTable(40, 40);
+        data.push(tt.row('Name', 'byte'), tt.sep());
+        for (const field of t.type.variants) {
+          data.push(
+            tt.row(`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``)
+          );
+        }
+        data.push('');
+      }
     }
 
     // write result

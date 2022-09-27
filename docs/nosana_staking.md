@@ -7,10 +7,10 @@
 | Type            | [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                            |
 | Source Code     | [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)                                                                         |
 | Build Status    | [✅ Anchor Verified](https://www.apr.dev/program/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE)                                        |
-| Program Address | [🧭 `nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE`](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE) |
 | Accounts        | [`3` account types](#accounts)                                                                                                      |
-| Instructions    | [`10` instructions](#instructions)                                                                                                  |
+| Instructions    | [`9` instructions](#instructions)                                                                                                   |
 | Domain          | 🌐 `nosana-staking.sol`                                                                                                             |
+| Program Address | [🧭 `nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE`](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE) |
 
 ## Instructions
 

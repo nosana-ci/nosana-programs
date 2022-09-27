@@ -54,8 +54,10 @@ impl PoolAccount {
     }
 }
 
-/// ### Claim Types
-
+/// ### Claim Type
+///
+/// The `ClaimType` of any pool describes the way withdraw (claim) works.
+///
 #[repr(u8)]
 pub enum ClaimType {
     Transfer = 0,

@@ -30,8 +30,9 @@ pub mod nosana_pools {
 
     /// ### Claim Fee
     ///
-    /// The `claimFee()` instruction claims emissions from a Nosana Pool with claim type `1`,
-    /// and adds these as rewards (fees) to the [Rewards Program](/programs-rewards).
+    /// The `claimFee()` instruction claims emissions from a Nosana Pool
+    /// with claim type [`1`](#claim-type),
+    /// and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
     ///
     pub fn claim_fee(ctx: Context<ClaimFee>) -> Result<()> {
         claim_fee::handler(ctx)
@@ -39,7 +40,8 @@ pub mod nosana_pools {
 
     /// ### Claim Transfer
     ///
-    /// The `claimTransfer()` instruction claims emissions from a Nosana Pool with claim type `0`,
+    /// The `claimTransfer()` instruction claims emissions from a Nosana Pool
+    /// with claim type [`0`](#claim-type),
     /// and transfer these to a given user.
     ///
     pub fn claim_transfer(ctx: Context<ClaimTransfer>) -> Result<()> {

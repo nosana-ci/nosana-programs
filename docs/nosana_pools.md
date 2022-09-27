@@ -7,10 +7,10 @@
 | Type            | [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                            |
 | Source Code     | [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)                                                                         |
 | Build Status    | [✅ Anchor Verified](https://www.apr.dev/program/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD)                                        |
-| Program Address | [🧭 `nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD`](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD) |
 | Accounts        | [`2` account types](#accounts)                                                                                                      |
-| Instructions    | [`5` instructions](#instructions)                                                                                                   |
+| Instructions    | [`4` instructions](#instructions)                                                                                                   |
 | Domain          | 🌐 `nosana-pools.sol`                                                                                                               |
+| Program Address | [🧭 `nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD`](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD) |
 
 ## Instructions
 
@@ -51,8 +51,9 @@ let tx = await program.methods
 
 ### Claim Fee
 
-The `claimFee()` instruction claims emissions from a Nosana Pool with claim type `1`,
-and adds these as rewards (fees) to the [Rewards Program](/programs-rewards).
+The `claimFee()` instruction claims emissions from a Nosana Pool
+with claim type [`1`](#claim-type),
+and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
 
 ```typescript
 let tx = await program.methods
@@ -71,7 +72,8 @@ let tx = await program.methods
 
 ### Claim Transfer
 
-The `claimTransfer()` instruction claims emissions from a Nosana Pool with claim type `0`,
+The `claimTransfer()` instruction claims emissions from a Nosana Pool
+with claim type [`0`](#claim-type),
 and transfer these to a given user.
 
 ```typescript
@@ -128,3 +130,18 @@ The `PoolAccount` struct holds all the information for any given pool.
 | `startTime`                           | `i64`                                 |
 | `vault`                               | `publicKey`                           |
 | `vaultBump`                           | `u8`                                  |
+
+## Types
+
+A number of 1 type variants are defined in the Nosana Pools Program's state.
+
+### Claim Type
+
+The `ClaimType` of any pool describes the way withdraw (claim) works.
+
+A number of 3 variants are defined:
+| Name                                  | byte                                  |
+|---------------------------------------|---------------------------------------|
+| `Transfer`                            | `0`                                   |
+| `AddFee`                              | `1`                                   |
+| `Unknown`                             | `255`                                 |
