@@ -206,7 +206,7 @@ function main() {
         // types table
         data.push(`A number of ${t.type.variants.length} variants are defined:`);
         const tt = new MarkdownTable();
-        data.push(tt.row(['Name', 'byte']), tt.sep());
+        data.push(tt.row(['Name', 'Number']), tt.sep());
         for (const field of t.type.variants) {
           data.push(
             tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
