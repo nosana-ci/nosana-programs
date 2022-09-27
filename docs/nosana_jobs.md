@@ -16,7 +16,6 @@ const program = new Program(idl, programId);
 The `init()` instruction initializes a [MarketAccount](#market-account) and an
 associated [VaultAccount](#vault-account) for token deposits.
 
-
 ```typescript
 let tx = await program.methods
   .init()
@@ -39,7 +38,6 @@ The `stop()` instruction closes a [MarketAccount](#market-account) and an
 associated [VaultAccount](#vault-account).
 The vault has to be empty of tokens.
 
-
 ```typescript
 let tx = await program.methods
   .stop()
@@ -56,7 +54,6 @@ let tx = await program.methods
 
 The `update()` instruction update a [MarketAccount](#market-account).
 
-
 ```typescript
 let tx = await program.methods
   .update()
@@ -72,7 +69,6 @@ let tx = await program.methods
 
 The `create()` instruction creates a [JobAccount](#job-account) with its required data.
 When there is a node ready in the queue it will immediately start running.
-
 
 ```typescript
 let tx = await program.methods
@@ -98,7 +94,6 @@ let tx = await program.methods
 The `close()` instruction closes an existing [JobAccount](#job-account).
 When the job was still queued the tokens will be returned to the user.
 
-
 ```typescript
 let tx = await program.methods
   .close()
@@ -116,7 +111,6 @@ let tx = await program.methods
 ### Cancel
 
 With the `cancel()` instruction a node can stop running a job that it has started.
-
 
 ```typescript
 let tx = await program.methods
@@ -195,7 +189,6 @@ if (job.account.timeStart > (Date.now() / 1e3 - nodes.jobTimeout)) {
 }
 ```
 
-
 ```typescript
 let tx = await program.methods
   .claim()
@@ -221,7 +214,6 @@ A few requirements are enforced:
 - A node needs to hold an official Nosana NFT.
 - A node can only enter the queue once
 
-
 ```typescript
 let tx = await program.methods
   .enter()
@@ -241,7 +233,6 @@ let tx = await program.methods
 With the `exit()` instruction a node exits the node queue
 from a [MarketAccount](#market-account).
 
-
 ```typescript
 let tx = await program.methods
   .exit()
@@ -256,7 +247,6 @@ let tx = await program.methods
 
 With the `finish()` instruction a node can can post the result for a job it has finished,
 and be reimbursed for the work.
-
 
 ```typescript
 let tx = await program.methods

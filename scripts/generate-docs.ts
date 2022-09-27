@@ -53,7 +53,7 @@ function main() {
       }
 
       // example
-      data.push('', '```typescript', 'let tx = await program.methods', `  .${instruction.name}()`, '  .accounts({');
+      data.push('```typescript', 'let tx = await program.methods', `  .${instruction.name}()`, '  .accounts({');
       for (const account of instruction.accounts) {
         data.push(
           `    ${account.name}, // ${
