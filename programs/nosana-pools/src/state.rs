@@ -1,7 +1,9 @@
 use anchor_lang::prelude::*;
 
-/// # Pool Account
-
+/// ### Pool Account
+///
+/// The `PoolAccount` struct holds all the information for any given pool.
+///
 #[account]
 pub struct PoolAccount {
     pub authority: Pubkey,
@@ -52,7 +54,7 @@ impl PoolAccount {
     }
 }
 
-/// # Claim Types
+/// ### Claim Types
 
 #[repr(u8)]
 pub enum ClaimType {

@@ -2,8 +2,10 @@ use anchor_lang::prelude::*;
 use nosana_common::id;
 use std::mem::size_of;
 
-/// # Market Account
-
+/// ### Market Account
+///
+/// The `MarketAccount` struct holds all the information about jobs and the nodes queue.
+///
 #[account]
 pub struct MarketAccount {
     pub authority: Pubkey,
@@ -85,8 +87,10 @@ impl MarketAccount {
     }
 }
 
-/// # Job Account
-
+/// ### Job Account
+///
+/// The `JobAccount` struct holds all the information about any individual jobs.
+///
 #[account]
 pub struct JobAccount {
     pub authority: Pubkey,

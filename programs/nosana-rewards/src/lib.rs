@@ -14,26 +14,50 @@ declare_id!(id::REWARDS_PROGRAM);
 pub mod nosana_rewards {
     use super::*;
 
+    /// ### Init
+    ///
+    /// The `init()` instruction initializes the [ReflectionAccount](#reflection-account)
+    /// and [VaultAccount](#vault-account).
+    ///
     pub fn init(ctx: Context<Init>) -> Result<()> {
         init::handler(ctx)
     }
 
+    /// ### Enter
+    ///
+    /// The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account).
+    ///
     pub fn enter(ctx: Context<Enter>) -> Result<()> {
         enter::handler(ctx)
     }
 
+    /// ### Add Fee
+    ///
+    /// The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-account).
+    ///
     pub fn add_fee(ctx: Context<AddFee>, amount: u64) -> Result<()> {
         add_fee::handler(ctx, amount)
     }
 
+    /// ### Claim
+    /// The `claim()` instruction sends a user's rewards to a given wallet.
+    ///
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         claim::handler(ctx)
     }
 
+    /// ### Sync
+    ///
+    /// The `sync()` instruction re-calculates a users' reflection score.
+    ///
     pub fn sync(ctx: Context<Sync>) -> Result<()> {
         sync::handler(ctx)
     }
 
+    /// ### Close
+    ///
+    /// The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
+    ///
     pub fn close(ctx: Context<Close>) -> Result<()> {
         close::handler(ctx)
     }

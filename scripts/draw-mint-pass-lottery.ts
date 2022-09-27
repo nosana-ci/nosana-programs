@@ -12,7 +12,6 @@ const outPrefix = `./${date.getUTCFullYear()}${('0' + (date.getMonth() + 1)).sli
 const ticketsFile = `${outPrefix}_tickets.csv`;
 const winnersFile = `${outPrefix}_winners.csv`;
 
-
 const waitForBlock = parseInt(process.argv.slice(2)[0]);
 const totalDraws = parseInt(process.argv.slice(2)[1]);
 
