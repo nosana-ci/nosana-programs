@@ -31,10 +31,10 @@ and [VaultAccount](#vault-account).
 ```typescript
 let tx = await program.methods
   .open(
-    emmission          // type: u64
-    startTime          // type: i64
-    claimType          // type: u8
-    closeable          // type: bool
+    emmission,         // type: u64
+    startTime,         // type: i64
+    claimType,         // type: u8
+    closeable,         // type: bool
   )
   .accounts({
     pool,              // ✓ writable, ✓ signer
@@ -119,17 +119,17 @@ The `VaultAccount` is a regular Solana Token Account.
 
 The `PoolAccount` struct holds all the information for any given pool.
 
-| Name                                  | Type                                  |
-|---------------------------------------|---------------------------------------|
-| `authority`                           | `publicKey`                           |
-| `beneficiary`                         | `publicKey`                           |
-| `claimType`                           | `u8`                                  |
-| `claimedTokens`                       | `u64`                                 |
-| `closeable`                           | `bool`                                |
-| `emission`                            | `u64`                                 |
-| `startTime`                           | `i64`                                 |
-| `vault`                               | `publicKey`                           |
-| `vaultBump`                           | `u8`                                  |
+| Name                        | Type                        | Offset  |
+|-----------------------------|-----------------------------|---------|
+| `authority`                 | `publicKey`                 | `8`     |
+| `beneficiary`               | `publicKey`                 | `40`    |
+| `claimType`                 | `u8`                        | `72`    |
+| `claimedTokens`             | `u64`                       | `73`    |
+| `closeable`                 | `bool`                      | `81`    |
+| `emission`                  | `u64`                       | `82`    |
+| `startTime`                 | `i64`                       | `90`    |
+| `vault`                     | `publicKey`                 | `106`   |
+| `vaultBump`                 | `u8`                        | `138`   |
 
 ## Types
 

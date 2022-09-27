@@ -67,7 +67,7 @@ The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-a
 ```typescript
 let tx = await program.methods
   .addFee(
-    amount             // type: u64
+    amount,            // type: u64
   )
   .accounts({
     user,              // ✓ writable, 𐄂 signer
@@ -139,21 +139,21 @@ The `VaultAccount` is a regular Solana Token Account.
 
 The `ReflectionAccount` struct holds all the information on the reflection pool.
 
-| Name                                  | Type                                  |
-|---------------------------------------|---------------------------------------|
-| `rate`                                | `u128`                                |
-| `totalReflection`                     | `u128`                                |
-| `totalXnos`                           | `u128`                                |
-| `vault`                               | `publicKey`                           |
-| `vaultBump`                           | `u8`                                  |
+| Name                        | Type                        | Offset  |
+|-----------------------------|-----------------------------|---------|
+| `rate`                      | `u128`                      | `8`     |
+| `totalReflection`           | `u128`                      | `24`    |
+| `totalXnos`                 | `u128`                      | `40`    |
+| `vault`                     | `publicKey`                 | `56`    |
+| `vaultBump`                 | `u8`                        | `88`    |
 
 ### Reward Account
 
 The `RewardAccount` struct holds all the information for any given user account.
 
-| Name                                  | Type                                  |
-|---------------------------------------|---------------------------------------|
-| `authority`                           | `publicKey`                           |
-| `bump`                                | `u8`                                  |
-| `reflection`                          | `u128`                                |
-| `xnos`                                | `u128`                                |
+| Name                        | Type                        | Offset  |
+|-----------------------------|-----------------------------|---------|
+| `authority`                 | `publicKey`                 | `8`     |
+| `bump`                      | `u8`                        | `40`    |
+| `reflection`                | `u128`                      | `41`    |
+| `xnos`                      | `u128`                      | `57`    |

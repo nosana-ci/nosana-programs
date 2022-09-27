@@ -52,8 +52,8 @@ The stake account is a PDA based on the authority.
 ```typescript
 let tx = await program.methods
   .stake(
-    amount             // type: u64
-    duration           // type: u128
+    amount,            // type: u64
+    duration,          // type: u128
   )
   .accounts({
     mint,              // 𐄂 writable, 𐄂 signer
@@ -109,7 +109,7 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 ```typescript
 let tx = await program.methods
   .topup(
-    amount             // type: u64
+    amount,            // type: u64
   )
   .accounts({
     user,              // ✓ writable, 𐄂 signer
@@ -129,7 +129,7 @@ The duration can only be increased which will result in a higher `xnos`.
 ```typescript
 let tx = await program.methods
   .extend(
-    duration           // type: u64
+    duration,          // type: u64
   )
   .accounts({
     stake,             // ✓ writable, 𐄂 signer
@@ -171,7 +171,7 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 ```typescript
 let tx = await program.methods
   .slash(
-    amount             // type: u64
+    amount,            // type: u64
   )
   .accounts({
     settings,          // 𐄂 writable, 𐄂 signer
@@ -216,21 +216,21 @@ The `VaultAccount` is a regular Solana Token Account.
 The `SettingsAccount` struct holds the information about the
 slashing authority and token account.
 
-| Name                                  | Type                                  |
-|---------------------------------------|---------------------------------------|
-| `authority`                           | `publicKey`                           |
-| `tokenAccount`                        | `publicKey`                           |
+| Name                        | Type                        | Offset  |
+|-----------------------------|-----------------------------|---------|
+| `authority`                 | `publicKey`                 | `8`     |
+| `tokenAccount`              | `publicKey`                 | `40`    |
 
 ### Stake Account
 
 The `StakeAccount` struct holds all the information for any given stake.
 
-| Name                                  | Type                                  |
-|---------------------------------------|---------------------------------------|
-| `amount`                              | `u64`                                 |
-| `authority`                           | `publicKey`                           |
-| `duration`                            | `u64`                                 |
-| `timeUnstake`                         | `i64`                                 |
-| `vault`                               | `publicKey`                           |
-| `vaultBump`                           | `u8`                                  |
-| `xnos`                                | `u128`                                |
+| Name                        | Type                        | Offset  |
+|-----------------------------|-----------------------------|---------|
+| `amount`                    | `u64`                       | `8`     |
+| `authority`                 | `publicKey`                 | `16`    |
+| `duration`                  | `u64`                       | `48`    |
+| `timeUnstake`               | `i64`                       | `56`    |
+| `vault`                     | `publicKey`                 | `72`    |
+| `vaultBump`                 | `u8`                        | `104`   |
+| `xnos`                      | `u128`                      | `105`   |

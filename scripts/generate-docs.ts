@@ -38,21 +38,43 @@ const typeToString = (field) =>
 /**
  *
  */
-class MarkdownTable {
-  private left: number;
-  private right: number;
+const sizes = {
+  u8: 1,
+  bool: 1,
+  u64: 8,
+  i64: 16,
+  u128: 16,
+  publicKey: 32,
+  '[u8; 32]': 32,
+  'Vec<publicKey>': 0,
+};
 
-  constructor(left: number, right: number) {
-    this.left = left;
-    this.right = right;
+/**
+ *
+ */
+class MarkdownTable {
+  private padding: Array<number>;
+
+  constructor(padding: Array<number> = [40, 40]) {
+    this.padding = padding;
   }
 
-  row(left: string, right: string) {
-    return `| ${left}`.padEnd(this.left) + `| ${right}`.padEnd(this.right) + '|';
+  row(values: Array<string>) {
+    const row = [];
+    for (let i = 0; i < this.padding.length; i++) {
+      row.push(`| ${values[i]}`.padEnd(this.padding[i]));
+    }
+    row.push('|');
+    return row.join('');
   }
 
   sep() {
-    return `|`.padEnd(this.left, '-') + `|`.padEnd(this.right, '-') + '|';
+    const row = [];
+    for (let i = 0; i < this.padding.length; i++) {
+      row.push('|'.padEnd(this.padding[i], '-'));
+    }
+    row.push('|');
+    return row.join('');
   }
 }
 
@@ -69,22 +91,22 @@ function main() {
     /**
      * INSTRUCTIONS
      */
-    const pt = new MarkdownTable(18, 134);
+    const pt = new MarkdownTable([18, 134]);
     data.push(
       '## Program Information',
       '',
-      pt.row('Info', 'Description'),
+      pt.row(['Info', 'Description']),
       pt.sep(),
-      pt.row('Type', `[⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`),
-      pt.row('Source Code', `[👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)`),
-      pt.row('Build Status', `[✅ Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`),
-      pt.row('Accounts', `[\`${idl.accounts.length + 1}\` account types](#accounts)`),
-      pt.row('Instructions', `[\`${idl.instructions.length}\` instructions](#instructions)`),
-      pt.row('Domain', `🌐 \`nosana-${idl.name.split('_')[1]}.sol\``),
-      pt.row(
+      pt.row(['Type', `[⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`]),
+      pt.row(['Source Code', `[👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)`]),
+      pt.row(['Build Status', `[✅ Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`]),
+      pt.row(['Accounts', `[\`${idl.accounts.length + 1}\` account types](#accounts)`]),
+      pt.row(['Instructions', `[\`${idl.instructions.length}\` instructions](#instructions)`]),
+      pt.row(['Domain', `🌐 \`nosana-${idl.name.split('_')[1]}.sol\``]),
+      pt.row([
         'Program Address',
-        `[🧭 \`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`
-      ),
+        `[🧭 \`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`,
+      ]),
       '',
       '## Instructions',
       '',
@@ -114,7 +136,7 @@ function main() {
       } else {
         data.push(`  .${instruction.name}(`);
         for (const arg of instruction.args) {
-          data.push(`    ${arg.name}`.padEnd(commentPadding) + `// type: ${typeToString(arg)}`);
+          data.push(`    ${arg.name},`.padEnd(commentPadding) + `// type: ${typeToString(arg)}`);
         }
         data.push(`  )`);
       }
@@ -152,10 +174,12 @@ function main() {
       }
 
       // accounts table
-      const at = new MarkdownTable(40, 40);
-      data.push(at.row('Name', 'Type'), at.sep());
+      const at = new MarkdownTable([30, 30, 10]);
+      data.push(at.row(['Name', 'Type', 'Offset']), at.sep());
+      let offset = 8;
       for (const field of account.type.fields) {
-        data.push(at.row(`\`${field.name}\``, `\`${typeToString(field)}\``));
+        data.push(at.row([`\`${field.name}\``, `\`${typeToString(field)}\``, `\`${offset}\``]));
+        offset += sizes[typeToString(field)];
       }
       data.push('');
     }
@@ -181,11 +205,11 @@ function main() {
 
         // types table
         data.push(`A number of ${t.type.variants.length} variants are defined:`);
-        const tt = new MarkdownTable(40, 40);
-        data.push(tt.row('Name', 'byte'), tt.sep());
+        const tt = new MarkdownTable();
+        data.push(tt.row(['Name', 'byte']), tt.sep());
         for (const field of t.type.variants) {
           data.push(
-            tt.row(`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``)
+            tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
           );
         }
         data.push('');
@@ -208,7 +232,7 @@ function main() {
       writeFileSync(file, doc.join('\n'), { flag: 'w' });
       console.log(`   => ..done writing to file ${file}`);
     } else {
-      const file = `./docs/${idl.name}.md`;
+      const file = `./docs/${idl.name.split('_')[1]}.md`;
       console.log(`    => writing to file ${file}!`);
       data.splice(0, 0, `# ${title(idl.name)}`, '');
       writeFileSync(file, data.join('\n'), { flag: 'w' });

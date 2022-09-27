@@ -31,10 +31,10 @@ associated [VaultAccount](#vault-account) for token deposits.
 ```typescript
 let tx = await program.methods
   .init(
-    jobPrice           // type: u64
-    jobTimeout         // type: i64
-    jobType            // type: u8
-    nodeStakeMinimum   // type: u64
+    jobPrice,          // type: u64
+    jobTimeout,        // type: i64
+    jobType,           // type: u8
+    nodeStakeMinimum,  // type: u64
   )
   .accounts({
     mint,              // 𐄂 writable, 𐄂 signer
@@ -74,10 +74,10 @@ The `update()` instruction update a [MarketAccount](#market-account).
 ```typescript
 let tx = await program.methods
   .update(
-    jobPrice           // type: u64
-    jobTimeout         // type: i64
-    jobType            // type: u8
-    nodeStakeMinimum   // type: u64
+    jobPrice,          // type: u64
+    jobTimeout,        // type: i64
+    jobType,           // type: u8
+    nodeStakeMinimum,  // type: u64
   )
   .accounts({
     market,            // ✓ writable, 𐄂 signer
@@ -95,7 +95,7 @@ When there is a node ready in the queue it will immediately start running.
 ```typescript
 let tx = await program.methods
   .create(
-    ipfsJob            // type: [u8; 32]
+    ipfsJob,           // type: [u8; 32]
   )
   .accounts({
     job,               // ✓ writable, ✓ signer
@@ -215,7 +215,7 @@ and be reimbursed for the work.
 ```typescript
 let tx = await program.methods
   .finish(
-    ipfsResult         // type: [u8; 32]
+    ipfsResult,        // type: [u8; 32]
   )
   .accounts({
     job,               // ✓ writable, 𐄂 signer
@@ -240,33 +240,33 @@ The `VaultAccount` is a regular Solana Token Account.
 
 The `MarketAccount` struct holds all the information about jobs and the nodes queue.
 
-| Name                                  | Type                                  |
-|---------------------------------------|---------------------------------------|
-| `authority`                           | `publicKey`                           |
-| `jobPrice`                            | `u64`                                 |
-| `jobTimeout`                          | `i64`                                 |
-| `jobType`                             | `u8`                                  |
-| `vault`                               | `publicKey`                           |
-| `vaultBump`                           | `u8`                                  |
-| `nodeAccessKey`                       | `publicKey`                           |
-| `nodeStakeMinimum`                    | `u64`                                 |
-| `nodeQueue`                           | `Vec<publicKey>`                      |
+| Name                        | Type                        | Offset  |
+|-----------------------------|-----------------------------|---------|
+| `authority`                 | `publicKey`                 | `8`     |
+| `jobPrice`                  | `u64`                       | `40`    |
+| `jobTimeout`                | `i64`                       | `48`    |
+| `jobType`                   | `u8`                        | `64`    |
+| `vault`                     | `publicKey`                 | `65`    |
+| `vaultBump`                 | `u8`                        | `97`    |
+| `nodeAccessKey`             | `publicKey`                 | `98`    |
+| `nodeStakeMinimum`          | `u64`                       | `130`   |
+| `nodeQueue`                 | `Vec<publicKey>`            | `138`   |
 
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
 
-| Name                                  | Type                                  |
-|---------------------------------------|---------------------------------------|
-| `authority`                           | `publicKey`                           |
-| `ipfsJob`                             | `[u8; 32]`                            |
-| `ipfsResult`                          | `[u8; 32]`                            |
-| `market`                              | `publicKey`                           |
-| `node`                                | `publicKey`                           |
-| `price`                               | `u64`                                 |
-| `status`                              | `u8`                                  |
-| `timeEnd`                             | `i64`                                 |
-| `timeStart`                           | `i64`                                 |
+| Name                        | Type                        | Offset  |
+|-----------------------------|-----------------------------|---------|
+| `authority`                 | `publicKey`                 | `8`     |
+| `ipfsJob`                   | `[u8; 32]`                  | `40`    |
+| `ipfsResult`                | `[u8; 32]`                  | `72`    |
+| `market`                    | `publicKey`                 | `104`   |
+| `node`                      | `publicKey`                 | `136`   |
+| `price`                     | `u64`                       | `168`   |
+| `status`                    | `u8`                        | `176`   |
+| `timeEnd`                   | `i64`                       | `177`   |
+| `timeStart`                 | `i64`                       | `193`   |
 
 ## Types
 
