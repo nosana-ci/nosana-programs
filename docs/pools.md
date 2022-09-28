@@ -187,8 +187,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
-
 ## Accounts
 
 A number of 2 accounts make up for the Nosana Pools Program's state.

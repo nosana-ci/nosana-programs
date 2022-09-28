@@ -228,8 +228,8 @@ function main() {
         data.push(...code);
       }
     }
-    data.push(options.enhance ? ':::' : undefined); // details
-    data.push(options.enhance ? ':::: ' : undefined); // tab
+
+    if (options.enhance) data.push(':::', '::::'); // details, tab
 
     /**
      * ACCOUNTS

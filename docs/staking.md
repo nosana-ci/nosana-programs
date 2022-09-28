@@ -368,8 +368,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
-
 ## Accounts
 
 A number of 3 accounts make up for the Nosana Staking Program's state.
