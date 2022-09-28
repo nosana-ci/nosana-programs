@@ -4,18 +4,19 @@
 
 | Info            | Description                                                                                                                         |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| Type            | [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                            |
-| Source Code     | [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)                                                                         |
-| Build Status    | [✅ Anchor Verified](https://www.apr.dev/program/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp)                                        |
-| Accounts        | [`3` account types](#accounts)                                                                                                      |
-| Instructions    | [`6` instructions](#instructions)                                                                                                   |
-| Domain          | 🌐 `nosana-rewards.sol`                                                                                                             |
-| Program Address | [🧭 `nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp`](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp) |
+| Type            | [Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                               |
+| Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
+| Build Status    | [Anchor Verified](https://www.apr.dev/program/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp)                                          |
+| Accounts        | [`3`](#accounts)                                                                                                                    |
+| Instructions    | [`6`](#instructions)                                                                                                                |
+| Types           | [`0`](#types)                                                                                                                       |
+| Domain          | `nosana-rewards.sol`                                                                                                                |
+|  Address        | [`nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp`](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp)    |
 
 ## Instructions
 
 A number of 6 instruction are defined in the Nosana Rewards program.
-To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html) in `TypeScript`:
+To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 const programId = new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp');
@@ -23,10 +24,28 @@ const idl = await Program.fetchIdl(programId.toString());
 const program = new Program(idl, programId);
 ```
 
+:::: tabs
+@tab Init
 ### Init
 
 The `init()` instruction initializes the [ReflectionAccount](#reflection-account)
 and [VaultAccount](#vault-account).
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `mint`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Mint Account            |
+| `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
+| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+| `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
+| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+| `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -43,9 +62,24 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Enter
 ### Enter
 
 The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account).
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
+| `stake`           | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Stake Account           |
+| `reward`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reward Account          |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+| `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -60,9 +94,30 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Add Fee
 ### Add Fee
 
 The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-account).
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `user`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account            |
+| `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
+| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
+| `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
+| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+
+#### Arguments
+
+| Name                   | Size    | Offset  | Description                                     |
+|------------------------|---------|---------|-------------------------------------------------|
+| `amount`               | `8`     | `0`     | The Amount argument                             |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -79,8 +134,25 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Claim
 ### Claim
 The `claim()` instruction sends a user's rewards to a given wallet.
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `user`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account            |
+| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
+| `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
+| `reward`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reward Account          |
+| `stake`           | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Stake Account           |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -97,9 +169,22 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Sync
 ### Sync
 
 The `sync()` instruction re-calculates a users' reflection score.
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `reward`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reward Account          |
+| `stake`           | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Stake Account           |
+| `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -112,9 +197,22 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Close
 ### Close
 
 The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
+| `reward`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reward Account          |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -127,14 +225,20 @@ let tx = await program.methods
   .rpc();
 ```
 
+:::
+::::
 ## Accounts
 
 A number of 3 accounts make up for the Nosana Rewards Program's state.
+
+::: tabs
+@tab Vault Account
 
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
 
+@tab Reflection Account
 ### Reflection Account
 
 The `ReflectionAccount` struct holds all the information on the reflection pool.
@@ -147,6 +251,7 @@ The `ReflectionAccount` struct holds all the information on the reflection pool.
 | `vault`                     | `publicKey`                 | `56`    |
 | `vaultBump`                 | `u8`                        | `88`    |
 
+@tab Reward Account
 ### Reward Account
 
 The `RewardAccount` struct holds all the information for any given user account.
@@ -157,3 +262,5 @@ The `RewardAccount` struct holds all the information for any given user account.
 | `bump`                      | `u8`                        | `40`    |
 | `reflection`                | `u128`                      | `41`    |
 | `xnos`                      | `u128`                      | `57`    |
+
+:::

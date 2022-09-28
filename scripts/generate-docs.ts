@@ -7,6 +7,12 @@ import nosanaRewards from '../target/idl/nosana_rewards.json';
 // @ts-ignore
 import nosanaStaking from '../target/idl/nosana_staking.json';
 import { writeFileSync, readFileSync } from 'fs';
+import commandLineArgs from 'command-line-args';
+
+const options = commandLineArgs([
+  { name: 'enhance', alias: 'e', type: Boolean },
+  { name: 'output-dir', alias: 'o', type: String },
+]);
 
 const commentPadding = 23;
 
@@ -14,7 +20,7 @@ const commentPadding = 23;
  *
  * @param string
  */
-const title = (string) =>
+const title = (string: string) =>
   string
     .replace(/^[-_]*(.)/, (_, c) => c.toUpperCase()) // Initial char (after -/_)
     .replace(/[-_]+(.)/g, (_, c) => ' ' + c.toUpperCase()) // First char after each -/_
@@ -89,7 +95,7 @@ function main() {
     const data = [];
 
     /**
-     * INSTRUCTIONS
+     * PROGRAM INFORMATION
      */
     const pt = new MarkdownTable([18, 134]);
     data.push(
@@ -97,21 +103,28 @@ function main() {
       '',
       pt.row(['Info', 'Description']),
       pt.sep(),
-      pt.row(['Type', `[⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`]),
-      pt.row(['Source Code', `[👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)`]),
-      pt.row(['Build Status', `[✅ Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`]),
-      pt.row(['Accounts', `[\`${idl.accounts.length + 1}\` account types](#accounts)`]),
-      pt.row(['Instructions', `[\`${idl.instructions.length}\` instructions](#instructions)`]),
-      pt.row(['Domain', `🌐 \`nosana-${idl.name.split('_')[1]}.sol\``]),
+      pt.row(['Type', `[Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`]),
+      pt.row(['Source Code', `[GitHub](https://github.com/nosana-ci/nosana-programs)`]),
+      pt.row(['Build Status', `[Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`]),
+      pt.row(['Accounts', `[\`${idl.accounts.length + 1}\`](#accounts)`]),
+      pt.row(['Instructions', `[\`${idl.instructions.length}\`](#instructions)`]),
+      pt.row(['Types', `[\`${'types' in idl ? idl.types.length : 0}\`](#types)`]),
+      pt.row(['Domain', `\`nosana-${idl.name.split('_')[1]}.sol\``]),
       pt.row([
-        'Program Address',
-        `[🧭 \`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`,
+        ' Address',
+        `[\`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`,
       ]),
-      '',
+      ''
+    );
+
+    /**
+     * INSTRUCTIONS
+     */
+    data.push(
       '## Instructions',
       '',
       `A number of ${idl.instructions.length} instruction are defined in the ${title(idl.name)} program.`,
-      'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html) in `TypeScript`:',
+      'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)',
       '',
       '```typescript',
       `const programId = new PublicKey('${idl.metadata.address}');`,
@@ -121,35 +134,91 @@ function main() {
       ''
     );
 
+    data.push(options.enhance ? ':::: tabs' : undefined);
+
     for (const instruction of idl.instructions) {
-      // title
+      data.push(options.enhance ? `@tab ${title(instruction.name)}` : undefined);
+
+      // docs from idl
       try {
         data.push(...instruction['docs']);
       } catch (e) {
         data.push(`### ${title(instruction.name)}`, '\n');
       }
 
-      // example
-      data.push('```typescript', 'let tx = await program.methods');
-      if (instruction.args.length === 0) {
-        data.push(`  .${instruction.name}()`);
-      } else {
-        data.push(`  .${instruction.name}(`);
-        for (const arg of instruction.args) {
-          data.push(`    ${arg.name},`.padEnd(commentPadding) + `// type: ${typeToString(arg)}`);
-        }
-        data.push(`  )`);
-      }
-
-      data.push('  .accounts({');
+      // accounts table
+      // data.push(options.enhance? '::: details Accounts' : undefined)
+      const at = new MarkdownTable([20, 90, 30]);
+      data.push('#### Accounts', '', at.row(['Name', 'Type', 'Description']), at.sep());
       for (const account of instruction.accounts) {
         data.push(
+          at.row([
+            `\`${account.name}\``,
+            `<FontIcon icon="pencil" color="${account.isMut ? '#3EAF7C' : 'lightgrey'}" /><FontIcon icon="key" color="${
+              account.isSigner ? '#3EAF7C' : 'lightgrey'
+            }" />`,
+            `The ${title(account.name)} Account`,
+          ])
+        );
+      }
+      data.push('');
+      // data.push(options.enhance? ':::' : undefined) // accounts
+
+      if (instruction.args.length !== 0) {
+        // args table
+        // data.push(options.enhance? '::: details Arguments' : undefined)
+        const ft = new MarkdownTable([25, 10, 10, 50]);
+        data.push('#### Arguments', '', ft.row(['Name', 'Size', 'Offset', 'Description']), ft.sep());
+        let offset = 0;
+        for (const arg of instruction.args) {
+          const size = sizes[typeToString(arg)];
+          data.push(ft.row([`\`${arg.name}\``, `\`${size}\``, `\`${offset}\``, `The ${title(arg.name)} argument`]));
+          offset += size;
+        }
+        data.push('');
+        // data.push(options.enhance? ':::' : undefined) // accounts
+      }
+
+      data.push(options.enhance ? '::: details Example' : undefined);
+      // example
+      data.push('', 'To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)', '');
+
+      const code = [];
+      code.push('```typescript', 'let tx = await program.methods');
+
+      if (instruction.args.length === 0) {
+        code.push(`  .${instruction.name}()`);
+      } else {
+        code.push(`  .${instruction.name}(`);
+        for (const arg of instruction.args) {
+          code.push(`    ${arg.name},`.padEnd(commentPadding) + `// type: ${typeToString(arg)}`);
+        }
+        code.push(`  )`);
+      }
+
+      code.push('  .accounts({');
+      for (const account of instruction.accounts) {
+        code.push(
           `    ${account.name},`.padEnd(commentPadding) +
             `// ${(account.isMut ? '✓' : '𐄂') + ' writable, ' + (account.isSigner ? '✓' : '𐄂') + ' signer'}`
         );
       }
-      data.push('  })', '  .rpc();', '```', '');
+      code.push('  })', '  .rpc();', '```', '');
+
+      if (false) {
+        data.push('::: code-tabs#lang');
+        for (const lang of ['JavaScript', 'TypeScript']) {
+          data.push(`@tab ${lang}`);
+          code[0] = `\`\`\`${lang.toLowerCase()}`;
+          data.push(...code);
+        }
+        data.push(':::');
+      } else {
+        data.push(...code);
+      }
     }
+    data.push(options.enhance ? ':::' : undefined); // details
+    data.push(options.enhance ? ':::: ' : undefined); // tab
 
     /**
      * ACCOUNTS
@@ -159,6 +228,9 @@ function main() {
       '',
       `A number of ${idl.accounts.length + 1} accounts make up for the ${title(idl.name)} Program's state.`,
       '',
+      options.enhance ? '::: tabs' : undefined,
+      options.enhance ? '@tab Vault Account' : undefined,
+      '',
       '### Vault Account',
       '',
       'The `VaultAccount` is a regular Solana Token Account.',
@@ -166,6 +238,8 @@ function main() {
     );
 
     for (const account of idl.accounts) {
+      data.push(options.enhance ? `@tab ${title(account.name)}` : undefined);
+
       // title
       try {
         data.push(...account['docs']);
@@ -184,6 +258,8 @@ function main() {
       data.push('');
     }
 
+    data.push(options.enhance ? ':::' : undefined);
+
     /**
      * TYPES
      */
@@ -195,8 +271,11 @@ function main() {
         ''
       );
 
+      data.push(options.enhance ? '::: tabs' : undefined);
+
       for (const t of idl.types) {
-        // title
+        data.push(options.enhance ? `@tab ${title(t.name)}` : undefined);
+
         try {
           data.push(...t['docs']);
         } catch (e) {
@@ -214,11 +293,15 @@ function main() {
         }
         data.push('');
       }
+
+      data.push(options.enhance ? ':::' : undefined);
     }
 
-    // write result
-    if (process.argv.slice(2)[0]) {
-      const file = `${process.argv.slice(2)[0]}/${idl.name.split('_')[1]}.md`;
+    /**
+     * WRITE RESULTS
+     */
+    if ('output-dir' in options) {
+      const file = `${options['output-dir']}/${idl.name.split('_')[1]}.md`;
       console.log(`   => ..reading from file ${file}`);
       const doc = readFileSync(file).toString().split('\n');
 

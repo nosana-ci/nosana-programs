@@ -4,18 +4,19 @@
 
 | Info            | Description                                                                                                                         |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| Type            | [⚙️ Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                            |
-| Source Code     | [👨‍💻GitHub](https://github.com/nosana-ci/nosana-programs)                                                                         |
-| Build Status    | [✅ Anchor Verified](https://www.apr.dev/program/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD)                                        |
-| Accounts        | [`2` account types](#accounts)                                                                                                      |
-| Instructions    | [`4` instructions](#instructions)                                                                                                   |
-| Domain          | 🌐 `nosana-pools.sol`                                                                                                               |
-| Program Address | [🧭 `nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD`](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD) |
+| Type            | [Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)                                               |
+| Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
+| Build Status    | [Anchor Verified](https://www.apr.dev/program/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD)                                          |
+| Accounts        | [`2`](#accounts)                                                                                                                    |
+| Instructions    | [`4`](#instructions)                                                                                                                |
+| Types           | [`1`](#types)                                                                                                                       |
+| Domain          | `nosana-pools.sol`                                                                                                                  |
+|  Address        | [`nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD`](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD)    |
 
 ## Instructions
 
 A number of 4 instruction are defined in the Nosana Pools program.
-To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html) in `TypeScript`:
+To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 const programId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
@@ -23,10 +24,38 @@ const idl = await Program.fetchIdl(programId.toString());
 const program = new Program(idl, programId);
 ```
 
+:::: tabs
+@tab Open
 ### Open
 
 The `open()` instruction lets you open a Nosana Pool's [PoolAccount](#pool-account)
 and [VaultAccount](#vault-account).
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `pool`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Pool Account            |
+| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
+| `beneficiary`     | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Beneficiary Account     |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+| `mint`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Mint Account            |
+| `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
+| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+| `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
+
+#### Arguments
+
+| Name                   | Size    | Offset  | Description                                     |
+|------------------------|---------|---------|-------------------------------------------------|
+| `emmission`            | `8`     | `0`     | The Emmission argument                          |
+| `startTime`            | `16`    | `8`     | The Start Time argument                         |
+| `claimType`            | `1`     | `24`    | The Claim Type argument                         |
+| `closeable`            | `1`     | `25`    | The Closeable argument                          |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -49,11 +78,28 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Claim Fee
 ### Claim Fee
 
 The `claimFee()` instruction claims emissions from a Nosana Pool
 with claim type [`1`](#claim-type),
 and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
+| `rewardsReflection`| <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Rewards Reflection Account|
+| `rewardsVault`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Rewards Vault Account   |
+| `pool`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Pool Account            |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+| `rewardsProgram`  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rewards Program Account |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -70,11 +116,26 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Claim Transfer
 ### Claim Transfer
 
 The `claimTransfer()` instruction claims emissions from a Nosana Pool
 with claim type [`0`](#claim-type),
 and transfer these to a given user.
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
+| `beneficiary`     | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Beneficiary Account     |
+| `pool`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Pool Account            |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -89,10 +150,25 @@ let tx = await program.methods
   .rpc();
 ```
 
+@tab Close
 ### Close
 
 The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
 and [VaultAccount](#vault-account)..
+
+#### Accounts
+
+| Name              | Type                                                                                    | Description                 |
+|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
+| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
+| `user`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account            |
+| `pool`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Pool Account            |
+| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
+| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+
+::: details Example
+
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
 ```typescript
 let tx = await program.methods
@@ -107,14 +183,20 @@ let tx = await program.methods
   .rpc();
 ```
 
+:::
+::::
 ## Accounts
 
 A number of 2 accounts make up for the Nosana Pools Program's state.
+
+::: tabs
+@tab Vault Account
 
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
 
+@tab Pool Account
 ### Pool Account
 
 The `PoolAccount` struct holds all the information for any given pool.
@@ -131,10 +213,13 @@ The `PoolAccount` struct holds all the information for any given pool.
 | `vault`                     | `publicKey`                 | `106`   |
 | `vaultBump`                 | `u8`                        | `138`   |
 
+:::
 ## Types
 
 A number of 1 type variants are defined in the Nosana Pools Program's state.
 
+::: tabs
+@tab Claim Type
 ### Claim Type
 
 The `ClaimType` of any pool describes the way withdraw (claim) works.
@@ -145,3 +230,5 @@ A number of 3 variants are defined:
 | `Transfer`                            | `0`                                   |
 | `AddFee`                              | `1`                                   |
 | `Unknown`                             | `255`                                 |
+
+:::
