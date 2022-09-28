@@ -24,8 +24,8 @@ const idl = await Program.fetchIdl(programId.toString());
 const program = new Program(idl, programId);
 ```
 
-:::: tabs
-@tab Open
+
+
 ### Open
 
 The `open()` instruction lets you open a Nosana Pool's [PoolAccount](#pool-account)
@@ -53,7 +53,7 @@ and [VaultAccount](#vault-account).
 | `claimType`            | `1`     | `24`    | The Claim Type argument                         |
 | `closeable`            | `1`     | `25`    | The Closeable argument                          |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -78,7 +78,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Claim Fee
+
 ### Claim Fee
 
 The `claimFee()` instruction claims emissions from a Nosana Pool
@@ -97,7 +97,7 @@ and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 | `rewardsProgram`  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rewards Program Account |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -116,7 +116,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Claim Transfer
+
 ### Claim Transfer
 
 The `claimTransfer()` instruction claims emissions from a Nosana Pool
@@ -133,7 +133,7 @@ and transfer these to a given user.
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -150,7 +150,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Close
+
 ### Close
 
 The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
@@ -166,7 +166,7 @@ and [VaultAccount](#vault-account)..
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -183,20 +183,20 @@ let tx = await program.methods
   .rpc();
 ```
 
-:::
-::::
+
+
 ## Accounts
 
 A number of 2 accounts make up for the Nosana Pools Program's state.
 
-::: tabs
-@tab Vault Account
+
+
 
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
 
-@tab Pool Account
+
 ### Pool Account
 
 The `PoolAccount` struct holds all the information for any given pool.
@@ -213,13 +213,13 @@ The `PoolAccount` struct holds all the information for any given pool.
 | `vault`                     | `publicKey`                 | `106`   |
 | `vaultBump`                 | `u8`                        | `138`   |
 
-:::
+
 ## Types
 
 A number of 1 type variants are defined in the Nosana Pools Program's state.
 
-::: tabs
-@tab Claim Type
+
+
 ### Claim Type
 
 The `ClaimType` of any pool describes the way withdraw (claim) works.
@@ -230,5 +230,3 @@ A number of 3 variants are defined:
 | `Transfer`                            | `0`                                   |
 | `AddFee`                              | `1`                                   |
 | `Unknown`                             | `255`                                 |
-
-:::

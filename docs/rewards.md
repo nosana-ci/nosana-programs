@@ -24,8 +24,8 @@ const idl = await Program.fetchIdl(programId.toString());
 const program = new Program(idl, programId);
 ```
 
-:::: tabs
-@tab Init
+
+
 ### Init
 
 The `init()` instruction initializes the [ReflectionAccount](#reflection-account)
@@ -43,7 +43,7 @@ and [VaultAccount](#vault-account).
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 | `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -62,7 +62,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Enter
+
 ### Enter
 
 The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account).
@@ -77,7 +77,7 @@ The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -94,7 +94,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Add Fee
+
 ### Add Fee
 
 The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-account).
@@ -115,7 +115,7 @@ The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-a
 |------------------------|---------|---------|-------------------------------------------------|
 | `amount`               | `8`     | `0`     | The Amount argument                             |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -134,7 +134,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Claim
+
 ### Claim
 The `claim()` instruction sends a user's rewards to a given wallet.
 
@@ -150,7 +150,7 @@ The `claim()` instruction sends a user's rewards to a given wallet.
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -169,7 +169,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Sync
+
 ### Sync
 
 The `sync()` instruction re-calculates a users' reflection score.
@@ -182,7 +182,7 @@ The `sync()` instruction re-calculates a users' reflection score.
 | `stake`           | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Stake Account           |
 | `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -197,7 +197,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Close
+
 ### Close
 
 The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
@@ -210,7 +210,7 @@ The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
 | `reward`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reward Account          |
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -225,20 +225,20 @@ let tx = await program.methods
   .rpc();
 ```
 
-:::
-::::
+
+
 ## Accounts
 
 A number of 3 accounts make up for the Nosana Rewards Program's state.
 
-::: tabs
-@tab Vault Account
+
+
 
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
 
-@tab Reflection Account
+
 ### Reflection Account
 
 The `ReflectionAccount` struct holds all the information on the reflection pool.
@@ -251,7 +251,7 @@ The `ReflectionAccount` struct holds all the information on the reflection pool.
 | `vault`                     | `publicKey`                 | `56`    |
 | `vaultBump`                 | `u8`                        | `88`    |
 
-@tab Reward Account
+
 ### Reward Account
 
 The `RewardAccount` struct holds all the information for any given user account.
@@ -262,5 +262,3 @@ The `RewardAccount` struct holds all the information for any given user account.
 | `bump`                      | `u8`                        | `40`    |
 | `reflection`                | `u128`                      | `41`    |
 | `xnos`                      | `u128`                      | `57`    |
-
-:::

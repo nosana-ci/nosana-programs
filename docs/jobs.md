@@ -24,8 +24,8 @@ const idl = await Program.fetchIdl(programId.toString());
 const program = new Program(idl, programId);
 ```
 
-:::: tabs
-@tab Init
+
+
 ### Init
 
 The `init()` instruction initializes a [MarketAccount](#market-account) and an
@@ -53,7 +53,7 @@ associated [VaultAccount](#vault-account) for token deposits.
 | `jobType`              | `1`     | `24`    | The Job Type argument                           |
 | `nodeStakeMinimum`     | `8`     | `25`    | The Node Stake Minimum argument                 |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -78,7 +78,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Stop
+
 ### Stop
 
 The `stop()` instruction closes a [MarketAccount](#market-account) and an
@@ -94,7 +94,7 @@ The vault has to be empty of tokens.
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -110,7 +110,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Update
+
 ### Update
 
 The `update()` instruction update a [MarketAccount](#market-account).
@@ -132,7 +132,7 @@ The `update()` instruction update a [MarketAccount](#market-account).
 | `jobType`              | `1`     | `24`    | The Job Type argument                           |
 | `nodeStakeMinimum`     | `8`     | `25`    | The Node Stake Minimum argument                 |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -152,7 +152,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Create
+
 ### Create
 
 The `create()` instruction creates a [JobAccount](#job-account) with its required data.
@@ -180,7 +180,7 @@ When there is a node ready in the queue it will immediately start running.
 |------------------------|---------|---------|-------------------------------------------------|
 | `ipfsJob`              | `32`    | `0`     | The Ipfs Job argument                           |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -205,7 +205,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Close
+
 ### Close
 
 The `close()` instruction closes an existing [JobAccount](#job-account).
@@ -222,7 +222,7 @@ When the job was still queued the tokens will be returned to the user.
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -240,7 +240,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Cancel
+
 ### Cancel
 
 With the `cancel()` instruction a node can stop running a job that it has started.
@@ -252,7 +252,7 @@ With the `cancel()` instruction a node can stop running a job that it has starte
 | `job`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Job Account             |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -266,7 +266,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Claim
+
 ### Claim
 
 With the claim() instruction a node can claim a job that is:
@@ -286,7 +286,7 @@ With the claim() instruction a node can claim a job that is:
 | `metadata`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metadata Account        |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -305,7 +305,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Enter
+
 ### Enter
 
 With the `enter()` instruction a node enters the [MarketAccount](#market-account) queue.
@@ -327,7 +327,7 @@ A few requirements are enforced:
 | `nft`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Nft Account             |
 | `metadata`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metadata Account        |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -345,7 +345,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Exit
+
 ### Exit
 
 With the `exit()` instruction a node exits the node queue
@@ -358,7 +358,7 @@ from a [MarketAccount](#market-account).
 | `market`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Market Account          |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -372,7 +372,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Finish
+
 ### Finish
 
 With the `finish()` instruction a node can can post the result for a job it has finished,
@@ -395,7 +395,7 @@ and be reimbursed for the work.
 |------------------------|---------|---------|-------------------------------------------------|
 | `ipfsResult`           | `32`    | `0`     | The Ipfs Result argument                        |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -415,20 +415,20 @@ let tx = await program.methods
   .rpc();
 ```
 
-:::
-::::
+
+
 ## Accounts
 
 A number of 3 accounts make up for the Nosana Jobs Program's state.
 
-::: tabs
-@tab Vault Account
+
+
 
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
 
-@tab Market Account
+
 ### Market Account
 
 The `MarketAccount` struct holds all the information about jobs and the nodes queue.
@@ -445,7 +445,7 @@ The `MarketAccount` struct holds all the information about jobs and the nodes qu
 | `nodeStakeMinimum`          | `u64`                       | `130`   |
 | `nodeQueue`                 | `Vec<publicKey>`            | `138`   |
 
-@tab Job Account
+
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
@@ -462,13 +462,13 @@ The `JobAccount` struct holds all the information about any individual jobs.
 | `timeEnd`                   | `i64`                       | `177`   |
 | `timeStart`                 | `i64`                       | `193`   |
 
-:::
+
 ## Types
 
 A number of 2 type variants are defined in the Nosana Jobs Program's state.
 
-::: tabs
-@tab Job Status
+
+
 ### Job Status
 
 The `JobStatus` describes the status of any job
@@ -480,7 +480,7 @@ A number of 3 variants are defined:
 | `Running`                             | `1`                                   |
 | `Done`                                | `2`                                   |
 
-@tab Job Type
+
 ### Job Type
 
 The `JobType` describes the type of any job.
@@ -494,5 +494,3 @@ A number of 6 variants are defined:
 | `Large`                               | `3`                                   |
 | `Gpu`                                 | `4`                                   |
 | `Unknown`                             | `255`                                 |
-
-:::

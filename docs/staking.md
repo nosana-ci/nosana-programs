@@ -24,8 +24,8 @@ const idl = await Program.fetchIdl(programId.toString());
 const program = new Program(idl, programId);
 ```
 
-:::: tabs
-@tab Init
+
+
 ### Init
 
 The `init()` instruction initializes the [SettingsAccount](#settings-account)
@@ -40,7 +40,7 @@ of the Nosana Staking program.
 | `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
 | `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -56,7 +56,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Stake
+
 ### Stake
 
 The `stake()` instruction creates a new stake [StakeAccount](#stake-account)
@@ -86,7 +86,7 @@ The stake account is a PDA based on the authority.
 | `amount`               | `8`     | `0`     | The Amount argument                             |
 | `duration`             | `16`    | `8`     | The Duration argument                           |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -109,7 +109,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Unstake
+
 ### Unstake
 
 The `unstake()` instruction will initiate the unstake delay.
@@ -122,7 +122,7 @@ The `unstake()` instruction will initiate the unstake delay.
 | `reward`          | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Reward Account          |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -137,7 +137,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Restake
+
 ### Restake
 
 The `restake()` instruction undoes an unstake.
@@ -150,7 +150,7 @@ This will make a stake active again and reset the unstake time.
 | `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -164,7 +164,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Topup
+
 ### Topup
 
 The `topup()` instruction performs a top-up of an existing stake.
@@ -189,7 +189,7 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 |------------------------|---------|---------|-------------------------------------------------|
 | `amount`               | `8`     | `0`     | The Amount argument                             |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -208,7 +208,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Extend
+
 ### Extend
 
 The `extend()` instruction extends the duration of a stake.
@@ -227,7 +227,7 @@ The duration can only be increased which will result in a higher `xnos`.
 |------------------------|---------|---------|-------------------------------------------------|
 | `duration`             | `8`     | `0`     | The Duration argument                           |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -243,7 +243,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Claim
+
 ### Claim
 
 The `claim()` instruction will transfer back all your stake tokens if the delay has
@@ -261,7 +261,7 @@ Claiming will close the [StakeAccount](#stake-account) and
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -278,7 +278,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Slash
+
 ### Slash
 
 The `slash()` instruction reduces a stake's NOS tokens.
@@ -306,7 +306,7 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 |------------------------|---------|---------|-------------------------------------------------|
 | `amount`               | `8`     | `0`     | The Amount argument                             |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -326,7 +326,7 @@ let tx = await program.methods
   .rpc();
 ```
 
-@tab Update Settings
+
 ### Update Setting
 
 The `updateSettings()` instruction sets the Slashing Authority in
@@ -343,7 +343,7 @@ new token account. This can only by called by the current authority.
 | `settings`        | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Settings Account        |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
-::: details Example
+
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
 
@@ -359,20 +359,20 @@ let tx = await program.methods
   .rpc();
 ```
 
-:::
-::::
+
+
 ## Accounts
 
 A number of 3 accounts make up for the Nosana Staking Program's state.
 
-::: tabs
-@tab Vault Account
+
+
 
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
 
-@tab Settings Account
+
 ### Settings Account
 
 The `SettingsAccount` struct holds the information about the
@@ -383,7 +383,7 @@ slashing authority and token account.
 | `authority`                 | `publicKey`                 | `8`     |
 | `tokenAccount`              | `publicKey`                 | `40`    |
 
-@tab Stake Account
+
 ### Stake Account
 
 The `StakeAccount` struct holds all the information for any given stake.
@@ -397,5 +397,3 @@ The `StakeAccount` struct holds all the information for any given stake.
 | `vault`                     | `publicKey`                 | `72`    |
 | `vaultBump`                 | `u8`                        | `104`   |
 | `xnos`                      | `u128`                      | `105`   |
-
-:::
