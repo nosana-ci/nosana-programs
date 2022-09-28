@@ -40,9 +40,9 @@ of the Nosana Staking program.
 | `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
 | `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -81,14 +81,14 @@ The stake account is a PDA based on the authority.
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                     |
-|------------------------|---------|---------|-------------------------------------------------|
-| `amount`               | `8`     | `0`     | The Amount argument                             |
-| `duration`             | `16`    | `8`     | The Duration argument                           |
+| Name                   | Size    | Offset  | Description                                               |
+|------------------------|---------|---------|-----------------------------------------------------------|
+| `amount`               | `8`     | `0`     | The Amount argument                                       |
+| `duration`             | `16`    | `8`     | The Duration argument                                     |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -122,9 +122,9 @@ The `unstake()` instruction will initiate the unstake delay.
 | `reward`          | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Reward Account          |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -150,9 +150,9 @@ This will make a stake active again and reset the unstake time.
 | `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -185,13 +185,13 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                     |
-|------------------------|---------|---------|-------------------------------------------------|
-| `amount`               | `8`     | `0`     | The Amount argument                             |
+| Name                   | Size    | Offset  | Description                                               |
+|------------------------|---------|---------|-----------------------------------------------------------|
+| `amount`               | `8`     | `0`     | The Amount argument                                       |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -223,13 +223,13 @@ The duration can only be increased which will result in a higher `xnos`.
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                     |
-|------------------------|---------|---------|-------------------------------------------------|
-| `duration`             | `8`     | `0`     | The Duration argument                           |
+| Name                   | Size    | Offset  | Description                                               |
+|------------------------|---------|---------|-----------------------------------------------------------|
+| `duration`             | `8`     | `0`     | The Duration argument                                     |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -261,9 +261,9 @@ Claiming will close the [StakeAccount](#stake-account) and
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -302,13 +302,13 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                     |
-|------------------------|---------|---------|-------------------------------------------------|
-| `amount`               | `8`     | `0`     | The Amount argument                             |
+| Name                   | Size    | Offset  | Description                                               |
+|------------------------|---------|---------|-----------------------------------------------------------|
+| `amount`               | `8`     | `0`     | The Amount argument                                       |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -343,9 +343,9 @@ new token account. This can only by called by the current authority.
 | `settings`        | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Settings Account        |
 | `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -378,21 +378,21 @@ The `VaultAccount` is a regular Solana Token Account.
 The `SettingsAccount` struct holds the information about the
 slashing authority and token account.
 
-| Name                        | Type                        | Offset  |
-|-----------------------------|-----------------------------|---------|
-| `authority`                 | `publicKey`                 | `8`     |
-| `tokenAccount`              | `publicKey`                 | `40`    |
+| Name                        | Type                        | Size    | Offset  |
+|-----------------------------|-----------------------------|---------|---------|
+| `authority`                 | `publicKey`                 | `32`    | `8`     |
+| `tokenAccount`              | `publicKey`                 | `32`    | `40`    |
 
 ### Stake Account
 
 The `StakeAccount` struct holds all the information for any given stake.
 
-| Name                        | Type                        | Offset  |
-|-----------------------------|-----------------------------|---------|
-| `amount`                    | `u64`                       | `8`     |
-| `authority`                 | `publicKey`                 | `16`    |
-| `duration`                  | `u64`                       | `48`    |
-| `timeUnstake`               | `i64`                       | `56`    |
-| `vault`                     | `publicKey`                 | `72`    |
-| `vaultBump`                 | `u8`                        | `104`   |
-| `xnos`                      | `u128`                      | `105`   |
+| Name                        | Type                        | Size    | Offset  |
+|-----------------------------|-----------------------------|---------|---------|
+| `amount`                    | `u64`                       | `8`     | `8`     |
+| `authority`                 | `publicKey`                 | `32`    | `16`    |
+| `duration`                  | `u64`                       | `8`     | `48`    |
+| `timeUnstake`               | `i64`                       | `16`    | `56`    |
+| `vault`                     | `publicKey`                 | `32`    | `72`    |
+| `vaultBump`                 | `u8`                        | `1`     | `104`   |
+| `xnos`                      | `u128`                      | `16`    | `105`   |

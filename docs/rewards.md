@@ -43,9 +43,9 @@ and [VaultAccount](#vault-account).
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 | `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -77,9 +77,9 @@ The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -111,13 +111,13 @@ The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-a
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                     |
-|------------------------|---------|---------|-------------------------------------------------|
-| `amount`               | `8`     | `0`     | The Amount argument                             |
+| Name                   | Size    | Offset  | Description                                               |
+|------------------------|---------|---------|-----------------------------------------------------------|
+| `amount`               | `8`     | `0`     | The Amount argument                                       |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -150,9 +150,9 @@ The `claim()` instruction sends a user's rewards to a given wallet.
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -182,9 +182,9 @@ The `sync()` instruction re-calculates a users' reflection score.
 | `stake`           | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Stake Account           |
 | `reflection`      | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reflection Account      |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -210,9 +210,9 @@ The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
 | `reward`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Reward Account          |
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -243,21 +243,21 @@ The `VaultAccount` is a regular Solana Token Account.
 
 The `ReflectionAccount` struct holds all the information on the reflection pool.
 
-| Name                        | Type                        | Offset  |
-|-----------------------------|-----------------------------|---------|
-| `rate`                      | `u128`                      | `8`     |
-| `totalReflection`           | `u128`                      | `24`    |
-| `totalXnos`                 | `u128`                      | `40`    |
-| `vault`                     | `publicKey`                 | `56`    |
-| `vaultBump`                 | `u8`                        | `88`    |
+| Name                        | Type                        | Size    | Offset  |
+|-----------------------------|-----------------------------|---------|---------|
+| `rate`                      | `u128`                      | `16`    | `8`     |
+| `totalReflection`           | `u128`                      | `16`    | `24`    |
+| `totalXnos`                 | `u128`                      | `16`    | `40`    |
+| `vault`                     | `publicKey`                 | `32`    | `56`    |
+| `vaultBump`                 | `u8`                        | `1`     | `88`    |
 
 ### Reward Account
 
 The `RewardAccount` struct holds all the information for any given user account.
 
-| Name                        | Type                        | Offset  |
-|-----------------------------|-----------------------------|---------|
-| `authority`                 | `publicKey`                 | `8`     |
-| `bump`                      | `u8`                        | `40`    |
-| `reflection`                | `u128`                      | `41`    |
-| `xnos`                      | `u128`                      | `57`    |
+| Name                        | Type                        | Size    | Offset  |
+|-----------------------------|-----------------------------|---------|---------|
+| `authority`                 | `publicKey`                 | `32`    | `8`     |
+| `bump`                      | `u8`                        | `1`     | `40`    |
+| `reflection`                | `u128`                      | `16`    | `41`    |
+| `xnos`                      | `u128`                      | `16`    | `57`    |

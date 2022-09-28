@@ -52,7 +52,7 @@ const sizes = {
   u128: 16,
   publicKey: 32,
   '[u8; 32]': 32,
-  'Vec<publicKey>': 0,
+  'Vec<publicKey>': 100*32,
 };
 
 /**
@@ -167,7 +167,7 @@ function main() {
       if (instruction.args.length !== 0) {
         // args table
         // data.push(options.enhance? '::: details Arguments' : undefined)
-        const ft = new MarkdownTable([25, 10, 10, 50]);
+        const ft = new MarkdownTable([25, 10, 10, 60]);
         data.push('#### Arguments', '', ft.row(['Name', 'Size', 'Offset', 'Description']), ft.sep());
         let offset = 0;
         for (const arg of instruction.args) {
@@ -179,9 +179,9 @@ function main() {
         // data.push(options.enhance? ':::' : undefined) // accounts
       }
 
-      data.push(options.enhance ? '::: details Example' : undefined);
+      data.push(options.enhance ? '::: details Example' : '#### Example');
       // example
-      data.push('', 'To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)', '');
+      data.push('', 'To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).', '');
 
       const code = [];
       code.push('```typescript', 'let tx = await program.methods');
@@ -248,12 +248,13 @@ function main() {
       }
 
       // accounts table
-      const at = new MarkdownTable([30, 30, 10]);
-      data.push(at.row(['Name', 'Type', 'Offset']), at.sep());
+      const at = new MarkdownTable([30, 30, 10, 10]);
+      data.push(at.row(['Name', 'Type', 'Size', 'Offset']), at.sep());
       let offset = 8;
       for (const field of account.type.fields) {
-        data.push(at.row([`\`${field.name}\``, `\`${typeToString(field)}\``, `\`${offset}\``]));
-        offset += sizes[typeToString(field)];
+        const size = sizes[typeToString(field)];
+        data.push(at.row([`\`${field.name}\``, `\`${typeToString(field)}\``, `\`${size}\``, `\`${offset}\``]));
+        offset += size;
       }
     }
 

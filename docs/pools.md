@@ -46,16 +46,16 @@ and [VaultAccount](#vault-account).
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                     |
-|------------------------|---------|---------|-------------------------------------------------|
-| `emmission`            | `8`     | `0`     | The Emmission argument                          |
-| `startTime`            | `16`    | `8`     | The Start Time argument                         |
-| `claimType`            | `1`     | `24`    | The Claim Type argument                         |
-| `closeable`            | `1`     | `25`    | The Closeable argument                          |
+| Name                   | Size    | Offset  | Description                                               |
+|------------------------|---------|---------|-----------------------------------------------------------|
+| `emmission`            | `8`     | `0`     | The Emmission argument                                    |
+| `startTime`            | `16`    | `8`     | The Start Time argument                                   |
+| `claimType`            | `1`     | `24`    | The Claim Type argument                                   |
+| `closeable`            | `1`     | `25`    | The Closeable argument                                    |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -97,9 +97,9 @@ and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 | `rewardsProgram`  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rewards Program Account |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -133,9 +133,9 @@ and transfer these to a given user.
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -166,9 +166,9 @@ and [VaultAccount](#vault-account)..
 | `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
 | `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
 
+#### Example
 
-
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -201,17 +201,17 @@ The `VaultAccount` is a regular Solana Token Account.
 
 The `PoolAccount` struct holds all the information for any given pool.
 
-| Name                        | Type                        | Offset  |
-|-----------------------------|-----------------------------|---------|
-| `authority`                 | `publicKey`                 | `8`     |
-| `beneficiary`               | `publicKey`                 | `40`    |
-| `claimType`                 | `u8`                        | `72`    |
-| `claimedTokens`             | `u64`                       | `73`    |
-| `closeable`                 | `bool`                      | `81`    |
-| `emission`                  | `u64`                       | `82`    |
-| `startTime`                 | `i64`                       | `90`    |
-| `vault`                     | `publicKey`                 | `106`   |
-| `vaultBump`                 | `u8`                        | `138`   |
+| Name                        | Type                        | Size    | Offset  |
+|-----------------------------|-----------------------------|---------|---------|
+| `authority`                 | `publicKey`                 | `32`    | `8`     |
+| `beneficiary`               | `publicKey`                 | `32`    | `40`    |
+| `claimType`                 | `u8`                        | `1`     | `72`    |
+| `claimedTokens`             | `u64`                       | `8`     | `73`    |
+| `closeable`                 | `bool`                      | `1`     | `81`    |
+| `emission`                  | `u64`                       | `8`     | `82`    |
+| `startTime`                 | `i64`                       | `16`    | `90`    |
+| `vault`                     | `publicKey`                 | `32`    | `106`   |
+| `vaultBump`                 | `u8`                        | `1`     | `138`   |
 
 ## Types
 
