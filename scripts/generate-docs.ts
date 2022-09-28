@@ -14,8 +14,6 @@ const options = commandLineArgs([
   { name: 'output-dir', alias: 'o', type: String },
 ]);
 
-const commentPadding = 23;
-
 /**
  *
  * @param string
@@ -189,7 +187,8 @@ function main() {
       const code = [];
       code.push('```typescript', 'let tx = await program.methods');
 
-      // rgs
+      // args
+      const commentPadding = 23;
       if (instruction.args.length === 0) {
         code.push(`  .${instruction.name}()`);
       } else {
