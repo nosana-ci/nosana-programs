@@ -16,15 +16,13 @@
 ## Instructions
 
 A number of 9 instruction are defined in the Nosana Staking program.
-To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)
+To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 const programId = new PublicKey('nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE');
 const idl = await Program.fetchIdl(programId.toString());
 const program = new Program(idl, programId);
 ```
-
-
 
 ### Init
 
@@ -33,12 +31,12 @@ of the Nosana Staking program.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `settings`        | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Settings Account        |
-| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
-| `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
-| `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `settings`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Settings Account             |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
+| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account       |
+| `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account                 |
 
 #### Example
 
@@ -57,7 +55,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Stake
 
 The `stake()` instruction creates a new stake [StakeAccount](#stake-account)
@@ -69,16 +66,16 @@ The stake account is a PDA based on the authority.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `mint`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Mint Account            |
-| `user`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account            |
-| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
-| `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
-| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
-| `systemProgram`   | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account  |
-| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
-| `rent`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account            |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Mint Account                 |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account                 |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account                |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
+| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account       |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
+| `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account                 |
 
 #### Arguments
 
@@ -111,18 +108,17 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Unstake
 
 The `unstake()` instruction will initiate the unstake delay.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
-| `reward`          | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Reward Account          |
-| `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account                |
+| `reward`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Reward Account               |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
 
 #### Example
 
@@ -140,7 +136,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Restake
 
 The `restake()` instruction undoes an unstake.
@@ -148,10 +143,10 @@ This will make a stake active again and reset the unstake time.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
-| `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account                |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
 
 #### Example
 
@@ -168,7 +163,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Topup
 
 The `topup()` instruction performs a top-up of an existing stake.
@@ -179,13 +173,13 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `user`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account            |
-| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
-| `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
-| `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
-| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account                 |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account                |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
 
 #### Arguments
 
@@ -213,7 +207,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Extend
 
 The `extend()` instruction extends the duration of a stake.
@@ -221,10 +214,10 @@ The duration can only be increased which will result in a higher `xnos`.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
-| `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account                |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
 
 #### Arguments
 
@@ -249,7 +242,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Claim
 
 The `claim()` instruction will transfer back all your stake tokens if the delay has
@@ -259,13 +251,13 @@ Claiming will close the [StakeAccount](#stake-account) and
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `user`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account            |
-| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
-| `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
-| `authority`       | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account       |
-| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account                 |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account                |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
 
 #### Example
 
@@ -285,7 +277,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Slash
 
 The `slash()` instruction reduces a stake's NOS tokens.
@@ -298,14 +289,14 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `settings`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Settings Account        |
-| `stake`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account           |
-| `tokenAccount`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Token Account Account   |
-| `vault`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account           |
-| `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
-| `tokenProgram`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account   |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `settings`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Settings Account             |
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Stake Account                |
+| `tokenAccount`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Token Account Account        |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
 
 #### Arguments
 
@@ -334,7 +325,6 @@ let tx = await program.methods
   .rpc();
 ```
 
-
 ### Update Setting
 
 The `updateSettings()` instruction sets the Slashing Authority in
@@ -344,12 +334,12 @@ new token account. This can only by called by the current authority.
 
 #### Accounts
 
-| Name              | Type                                                                                    | Description                 |
-|-------------------|-----------------------------------------------------------------------------------------|-----------------------------|
-| `newAuthority`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The New Authority Account   |
-| `tokenAccount`    | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Account Account   |
-| `settings`        | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Settings Account        |
-| `authority`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account       |
+| Name                   | Type                                                                                    | Description                      |
+|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
+| `newAuthority`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The New Authority Account        |
+| `tokenAccount`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Account Account        |
+| `settings`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Settings Account             |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
 
 #### Example
 
@@ -371,14 +361,6 @@ let tx = await program.methods
 ## Accounts
 
 A number of 3 accounts make up for the Nosana Staking Program's state.
-
-
-
-
-### Vault Account
-
-The `VaultAccount` is a regular Solana Token Account.
-
 
 ### Settings Account
 
@@ -403,3 +385,7 @@ The `StakeAccount` struct holds all the information for any given stake.
 | `vault`                     | `publicKey`                 | `32`    | `72`    |
 | `vaultBump`                 | `u8`                        | `1`     | `104`   |
 | `xnos`                      | `u128`                      | `16`    | `105`   |
+
+### Vault Account
+
+The `VaultAccount` is a regular Solana Token Account.

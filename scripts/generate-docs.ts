@@ -122,7 +122,7 @@ function main() {
       '## Instructions',
       '',
       `A number of ${idl.instructions.length} instruction are defined in the ${title(idl.name)} program.`,
-      'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html)',
+      'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).',
       '',
       '```typescript',
       `const programId = new PublicKey('${idl.metadata.address}');`,
@@ -132,21 +132,20 @@ function main() {
       ''
     );
 
-    data.push(options.enhance ? ':::: tabs' : undefined);
-
+    if (options.enhance) data.push(':::: tabs');
     for (const instruction of idl.instructions) {
-      data.push(options.enhance ? `@tab ${title(instruction.name)}` : undefined);
+      if (options.enhance) data.push(`@tab ${title(instruction.name)}`);
 
       // docs from idl
       try {
         data.push(...instruction['docs']);
       } catch (e) {
-        data.push(`### ${title(instruction.name)}`, '\n');
+        data.push(`### ${title(instruction.name)}`, '');
       }
 
       // accounts table
       // data.push(options.enhance? '::: details Accounts' : undefined)
-      const at = new MarkdownTable([20, 90, 30]);
+      const at = new MarkdownTable([25, 90, 35]);
       data.push('#### Accounts', '', at.row(['Name', 'Type', 'Description']), at.sep());
       const signers = [];
       for (const account of instruction.accounts) {
@@ -237,18 +236,11 @@ function main() {
       '## Accounts',
       '',
       `A number of ${idl.accounts.length + 1} accounts make up for the ${title(idl.name)} Program's state.`,
-      '',
-      options.enhance ? '::: tabs' : undefined,
-      options.enhance ? '@tab Vault Account' : undefined,
-      '',
-      '### Vault Account',
-      '',
-      'The `VaultAccount` is a regular Solana Token Account.',
-      ''
+      options.enhance ? '\n::: tabs\n' : ''
     );
 
     for (const account of idl.accounts) {
-      data.push(options.enhance ? `@tab ${title(account.name)}` : undefined);
+      if (options.enhance) data.push(`@tab ${title(account.name)}`);
 
       // title
       try {
@@ -266,9 +258,13 @@ function main() {
         data.push(at.row([`\`${field.name}\``, `\`${typeToString(field)}\``, `\`${size}\``, `\`${offset}\``]));
         offset += size;
       }
+      data.push('');
     }
 
-    data.push(options.enhance ? ':::' : '');
+    if (options.enhance) data.push('@tab Vault Account');
+
+    data.push('### Vault Account', '', 'The `VaultAccount` is a regular Solana Token Account.', '');
+    if (options.enhance) data.push(':::');
 
     /**
      * TYPES
@@ -281,10 +277,10 @@ function main() {
         ''
       );
 
-      data.push(options.enhance ? '::: tabs' : undefined);
+      if (options.enhance) data.push(':::: tabs');
 
       for (const t of idl.types) {
-        data.push(options.enhance ? `@tab ${title(t.name)}` : undefined);
+        if (options.enhance) data.push(`@tab ${title(t.name)}`);
 
         try {
           data.push(...t['docs']);
@@ -301,9 +297,10 @@ function main() {
             tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
           );
         }
+        data.push('');
       }
 
-      data.push(options.enhance ? ':::' : '');
+      if (options.enhance) data.push(':::');
     }
 
     /**
