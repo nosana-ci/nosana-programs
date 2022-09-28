@@ -75,6 +75,7 @@ let tx = await program.methods
     systemProgram,     // 𐄂 writable, 𐄂 signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
+  .signers([marketKey, authorityKey])
   .rpc();
 ```
 
@@ -107,6 +108,7 @@ let tx = await program.methods
     authority,         // 𐄂 writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -149,6 +151,7 @@ let tx = await program.methods
     accessKey,         // 𐄂 writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -202,6 +205,7 @@ let tx = await program.methods
     tokenProgram,      // 𐄂 writable, 𐄂 signer
     systemProgram,     // 𐄂 writable, 𐄂 signer
   })
+  .signers([jobKey, feePayerKey, authorityKey])
   .rpc();
 ```
 
@@ -237,6 +241,7 @@ let tx = await program.methods
     authority,         // 𐄂 writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -263,6 +268,7 @@ let tx = await program.methods
     job,               // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -302,6 +308,7 @@ let tx = await program.methods
     metadata,          // 𐄂 writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -342,6 +349,7 @@ let tx = await program.methods
     nft,               // 𐄂 writable, 𐄂 signer
     metadata,          // 𐄂 writable, 𐄂 signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -369,6 +377,7 @@ let tx = await program.methods
     market,            // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -412,6 +421,7 @@ let tx = await program.methods
     authority,         // 𐄂 writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
+  .signers([authorityKey])
   .rpc();
 ```
 

@@ -52,7 +52,7 @@ const sizes = {
   u128: 16,
   publicKey: 32,
   '[u8; 32]': 32,
-  'Vec<publicKey>': 100*32,
+  'Vec<publicKey>': 100 * 32,
 };
 
 /**
@@ -150,6 +150,7 @@ function main() {
       // data.push(options.enhance? '::: details Accounts' : undefined)
       const at = new MarkdownTable([20, 90, 30]);
       data.push('#### Accounts', '', at.row(['Name', 'Type', 'Description']), at.sep());
+      const signers = [];
       for (const account of instruction.accounts) {
         data.push(
           at.row([
@@ -160,6 +161,8 @@ function main() {
             `The ${title(account.name)} Account`,
           ])
         );
+        // add signer
+        if (account.isSigner) signers.push(`${account.name}Key`);
       }
       data.push('');
       // data.push(options.enhance? ':::' : undefined) // accounts
@@ -180,12 +183,13 @@ function main() {
       }
 
       data.push(options.enhance ? '::: details Example' : '#### Example');
-      // example
       data.push('', 'To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).', '');
 
+      // code list
       const code = [];
       code.push('```typescript', 'let tx = await program.methods');
 
+      // rgs
       if (instruction.args.length === 0) {
         code.push(`  .${instruction.name}()`);
       } else {
@@ -196,6 +200,7 @@ function main() {
         code.push(`  )`);
       }
 
+      // accounts
       code.push('  .accounts({');
       for (const account of instruction.accounts) {
         code.push(
@@ -203,7 +208,13 @@ function main() {
             `// ${(account.isMut ? '✓' : '𐄂') + ' writable, ' + (account.isSigner ? '✓' : '𐄂') + ' signer'}`
         );
       }
-      code.push('  })', '  .rpc();', '```', '');
+      code.push('  })');
+
+      // signers
+      if (signers.length > 0) code.push(`  .signers([${signers.join(', ')}])`);
+
+      // rpc
+      code.push('  .rpc();', '```', '');
 
       if (false) {
         data.push('::: code-tabs#lang');
