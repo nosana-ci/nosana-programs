@@ -251,7 +251,6 @@ The `ReflectionAccount` struct holds all the information on the reflection pool.
 | `vault`                     | `publicKey`                 | `56`    |
 | `vaultBump`                 | `u8`                        | `88`    |
 
-
 ### Reward Account
 
 The `RewardAccount` struct holds all the information for any given user account.

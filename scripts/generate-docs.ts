@@ -255,10 +255,9 @@ function main() {
         data.push(at.row([`\`${field.name}\``, `\`${typeToString(field)}\``, `\`${offset}\``]));
         offset += sizes[typeToString(field)];
       }
-      data.push('');
     }
 
-    data.push(options.enhance ? ':::' : undefined);
+    data.push(options.enhance ? ':::' : '');
 
     /**
      * TYPES
@@ -291,10 +290,9 @@ function main() {
             tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
           );
         }
-        data.push('');
       }
 
-      data.push(options.enhance ? ':::' : undefined);
+      data.push(options.enhance ? ':::' : '');
     }
 
     /**

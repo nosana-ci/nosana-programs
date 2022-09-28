@@ -445,7 +445,6 @@ The `MarketAccount` struct holds all the information about jobs and the nodes qu
 | `nodeStakeMinimum`          | `u64`                       | `130`   |
 | `nodeQueue`                 | `Vec<publicKey>`            | `138`   |
 
-
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
@@ -461,7 +460,6 @@ The `JobAccount` struct holds all the information about any individual jobs.
 | `status`                    | `u8`                        | `176`   |
 | `timeEnd`                   | `i64`                       | `177`   |
 | `timeStart`                 | `i64`                       | `193`   |
-
 
 ## Types
 
@@ -479,7 +477,6 @@ A number of 3 variants are defined:
 | `Queued`                              | `0`                                   |
 | `Running`                             | `1`                                   |
 | `Done`                                | `2`                                   |
-
 
 ### Job Type
 

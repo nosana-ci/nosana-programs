@@ -383,7 +383,6 @@ slashing authority and token account.
 | `authority`                 | `publicKey`                 | `8`     |
 | `tokenAccount`              | `publicKey`                 | `40`    |
 
-
 ### Stake Account
 
 The `StakeAccount` struct holds all the information for any given stake.

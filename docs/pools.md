@@ -213,7 +213,6 @@ The `PoolAccount` struct holds all the information for any given pool.
 | `vault`                     | `publicKey`                 | `106`   |
 | `vaultBump`                 | `u8`                        | `138`   |
 
-
 ## Types
 
 A number of 1 type variants are defined in the Nosana Pools Program's state.
