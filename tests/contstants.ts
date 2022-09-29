@@ -76,7 +76,7 @@ const constants = {
     NodeNotEnoughStake: 'This node has not staked enough tokens.',
     NodeAlreadyQueued: 'This node is already present in the queue.',
     NodeNftWrongMetadata: 'This metadata does not have the correct address.',
-    NodeNftWrongCollection: 'This NFT does not belong to the right collection.',
+    NodeKeyInvalidCollection: 'This access key does not belong to a verified collection.',
 
     // pool errors
     PoolNotStarted: 'This pool has not started yet.',

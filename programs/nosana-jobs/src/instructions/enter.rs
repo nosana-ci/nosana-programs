@@ -2,7 +2,7 @@ use crate::*;
 use anchor_spl::token::TokenAccount;
 use mpl_token_metadata::{
     pda::find_metadata_account,
-    state::{Metadata, TokenMetadataAccount},
+    state::{Collection, Metadata, TokenMetadataAccount},
 };
 use nosana_staking::StakeAccount;
 
@@ -28,13 +28,15 @@ pub struct Enter<'info> {
 }
 
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
-    // get and verify our nft collection in the metadata
-    let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
-    require!(
-        ctx.accounts.market.node_access_key == id::SYSTEM_PROGRAM
-            || metadata.collection.unwrap().key == ctx.accounts.market.node_access_key,
-        NosanaError::NodeNftWrongCollection
-    );
+    // get and verify our nft collection in the metadata, if required
+    if ctx.accounts.market.node_access_key != id::SYSTEM_PROGRAM {
+        let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
+        let collection: Collection = metadata.collection.unwrap();
+        require!(
+            collection.verified && collection.key == ctx.accounts.market.node_access_key,
+            NosanaError::NodeKeyInvalidCollection
+        )
+    }
     require!(
         ctx.accounts
             .market

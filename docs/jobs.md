@@ -16,6 +16,9 @@
 ## Instructions
 
 A number of 10 instruction are defined in the Nosana Jobs program.
+
+#### Example
+
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
@@ -31,25 +34,25 @@ associated [VaultAccount](#vault-account) for token deposits.
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Mint Account                 |
-| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Market Account               |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
-| `accessKey`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Access Key Account           |
-| `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account                 |
-| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account       |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token Mint address for this instruction.                                                      |
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `accessKey`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Node Access Key address.                                                                      |
+| `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana rent address. Responsible for lamports.                                       |
+| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                               |
-|------------------------|---------|---------|-----------------------------------------------------------|
-| `jobPrice`             | `8`     | `0`     | The Job Price argument                                    |
-| `jobTimeout`           | `16`    | `8`     | The Job Timeout argument                                  |
-| `jobType`              | `1`     | `24`    | The Job Type argument                                     |
-| `nodeStakeMinimum`     | `8`     | `25`    | The Node Stake Minimum argument                           |
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `jobPrice`             | `u64`             | `8`     | `0`     | The price for jobs in this market.                        |
+| `jobTimeout`           | `i64`             | `16`    | `8`     | The timeout time in seconds for jobs.                     |
+| `jobType`              | `u8`              | `1`     | `24`    | The [JobType](#job-type) number.                          |
+| `nodeStakeMinimum`     | `u64`             | `8`     | `25`    | The number of tokens a node needs to stake to qualify.    |
 
 #### Example
 
@@ -85,12 +88,12 @@ The vault has to be empty of tokens.
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Market Account               |
-| `vault`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Vault Account                |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [VaultAccount](#vault-account) address.                                                       |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Example
 
@@ -115,20 +118,20 @@ The `update()` instruction update a [MarketAccount](#market-account).
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Market Account               |
-| `accessKey`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Access Key Account           |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `accessKey`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Node Access Key address.                                                                      |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                               |
-|------------------------|---------|---------|-----------------------------------------------------------|
-| `jobPrice`             | `8`     | `0`     | The Job Price argument                                    |
-| `jobTimeout`           | `16`    | `8`     | The Job Timeout argument                                  |
-| `jobType`              | `1`     | `24`    | The Job Type argument                                     |
-| `nodeStakeMinimum`     | `8`     | `25`    | The Node Stake Minimum argument                           |
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `jobPrice`             | `u64`             | `8`     | `0`     | The price for jobs in this market.                        |
+| `jobTimeout`           | `i64`             | `16`    | `8`     | The timeout time in seconds for jobs.                     |
+| `jobType`              | `u8`              | `1`     | `24`    | The [JobType](#job-type) number.                          |
+| `nodeStakeMinimum`     | `u64`             | `8`     | `25`    | The number of tokens a node needs to stake to qualify.    |
 
 #### Example
 
@@ -158,25 +161,25 @@ When there is a node ready in the queue it will immediately start running.
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Job Account                  |
-| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Market Account               |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account                 |
-| `feePayer`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Fee Payer Account            |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
-| `rewardsReflection`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Rewards Reflection Account   |
-| `rewardsVault`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Rewards Vault Account        |
-| `rewardsProgram`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rewards Program Account      |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
-| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account       |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `feePayer`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing Fee Payer address.                                                                    |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `rewardsReflection`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [ReflectionAccount](/programs/rewards#reflection-account) address.   |
+| `rewardsVault`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [VaultAccount](/programs/rewards#vault-account) address.             |
+| `rewardsProgram`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [Nosana Rewards](/programs/rewards) Program address.                                          |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                               |
-|------------------------|---------|---------|-----------------------------------------------------------|
-| `ipfsJob`              | `32`    | `0`     | The Ipfs Job argument                                     |
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `ipfsJob`              | `[u8; 32]`        | `32`    | `0`     | The byte array representing the IPFS hash to the job.     |
 
 #### Example
 
@@ -211,14 +214,14 @@ When the job was still queued the tokens will be returned to the user.
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Job Account                  |
-| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Market Account               |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account                 |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Example
 
@@ -245,10 +248,10 @@ With the `cancel()` instruction a node can stop running a job that it has starte
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Job Account                  |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 #### Example
 
@@ -274,15 +277,15 @@ With the claim() instruction a node can claim a job that is:
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Job Account                  |
-| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Market Account               |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `stake`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Stake Account                |
-| `nft`                  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Nft Account                  |
-| `metadata`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metadata Account             |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `stake`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [StakeAccount](/programs/staking#stake-account) address.                                      |
+| `nft`                  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Account address that holds the NFT.                                                     |
+| `metadata`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metaplex Metadata address, that belongs to the NFT.                                           |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 #### Example
 
@@ -316,14 +319,14 @@ A few requirements are enforced:
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
-| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Market Account               |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `stake`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Stake Account                |
-| `nft`                  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Nft Account                  |
-| `metadata`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metadata Account             |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `stake`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [StakeAccount](/programs/staking#stake-account) address.                                      |
+| `nft`                  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Account address that holds the NFT.                                                     |
+| `metadata`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metaplex Metadata address, that belongs to the NFT.                                           |
 
 #### Example
 
@@ -351,10 +354,10 @@ from a [MarketAccount](#market-account).
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Market Account               |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 #### Example
 
@@ -378,20 +381,20 @@ and be reimbursed for the work.
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Job Account                  |
-| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Market Account               |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account                 |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The Authority Account            |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                               |
-|------------------------|---------|---------|-----------------------------------------------------------|
-| `ipfsResult`           | `32`    | `0`     | The Ipfs Result argument                                  |
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `ipfsResult`           | `[u8; 32]`        | `32`    | `0`     | The byte array representing the IPFS hash to the results. |
 
 #### Example
 
@@ -422,33 +425,33 @@ A number of 3 accounts make up for the Nosana Jobs Program's state.
 
 The `MarketAccount` struct holds all the information about jobs and the nodes queue.
 
-| Name                        | Type                        | Size    | Offset  |
-|-----------------------------|-----------------------------|---------|---------|
-| `authority`                 | `publicKey`                 | `32`    | `8`     |
-| `jobPrice`                  | `u64`                       | `8`     | `40`    |
-| `jobTimeout`                | `i64`                       | `16`    | `48`    |
-| `jobType`                   | `u8`                        | `1`     | `64`    |
-| `vault`                     | `publicKey`                 | `32`    | `65`    |
-| `vaultBump`                 | `u8`                        | `1`     | `97`    |
-| `nodeAccessKey`             | `publicKey`                 | `32`    | `98`    |
-| `nodeStakeMinimum`          | `u64`                       | `8`     | `130`   |
-| `nodeQueue`                 | `Vec<publicKey>`            | `3200`  | `138`   |
+| Name                        | Type                        | Size    | Offset  | Description                                                                                       |
+|-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
+| `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
+| `jobPrice`                  | `u64`                       | `8`     | `40`    | The price for jobs in this market.                                                                |
+| `jobTimeout`                | `i64`                       | `16`    | `48`    | The timeout time in seconds for jobs.                                                             |
+| `jobType`                   | `u8`                        | `1`     | `64`    | The [JobType](#job-type) number.                                                                  |
+| `vault`                     | `publicKey`                 | `32`    | `65`    | The [VaultAccount](#vault-account) address.                                                       |
+| `vaultBump`                 | `u8`                        | `1`     | `97`    | The bump for the [VaultAccount](#vault-account).                                                  |
+| `nodeAccessKey`             | `publicKey`                 | `32`    | `98`    | n/a                                                                                               |
+| `nodeStakeMinimum`          | `u64`                       | `8`     | `130`   | The number of tokens a node needs to stake to qualify.                                            |
+| `nodeQueue`                 | `Vec<publicKey>`            | `3200`  | `138`   | n/a                                                                                               |
 
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
 
-| Name                        | Type                        | Size    | Offset  |
-|-----------------------------|-----------------------------|---------|---------|
-| `authority`                 | `publicKey`                 | `32`    | `8`     |
-| `ipfsJob`                   | `[u8; 32]`                  | `32`    | `40`    |
-| `ipfsResult`                | `[u8; 32]`                  | `32`    | `72`    |
-| `market`                    | `publicKey`                 | `32`    | `104`   |
-| `node`                      | `publicKey`                 | `32`    | `136`   |
-| `price`                     | `u64`                       | `8`     | `168`   |
-| `status`                    | `u8`                        | `1`     | `176`   |
-| `timeEnd`                   | `i64`                       | `16`    | `177`   |
-| `timeStart`                 | `i64`                       | `16`    | `193`   |
+| Name                        | Type                        | Size    | Offset  | Description                                                                                       |
+|-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
+| `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
+| `ipfsJob`                   | `[u8; 32]`                  | `32`    | `40`    | The byte array representing the IPFS hash to the job.                                             |
+| `ipfsResult`                | `[u8; 32]`                  | `32`    | `72`    | The byte array representing the IPFS hash to the results.                                         |
+| `market`                    | `publicKey`                 | `32`    | `104`   | The [MarketAccount](#market-account) address.                                                     |
+| `node`                      | `publicKey`                 | `32`    | `136`   | n/a                                                                                               |
+| `price`                     | `u64`                       | `8`     | `168`   | n/a                                                                                               |
+| `status`                    | `u8`                        | `1`     | `176`   | n/a                                                                                               |
+| `timeEnd`                   | `i64`                       | `16`    | `177`   | n/a                                                                                               |
+| `timeStart`                 | `i64`                       | `16`    | `193`   | n/a                                                                                               |
 
 ### Vault Account
 

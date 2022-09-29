@@ -59,8 +59,8 @@ pub enum NosanaError {
     NodeAlreadyQueued,
     #[msg("This metadata does not have the correct address.")]
     NodeNftWrongMetadata,
-    #[msg("This NFT does not belong to the right collection.")]
-    NodeNftWrongCollection,
+    #[msg("This access key does not belong to a verified collection.")]
+    NodeKeyInvalidCollection,
 
     // pool errors
     #[msg("This pool has not started yet.")]

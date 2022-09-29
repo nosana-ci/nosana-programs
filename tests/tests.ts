@@ -52,7 +52,6 @@ describe('nosana programs', async function () {
     this.nftConfig.name = 'Burner Phone NFT';
     this.nftConfig.symbol = 'NOS-NFT';
     this.nftConfig.sellerFeeBasisPoints = 0;
-    this.nftConfig.isCollection = true;
     // we need an Anchor Public Key :/
     this.nftConfig.collection = new anchor.web3.PublicKey('nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3');
 
