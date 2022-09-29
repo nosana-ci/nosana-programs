@@ -17,7 +17,7 @@
 
 A number of 4 instruction are defined in the Nosana Pools program.
 
-#### Example
+### Example
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
