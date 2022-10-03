@@ -1,12 +1,6 @@
 import * as anchor from '@project-serum/anchor';
 import SecretKey = require('./keys/devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP.json');
-import {
-  TOKEN_PROGRAM_ID,
-  createMint,
-  createMintToInstruction,
-  getAssociatedTokenAddress,
-  createAssociatedTokenAccountInstruction,
-} from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, createMint, createMintToInstruction, createAssociatedTokenAccount } from '@solana/spl-token';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Context } from 'mocha';
@@ -63,24 +57,6 @@ async function mintToAccount(provider: AnchorProvider, mint: PublicKey, destinat
 function buf2hex(buffer: Iterable<number>) {
   // buffer is an ArrayBuffer
   return [...new Uint8Array(buffer)].map((x) => x.toString().padStart(2, '0')).join('');
-}
-
-/**
- *
- * @param provider
- * @param owner
- * @param mint
- */
-async function getOrCreateAssociatedSPL(provider: AnchorProvider, owner: PublicKey, mint: PublicKey) {
-  const ata = await getAssociatedTokenAddress(mint, owner);
-  try {
-    const tx = new anchor.web3.Transaction();
-    tx.add(createAssociatedTokenAccountInstruction(owner, ata, owner, mint));
-    await provider.sendAndConfirm(tx, [], {});
-  } catch (error) {
-    console.log('exists!');
-  }
-  return ata;
 }
 
 /**
@@ -168,7 +144,12 @@ async function setupSolanaUser(mochaContext: Context) {
     await mochaContext.connection.requestAirdrop(publicKey, anchor.web3.LAMPORTS_PER_SOL)
   );
   // fund NOS
-  const ata = await getOrCreateAssociatedSPL(provider, publicKey, mochaContext.mint);
+  const ata = await createAssociatedTokenAccount(
+    mochaContext.connection,
+    mochaContext.payer,
+    mochaContext.mint,
+    publicKey
+  );
   await mintToAccount(mochaContext.provider, mochaContext.mint, ata, mochaContext.constants.userSupply);
   // return user object
   return {
@@ -207,7 +188,6 @@ async function getUsers(mochaContext: Context, amount: number) {
 export {
   buf2hex,
   calculateXnos,
-  getOrCreateAssociatedSPL,
   getTokenBalance,
   getUsers,
   mintFromFile,

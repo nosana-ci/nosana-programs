@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
-import { mintFromFile, mintToAccount, getOrCreateAssociatedSPL, getTokenBalance, getUsers, mapUsers } from '../utils';
-import { VerifyNftCollectionInput } from '@metaplex-foundation/js';
+import { mintFromFile, mintToAccount, getTokenBalance, getUsers, mapUsers } from '../utils';
 
 export default function suite() {
   describe('mints and users', function () {
@@ -34,37 +33,47 @@ export default function suite() {
 
     it('can create the NFT collection', async function () {
       this.nftConfig.isCollection = true;
-      const collection = await this.metaplex.nfts().create(this.nftConfig).run();
-
-      this.accounts.accessKey = collection.mintAddress;
-      this.nftConfig.collection = this.accounts.accessKey;
+      const { mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
       this.nftConfig.isCollection = false;
+
+      // set collection
+      this.nftConfig.collection = mintAddress;
+      this.accounts.accessKey = this.nftConfig.collection;
     });
     it('can mint NFT', async function () {
-      const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
-      const verifyInput = {
-        mintAddress,
-        collectionMintAddress: this.accounts.accessKey,
-      } as VerifyNftCollectionInput;
-      await this.metaplex.nfts().verifyCollection(verifyInput).run();
+      const { metadataAddress, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
+      await this.metaplex
+        .nfts()
+        .verifyCollection({
+          mintAddress,
+          collectionMintAddress: this.nftConfig.collection,
+        })
+        .run();
       this.accounts.nft = await getAssociatedTokenAddress(mintAddress, this.publicKey);
       expect(await getTokenBalance(this.provider, this.accounts.nft)).to.equal(1);
 
       // set metadata
-      this.accounts.metadata = nft.metadataAddress;
+      this.accounts.metadata = metadataAddress;
     });
 
     it('can mint more NFTs', async function () {
       const mochaContext = this;
       await mapUsers(this.users.nodes, async function (node) {
-        const { nft, mintAddress } = await mochaContext.metaplex.nfts().create(mochaContext.nftConfig).run();
-        const verifyInput = {
-          mintAddress,
-          collectionMintAddress: mochaContext.accounts.accessKey,
-        } as VerifyNftCollectionInput;
-        await mochaContext.metaplex.nfts().verifyCollection(verifyInput).run();
+        const { mintAddress, nft } = await mochaContext.metaplex.nfts().create(mochaContext.nftConfig).run();
+        await mochaContext.metaplex
+          .nfts()
+          .verifyCollection({
+            mintAddress,
+            collectionMintAddress: mochaContext.nftConfig.collection,
+          })
+          .run();
         node.metadata = nft.metadataAddress;
-        node.ataNft = await getOrCreateAssociatedSPL(node.provider, node.publicKey, mintAddress);
+        node.ataNft = await createAssociatedTokenAccount(
+          mochaContext.connection,
+          mochaContext.payer,
+          mintAddress,
+          node.publicKey
+        );
         await transfer(
           mochaContext.connection,
           mochaContext.payer,
