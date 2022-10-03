@@ -405,7 +405,7 @@ function main() {
         ''
       );
 
-      if (options.enhance) data.push(':::: tabs');
+      if (options.enhance) data.push('::: tabs');
 
       for (const t of idl.types) {
         if (options.enhance) data.push(`@tab ${title(t.name)}`);
