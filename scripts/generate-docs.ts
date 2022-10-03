@@ -242,7 +242,7 @@ function main() {
       '```',
       ''
     );
-    if (options.enhance) data.push(':::')
+    if (options.enhance) data.push(':::');
 
     if (options.enhance) data.push(':::: tabs');
     for (const instruction of idl.instructions) {

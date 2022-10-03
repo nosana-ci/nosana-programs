@@ -1,15 +1,14 @@
 {
   "license": "MIT",
   "devDependencies": {
-    "@metaplex-foundation/js": "0.15.0",
-    "@metaplex-foundation/mpl-token-metadata": "2.2.4",
+    "@metaplex-foundation/js": "0.16.1",
     "@project-serum/anchor": "0.25.0",
     "@solana/spl-token": "0.3.5",
     "@types/bn.js": "5.1.1",
     "@types/chai": "4.3.3",
-    "@types/mocha": "9.1.1",
-    "@typescript-eslint/eslint-plugin": "5.38.0",
-    "@typescript-eslint/parser": "5.38.0",
+    "@types/mocha": "10.0.0",
+    "@typescript-eslint/eslint-plugin": "5.38.1",
+    "@typescript-eslint/parser": "5.38.1",
     "chai": "4.3.6",
     "command-line-args": "^5.2.1",
     "csv-parse": "5.3.0",
@@ -19,7 +18,7 @@
     "seedrandom": "3.0.5",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
-    "typescript": "4.8.3"
+    "typescript": "4.8.4"
   },
   "scripts": {
     "lint": "npm run prettier && npm run eslint && npm run check-types",
