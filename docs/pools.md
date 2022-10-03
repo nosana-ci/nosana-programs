@@ -16,6 +16,9 @@
 ## Instructions
 
 A number of 4 instruction are defined in the Nosana Pools program.
+
+### Example
+
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
@@ -31,25 +34,25 @@ and [VaultAccount](#vault-account).
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Pool Account                 |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `beneficiary`          | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Beneficiary Account          |
-| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
-| `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Mint Account                 |
-| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The System Program Account       |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
-| `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rent Account                 |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [PoolAccount](#pool-account) address.                                                         |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `beneficiary`          | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token account that will receive the emissions from the Pool.                                  |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token Mint address for this instruction.                                                      |
+| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+| `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana rent address. Responsible for lamports.                                       |
 
 #### Arguments
 
-| Name                   | Size    | Offset  | Description                                               |
-|------------------------|---------|---------|-----------------------------------------------------------|
-| `emmission`            | `8`     | `0`     | The Emmission argument                                    |
-| `startTime`            | `16`    | `8`     | The Start Time argument                                   |
-| `claimType`            | `1`     | `24`    | The Claim Type argument                                   |
-| `closeable`            | `1`     | `25`    | The Closeable argument                                    |
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `emission`             | `u64`             | `8`     | `0`     | The emission rate for the pool, per second.               |
+| `startTime`            | `i64`             | `16`    | `8`     | The unix time the pool opens.                             |
+| `claimType`            | `u8`              | `1`     | `24`    | The [ClaimType](#claim-type) for this pool.               |
+| `closeable`            | `bool`            | `1`     | `25`    | Whether the pool should be closable or not.               |
 
 #### Example
 
@@ -58,7 +61,7 @@ To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/inde
 ```typescript
 let tx = await program.methods
   .open(
-    emmission,         // type: u64
+    emission,          // type: u64
     startTime,         // type: i64
     claimType,         // type: u8
     closeable,         // type: bool
@@ -85,15 +88,15 @@ and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `rewardsReflection`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Rewards Reflection Account   |
-| `rewardsVault`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Rewards Vault Account        |
-| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Pool Account                 |
-| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
-| `rewardsProgram`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Rewards Program Account      |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `rewardsReflection`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [ReflectionAccount](/programs/rewards#reflection-account) address.   |
+| `rewardsVault`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [VaultAccount](/programs/rewards#vault-account) address.             |
+| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [PoolAccount](#pool-account) address.                                                         |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+| `rewardsProgram`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [Nosana Rewards](/programs/rewards) Program address.                                          |
 
 #### Example
 
@@ -123,13 +126,13 @@ and transfer these to a given user.
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `beneficiary`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Beneficiary Account          |
-| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Pool Account                 |
-| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `beneficiary`          | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The token account that will receive the emissions from the Pool.                                  |
+| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [PoolAccount](#pool-account) address.                                                         |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Example
 
@@ -156,13 +159,13 @@ and [VaultAccount](#vault-account)..
 
 #### Accounts
 
-| Name                   | Type                                                                                    | Description                      |
-|------------------------|-----------------------------------------------------------------------------------------|----------------------------------|
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Vault Account                |
-| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The User Account                 |
-| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Pool Account                 |
-| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The Authority Account            |
-| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Program Account        |
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [PoolAccount](#pool-account) address.                                                         |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Example
 
@@ -190,17 +193,17 @@ A number of 2 accounts make up for the Nosana Pools Program's state.
 
 The `PoolAccount` struct holds all the information for any given pool.
 
-| Name                        | Type                        | Size    | Offset  |
-|-----------------------------|-----------------------------|---------|---------|
-| `authority`                 | `publicKey`                 | `32`    | `8`     |
-| `beneficiary`               | `publicKey`                 | `32`    | `40`    |
-| `claimType`                 | `u8`                        | `1`     | `72`    |
-| `claimedTokens`             | `u64`                       | `8`     | `73`    |
-| `closeable`                 | `bool`                      | `1`     | `81`    |
-| `emission`                  | `u64`                       | `8`     | `82`    |
-| `startTime`                 | `i64`                       | `16`    | `90`    |
-| `vault`                     | `publicKey`                 | `32`    | `106`   |
-| `vaultBump`                 | `u8`                        | `1`     | `138`   |
+| Name                        | Type                        | Size    | Offset  | Description                                                                                       |
+|-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
+| `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
+| `beneficiary`               | `publicKey`                 | `32`    | `40`    | The token account that will receive the emissions from the Pool.                                  |
+| `claimType`                 | `u8`                        | `1`     | `72`    | The [ClaimType](#claim-type) for this pool.                                                       |
+| `claimedTokens`             | `u64`                       | `8`     | `73`    | The number of tokens that have been claimed.                                                      |
+| `closeable`                 | `bool`                      | `1`     | `81`    | Whether the pool should be closable or not.                                                       |
+| `emission`                  | `u64`                       | `8`     | `82`    | The emission rate for the pool, per second.                                                       |
+| `startTime`                 | `i64`                       | `16`    | `90`    | The unix time the pool opens.                                                                     |
+| `vault`                     | `publicKey`                 | `32`    | `106`   | The [VaultAccount](#vault-account) address.                                                       |
+| `vaultBump`                 | `u8`                        | `1`     | `138`   | The bump for the [VaultAccount](#vault-account).                                                  |
 
 ### Vault Account
 

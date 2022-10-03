@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 import { mintFromFile, mintToAccount, getOrCreateAssociatedSPL, getTokenBalance, getUsers, mapUsers } from '../utils';
+import { VerifyNftCollectionInput } from '@metaplex-foundation/js';
 
 export default function suite() {
   describe('mints and users', function () {
@@ -31,8 +32,21 @@ export default function suite() {
         this.users.users;
     });
 
+    it('can create the NFT collection', async function () {
+      this.nftConfig.isCollection = true;
+      const collection = await this.metaplex.nfts().create(this.nftConfig).run();
+
+      this.accounts.accessKey = collection.mintAddress;
+      this.nftConfig.collection = this.accounts.accessKey;
+      this.nftConfig.isCollection = false;
+    });
     it('can mint NFT', async function () {
       const { nft, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
+      const verifyInput = {
+        mintAddress,
+        collectionMintAddress: this.accounts.accessKey,
+      } as VerifyNftCollectionInput;
+      await this.metaplex.nfts().verifyCollection(verifyInput).run();
       this.accounts.nft = await getAssociatedTokenAddress(mintAddress, this.publicKey);
       expect(await getTokenBalance(this.provider, this.accounts.nft)).to.equal(1);
 
@@ -44,6 +58,11 @@ export default function suite() {
       const mochaContext = this;
       await mapUsers(this.users.nodes, async function (node) {
         const { nft, mintAddress } = await mochaContext.metaplex.nfts().create(mochaContext.nftConfig).run();
+        const verifyInput = {
+          mintAddress,
+          collectionMintAddress: mochaContext.accounts.accessKey,
+        } as VerifyNftCollectionInput;
+        await mochaContext.metaplex.nfts().verifyCollection(verifyInput).run();
         node.metadata = nft.metadataAddress;
         node.ataNft = await getOrCreateAssociatedSPL(node.provider, node.publicKey, mintAddress);
         await transfer(

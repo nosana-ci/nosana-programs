@@ -53,6 +53,112 @@ const sizes = {
   'Vec<publicKey>': 100 * 32,
 };
 
+const descriptions = (name) => {
+  switch (name) {
+    // programs
+    case 'tokenProgram':
+      return 'The official SPL Token Program address. Responsible for token CPIs.';
+    case 'systemProgram':
+      return 'The official Solana system program address. Responsible for system CPIs.';
+    case 'rewardsProgram':
+      return 'The [Nosana Rewards](/programs/rewards) Program address.';
+
+    // official
+    case 'authority':
+      return 'The signing authority of the program invocation.';
+    case 'newAuthority':
+      return 'The new authority of the  [SettingsAccount](#settings-account).';
+    case 'feePayer':
+      return 'The signing Fee Payer address.';
+    case 'rent':
+      return 'The official Solana rent address. Responsible for lamports.';
+    case 'mint':
+      return 'The token Mint address for this instruction.';
+
+    // token accounts
+    case 'vault':
+      return 'The [VaultAccount](#vault-account) address.';
+    case 'vaultBump':
+      return 'The bump for the [VaultAccount](#vault-account).';
+    case 'beneficiary':
+      return 'The token account that will receive the emissions from the Pool.';
+    case 'user':
+      return 'The user token account that will debit/credit the tokens.';
+    case 'tokenAccount':
+      return 'The token account where slash deposits will go.';
+    case 'nft':
+      return 'The Token Account address that holds the NFT.';
+
+    // custom accounts
+    case 'settings':
+      return 'The [SettingsAccount](#settings-account) address.';
+    case 'market':
+      return 'The [MarketAccount](#market-account) address.';
+    case 'job':
+      return 'The [JobAccount](#job-account) address.';
+    case 'metadata':
+      return 'The Metaplex Metadata address, that belongs to the NFT.';
+    case 'pool':
+      return 'The [PoolAccount](#pool-account) address.';
+    case 'stake':
+      return 'The [StakeAccount](/programs/staking#stake-account) address.';
+    case 'reward':
+      return 'The [RewardAccount](#reward-account) address.';
+    case 'rewardsVault':
+      return "The Nosana Rewards Program's [VaultAccount](/programs/rewards#vault-account) address.";
+    case 'rewardsReflection':
+      return "The Nosana Rewards Program's [ReflectionAccount](/programs/rewards#reflection-account) address.";
+    case 'reflection':
+      return 'The [ReflectionAccount](#reflection-account) address.';
+    case 'accessKey':
+      return 'The Node Access Key address.';
+
+    // stake arguments
+    case 'amount':
+      return 'The number of tokens.';
+    case 'duration':
+      return 'The duration of the stake.';
+
+    // pool arguments
+    case 'emission':
+      return 'The emission rate for the pool, per second.';
+    case 'startTime':
+      return 'The unix time the pool opens.';
+    case 'claimType':
+      return 'The [ClaimType](#claim-type) for this pool.';
+    case 'closeable':
+      return 'Whether the pool should be closable or not.';
+    case 'claimedTokens':
+      return 'The number of tokens that have been claimed.';
+
+    // rewards arguments
+    case 'rate':
+      return 'The current reward rate.';
+    case 'totalReflection':
+      return 'The current total reflection.';
+    case 'totalXnos':
+      return 'The current total xNOS.';
+
+    // job arguments
+    case 'jobTimeout':
+      return 'The timeout time in seconds for jobs.';
+    case 'jobType':
+      return 'The [JobType](#job-type) number.';
+    case 'jobPrice':
+      return 'The price for jobs in this market.';
+    case 'nodeStakeMinimum':
+      return 'The number of tokens a node needs to stake to qualify.';
+    case 'ipfsResult':
+      return 'The byte array representing the IPFS hash to the results.';
+    case 'ipfsJob':
+      return 'The byte array representing the IPFS hash to the job.';
+
+    // default
+    default:
+      return 'n/a';
+  }
+};
+
 /**
  *
  */
@@ -122,6 +228,11 @@ function main() {
       '## Instructions',
       '',
       `A number of ${idl.instructions.length} instruction are defined in the ${title(idl.name)} program.`,
+      ''
+    );
+    data.push(options.enhance ? '::: details Example' : '### Example');
+    data.push(
+      '',
       'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).',
       '',
       '```typescript',
@@ -131,6 +242,7 @@ function main() {
       '```',
       ''
     );
+    if (options.enhance) data.push(':::');
 
     if (options.enhance) data.push(':::: tabs');
     for (const instruction of idl.instructions) {
@@ -145,7 +257,7 @@ function main() {
 
       // accounts table
       // data.push(options.enhance? '::: details Accounts' : undefined)
-      const at = new MarkdownTable([25, 90, 35]);
+      const at = new MarkdownTable([25, 90, 100]);
       data.push('#### Accounts', '', at.row(['Name', 'Type', 'Description']), at.sep());
       const signers = [];
       for (const account of instruction.accounts) {
@@ -155,7 +267,7 @@ function main() {
             `<FontIcon icon="pencil" color="${account.isMut ? '#3EAF7C' : 'lightgrey'}" /><FontIcon icon="key" color="${
               account.isSigner ? '#3EAF7C' : 'lightgrey'
             }" />`,
-            `The ${title(account.name)} Account`,
+            `${descriptions(account.name)}`,
           ])
         );
         // add signer
@@ -167,12 +279,20 @@ function main() {
       if (instruction.args.length !== 0) {
         // args table
         // data.push(options.enhance? '::: details Arguments' : undefined)
-        const ft = new MarkdownTable([25, 10, 10, 60]);
-        data.push('#### Arguments', '', ft.row(['Name', 'Size', 'Offset', 'Description']), ft.sep());
+        const ft = new MarkdownTable([25, 20, 10, 10, 60]);
+        data.push('#### Arguments', '', ft.row(['Name', 'Type', 'Size', 'Offset', 'Description']), ft.sep());
         let offset = 0;
         for (const arg of instruction.args) {
           const size = sizes[typeToString(arg)];
-          data.push(ft.row([`\`${arg.name}\``, `\`${size}\``, `\`${offset}\``, `The ${title(arg.name)} argument`]));
+          data.push(
+            ft.row([
+              `\`${arg.name}\``,
+              `\`${typeToString(arg)}\``,
+              `\`${size}\``,
+              `\`${offset}\``,
+              `${descriptions(arg.name)}`,
+            ])
+          );
           offset += size;
         }
         data.push('');
@@ -250,19 +370,27 @@ function main() {
       }
 
       // accounts table
-      const at = new MarkdownTable([30, 30, 10, 10]);
-      data.push(at.row(['Name', 'Type', 'Size', 'Offset']), at.sep());
+      const at = new MarkdownTable([30, 30, 10, 10, 100]);
+      data.push(at.row(['Name', 'Type', 'Size', 'Offset', 'Description']), at.sep());
       let offset = 8;
       for (const field of account.type.fields) {
         const size = sizes[typeToString(field)];
-        data.push(at.row([`\`${field.name}\``, `\`${typeToString(field)}\``, `\`${size}\``, `\`${offset}\``]));
+        data.push(
+          at.row([
+            `\`${field.name}\``,
+            `\`${typeToString(field)}\``,
+            `\`${size}\``,
+            `\`${offset}\``,
+            `${descriptions(field.name)}`,
+          ])
+        );
         offset += size;
       }
       data.push('');
     }
 
+    // the vault account
     if (options.enhance) data.push('@tab Vault Account');
-
     data.push('### Vault Account', '', 'The `VaultAccount` is a regular Solana Token Account.', '');
     if (options.enhance) data.push(':::');
 
@@ -277,7 +405,7 @@ function main() {
         ''
       );
 
-      if (options.enhance) data.push(':::: tabs');
+      if (options.enhance) data.push('::: tabs');
 
       for (const t of idl.types) {
         if (options.enhance) data.push(`@tab ${title(t.name)}`);
