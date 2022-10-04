@@ -1,6 +1,6 @@
 import * as anchor from '@project-serum/anchor';
 import SecretKey = require('./keys/devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP.json');
-import { TOKEN_PROGRAM_ID, createMint, createMintToInstruction, createAssociatedTokenAccount } from '@solana/spl-token';
+import { createMint, createAssociatedTokenAccount, mintTo } from '@solana/spl-token';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Context } from 'mocha';
@@ -23,9 +23,15 @@ async function getTokenBalance(provider: AnchorProvider, wallet: PublicKey) {
  * @param payer
  * @param authority
  */
-async function mintFromFile(connection: Connection, payer: Signer, authority: PublicKey) {
-  const keyPair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(SecretKey));
-  return await createMint(connection, payer, authority, null, 6, keyPair);
+async function createNosMint(connection: Connection, payer: Signer, authority: PublicKey) {
+  return await createMint(
+    connection,
+    payer,
+    authority,
+    null,
+    6,
+    anchor.web3.Keypair.fromSecretKey(new Uint8Array(SecretKey))
+  );
 }
 
 /**
@@ -35,19 +41,6 @@ async function mintFromFile(connection: Connection, payer: Signer, authority: Pu
  */
 async function mapUsers(users, f) {
   return await Promise.all(_.map(users, f));
-}
-
-/**
- *
- * @param provider
- * @param mint
- * @param destination
- * @param amount
- */
-async function mintToAccount(provider: AnchorProvider, mint: PublicKey, destination: PublicKey, amount: number) {
-  const tx = new anchor.web3.Transaction();
-  tx.add(createMintToInstruction(mint, destination, provider.wallet.publicKey, amount, [], TOKEN_PROGRAM_ID));
-  await provider.sendAndConfirm(tx);
 }
 
 /**
@@ -129,6 +122,10 @@ async function updateRewards(
   return amount;
 }
 
+async function mintNosTo(mochaContext: Context, to: PublicKey, amount: number | bigint) {
+  await mintTo(mochaContext.connection, mochaContext.payer, mochaContext.mint, to, mochaContext.payer, amount);
+}
+
 /**
  *
  * @param mochaContext
@@ -150,7 +147,9 @@ async function setupSolanaUser(mochaContext: Context) {
     mochaContext.mint,
     publicKey
   );
-  await mintToAccount(mochaContext.provider, mochaContext.mint, ata, mochaContext.constants.userSupply);
+  // fund user
+  await mintNosTo(mochaContext, ata, mochaContext.constants.userSupply);
+
   // return user object
   return {
     user,
@@ -190,12 +189,12 @@ export {
   calculateXnos,
   getTokenBalance,
   getUsers,
-  mintFromFile,
-  mintToAccount,
+  createNosMint,
   now,
   pda,
   setupSolanaUser,
   sleep,
   updateRewards,
   mapUsers,
+  mintNosTo,
 };

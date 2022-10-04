@@ -1,7 +1,7 @@
 import { BN } from '@project-serum/anchor';
 import { expect } from 'chai';
 import * as _ from 'lodash';
-import { getTokenBalance, mapUsers, mintToAccount, setupSolanaUser } from '../../utils';
+import { getTokenBalance, mapUsers, mintNosTo, setupSolanaUser } from '../../utils';
 import users from '../../data/users.json';
 import { Context } from 'mocha';
 
@@ -188,7 +188,7 @@ export default function suite() {
       user.xnos = new BN(user.xnos);
 
       // make sure the users have enough funds
-      await mintToAccount(mochaContext.provider, mochaContext.mint, user.user.ata, user.amount.toNumber());
+      await mintNosTo(mochaContext, user.user.ata, user.amount.toNumber());
 
       const accounts = {
         ...mochaContext.accounts,
@@ -218,8 +218,8 @@ export default function suite() {
   });
 
   it('adds fees', async function () {
-    // we are going to reserve a 100 million tokens to distribute
-    await mintToAccount(this.provider, this.mint, this.accounts.user, 100_000_000_000_000);
+    // we are going to reserve 100 million tokens to distribute
+    await mintNosTo(this, this.accounts.user, 100_000_000 * this.constants.decimals);
 
     console.log(' - add 1 NOS - ');
     await addFee(this, 1 * this.constants.decimals);

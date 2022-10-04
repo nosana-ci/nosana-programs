@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
-import { mintFromFile, mintToAccount, getTokenBalance, getUsers, mapUsers } from '../utils';
+import { createNosMint, getTokenBalance, getUsers, mapUsers, mintNosTo } from '../utils';
 
 export default function suite() {
   describe('mints and users', function () {
     it('can create mint', async function () {
-      expect((await mintFromFile(this.connection, this.payer, this.publicKey)).toString()).to.equal(
+      expect((await createNosMint(this.connection, this.payer, this.publicKey)).toString()).to.equal(
         this.mint.toString()
       );
     });
@@ -17,7 +17,7 @@ export default function suite() {
       ).to.equal(this.accounts.user.toString());
 
       // fund user
-      await mintToAccount(this.provider, this.mint, this.accounts.user, this.constants.mintSupply);
+      await mintNosTo(this, this.accounts.user, this.constants.mintSupply);
       this.balances.user += this.constants.mintSupply;
       expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
     });
