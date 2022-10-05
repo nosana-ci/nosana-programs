@@ -47,6 +47,8 @@ pub enum NosanaError {
     // job errors
     #[msg("This job does not have the right status.")]
     JobInWrongState,
+    #[msg("The job's AccountInfo is not found.")]
+    JobInfoNotFound,
 
     // node errors
     #[msg("This node does not have an active stake.")]

@@ -16,7 +16,8 @@ pub struct MarketAccount {
     pub vault_bump: u8,
     pub node_access_key: Pubkey,
     pub node_stake_minimum: u64,
-    pub node_queue: Vec<Pubkey>,
+    pub queue_type: u8,
+    pub queue: Vec<Pubkey>,
 }
 
 impl MarketAccount {
@@ -40,10 +41,11 @@ impl MarketAccount {
         self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.node_access_key = node_access_key;
-        self.node_queue = Vec::new();
         self.node_stake_minimum = node_stake_minimum;
         self.vault = vault;
         self.vault_bump = vault_bump;
+        self.queue = Vec::new();
+        self.queue_type = QueueType::Unknown as u8;
     }
 
     pub fn update(
@@ -61,29 +63,31 @@ impl MarketAccount {
         self.node_stake_minimum = node_stake_minimum;
     }
 
-    pub fn enter_queue(&mut self, node: Pubkey) {
+    pub fn add_to_queue(&mut self, pubkey: Pubkey) {
         if self.job_type != JobType::Unknown as u8 {
-            self.node_queue.push(node)
+            self.queue.push(pubkey)
         }
     }
 
-    pub fn exit_queue(&mut self, node: &Pubkey) -> Pubkey {
-        let index: usize = self.find_node(node).unwrap();
-        self.node_queue.remove(index)
+    pub fn remove_from_queue(&mut self, pubkey: &Pubkey) -> Pubkey {
+        let index: usize = self.find_in_queue(pubkey).unwrap();
+        self.queue.remove(index)
     }
 
-    pub fn find_node(&mut self, node: &Pubkey) -> Option<usize> {
-        self.node_queue
-            .iter()
-            .position(|pubkey: &Pubkey| pubkey == node)
-    }
-
-    pub fn get_node(&mut self) -> Pubkey {
-        if self.node_queue.is_empty() {
-            id::SYSTEM_PROGRAM
-        } else {
-            self.node_queue.pop().unwrap()
+    pub fn pop_from_queue(&mut self) -> Pubkey {
+        // we check if there is one left
+        if self.queue.len() == 1 {
+            self.set_queue_type(QueueType::Unknown);
         }
+        self.queue.pop().unwrap()
+    }
+
+    pub fn find_in_queue(&mut self, pubkey: &Pubkey) -> Option<usize> {
+        self.queue.iter().position(|item: &Pubkey| item == pubkey)
+    }
+
+    pub fn set_queue_type(&mut self, queue_type: QueueType) {
+        self.queue_type = queue_type as u8;
     }
 }
 
@@ -131,6 +135,27 @@ impl JobAccount {
         self.ipfs_result = ipfs_result;
         self.status = JobStatus::Done as u8;
         self.time_end = time_end;
+    }
+}
+
+/// ### Queue Type
+///
+/// The `QueueType` describes the type of queue
+///
+#[repr(u8)]
+pub enum QueueType {
+    Job = 0,
+    Node = 1,
+    Unknown = 255,
+}
+
+impl From<u8> for QueueType {
+    fn from(queue_type: u8) -> Self {
+        match queue_type {
+            0 => QueueType::Job,
+            1 => QueueType::Node,
+            _ => QueueType::Unknown,
+        }
     }
 }
 

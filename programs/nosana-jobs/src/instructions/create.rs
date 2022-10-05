@@ -25,7 +25,8 @@ pub struct Create<'info> {
 }
 
 pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
-    // queue the job
+    // create the job
+    let job_key: Pubkey = ctx.accounts.job.key();
     let job: &mut JobAccount = &mut ctx.accounts.job;
     job.create(
         ctx.accounts.authority.key(),
@@ -34,10 +35,17 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
         ctx.accounts.market.job_price,
     );
 
-    // claim the job for a node that might be queued
-    let node: Pubkey = ctx.accounts.market.get_node();
-    if node != id::SYSTEM_PROGRAM {
-        job.claim(node, Clock::get()?.unix_timestamp);
+    // adjust the market
+    let market: &mut MarketAccount = &mut ctx.accounts.market;
+    match QueueType::from(market.queue_type) {
+        QueueType::Node => job.claim(
+            ctx.accounts.market.pop_from_queue(),
+            Clock::get()?.unix_timestamp,
+        ),
+        QueueType::Job | QueueType::Unknown => {
+            market.set_queue_type(QueueType::Job);
+            market.add_to_queue(job_key);
+        }
     }
 
     // deposit tokens for the job

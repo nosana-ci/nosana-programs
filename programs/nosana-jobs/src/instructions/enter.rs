@@ -37,17 +37,39 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
             NosanaError::NodeKeyInvalidCollection
         )
     }
-    require!(
-        ctx.accounts
-            .market
-            .find_node(ctx.accounts.authority.key)
-            .is_none(),
-        NosanaError::NodeAlreadyQueued
-    );
 
-    // enter the queue
-    ctx.accounts
-        .market
-        .enter_queue(ctx.accounts.authority.key());
+    // adjust the market
+    let market: &mut MarketAccount = &mut ctx.accounts.market;
+    match QueueType::from(market.queue_type) {
+        QueueType::Node | QueueType::Unknown => {
+            market.set_queue_type(QueueType::Node);
+            require!(
+                market.find_in_queue(ctx.accounts.authority.key).is_none(),
+                NosanaError::NodeAlreadyQueued
+            );
+            market.add_to_queue(ctx.accounts.authority.key());
+        }
+        QueueType::Job => {
+            let index: Option<usize> =
+                ctx.remaining_accounts
+                    .iter()
+                    .position(|account_info: &AccountInfo| {
+                        account_info.key() == market.pop_from_queue()
+                    });
+            require!(index.is_some(), NosanaError::JobInfoNotFound);
+
+            let account: &AccountInfo = ctx.remaining_accounts.get(index.unwrap()).unwrap();
+            let _buf = account.data.as_ptr();
+
+            /*
+            let job = AnchorDeserialize::deserialize(_buf);
+            job.claim(
+                ctx.accounts.authority.key(),
+                Clock::get()?.unix_timestamp,
+            );
+            */
+        }
+    }
+
     Ok(())
 }
