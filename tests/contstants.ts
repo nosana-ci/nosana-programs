@@ -34,6 +34,12 @@ const constants = {
     default: 0,
   },
 
+  queueType: {
+    job: 0,
+    node: 1,
+    unknown: 255,
+  },
+
   // type for claim
   claimType: {
     transfer: 0,
@@ -69,7 +75,7 @@ const constants = {
 
     // job errors
     JobInWrongState: 'This job does not have the right status.',
-
+    JobInfoNotFound: "The job's AccountInfo is not found.",
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
     NodeQueueDoesNotMatch: 'This node queue does not match.',

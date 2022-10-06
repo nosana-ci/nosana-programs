@@ -1,7 +1,10 @@
+// noinspection JSVoidFunctionReturnValueUsed
+
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import { buf2hex, getTokenBalance, now, pda } from '../utils';
 import { BN } from '@project-serum/anchor';
+import _ = require('lodash');
 
 export default function suite() {
   afterEach(async function () {
@@ -36,7 +39,8 @@ export default function suite() {
       expect(market.jobType).to.equal(this.constants.jobType.default);
       expect(market.jobTimeout.toNumber()).to.equal(this.constants.jobTimeout);
       expect(market.jobPrice.toNumber()).to.equal(this.constants.jobPrice);
-      expect(market.nodeQueue.length).to.equal(0);
+      expect(market.queueType).to.equal(this.constants.queueType.unknown);
+      expect(market.queue.length).to.equal(0);
     });
   });
 
@@ -62,27 +66,61 @@ export default function suite() {
       expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
+
+    it('can fetch a job queue job', async function () {
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.queueType).to.equal(this.constants.queueType.job, 'Wrong queue type');
+      expect(market.queue.length).to.equal(1);
+      expect(market.queue[0].toString()).to.equal(this.accounts.job.toString());
+    });
   });
 
   describe('enter()', async function () {
-    it('can enter the queue', async function () {
-      await this.jobsProgram.methods.enter().accounts(this.accounts).rpc();
-    });
-
-    it('can see the node in the queue', async function () {
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      expect(market.nodeQueue.length).to.equal(1);
-      expect(market.nodeQueue[0].toString()).to.equal(this.accounts.authority.toString());
-    });
-
-    it('can not enter the queue twice', async function () {
+    it('can not enter the node queue, when there are jobs to run', async function () {
       let msg = '';
       await this.jobsProgram.methods
         .enter()
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.NodeAlreadyQueued);
+      expect(msg).to.equal(this.constants.errors.JobInfoNotFound);
+    });
+
+    it('can enter and claim a job from the queue', async function () {
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      await this.jobsProgram.methods
+        .enter()
+        .accounts(this.accounts)
+        .remainingAccounts(
+          _.map(market.queue, (pubkey) => ({
+            isSigner: false,
+            isWritable: true,
+            pubkey,
+          }))
+        )
+        .rpc();
+    });
+
+    it('can not see the job in the queue', async function () {
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.queue.length).to.equal(0);
+      expect(market.queueType).to.equal(this.constants.queueType.unknown, 'Wrong queue type');
+    });
+
+    it('can see the job running', async function () {
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(job.status).to.equal(this.constants.jobStatus.running);
+    });
+
+    it('can enter the queue as a node now', async function () {
+      await this.jobsProgram.methods.enter().accounts(this.accounts).rpc();
+    });
+
+    it('can fetch a node queue', async function () {
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.queueType).to.equal(this.constants.queueType.node, 'Wrong queue type');
+      expect(market.queue.length).to.equal(1);
+      expect(market.queue[0].toString()).to.equal(this.accounts.authority.toString());
     });
   });
 
@@ -135,7 +173,7 @@ export default function suite() {
 
     it('can see the node has left the queue', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      expect(market.nodeQueue.length).to.equal(0);
+      expect(market.queue.length).to.equal(0);
     });
 
     it('can not finish job that is already finished', async function () {

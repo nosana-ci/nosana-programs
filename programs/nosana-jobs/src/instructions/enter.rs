@@ -5,6 +5,7 @@ use mpl_token_metadata::{
     state::{Collection, Metadata, TokenMetadataAccount},
 };
 use nosana_staking::StakeAccount;
+use std::borrow::BorrowMut;
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
@@ -50,26 +51,25 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
             market.add_to_queue(ctx.accounts.authority.key());
         }
         QueueType::Job => {
-            let index: Option<usize> =
-                ctx.remaining_accounts
-                    .iter()
-                    .position(|account_info: &AccountInfo| {
-                        account_info.key() == market.pop_from_queue()
-                    });
+            let job_key: Pubkey = market.pop_from_queue();
+            let index: Option<usize> = ctx
+                .remaining_accounts
+                .iter()
+                .position(|account_info: &AccountInfo| account_info.key() == job_key);
             require!(index.is_some(), NosanaError::JobInfoNotFound);
 
-            let account: &AccountInfo = ctx.remaining_accounts.get(index.unwrap()).unwrap();
-            let _buf = account.data.as_ptr();
+            // get the correct job account from the remaining accounts
+            let account_info: &AccountInfo = ctx.remaining_accounts.get(index.unwrap()).unwrap();
 
-            /*
-            let job = AnchorDeserialize::deserialize(_buf);
-            job.claim(
-                ctx.accounts.authority.key(),
-                Clock::get()?.unix_timestamp,
-            );
-            */
+            // deserialize the job account
+            let mut job: Account<JobAccount> = Account::try_from(account_info).unwrap();
+
+            // try to get  mutable buffer for solana... TODO
+            let job_mut: &mut JobAccount = job.borrow_mut();
+
+            // write new data : TODO figure out how to persist the data
+            job_mut.claim(ctx.accounts.authority.key(), Clock::get()?.unix_timestamp)
         }
     }
-
     Ok(())
 }

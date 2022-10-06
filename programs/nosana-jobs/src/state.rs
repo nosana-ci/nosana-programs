@@ -127,6 +127,7 @@ impl JobAccount {
 
     pub fn cancel(&mut self) {
         self.node = id::SYSTEM_PROGRAM;
+        // self.node = Pubkey::default();
         self.status = JobStatus::Queued as u8;
         self.time_start = 0;
     }
