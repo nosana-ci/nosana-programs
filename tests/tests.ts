@@ -12,7 +12,9 @@ import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 // local test suites
 import initTests from './suites/1-initialization-tests';
 import stakingTests from './suites/2-nosana-staking-tests';
+import stakingInitTests from './suites/2-nosana-staking-init-tests';
 import rewardTests from './suites/3-nosana-rewards-tests';
+import rewardInitTests from './suites/3-nosana-rewards-init-tests';
 import poolTests from './suites/4-nosana-pools-tests';
 import jobTests from './suites/5-nosana-jobs-tests';
 
@@ -109,8 +111,8 @@ describe('nosana programs', async function () {
       break;
     case 'jobs':
       describe('initialization', initTests);
-      describe('staking', stakingTests);
-      describe('rewards', rewardTests);
+      describe('staking', stakingInitTests);
+      describe('rewards', rewardInitTests);
       describe('jobs', jobTests);
       break;
     case 'pools':

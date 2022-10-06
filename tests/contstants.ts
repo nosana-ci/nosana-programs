@@ -20,7 +20,7 @@ const constants = {
   slashAmount: 1e3 * decimals,
   minimumNodeStake: 1e4 * decimals,
   feeAmount: 1e5 * decimals,
-  jobTimeout: 60 * 60,
+  jobTimeout: 5,
   initialRate,
 
   // status options for jobs
@@ -76,6 +76,10 @@ const constants = {
     // job errors
     JobInWrongState: 'This job does not have the right status.',
     JobInfoNotFound: "The job's AccountInfo is not found.",
+    JobNotExpired: 'The job has not yet expired.',
+    JobSeedAddressViolation: 'This JobAccount seed is not allowed.',
+    JobAccountAlreadyInitialized: 'This JobAccount is already initialized.',
+
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
     NodeQueueDoesNotMatch: 'This node queue does not match.',

@@ -9,7 +9,7 @@
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`3`](#accounts)                                                                                                                    |
 | Instructions    | [`10`](#instructions)                                                                                                               |
-| Types           | [`2`](#types)                                                                                                                       |
+| Types           | [`4`](#types)                                                                                                                       |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
@@ -39,6 +39,7 @@ associated [VaultAccount](#vault-account) for token deposits.
 | `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token Mint address for this instruction.                                                      |
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [MarketAccount](#market-account) address.                                                     |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
 | `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
 | `accessKey`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Node Access Key address.                                                                      |
 | `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana rent address. Responsible for lamports.                                       |
@@ -70,6 +71,7 @@ let tx = await program.methods
     mint,              // 𐄂 writable, 𐄂 signer
     market,            // ✓ writable, ✓ signer
     vault,             // ✓ writable, 𐄂 signer
+    job,               // ✓ writable, 𐄂 signer
     authority,         // ✓ writable, ✓ signer
     accessKey,         // 𐄂 writable, 𐄂 signer
     rent,              // 𐄂 writable, 𐄂 signer
@@ -163,7 +165,8 @@ When there is a node ready in the queue it will immediately start running.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [JobAccount](#job-account) address.                                                           |
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `seed`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | n/a                                                                                               |
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
@@ -191,7 +194,8 @@ let tx = await program.methods
     ipfsJob,           // type: [u8; 32]
   )
   .accounts({
-    job,               // ✓ writable, ✓ signer
+    job,               // ✓ writable, 𐄂 signer
+    seed,              // 𐄂 writable, 𐄂 signer
     market,            // ✓ writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
     user,              // ✓ writable, 𐄂 signer
@@ -203,7 +207,7 @@ let tx = await program.methods
     tokenProgram,      // 𐄂 writable, 𐄂 signer
     systemProgram,     // 𐄂 writable, 𐄂 signer
   })
-  .signers([jobKey, feePayerKey, authorityKey])
+  .signers([feePayerKey, authorityKey])
   .rpc();
 ```
 
@@ -321,12 +325,15 @@ A few requirements are enforced:
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `seed`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | n/a                                                                                               |
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `stake`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [StakeAccount](/programs/staking#stake-account) address.                                      |
 | `nft`                  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Account address that holds the NFT.                                                     |
 | `metadata`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metaplex Metadata address, that belongs to the NFT.                                           |
+| `feePayer`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing Fee Payer address.                                                                    |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
 
 #### Example
 
@@ -336,14 +343,17 @@ To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/inde
 let tx = await program.methods
   .enter()
   .accounts({
-    authority,         // 𐄂 writable, ✓ signer
+    job,               // ✓ writable, 𐄂 signer
+    seed,              // 𐄂 writable, 𐄂 signer
     market,            // ✓ writable, 𐄂 signer
-    vault,             // ✓ writable, 𐄂 signer
     stake,             // 𐄂 writable, 𐄂 signer
     nft,               // 𐄂 writable, 𐄂 signer
     metadata,          // 𐄂 writable, 𐄂 signer
+    feePayer,          // ✓ writable, ✓ signer
+    authority,         // 𐄂 writable, ✓ signer
+    systemProgram,     // 𐄂 writable, 𐄂 signer
   })
-  .signers([authorityKey])
+  .signers([feePayerKey, authorityKey])
   .rpc();
 ```
 
@@ -428,14 +438,17 @@ The `MarketAccount` struct holds all the information about jobs and the nodes qu
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
-| `jobPrice`                  | `u64`                       | `8`     | `40`    | The price for jobs in this market.                                                                |
-| `jobTimeout`                | `i64`                       | `16`    | `48`    | The timeout time in seconds for jobs.                                                             |
-| `jobType`                   | `u8`                        | `1`     | `64`    | The [JobType](#job-type) number.                                                                  |
-| `vault`                     | `publicKey`                 | `32`    | `65`    | The [VaultAccount](#vault-account) address.                                                       |
-| `vaultBump`                 | `u8`                        | `1`     | `97`    | The bump for the [VaultAccount](#vault-account).                                                  |
-| `nodeAccessKey`             | `publicKey`                 | `32`    | `98`    | n/a                                                                                               |
-| `nodeStakeMinimum`          | `u64`                       | `8`     | `130`   | The number of tokens a node needs to stake to qualify.                                            |
-| `nodeQueue`                 | `Vec<publicKey>`            | `3200`  | `138`   | n/a                                                                                               |
+| `hasJob`                    | `bool`                      | `1`     | `40`    | n/a                                                                                               |
+| `hasNode`                   | `bool`                      | `1`     | `41`    | n/a                                                                                               |
+| `jobPrice`                  | `u64`                       | `8`     | `42`    | The price for jobs in this market.                                                                |
+| `jobTimeout`                | `i64`                       | `16`    | `50`    | The timeout time in seconds for jobs.                                                             |
+| `jobType`                   | `u8`                        | `1`     | `66`    | The [JobType](#job-type) number.                                                                  |
+| `vault`                     | `publicKey`                 | `32`    | `67`    | The [VaultAccount](#vault-account) address.                                                       |
+| `vaultBump`                 | `u8`                        | `1`     | `99`    | The bump for the [VaultAccount](#vault-account).                                                  |
+| `nodeAccessKey`             | `publicKey`                 | `32`    | `100`   | n/a                                                                                               |
+| `nodeStakeMinimum`          | `u64`                       | `8`     | `132`   | The number of tokens a node needs to stake to qualify.                                            |
+| `queueType`                 | `u8`                        | `1`     | `140`   | n/a                                                                                               |
+| `queue`                     | `Vec<[object Object]>`      | `undefined`| `141`   | n/a                                                                                               |
 
 ### Job Account
 
@@ -446,12 +459,13 @@ The `JobAccount` struct holds all the information about any individual jobs.
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
 | `ipfsJob`                   | `[u8; 32]`                  | `32`    | `40`    | The byte array representing the IPFS hash to the job.                                             |
 | `ipfsResult`                | `[u8; 32]`                  | `32`    | `72`    | The byte array representing the IPFS hash to the results.                                         |
-| `market`                    | `publicKey`                 | `32`    | `104`   | The [MarketAccount](#market-account) address.                                                     |
-| `node`                      | `publicKey`                 | `32`    | `136`   | n/a                                                                                               |
-| `price`                     | `u64`                       | `8`     | `168`   | n/a                                                                                               |
-| `status`                    | `u8`                        | `1`     | `176`   | n/a                                                                                               |
-| `timeEnd`                   | `i64`                       | `16`    | `177`   | n/a                                                                                               |
-| `timeStart`                 | `i64`                       | `16`    | `193`   | n/a                                                                                               |
+| `isCreated`                 | `bool`                      | `1`     | `104`   | n/a                                                                                               |
+| `market`                    | `publicKey`                 | `32`    | `105`   | The [MarketAccount](#market-account) address.                                                     |
+| `node`                      | `publicKey`                 | `32`    | `137`   | n/a                                                                                               |
+| `price`                     | `u64`                       | `8`     | `169`   | n/a                                                                                               |
+| `status`                    | `u8`                        | `1`     | `177`   | n/a                                                                                               |
+| `timeEnd`                   | `i64`                       | `16`    | `178`   | n/a                                                                                               |
+| `timeStart`                 | `i64`                       | `16`    | `194`   | n/a                                                                                               |
 
 ### Vault Account
 
@@ -459,13 +473,34 @@ The `VaultAccount` is a regular Solana Token Account.
 
 ## Types
 
-A number of 2 type variants are defined in the Nosana Jobs Program's state.
+A number of 4 type variants are defined in the Nosana Jobs Program's state.
+
+### Order
+
+
+A number of 3 variants are defined in this `struct`:
+| Name                                  | Type                                  |
+|---------------------------------------|---------------------------------------|
+| `authority`                           | `publicKey`                           |
+| `ipfsJob`                             | `[object Object]`                     |
+| `node`                                | `publicKey`                           |
+
+### Queue Type
+
+The `QueueType` describes the type of queue
+
+A number of 3 variants are defined in this `enum`:
+| Name                                  | Number                                |
+|---------------------------------------|---------------------------------------|
+| `Job`                                 | `0`                                   |
+| `Node`                                | `1`                                   |
+| `Unknown`                             | `255`                                 |
 
 ### Job Status
 
 The `JobStatus` describes the status of any job
 
-A number of 3 variants are defined:
+A number of 3 variants are defined in this `enum`:
 | Name                                  | Number                                |
 |---------------------------------------|---------------------------------------|
 | `Queued`                              | `0`                                   |
@@ -476,7 +511,7 @@ A number of 3 variants are defined:
 
 The `JobType` describes the type of any job.
 
-A number of 6 variants are defined:
+A number of 6 variants are defined in this `enum`:
 | Name                                  | Number                                |
 |---------------------------------------|---------------------------------------|
 | `Default`                             | `0`                                   |

@@ -19,6 +19,6 @@ pub struct Unstake<'info> {
 
 pub fn handler(ctx: Context<Unstake>) -> Result<()> {
     // get stake account, and unstake stake
-    (&mut ctx.accounts.stake).unstake(Clock::get()?.unix_timestamp);
+    ctx.accounts.stake.unstake(Clock::get()?.unix_timestamp);
     Ok(())
 }

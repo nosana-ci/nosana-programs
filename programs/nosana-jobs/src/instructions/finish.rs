@@ -21,7 +21,9 @@ pub struct Finish<'info> {
 
 pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
     // finish the job
-    (&mut ctx.accounts.job).finish(ipfs_result, Clock::get()?.unix_timestamp);
+    ctx.accounts
+        .job
+        .finish(ipfs_result, Clock::get()?.unix_timestamp);
 
     // reimburse the node
     transfer(

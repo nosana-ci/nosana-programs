@@ -16,7 +16,7 @@ pub fn handler(
     job_type: u8,
     node_stake_minimum: u64,
 ) -> Result<()> {
-    (&mut ctx.accounts.market).update(
+    ctx.accounts.market.update(
         job_price,
         job_timeout,
         job_type,

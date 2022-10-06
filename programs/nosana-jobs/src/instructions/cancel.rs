@@ -12,6 +12,6 @@ pub struct Cancel<'info> {
 }
 
 pub fn handler(ctx: Context<Cancel>) -> Result<()> {
-    (&mut ctx.accounts.job).cancel();
+    ctx.accounts.job.cancel();
     Ok(())
 }

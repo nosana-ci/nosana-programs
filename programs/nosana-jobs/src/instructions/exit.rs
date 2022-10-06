@@ -11,6 +11,6 @@ pub fn handler(ctx: Context<Exit>) -> Result<()> {
     // exit the queue
     ctx.accounts
         .market
-        .remove_from_queue(ctx.accounts.authority.key);
+        .remove_node_from_queue(ctx.accounts.authority.key());
     Ok(())
 }

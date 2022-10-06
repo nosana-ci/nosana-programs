@@ -15,7 +15,7 @@ pub struct AddFee<'info> {
 
 pub fn handler(ctx: Context<AddFee>, amount: u64) -> Result<()> {
     // update stats
-    (&mut ctx.accounts.reflection).add_fee(u128::from(amount));
+    ctx.accounts.reflection.add_fee(u128::from(amount));
 
     // send fee
     transfer(

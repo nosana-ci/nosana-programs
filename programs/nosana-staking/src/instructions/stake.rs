@@ -38,7 +38,7 @@ pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
     require!(amount >= STAKE_MINIMUM, NosanaError::StakeAmountNotEnough);
 
     // get stake account and init stake
-    (&mut ctx.accounts.stake).init(
+    ctx.accounts.stake.init(
         amount,
         *ctx.accounts.authority.key,
         u64::try_from(duration).unwrap(),

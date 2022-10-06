@@ -5,15 +5,33 @@ use mpl_token_metadata::{
     state::{Collection, Metadata, TokenMetadataAccount},
 };
 use nosana_staking::StakeAccount;
-use std::borrow::BorrowMut;
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
-    pub authority: Signer<'info>,
-    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
+    /// we're verifying that:
+    ///  - if there's a job queued, a new account will be initialized
+    ///  - this new account should not already have data
+    ///  - if there is no job queued, we're using the dummy account that's already initialized
+    #[account(
+        init_if_needed,
+        payer = fee_payer,
+        space = JobAccount::SIZE,
+        constraint = market.has_job != job.is_created @ NosanaError::JobAccountAlreadyInitialized,
+        seeds = [ if market.has_job { seed.key.as_ref() } else { id::SYSTEM_PROGRAM.as_ref() } ],
+        bump,
+    )]
+    pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
+    /// CHECK: this is an arbitrary account, used as seed
+    /// we're verifying that if there's a job queue, we're not going to write to a dummy account
+    /// because in that case we're going to `init` a new job account for the job in line
+    #[account(
+        constraint = market.has_job && seed.key() != id::SYSTEM_PROGRAM
+                 || !market.has_job && seed.key() == id::SYSTEM_PROGRAM
+            @ NosanaError::JobSeedAddressViolation
+    )]
+    pub seed: AccountInfo<'info>,
+    #[account(mut @ NosanaError::MarketNotMutable)]
     pub market: Account<'info, MarketAccount>,
-    #[account(mut)]
-    pub vault: Account<'info, TokenAccount>,
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
@@ -26,6 +44,10 @@ pub struct Enter<'info> {
     /// CHECK: we're going to deserialize this account within the instruction
     #[account(address = find_metadata_account(&nft.mint).0 @ NosanaError::NodeNftWrongMetadata)]
     pub metadata: AccountInfo<'info>,
+    #[account(mut)]
+    pub fee_payer: Signer<'info>,
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<Enter>) -> Result<()> {
@@ -39,36 +61,23 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
         )
     }
 
-    // adjust the market
+    // load writable market
+    let market_key: Pubkey = ctx.accounts.market.key();
     let market: &mut MarketAccount = &mut ctx.accounts.market;
     match QueueType::from(market.queue_type) {
         QueueType::Node | QueueType::Unknown => {
-            market.set_queue_type(QueueType::Node);
-            require!(
-                market.find_in_queue(ctx.accounts.authority.key).is_none(),
-                NosanaError::NodeAlreadyQueued
-            );
-            market.add_to_queue(ctx.accounts.authority.key());
+            market.add_to_queue(Order::new_node(ctx.accounts.authority.key()))
         }
         QueueType::Job => {
-            let job_key: Pubkey = market.pop_from_queue();
-            let index: Option<usize> = ctx
-                .remaining_accounts
-                .iter()
-                .position(|account_info: &AccountInfo| account_info.key() == job_key);
-            require!(index.is_some(), NosanaError::JobInfoNotFound);
-
-            // get the correct job account from the remaining accounts
-            let account_info: &AccountInfo = ctx.remaining_accounts.get(index.unwrap()).unwrap();
-
-            // deserialize the job account
-            let mut job: Account<JobAccount> = Account::try_from(account_info).unwrap();
-
-            // try to get  mutable buffer for solana... TODO
-            let job_mut: &mut JobAccount = job.borrow_mut();
-
-            // write new data : TODO figure out how to persist the data
-            job_mut.claim(ctx.accounts.authority.key(), Clock::get()?.unix_timestamp)
+            let order: Order = market.pop_from_queue();
+            ctx.accounts.job.create(
+                order.authority,
+                order.ipfs_job,
+                market_key,
+                ctx.accounts.authority.key(),
+                market.job_price,
+                Clock::get()?.unix_timestamp,
+            )
         }
     }
     Ok(())

@@ -217,7 +217,7 @@ A number of 1 type variants are defined in the Nosana Pools Program's state.
 
 The `ClaimType` of any pool describes the way withdraw (claim) works.
 
-A number of 3 variants are defined:
+A number of 3 variants are defined in this `enum`:
 | Name                                  | Number                                |
 |---------------------------------------|---------------------------------------|
 | `Transfer`                            | `0`                                   |

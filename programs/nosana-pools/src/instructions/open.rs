@@ -32,7 +32,7 @@ pub fn handler(
     closeable: bool,
 ) -> Result<()> {
     // init pool
-    (&mut ctx.accounts.pool).init(
+    ctx.accounts.pool.init(
         ctx.accounts.authority.key(),
         ctx.accounts.beneficiary.key(),
         ClaimType::from(claim_type) as u8,

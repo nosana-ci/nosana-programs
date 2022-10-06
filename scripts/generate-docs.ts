@@ -417,14 +417,25 @@ function main() {
         }
 
         // types table
-        data.push(`A number of ${t.type.variants.length} variants are defined:`);
         const tt = new MarkdownTable();
-        data.push(tt.row(['Name', 'Number']), tt.sep());
-        for (const field of t.type.variants) {
-          data.push(
-            tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
-          );
+        if (t.type.kind === 'enum') {
+          data.push(`A number of ${t.type.variants.length} variants are defined in this \`enum\`:`);
+          data.push(tt.row(['Name', 'Number']), tt.sep());
+          for (const field of t.type.variants) {
+            data.push(
+              tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
+            );
+          }
+        } else if (t.type.kind === 'struct') {
+          data.push(`A number of ${t.type.fields.length} variants are defined in this \`struct\`:`);
+          data.push(tt.row(['Name', 'Type']), tt.sep());
+          for (const field of t.type.fields) {
+            data.push(tt.row([`\`${field.name}\``, `\`${field.type}\``]));
+          }
+        } else {
+          throw 'woops';
         }
+
         data.push('');
       }
 

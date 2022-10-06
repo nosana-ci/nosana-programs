@@ -16,6 +16,14 @@ pub struct Init<'info> {
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
+    #[account(
+        init_if_needed,
+        payer = authority,
+        space = JobAccount::SIZE,
+        seeds = [ id::SYSTEM_PROGRAM.as_ref() ],
+        bump,
+    )]
+    pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
     #[account(mut)]
     pub authority: Signer<'info>,
     /// CHECK: Only the account address is needed for an access key
@@ -32,7 +40,7 @@ pub fn handler(
     job_type: u8,
     node_stake_minimum: u64,
 ) -> Result<()> {
-    (&mut ctx.accounts.market).init(
+    ctx.accounts.market.init(
         ctx.accounts.authority.key(),
         job_price,
         job_timeout,
@@ -42,5 +50,6 @@ pub fn handler(
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
+    ctx.accounts.job.is_created = true;
     Ok(())
 }
