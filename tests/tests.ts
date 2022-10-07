@@ -79,7 +79,7 @@ describe('nosana programs', async function () {
     this.accounts.rewardsProgram = this.rewardsProgram.programId;
     this.accounts.rent = anchor.web3.SYSVAR_RENT_PUBKEY;
     this.accounts.authority = this.publicKey;
-    this.accounts.feePayer = this.publicKey;
+    this.accounts.payer = this.publicKey;
     this.accounts.mint = this.mint;
     this.accounts.user = await getAssociatedTokenAddress(this.mint, this.publicKey);
     this.accounts.reflection = await pda([utf8.encode('reflection')], this.rewardsProgram.programId);

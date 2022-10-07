@@ -8,10 +8,10 @@ pub struct List<'info> {
     ///  - if there's a node queued, a new account will be initialized
     ///  - this new account should not already have data in it
     ///  - if there is no node queued, we're using the dummy account that's already initialized
-    ///  - the seed key is validated
+    ///  - the seed key is used as init_if_needed validator
     #[account(
         init_if_needed,
-        payer = fee_payer,
+        payer = payer,
         space = JobAccount::SIZE,
         constraint = MarketAccount::has_node(&market) != JobAccount::is_created(&job)
             @ NosanaError::JobAccountAlreadyInitialized,
@@ -30,7 +30,7 @@ pub struct List<'info> {
     #[account(mut)]
     pub user: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub fee_payer: Signer<'info>,
+    pub payer: Signer<'info>,
     pub authority: Signer<'info>,
     #[account(mut)]
     pub rewards_reflection: Box<Account<'info, ReflectionAccount>>,

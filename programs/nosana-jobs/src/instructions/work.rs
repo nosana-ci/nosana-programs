@@ -12,10 +12,10 @@ pub struct Work<'info> {
     ///  - if there's a job queued, a new account will be initialized
     ///  - this new account should not already have data in it
     ///  - if there is no job queued, we're using the dummy account that's already initialized
-    ///  - the seed key is validated
+    ///  - the seed key is used as init_if_needed validator
     #[account(
         init_if_needed,
-        payer = fee_payer,
+        payer = payer,
         space = JobAccount::SIZE,
         constraint = MarketAccount::has_job(&market) != JobAccount::is_created(&job)
             @ NosanaError::JobAccountAlreadyInitialized,
@@ -42,7 +42,7 @@ pub struct Work<'info> {
     #[account(address = find_metadata_account(&nft.mint).0 @ NosanaError::NodeNftWrongMetadata)]
     pub metadata: AccountInfo<'info>,
     #[account(mut)]
-    pub fee_payer: Signer<'info>,
+    pub payer: Signer<'info>,
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
 }

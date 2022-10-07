@@ -34,7 +34,7 @@ type NosanaAccounts = {
 
   // main user
   authority: PublicKey;
-  feePayer: PublicKey;
+  payer: PublicKey;
 
   // token
   mint: PublicKey;
