@@ -13,7 +13,7 @@ pub struct List<'info> {
         init_if_needed,
         payer = payer,
         space = JobAccount::SIZE,
-        constraint = MarketAccount::has_node(&market) != JobAccount::is_created(&job)
+        constraint = JobAccount::is_created(&job) != MarketAccount::has_node(&market)
             @ NosanaError::JobAccountAlreadyInitialized,
         constraint = JobAccount::is_seed_allowed(MarketAccount::has_node(&market), seed.key())
             @ NosanaError::JobSeedAddressViolation,
