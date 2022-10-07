@@ -5,7 +5,7 @@ pub struct Clean<'info> {
     #[account(
         mut,
         close = payer,
-        has_one = payer @ NosanaError::Unauthorized,
+        has_one = payer @ NosanaError::InvalidPayer,
         constraint = job.status == JobStatus::Done as u8 @ NosanaError::JobInWrongState,
         constraint = market.job_expiration < Clock::get()?.unix_timestamp - job.time_end
             @ NosanaError::JobNotExpired,

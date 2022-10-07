@@ -5,7 +5,8 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 pub struct Recover<'info> {
     #[account(
         mut,
-        close = authority,
+        close = payer,
+        has_one = payer @ NosanaError::InvalidPayer,
         has_one = market @ NosanaError::InvalidMarket,
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
         constraint = job.status == JobStatus::Stopped as u8 @ NosanaError::JobInWrongState,
@@ -17,6 +18,8 @@ pub struct Recover<'info> {
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
+    /// CHECK: this account is verified as the original payer for the job
+    pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }

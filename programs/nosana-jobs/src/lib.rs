@@ -88,7 +88,7 @@ pub mod nosana_jobs {
     /// ### Recover
     ///
     /// The `recover()` instruction recovers funds from a jobs that has been [Quit](#quit)'ed.
-    /// When there is a node available, a [JobAccount](#job-account) will automatically be created.
+    /// The [JobAccount](#job-account) will automatically be created.
     ///
     pub fn recover(ctx: Context<Recover>) -> Result<()> {
         recover::handler(ctx)

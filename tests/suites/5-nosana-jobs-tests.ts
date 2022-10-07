@@ -360,8 +360,8 @@ export default function suite() {
 
   describe('claim()', async function () {
     it('can not claim a stopped job with wrong metadata', async function () {
-      let msg = ''
-      const user = this.users.node1
+      let msg = '';
+      const user = this.users.node1;
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -377,8 +377,8 @@ export default function suite() {
     });
 
     it('can not claim a stopped job with another stake', async function () {
-      let msg = ''
-      const user = this.users.node1
+      let msg = '';
+      const user = this.users.node1;
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -394,8 +394,8 @@ export default function suite() {
     });
 
     it('can not claim a stopped job with wrong nft', async function () {
-      let msg = ''
-      const user = this.users.node1
+      let msg = '';
+      const user = this.users.node1;
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -411,7 +411,7 @@ export default function suite() {
     });
 
     it('can claim a stopped job with another node', async function () {
-      const user = this.users.node1
+      const user = this.users.node1;
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -449,6 +449,29 @@ export default function suite() {
           authority: this.users.node1.publicKey,
         })
         .signers([this.users.node1.user])
+        .rpc();
+    });
+  });
+
+  describe('update()', async function () {
+    it('can update a market', async function () {
+      this.market.jobPrice = 100_000 * this.constants.decimals;
+      this.market.nodeStakeMinimum = 1_000_000 * this.constants.decimals;
+      this.market.jobType = this.constants.jobType.gpu;
+      this.market.nodeAccessKey = this.accounts.systemProgram;
+
+      await this.jobsProgram.methods
+        .update(
+          new BN(this.market.jobExpiration),
+          new BN(this.market.jobPrice),
+          new BN(this.market.jobTimeout),
+          this.market.jobType,
+          new BN(this.market.nodeStakeMinimum)
+        )
+        .accounts({
+          ...this.accounts,
+          accessKey: this.market.nodeAccessKey,
+        })
         .rpc();
     });
   });

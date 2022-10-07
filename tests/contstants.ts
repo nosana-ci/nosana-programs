@@ -34,6 +34,11 @@ const constants = {
 
   jobType: {
     default: 0,
+    small: 1,
+    medium: 2,
+    large: 3,
+    gpu: 4,
+    unknown: 255,
   },
 
   queueType: {
