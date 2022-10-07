@@ -216,7 +216,7 @@ let tx = await program.methods
 ### Recover
 
 The `recover()` instruction recovers funds from a jobs that has been [Quit](#quit)'ed.
-When there is a node available, a [JobAccount](#job-account) will automatically be created.
+The [JobAccount](#job-account) will automatically be created.
 
 #### Account Info
 
@@ -226,6 +226,7 @@ When there is a node available, a [JobAccount](#job-account) will automatically 
 | `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `payer`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The paying identy for the rent.                                                                   |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
@@ -241,6 +242,7 @@ let tx = await program.methods
     market,            // 𐄂 writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
     user,              // ✓ writable, 𐄂 signer
+    payer,             // 𐄂 writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
