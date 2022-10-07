@@ -30,7 +30,7 @@ const program = new Program(idl, programId);
 The `init()` instruction initializes the [ReflectionAccount](#reflection-account)
 and [VaultAccount](#vault-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -66,7 +66,7 @@ let tx = await program.methods
 
 The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -98,7 +98,7 @@ let tx = await program.methods
 
 The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -137,7 +137,7 @@ let tx = await program.methods
 ### Claim
 The `claim()` instruction sends a user's rewards to a given wallet.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -173,7 +173,7 @@ let tx = await program.methods
 
 The `sync()` instruction re-calculates a users' reflection score.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -200,7 +200,7 @@ let tx = await program.methods
 
 The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|

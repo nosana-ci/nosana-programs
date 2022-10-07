@@ -277,7 +277,7 @@ function main() {
       // accounts table
       // data.push(options.enhance? '::: details Accounts' : undefined)
       const at = new MarkdownTable([25, 90, 100]);
-      data.push('#### Accounts', '', at.row(['Name', 'Type', 'Description']), at.sep());
+      data.push('#### Account Info', '', at.row(['Name', 'Type', 'Description']), at.sep());
       const signers = [];
       for (const account of instruction.accounts) {
         data.push(

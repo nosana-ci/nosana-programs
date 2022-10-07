@@ -30,7 +30,7 @@ const program = new Program(idl, programId);
 The `init()` instruction initializes the [SettingsAccount](#settings-account)
 of the Nosana Staking program.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -65,7 +65,7 @@ This will transfer amount of NOS tokens from user to the vault locked
 for duration seconds of time.
 The stake account is a PDA based on the authority.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -113,7 +113,7 @@ let tx = await program.methods
 
 The `unstake()` instruction will initiate the unstake delay.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -142,7 +142,7 @@ let tx = await program.methods
 The `restake()` instruction undoes an unstake.
 This will make a stake active again and reset the unstake time.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -172,7 +172,7 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 - You can only top-up if the stake is not unstaked yet
 - A top-up is always for the duration of the original stake
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -213,7 +213,7 @@ let tx = await program.methods
 The `extend()` instruction extends the duration of a stake.
 The duration can only be increased which will result in a higher `xnos`.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -250,7 +250,7 @@ passed after they whey unstaked.
 Claiming will close the [StakeAccount](#stake-account) and
 [VaultAccount](#vault-account) of the staker.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -288,7 +288,7 @@ tokenAccount account.
 
 Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -333,7 +333,7 @@ The `updateSettings()` instruction sets the Slashing Authority in
 It also sets the token account in [SettingsAccount](#settings-account) tokenAccount to a
 new token account. This can only by called by the current authority.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|

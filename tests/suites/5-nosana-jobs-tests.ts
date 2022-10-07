@@ -1,20 +1,22 @@
-// noinspection JSVoidFunctionReturnValueUsed
-
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import { buf2hex, getTokenBalance, now, pda } from '../utils';
+import { buf2hex, getTimestamp, getTokenBalance, now, pda, sleep } from '../utils';
 import { BN } from '@project-serum/anchor';
 import { Context } from 'mocha';
-import { PublicKey } from '@solana/web3.js';
 
 /**
  * Helper to set the job accounts and seeds
  * @param mochaContext
+ * @param dummy
  * @param seed
  */
-async function setJobAccountAndSeed(mochaContext: Context, seed: PublicKey) {
-  mochaContext.accounts.seed = seed;
-  mochaContext.accounts.job = await pda([seed.toBuffer()], mochaContext.jobsProgram.programId);
+async function setJobAccountAndSeed(
+  mochaContext: Context,
+  dummy = false,
+  seed = anchor.web3.Keypair.generate().publicKey
+) {
+  mochaContext.accounts.seed = dummy ? mochaContext.accounts.systemProgram : seed;
+  mochaContext.accounts.job = await pda([mochaContext.accounts.seed.toBuffer()], mochaContext.jobsProgram.programId);
 }
 
 export default function suite() {
@@ -31,8 +33,8 @@ export default function suite() {
         [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
         this.jobsProgram.programId
       );
-      await setJobAccountAndSeed(this, this.accounts.systemProgram);
       this.vaults.jobs = this.accounts.vault;
+      await setJobAccountAndSeed(this, true);
 
       await this.jobsProgram.methods
         .open(
@@ -97,7 +99,7 @@ export default function suite() {
     });
 
     it('can work on a job with a new seed as node', async function () {
-      await setJobAccountAndSeed(this, anchor.web3.Keypair.generate().publicKey);
+      await setJobAccountAndSeed(this);
       await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
     });
 
@@ -122,7 +124,7 @@ export default function suite() {
 
     it('can work and enter the market queue as a node', async function () {
       this.accounts.oldSeed = this.accounts.seed;
-      await setJobAccountAndSeed(this, this.accounts.systemProgram);
+      await setJobAccountAndSeed(this, true);
       await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
     });
 
@@ -158,7 +160,7 @@ export default function suite() {
 
     it('can not list a job account with a used seed', async function () {
       let msg = '';
-      await setJobAccountAndSeed(this, this.accounts.oldSeed);
+      await setJobAccountAndSeed(this, false, this.accounts.oldSeed);
       await this.jobsProgram.methods
         .list(this.constants.ipfsData)
         .accounts(this.accounts)
@@ -168,7 +170,7 @@ export default function suite() {
     });
 
     it('can create a job account with a new seed', async function () {
-      await setJobAccountAndSeed(this, anchor.web3.Keypair.generate().publicKey);
+      await setJobAccountAndSeed(this);
       await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
@@ -232,15 +234,43 @@ export default function suite() {
 
   describe('clean()', async function () {
     it('can find a finished job in the market', async function () {
-      // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts-10
-      const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '2' } }]);
+      // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
+      const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '3' } }]);
 
       expect(jobs.length).to.equal(1);
 
       const job = jobs[0];
 
       expect(job.account.node.toString()).to.equal(this.accounts.authority.toString());
-      expect(job.account.status).to.equal(this.constants.jobStatus.running);
+      expect(job.account.status).to.equal(this.constants.jobStatus.done);
+
+      this.accounts.job = job.publicKey;
+    });
+
+    it('can not clean job too soon', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .clean()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.JobNotExpired);
+    });
+
+    it('can clean job after wait', async function () {
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      const now = getTimestamp();
+
+      expect(market.jobExpiration.toNumber()).to.equal(this.constants.jobExpiration);
+      expect(job.timeEnd.toNumber()).to.be.closeTo(now, 5);
+
+      // let's add 5 seconds on the target time
+      const expired = job.timeEnd.toNumber() + market.jobExpiration.toNumber() + 5;
+
+      // wait and clean
+      await sleep(Math.abs(now - expired));
+      await this.jobsProgram.methods.clean().accounts(this.accounts).rpc();
     });
   });
 }

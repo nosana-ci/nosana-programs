@@ -73,9 +73,14 @@ function calculateXnos(duration: number, amount: number) {
 
 /**
  *
- * @param ms
+ * @param seconds
  */
-const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+const sleep = (seconds: number) => new Promise((res) => setTimeout(res, seconds * 1e3));
+
+/**
+ *
+ */
+const getTimestamp = () => Math.floor(Date.now() / 1e3);
 
 /**
  *
@@ -187,6 +192,7 @@ async function getUsers(mochaContext: Context, amount: number) {
 export {
   buf2hex,
   calculateXnos,
+  getTimestamp,
   getTokenBalance,
   getUsers,
   createNosMint,

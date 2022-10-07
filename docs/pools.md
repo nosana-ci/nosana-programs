@@ -30,7 +30,7 @@ const program = new Program(idl, programId);
 The `open()` instruction lets you open a Nosana Pool's [PoolAccount](#pool-account)
 and [VaultAccount](#vault-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -84,7 +84,7 @@ The `claimFee()` instruction claims emissions from a Nosana Pool
 with claim type [`1`](#claim-type),
 and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -122,7 +122,7 @@ The `claimTransfer()` instruction claims emissions from a Nosana Pool
 with claim type [`0`](#claim-type),
 and transfer these to a given user.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -155,7 +155,7 @@ let tx = await program.methods
 The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
 and [VaultAccount](#vault-account)..
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|

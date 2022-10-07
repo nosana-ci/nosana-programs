@@ -109,7 +109,7 @@ export default function suite() {
       const pool = await getPool(this);
 
       // sleep at least 5 second
-      await sleep(5000);
+      await sleep(5);
       const elapsed = now() - pool.startTime.toNumber();
       expect(elapsed).to.be.above(1);
 
