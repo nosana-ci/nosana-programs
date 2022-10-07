@@ -27,6 +27,7 @@ async function main() {
   // open pool
   const tx = await program.methods
     .open(
+      new BN(14 * 24 * 60 * 60), // job expiration
       new BN(100 * constants.decimals), // job price = 1 NOS
       new BN(60 * 60), // job timeout = 1 hour
       constants.jobType.default, // job type = default

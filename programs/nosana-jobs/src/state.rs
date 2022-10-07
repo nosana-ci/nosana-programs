@@ -9,6 +9,7 @@ use std::mem::size_of;
 #[account]
 pub struct MarketAccount {
     pub authority: Pubkey,
+    pub job_expiration: i64,
     pub job_price: u64,
     pub job_timeout: i64,
     pub job_type: u8,
@@ -23,11 +24,13 @@ pub struct MarketAccount {
 impl MarketAccount {
     pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Order; 100]>();
     pub const JOB_FEE_FRACTION: u64 = 10;
+    pub const EXPIRATION: u64 = 10;
 
     #[allow(clippy::too_many_arguments)]
     pub fn init(
         &mut self,
         authority: Pubkey,
+        job_expiration: i64,
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
@@ -37,6 +40,7 @@ impl MarketAccount {
         vault_bump: u8,
     ) {
         self.authority = authority;
+        self.job_expiration = job_expiration;
         self.job_price = job_price;
         self.job_timeout = job_timeout;
         self.job_type = job_type;
@@ -50,12 +54,14 @@ impl MarketAccount {
 
     pub fn update(
         &mut self,
+        job_expiration: i64,
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
         node_stake_minimum: u64,
     ) {
+        self.job_expiration = job_expiration;
         self.job_price = job_price;
         self.job_timeout = job_timeout;
         self.job_type = job_type;
@@ -141,12 +147,13 @@ impl Order {
 ///
 #[account]
 pub struct JobAccount {
-    pub authority: Pubkey,
     pub ipfs_job: [u8; 32],
     pub ipfs_result: [u8; 32],
     pub market: Pubkey,
     pub node: Pubkey,
+    pub payer: Pubkey,
     pub price: u64,
+    pub project: Pubkey,
     pub status: u8,
     pub time_end: i64,
     pub time_start: i64,
@@ -155,20 +162,23 @@ pub struct JobAccount {
 impl JobAccount {
     pub const SIZE: usize = 8 + size_of::<JobAccount>();
 
+    #[allow(clippy::too_many_arguments)]
     pub fn create(
         &mut self,
-        authority: Pubkey,
         ipfs_job: [u8; 32],
         market: Pubkey,
         node: Pubkey,
+        payer: Pubkey,
         price: u64,
+        project: Pubkey,
         time_start: i64,
     ) {
-        self.authority = authority;
         self.ipfs_job = ipfs_job;
         self.market = market;
         self.node = node;
+        self.payer = payer;
         self.price = price;
+        self.project = project;
         self.status = JobStatus::Running as u8;
         self.time_start = time_start;
     }
@@ -205,7 +215,7 @@ impl JobAccount {
     }
 
     pub fn is_created(job_account: &Account<JobAccount>) -> bool {
-        job_account.authority != id::SYSTEM_PROGRAM
+        job_account.project != id::SYSTEM_PROGRAM
     }
 }
 

@@ -52,11 +52,12 @@ pub fn handler(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
             market.job_price,
         )),
         QueueType::Node => ctx.accounts.job.create(
-            ctx.accounts.authority.key(),
             ipfs_job,
             market_key,
             market.pop_from_queue().user,
+            ctx.accounts.payer.key(),
             market.job_price,
+            ctx.accounts.authority.key(),
             Clock::get()?.unix_timestamp,
         ),
     }

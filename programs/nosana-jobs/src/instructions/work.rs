@@ -68,11 +68,12 @@ pub fn handler(ctx: Context<Work>) -> Result<()> {
         QueueType::Job => {
             let order: Order = market.pop_from_queue();
             ctx.accounts.job.create(
-                order.user,
                 order.ipfs_job,
                 market_key,
                 ctx.accounts.authority.key(),
+                ctx.accounts.payer.key(),
                 market.job_price,
+                order.user,
                 Clock::get()?.unix_timestamp,
             )
         }

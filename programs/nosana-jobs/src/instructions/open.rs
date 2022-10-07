@@ -35,6 +35,7 @@ pub struct Open<'info> {
 
 pub fn handler(
     ctx: Context<Open>,
+    job_expiration: i64,
     job_price: u64,
     job_timeout: i64,
     job_type: u8,
@@ -42,6 +43,7 @@ pub fn handler(
 ) -> Result<()> {
     ctx.accounts.market.init(
         ctx.accounts.authority.key(),
+        job_expiration,
         job_price,
         job_timeout,
         JobType::from(job_type) as u8,
@@ -50,6 +52,6 @@ pub fn handler(
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
-    ctx.accounts.job.authority = id::JOBS_PROGRAM;
+    ctx.accounts.job.project = id::JOBS_PROGRAM;
     Ok(())
 }

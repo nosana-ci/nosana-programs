@@ -20,17 +20,25 @@ pub mod nosana_jobs {
     ///
     pub fn open(
         ctx: Context<Open>,
+        job_expiration: i64,
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
         node_stake_minimum: u64,
     ) -> Result<()> {
-        open::handler(ctx, job_price, job_timeout, job_type, node_stake_minimum)
+        open::handler(
+            ctx,
+            job_expiration,
+            job_price,
+            job_timeout,
+            job_type,
+            node_stake_minimum,
+        )
     }
 
     /// ### Close
     ///
-    /// The `close()` instruction closes a [MarketAccount](#market-account) and an
+    /// The `close()` instruction closes a [MarketAccount](#market-account) and the
     /// associated [VaultAccount](#vault-account).
     /// The vault has to be empty of tokens.
     ///
@@ -40,16 +48,24 @@ pub mod nosana_jobs {
 
     /// ### Update
     ///
-    /// The `update()` instruction update a [MarketAccount](#market-account).
+    /// The `update()` instruction updates a [MarketAccount](#market-account) configurations.
     ///
     pub fn update(
         ctx: Context<Update>,
+        job_expiration: i64,
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
         node_stake_minimum: u64,
     ) -> Result<()> {
-        update::handler(ctx, job_price, job_timeout, job_type, node_stake_minimum)
+        update::handler(
+            ctx,
+            job_expiration,
+            job_price,
+            job_timeout,
+            job_type,
+            node_stake_minimum,
+        )
     }
 
     /// ### List

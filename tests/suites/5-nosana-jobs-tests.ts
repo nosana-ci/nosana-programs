@@ -36,6 +36,7 @@ export default function suite() {
 
       await this.jobsProgram.methods
         .open(
+          new BN(this.constants.jobExpiration),
           new BN(this.constants.jobPrice),
           new BN(this.constants.jobTimeout),
           this.constants.jobType.default,
@@ -59,7 +60,7 @@ export default function suite() {
     it('can fetch a dummy / queued job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.status).to.equal(this.constants.jobStatus.queued);
-      expect(job.authority.toString()).to.equal(this.jobsProgram.programId.toString());
+      expect(job.project.toString()).to.equal(this.jobsProgram.programId.toString());
       expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
       expect(job.market.toString()).to.equal(this.accounts.systemProgram.toString());
     });
@@ -103,7 +104,7 @@ export default function suite() {
     it('can fetch the running job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.status).to.equal(this.constants.jobStatus.running);
-      expect(job.authority.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.project.toString()).to.equal(this.accounts.authority.toString());
       expect(job.node.toString()).to.equal(this.accounts.authority.toString());
       expect(job.market.toString()).to.equal(this.accounts.market.toString());
       expect(job.price.toNumber()).to.equal(new BN(this.constants.jobPrice).toNumber());
@@ -168,7 +169,7 @@ export default function suite() {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.status).to.equal(this.constants.jobStatus.running);
       expect(job.node.toString()).to.equal(this.accounts.authority.toString());
-      expect(job.authority.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.project.toString()).to.equal(this.accounts.authority.toString());
       expect(job.timeStart.toNumber()).to.be.closeTo(now(), 100);
       expect(job.timeEnd.toNumber()).to.equal(0);
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
@@ -219,44 +220,12 @@ export default function suite() {
     });
   });
 
-  describe('claim()', async function () {
-    it('can fetch the empty market', async function () {
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const queue = market.queue as [];
-      expect(market.queueType).to.equal(this.constants.queueType.unknown, 'Wrong queue type');
-      expect(queue.length).to.equal(0);
-    });
-
-    it('can create a queued a job order', async function () {
-      await setJobAccountAndSeed(this, this.accounts.systemProgram);
-      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
-
-      this.balances.user -= this.constants.jobPrice;
-      this.balances.user -= this.constants.feePrice;
-      this.balances.vaultJob += this.constants.jobPrice;
-    });
-
-    it('can fetch the job market', async function () {
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const queue = market.queue as [];
-
-      expect(market.queueType).to.equal(this.constants.queueType.job, 'Wrong queue type');
-      expect(queue.length).to.equal(1);
-    });
-
-    it('can create a job account by work', async function () {
-      await setJobAccountAndSeed(this, anchor.web3.Keypair.generate().publicKey);
-      await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
-    });
-
-    it('can find a running job in the market', async function () {
+  describe('clean()', async function () {
+    it('can find a finished job in the market', async function () {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts-10
-      const jobs = await this.jobsProgram.account.jobAccount.all([
-        { memcmp: { offset: 104, bytes: this.accounts.market.toBase58() } },
-        { memcmp: { offset: 176, bytes: '2' } },
-      ]);
+      const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '2' } }]);
 
-      expect(jobs.length).to.equal(2);
+      expect(jobs.length).to.equal(1);
 
       const job = jobs[0];
 
