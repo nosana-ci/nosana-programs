@@ -8,7 +8,6 @@ import nosanaRewards from '../target/idl/nosana_rewards.json';
 import nosanaStaking from '../target/idl/nosana_staking.json';
 import { writeFileSync, readFileSync } from 'fs';
 import commandLineArgs from 'command-line-args';
-import doc = Mocha.reporters.doc;
 
 const options = commandLineArgs([
   { name: 'enhance', alias: 'e', type: Boolean },
@@ -141,6 +140,18 @@ const descriptions = (name) => {
     // job arguments
     case 'jobExpiration':
       return 'The expiration time in seconds for jobs.';
+    case 'node':
+      return 'The node that runs this job.';
+    case 'project':
+      return 'The project that listed this job.';
+    case 'price':
+      return 'The price in [$NOS](/tokens/token).';
+    case 'status':
+      return 'The job status (queued | running | done).';
+    case 'timeStart':
+      return 'The unix time this job has started running.';
+    case 'timeEnd':
+      return 'The unix time this job has finished running.';
     case 'jobTimeout':
       return 'The timeout time in seconds for jobs.';
     case 'jobType':
@@ -379,9 +390,9 @@ function main() {
 
       let size = 8;
       for (const field of account.type.fields) size += sizes[typeToString(field)];
-      data.push(`The total size of this account is \`${size.toLocaleString('en')}\` bytes.`)
+      data.push(`The total size of this account is \`${size.toLocaleString('en')}\` bytes.`);
 
-        // accounts table
+      // accounts table
       const at = new MarkdownTable([30, 30, 10, 10, 100]);
       data.push(at.row(['Name', 'Type', 'Size', 'Offset', 'Description']), at.sep());
       let offset = 8;

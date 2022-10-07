@@ -161,8 +161,7 @@ let tx = await program.methods
 ### List
 
 The `list()` instruction lists a job, with its required data.
-When there is a node ready in the queue it will immediately start running.
-The [JobAccount](#job-account) is optionally created
+When there is a node available, a [JobAccount](#job-account) will automatically be created.
 
 #### Accounts
 
@@ -217,7 +216,7 @@ let tx = await program.methods
 ### Work
 
 With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
-When there is a job available, a job account will automatically be created.
+When there is a job available, a [JobAccount](#job-account) will automatically be created.
 
 A few requirements are enforced:
 
@@ -424,13 +423,13 @@ The total size of this account is `241` bytes.
 | `ipfsJob`                   | `["u8",32]`                 | `32`    | `8`     | The byte array representing the IPFS hash to the job.                                             |
 | `ipfsResult`                | `["u8",32]`                 | `32`    | `40`    | The byte array representing the IPFS hash to the results.                                         |
 | `market`                    | `publicKey`                 | `32`    | `72`    | The [MarketAccount](#market-account) address.                                                     |
-| `node`                      | `publicKey`                 | `32`    | `104`   | n/a                                                                                               |
+| `node`                      | `publicKey`                 | `32`    | `104`   | The node that runs this job.                                                                      |
 | `payer`                     | `publicKey`                 | `32`    | `136`   | The paying identy for the rent.                                                                   |
-| `price`                     | `u64`                       | `8`     | `168`   | n/a                                                                                               |
-| `project`                   | `publicKey`                 | `32`    | `176`   | n/a                                                                                               |
-| `status`                    | `u8`                        | `1`     | `208`   | n/a                                                                                               |
-| `timeEnd`                   | `i64`                       | `16`    | `209`   | n/a                                                                                               |
-| `timeStart`                 | `i64`                       | `16`    | `225`   | n/a                                                                                               |
+| `price`                     | `u64`                       | `8`     | `168`   | The price in [$NOS](/tokens/token).                                                               |
+| `project`                   | `publicKey`                 | `32`    | `176`   | The project that listed this job.                                                                 |
+| `status`                    | `u8`                        | `1`     | `208`   | The job status (queued | running | done).                                                         |
+| `timeEnd`                   | `i64`                       | `16`    | `209`   | The unix time this job has finished running.                                                      |
+| `timeStart`                 | `i64`                       | `16`    | `225`   | The unix time this job has started running.                                                       |
 
 ### Vault Account
 
