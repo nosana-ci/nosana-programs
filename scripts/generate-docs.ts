@@ -148,10 +148,16 @@ const descriptions = (name) => {
       return 'The price for jobs in this market.';
     case 'nodeStakeMinimum':
       return 'The number of tokens a node needs to stake to qualify.';
+    case 'nodeAccessKey':
+      return 'The NFT collection address of an NFT that the node holds, in order to access this market.';
     case 'ipfsResult':
       return 'The byte array representing the IPFS hash to the results.';
     case 'ipfsJob':
       return 'The byte array representing the IPFS hash to the job.';
+    case 'queue':
+      return 'The queue of order in the market.';
+    case 'queueType':
+      return 'The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.';
 
     // default
     default:
@@ -230,9 +236,7 @@ function main() {
       `A number of ${idl.instructions.length} instruction are defined in the ${title(idl.name)} program.`,
       ''
     );
-    data.push(options.enhance ? '::: details Example' : '### Example');
     data.push(
-      '',
       'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).',
       '',
       '```typescript',
@@ -242,7 +246,6 @@ function main() {
       '```',
       ''
     );
-    if (options.enhance) data.push(':::');
 
     if (options.enhance) data.push(':::: tabs');
     for (const instruction of idl.instructions) {

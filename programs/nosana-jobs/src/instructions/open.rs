@@ -2,7 +2,7 @@ use crate::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
-pub struct Init<'info> {
+pub struct Open<'info> {
     #[account(address = id::NOS_TOKEN @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
     #[account(init, payer = authority, space = MarketAccount::SIZE)]
@@ -34,7 +34,7 @@ pub struct Init<'info> {
 }
 
 pub fn handler(
-    ctx: Context<Init>,
+    ctx: Context<Open>,
     job_price: u64,
     job_timeout: i64,
     job_type: u8,
@@ -50,6 +50,6 @@ pub fn handler(
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
-    ctx.accounts.job.is_created = true;
+    ctx.accounts.job.authority = id::JOBS_PROGRAM;
     Ok(())
 }

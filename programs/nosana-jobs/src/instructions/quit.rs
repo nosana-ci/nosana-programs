@@ -1,7 +1,7 @@
 use crate::*;
 
 #[derive(Accounts)]
-pub struct Cancel<'info> {
+pub struct Quit<'info> {
     #[account(
         mut,
         constraint = job.node == authority.key() @ NosanaError::Unauthorized,
@@ -11,7 +11,7 @@ pub struct Cancel<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Cancel>) -> Result<()> {
-    ctx.accounts.job.cancel();
+pub fn handler(ctx: Context<Quit>) -> Result<()> {
+    ctx.accounts.job.quit();
     Ok(())
 }

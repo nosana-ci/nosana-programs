@@ -34,7 +34,7 @@ pub struct Claim<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Claim>) -> Result<()> {
+pub fn _handler(ctx: Context<Claim>) -> Result<()> {
     // get and verify our nft collection in the metadata, if required
     if ctx.accounts.market.node_access_key != id::SYSTEM_PROGRAM {
         let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();

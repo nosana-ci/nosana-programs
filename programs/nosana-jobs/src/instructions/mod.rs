@@ -1,23 +1,23 @@
 //! Instructions for Nosana Jobs.
 
-pub mod cancel;
 pub mod claim;
+pub mod clean;
 pub mod close;
-pub mod create;
-pub mod enter;
-pub mod exit;
 pub mod finish;
-pub mod init;
+pub mod list;
+pub mod open;
+pub mod quit;
 pub mod stop;
 pub mod update;
+pub mod work;
 
-pub use cancel::*;
 pub use claim::*;
+pub use clean::*;
 pub use close::*;
-pub use create::*;
-pub use enter::*;
-pub use exit::*;
 pub use finish::*;
-pub use init::*;
+pub use list::*;
+pub use open::*;
+pub use quit::*;
 pub use stop::*;
 pub use update::*;
+pub use work::*;

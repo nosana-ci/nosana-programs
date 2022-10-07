@@ -9,8 +9,6 @@ use std::mem::size_of;
 #[account]
 pub struct MarketAccount {
     pub authority: Pubkey,
-    pub has_job: bool,
-    pub has_node: bool,
     pub job_price: u64,
     pub job_timeout: i64,
     pub job_type: u8,
@@ -39,8 +37,6 @@ impl MarketAccount {
         vault_bump: u8,
     ) {
         self.authority = authority;
-        self.has_job = false;
-        self.has_node = false;
         self.job_price = job_price;
         self.job_timeout = job_timeout;
         self.job_type = job_type;
@@ -69,21 +65,13 @@ impl MarketAccount {
 
     pub fn add_to_queue(&mut self, order: Order) {
         if self.queue_type == QueueType::Unknown as u8 {
-            self.set_queue_type(if order.node == id::SYSTEM_PROGRAM {
+            self.set_queue_type(if order.job_price != 0 {
                 QueueType::Job
             } else {
                 QueueType::Node
             })
         }
         self.queue.push(order);
-    }
-
-    pub fn has_node(market: MarketAccount) -> bool {
-        market.queue_type == QueueType::Node as u8
-    }
-
-    pub fn has_job(market: MarketAccount) -> bool {
-        market.queue_type == QueueType::Job as u8
     }
 
     pub fn remove_node_from_queue(&mut self, node: Pubkey) -> Order {
@@ -102,37 +90,47 @@ impl MarketAccount {
     pub fn find_node_in_queue(&mut self, node: Pubkey) -> Option<usize> {
         self.queue
             .iter()
-            .position(|job_node: &Order| job_node.node == node)
+            .position(|order: &Order| order.user == node)
     }
 
     pub fn set_queue_type(&mut self, queue_type: QueueType) {
         self.queue_type = queue_type as u8;
-        self.has_job = self.queue_type == QueueType::Job as u8;
-        self.has_node = self.queue_type == QueueType::Node as u8;
+    }
+
+    pub fn has_node(market: &Account<MarketAccount>) -> bool {
+        market.queue_type == QueueType::Node as u8
+    }
+
+    pub fn has_job(market: &Account<MarketAccount>) -> bool {
+        market.queue_type == QueueType::Job as u8
     }
 }
 
+/// ### Order
+///
+/// The `Order` struct is type used to describe orders in the market.
+///
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct Order {
-    pub authority: Pubkey,
+    pub user: Pubkey,
     pub ipfs_job: [u8; 32],
-    pub node: Pubkey,
+    pub job_price: u64,
 }
 
 impl Order {
-    pub fn new_job(authority: Pubkey, ipfs_job: [u8; 32]) -> Order {
+    pub fn new_job(user: Pubkey, ipfs_job: [u8; 32], job_price: u64) -> Order {
         Order {
-            authority,
+            user,
             ipfs_job,
-            node: id::SYSTEM_PROGRAM,
+            job_price,
         }
     }
 
-    pub fn new_node(node: Pubkey) -> Order {
+    pub fn new_node(user: Pubkey) -> Order {
         Order {
-            authority: id::SYSTEM_PROGRAM,
+            user,
             ipfs_job: [0; 32],
-            node,
+            job_price: 0,
         }
     }
 }
@@ -146,7 +144,6 @@ pub struct JobAccount {
     pub authority: Pubkey,
     pub ipfs_job: [u8; 32],
     pub ipfs_result: [u8; 32],
-    pub is_created: bool,
     pub market: Pubkey,
     pub node: Pubkey,
     pub price: u64,
@@ -168,7 +165,6 @@ impl JobAccount {
         time_start: i64,
     ) {
         self.authority = authority;
-        self.is_created = true;
         self.ipfs_job = ipfs_job;
         self.market = market;
         self.node = node;
@@ -183,7 +179,7 @@ impl JobAccount {
         self.time_start = time_start;
     }
 
-    pub fn cancel(&mut self) {
+    pub fn quit(&mut self) {
         self.node = id::SYSTEM_PROGRAM;
         // self.node = Pubkey::default();
         self.status = JobStatus::Queued as u8;
@@ -194,6 +190,22 @@ impl JobAccount {
         self.ipfs_result = ipfs_result;
         self.status = JobStatus::Done as u8;
         self.time_end = time_end;
+    }
+
+    pub fn get_seed(available: bool, seed: Pubkey) -> Pubkey {
+        if available {
+            seed
+        } else {
+            id::SYSTEM_PROGRAM
+        }
+    }
+
+    pub fn is_seed_allowed(available: bool, seed: Pubkey) -> bool {
+        available && seed != id::SYSTEM_PROGRAM || !available && seed == id::SYSTEM_PROGRAM
+    }
+
+    pub fn is_created(job_account: &Account<JobAccount>) -> bool {
+        job_account.authority != id::SYSTEM_PROGRAM
     }
 }
 

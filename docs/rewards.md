@@ -17,8 +17,6 @@
 
 A number of 6 instruction are defined in the Nosana Rewards program.
 
-### Example
-
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript

@@ -7,28 +7,25 @@ use mpl_token_metadata::{
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
-pub struct Enter<'info> {
+pub struct Work<'info> {
     /// we're verifying that:
     ///  - if there's a job queued, a new account will be initialized
-    ///  - this new account should not already have data
+    ///  - this new account should not already have data in it
     ///  - if there is no job queued, we're using the dummy account that's already initialized
+    ///  - the seed key is validated
     #[account(
         init_if_needed,
         payer = fee_payer,
         space = JobAccount::SIZE,
-        constraint = market.has_job != job.is_created @ NosanaError::JobAccountAlreadyInitialized,
-        seeds = [ if market.has_job { seed.key.as_ref() } else { id::SYSTEM_PROGRAM.as_ref() } ],
+        constraint = MarketAccount::has_job(&market) != JobAccount::is_created(&job)
+            @ NosanaError::JobAccountAlreadyInitialized,
+        constraint = JobAccount::is_seed_allowed(MarketAccount::has_job(&market), seed.key())
+            @ NosanaError::JobSeedAddressViolation,
+        seeds = [ JobAccount::get_seed(MarketAccount::has_job(&market), seed.key()).as_ref() ],
         bump,
     )]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
-    /// CHECK: this is an arbitrary account, used as seed
-    /// we're verifying that if there's a job queue, we're not going to write to a dummy account
-    /// because in that case we're going to `init` a new job account for the job in line
-    #[account(
-        constraint = market.has_job && seed.key() != id::SYSTEM_PROGRAM
-                 || !market.has_job && seed.key() == id::SYSTEM_PROGRAM
-            @ NosanaError::JobSeedAddressViolation
-    )]
+    /// CHECK: this is a key used as seed for the job account, validated above
     pub seed: AccountInfo<'info>,
     #[account(mut @ NosanaError::MarketNotMutable)]
     pub market: Account<'info, MarketAccount>,
@@ -50,7 +47,7 @@ pub struct Enter<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Enter>) -> Result<()> {
+pub fn handler(ctx: Context<Work>) -> Result<()> {
     // get and verify our nft collection in the metadata, if required
     if ctx.accounts.market.node_access_key != id::SYSTEM_PROGRAM {
         let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();
@@ -71,7 +68,7 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
         QueueType::Job => {
             let order: Order = market.pop_from_queue();
             ctx.accounts.job.create(
-                order.authority,
+                order.user,
                 order.ipfs_job,
                 market_key,
                 ctx.accounts.authority.key(),

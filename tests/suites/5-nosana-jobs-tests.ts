@@ -8,7 +8,7 @@ import { Context } from 'mocha';
 import { PublicKey } from '@solana/web3.js';
 
 /**
- * Helper to fill the xnosPerc in users
+ * Helper to set the job accounts and seeds
  * @param mochaContext
  * @param seed
  */
@@ -23,8 +23,8 @@ export default function suite() {
     expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob);
   });
 
-  describe('init()', async function () {
-    it('can initialize a market with vault', async function () {
+  describe('open()', async function () {
+    it('can open a market with vault', async function () {
       const throwAwayKeypair = anchor.web3.Keypair.generate();
       this.accounts.market = throwAwayKeypair.publicKey;
       this.accounts.vault = await pda(
@@ -35,7 +35,7 @@ export default function suite() {
       this.vaults.jobs = this.accounts.vault;
 
       await this.jobsProgram.methods
-        .init(
+        .open(
           new BN(this.constants.jobPrice),
           new BN(this.constants.jobTimeout),
           this.constants.jobType.default,
@@ -59,15 +59,15 @@ export default function suite() {
     it('can fetch a dummy / queued job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.status).to.equal(this.constants.jobStatus.queued);
-      expect(job.authority.toString()).to.equal(this.accounts.systemProgram.toString());
+      expect(job.authority.toString()).to.equal(this.jobsProgram.programId.toString());
       expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
       expect(job.market.toString()).to.equal(this.accounts.systemProgram.toString());
     });
   });
 
-  describe('create()', async function () {
+  describe('list()', async function () {
     it('can create a job when there are no nodes', async function () {
-      await this.jobsProgram.methods.create(this.constants.ipfsData).accounts(this.accounts).rpc();
+      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
 
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
@@ -79,25 +79,25 @@ export default function suite() {
       const queue = market.queue as [];
       expect(market.queueType).to.equal(this.constants.queueType.job, 'Wrong queue type');
       expect(queue.length).to.equal(1);
-      expect(market.queue[0].authority.toString()).to.equal(this.accounts.authority.toString());
+      expect(market.queue[0].user.toString()).to.equal(this.accounts.authority.toString());
       expect(buf2hex(market.queue[0].ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
   });
 
-  describe('enter()', async function () {
+  describe('work()', async function () {
     it('can not create a job with system seed as node, because it exists', async function () {
       let msg = '';
       await this.jobsProgram.methods
-        .enter()
+        .work()
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.JobAccountAlreadyInitialized);
     });
 
-    it('can creat a job with a new seed as node', async function () {
+    it('can work on a job with a new seed as node', async function () {
       await setJobAccountAndSeed(this, anchor.web3.Keypair.generate().publicKey);
-      await this.jobsProgram.methods.enter().accounts(this.accounts).rpc();
+      await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
     });
 
     it('can fetch the running job', async function () {
@@ -119,10 +119,10 @@ export default function suite() {
       expect(queue.length).to.equal(0);
     });
 
-    it('can enter the market queue as a node', async function () {
+    it('can work and enter the market queue as a node', async function () {
       this.accounts.oldSeed = this.accounts.seed;
       await setJobAccountAndSeed(this, this.accounts.systemProgram);
-      await this.jobsProgram.methods.enter().accounts(this.accounts).rpc();
+      await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
     });
 
     it('can fetch a market with a node queue', async function () {
@@ -130,27 +130,26 @@ export default function suite() {
       const queue = market.queue as [];
       expect(market.queueType).to.equal(this.constants.queueType.node, 'Wrong queue type');
       expect(queue.length).to.equal(1);
-      expect(market.queue[0].authority.toString()).to.equal(this.accounts.systemProgram.toString());
-      expect(market.queue[0].node.toString()).to.equal(this.accounts.authority.toString());
+      expect(market.queue[0].user.toString()).to.equal(this.accounts.authority.toString());
     });
   });
 
-  describe('create()', async function () {
-    it('can not create job account with the system seed', async function () {
+  describe('list()', async function () {
+    it('can not list job account with the system seed', async function () {
       let msg = '';
       await this.jobsProgram.methods
-        .create(this.constants.ipfsData)
+        .list(this.constants.ipfsData)
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.JobAccountAlreadyInitialized);
     });
 
-    it('can not create a job account with a used seed', async function () {
+    it('can not list a job account with a used seed', async function () {
       let msg = '';
       await setJobAccountAndSeed(this, this.accounts.oldSeed);
       await this.jobsProgram.methods
-        .create(this.constants.ipfsData)
+        .list(this.constants.ipfsData)
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -159,7 +158,7 @@ export default function suite() {
 
     it('can create a job account with a new seed', async function () {
       await setJobAccountAndSeed(this, anchor.web3.Keypair.generate().publicKey);
-      await this.jobsProgram.methods.create(this.constants.ipfsData).accounts(this.accounts).rpc();
+      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
@@ -230,7 +229,7 @@ export default function suite() {
 
     it('can create a queued a job order', async function () {
       await setJobAccountAndSeed(this, this.accounts.systemProgram);
-      await this.jobsProgram.methods.create(this.constants.ipfsData).accounts(this.accounts).rpc();
+      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
 
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
@@ -245,16 +244,16 @@ export default function suite() {
       expect(queue.length).to.equal(1);
     });
 
-    it('can create a job account by enter', async function () {
+    it('can create a job account by work', async function () {
       await setJobAccountAndSeed(this, anchor.web3.Keypair.generate().publicKey);
-      await this.jobsProgram.methods.enter().accounts(this.accounts).rpc();
+      await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
     });
 
     it('can find a running job in the market', async function () {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts-10
       const jobs = await this.jobsProgram.account.jobAccount.all([
-        { memcmp: { offset: 105, bytes: this.accounts.market.toBase58() } },
-        { memcmp: { offset: 177, bytes: '2' } },
+        { memcmp: { offset: 104, bytes: this.accounts.market.toBase58() } },
+        { memcmp: { offset: 176, bytes: '2' } },
       ]);
 
       expect(jobs.length).to.equal(2);
