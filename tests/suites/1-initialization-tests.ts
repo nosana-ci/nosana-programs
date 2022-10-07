@@ -39,6 +39,7 @@ export default function suite() {
       // set collection
       this.nftConfig.collection = mintAddress;
       this.accounts.accessKey = this.nftConfig.collection;
+      this.market.nodeAccessKey = this.nftConfig.collection;
     });
     it('can mint NFT', async function () {
       const { metadataAddress, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();

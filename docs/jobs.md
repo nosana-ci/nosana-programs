@@ -137,7 +137,7 @@ The vault has to be empty of tokens.
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
-| `vault`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [VaultAccount](#vault-account) address.                                                       |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
@@ -150,7 +150,7 @@ let tx = await program.methods
   .close()
   .accounts({
     market,            // ✓ writable, 𐄂 signer
-    vault,             // 𐄂 writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
@@ -427,7 +427,7 @@ The total size of this account is `241` bytes.
 | `payer`                     | `publicKey`                 | `32`    | `136`   | The paying identy for the rent.                                                                   |
 | `price`                     | `u64`                       | `8`     | `168`   | The price in [$NOS](/tokens/token).                                                               |
 | `project`                   | `publicKey`                 | `32`    | `176`   | The project that listed this job.                                                                 |
-| `status`                    | `u8`                        | `1`     | `208`   | The job status (queued | running | done).                                                         |
+| `status`                    | `u8`                        | `1`     | `208`   | The job status (queued / running / done).                                                         |
 | `timeEnd`                   | `i64`                       | `16`    | `209`   | The unix time this job has finished running.                                                      |
 | `timeStart`                 | `i64`                       | `16`    | `225`   | The unix time this job has started running.                                                       |
 

@@ -147,7 +147,7 @@ const descriptions = (name) => {
     case 'price':
       return 'The price in [$NOS](/tokens/token).';
     case 'status':
-      return 'The job status (queued | running | done).';
+      return 'The job status (queued / running / done).';
     case 'timeStart':
       return 'The unix time this job has started running.';
     case 'timeEnd':

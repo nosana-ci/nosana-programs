@@ -23,6 +23,18 @@ type NosanaBalances = {
   vaultPool: number;
 };
 
+type NosanaMarket = {
+  address: PublicKey;
+  jobExpiration: number;
+  jobTimeout: number;
+  jobType: number;
+  jobPrice: number;
+  nodeStakeMinimum: number;
+  nodeAccessKey: PublicKey;
+  queueType: number;
+  queueLength: number;
+};
+
 type NosanaAccounts = {
   systemProgram: PublicKey;
   tokenProgram: PublicKey;

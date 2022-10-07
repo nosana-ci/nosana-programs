@@ -23,7 +23,7 @@ import rewardScenario from './suites/scenario/rewards-tests';
 import claimTransferScenario from './suites/scenario/claim-transfer-tests';
 
 // types
-import { NosanaAccounts, NosanaVaults } from './types/nosana';
+import { NosanaAccounts, NosanaMarket, NosanaVaults } from './types/nosana';
 
 // run
 describe('nosana programs', async function () {
@@ -71,6 +71,17 @@ describe('nosana programs', async function () {
       this.stakingProgram.programId
     );
 
+    // nosana market
+    this.market = {} as NosanaMarket;
+    this.market.jobExpiration = this.constants.jobTimeout;
+    this.market.jobPrice = this.constants.jobPrice;
+    this.market.jobTimeout = this.constants.jobTimeout;
+    this.market.jobType = this.constants.jobType.default;
+    this.market.nodeStakeMinimum = this.constants.minimumNodeStake;
+    this.market.queueType = this.constants.queueType.unknown;
+    this.market.queueLength = 0;
+    this.marketClosed = true;
+
     // public keys to be used in the instructions
     this.accounts = {} as NosanaAccounts;
     this.accounts.systemProgram = anchor.web3.SystemProgram.programId;
@@ -89,7 +100,6 @@ describe('nosana programs', async function () {
     this.accounts.tokenAccount = this.accounts.user;
     this.accounts.rewardsVault = this.vaults.rewards;
     this.accounts.rewardsReflection = this.accounts.reflection;
-    this.accounts.accessKey = new PublicKey('nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3');
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId

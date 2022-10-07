@@ -10,7 +10,7 @@ pub struct Close<'info> {
         has_one = vault @ NosanaError::InvalidVault,
     )]
     pub market: Account<'info, MarketAccount>,
-    #[account(constraint = vault.amount == 0 @ NosanaError::VaultNotEmpty)]
+    #[account(mut, constraint = vault.amount == 0 @ NosanaError::VaultNotEmpty)]
     pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

@@ -21,67 +21,75 @@ async function setJobAccountAndSeed(
 
 export default function suite() {
   afterEach(async function () {
+    if (this.marketClosed) return;
     expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
     expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob);
+
+    const market = await this.jobsProgram.account.marketAccount.fetch(this.market.address);
+    expect(market.queueType).to.equal(this.market.queueType, 'queueType');
+    expect(market.jobExpiration.toNumber()).to.equal(this.market.jobExpiration, 'jobExpiration');
+    expect(market.jobPrice.toNumber()).to.equal(this.market.jobPrice, 'jobPrice');
+    expect(market.jobTimeout.toNumber()).to.equal(this.market.jobTimeout, 'jobTimeout');
+    expect(market.jobType).to.equal(this.market.jobType, 'jobType');
+    expect(market.nodeStakeMinimum.toNumber()).to.equal(this.market.nodeStakeMinimum, 'nodeStakeMinimum');
+    expect(market.nodeAccessKey.toString()).to.equal(this.market.nodeAccessKey.toString(), 'nodeStakeMinimum');
+    expect(market.queueType).to.equal(this.market.queueType, 'queueType');
+    expect((market.queue as []).length).to.equal(this.market.queueLength, 'length');
   });
 
   describe('open()', async function () {
-    it('can open a market with vault', async function () {
+    it('can open a market, vault, and dummy job', async function () {
       const throwAwayKeypair = anchor.web3.Keypair.generate();
       this.accounts.market = throwAwayKeypair.publicKey;
+      this.market.address = this.accounts.market;
       this.accounts.vault = await pda(
         [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
         this.jobsProgram.programId
       );
       this.vaults.jobs = this.accounts.vault;
+      this.marketClosed = false;
       await setJobAccountAndSeed(this, true);
 
       await this.jobsProgram.methods
         .open(
-          new BN(this.constants.jobExpiration),
-          new BN(this.constants.jobPrice),
-          new BN(this.constants.jobTimeout),
-          this.constants.jobType.default,
-          new BN(this.constants.stakeMinimum)
+          new BN(this.market.jobExpiration),
+          new BN(this.market.jobPrice),
+          new BN(this.market.jobTimeout),
+          this.market.jobType,
+          new BN(this.market.nodeStakeMinimum)
         )
         .accounts(this.accounts)
         .signers([throwAwayKeypair])
         .rpc();
     });
 
-    it('can fetch the queue', async function () {
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const queue = market.queue as [];
-      expect(market.jobType).to.equal(this.constants.jobType.default);
-      expect(market.jobTimeout.toNumber()).to.equal(this.constants.jobTimeout);
-      expect(market.jobPrice.toNumber()).to.equal(this.constants.jobPrice);
-      expect(market.queueType).to.equal(this.constants.queueType.unknown);
-      expect(queue.length).to.equal(0);
-    });
-
-    it('can fetch a dummy / queued job', async function () {
+    it('can fetch the dummy / queued job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.status).to.equal(this.constants.jobStatus.queued);
       expect(job.project.toString()).to.equal(this.jobsProgram.programId.toString());
       expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
       expect(job.market.toString()).to.equal(this.accounts.systemProgram.toString());
+      expect(job.project.toString()).to.equal(this.jobsProgram.programId.toString());
     });
   });
 
   describe('list()', async function () {
-    it('can create a job when there are no nodes', async function () {
+    it('can list a job when there are no nodes', async function () {
+      await setJobAccountAndSeed(this, true);
       await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
 
+      // update balances
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
     });
 
-    it('can fetch a market job', async function () {
+    it('can read a job order in the market', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const queue = market.queue as [];
-      expect(market.queueType).to.equal(this.constants.queueType.job, 'Wrong queue type');
-      expect(queue.length).to.equal(1);
       expect(market.queue[0].user.toString()).to.equal(this.accounts.authority.toString());
       expect(buf2hex(market.queue[0].ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
@@ -101,6 +109,9 @@ export default function suite() {
     it('can work on a job with a new seed as node', async function () {
       await setJobAccountAndSeed(this);
       await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
+
+      this.market.queueLength -= 1;
+      this.market.queueType = this.constants.queueType.unknown;
     });
 
     it('can fetch the running job', async function () {
@@ -115,17 +126,14 @@ export default function suite() {
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
 
-    it('can fetch an empty market', async function () {
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const queue = market.queue as [];
-      expect(market.queueType).to.equal(this.constants.queueType.unknown, 'Wrong queue type');
-      expect(queue.length).to.equal(0);
-    });
-
     it('can work and enter the market queue as a node', async function () {
       this.accounts.oldSeed = this.accounts.seed;
       await setJobAccountAndSeed(this, true);
       await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
+
+      // update market
+      this.market.queueType = this.constants.queueType.node;
+      this.market.queueLength += 1;
     });
 
     it('can not work and enter the market queue twice', async function () {
@@ -140,15 +148,12 @@ export default function suite() {
 
     it('can fetch a market with a node queue', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const queue = market.queue as [];
-      expect(market.queueType).to.equal(this.constants.queueType.node, 'Wrong queue type');
-      expect(queue.length).to.equal(1);
       expect(market.queue[0].user.toString()).to.equal(this.accounts.authority.toString());
     });
   });
 
   describe('list()', async function () {
-    it('can not list job account with the system seed', async function () {
+    it('can not list job for creation with system seed', async function () {
       let msg = '';
       await this.jobsProgram.methods
         .list(this.constants.ipfsData)
@@ -172,6 +177,11 @@ export default function suite() {
     it('can create a job account with a new seed', async function () {
       await setJobAccountAndSeed(this);
       await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
+
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
@@ -185,13 +195,6 @@ export default function suite() {
       expect(job.timeStart.toNumber()).to.be.closeTo(now(), 100);
       expect(job.timeEnd.toNumber()).to.equal(0);
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
-    });
-
-    it('can fetch an empty market', async function () {
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const queue = market.queue as [];
-      expect(market.queueType).to.equal(this.constants.queueType.unknown, 'Wrong queue type');
-      expect(queue.length).to.equal(0);
     });
   });
 
@@ -271,6 +274,61 @@ export default function suite() {
       // wait and clean
       await sleep(Math.abs(now - expired));
       await this.jobsProgram.methods.clean().accounts(this.accounts).rpc();
+    });
+  });
+
+  describe('close()', async function () {
+    it('can not close a market when there are tokens left', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .close()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.VaultNotEmpty);
+    });
+
+    it('can find the last running job in this market', async function () {
+      const runningJobs = await this.jobsProgram.account.jobAccount.all([
+        { memcmp: { offset: 72, bytes: this.accounts.market.toBase58() } },
+        { memcmp: { offset: 208, bytes: '2' } },
+      ]);
+      expect(runningJobs.length).to.equal(1);
+      this.accounts.job = runningJobs.pop().publicKey;
+    });
+
+    it('can not finish anoter nodes job', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .finish(this.constants.ipfsData)
+        .accounts({
+          ...this.accounts,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([this.users.node1.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can finish the last job in the market', async function () {
+      await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
+      this.balances.user += this.constants.jobPrice;
+      this.balances.vaultJob -= this.constants.jobPrice;
+    });
+
+    it('can see no more running jobs in this market', async function () {
+      // https://docs.nosana.io/programs/jobs.html#job-account
+      const runningJobs = await this.jobsProgram.account.jobAccount.all([
+        { memcmp: { offset: 72, bytes: this.accounts.market.toBase58() } },
+        { memcmp: { offset: 208, bytes: '2' } },
+      ]);
+      expect(runningJobs.length).to.equal(0);
+    });
+
+    it('can close the market', async function () {
+      await this.jobsProgram.methods.close().accounts(this.accounts).rpc();
+      this.marketClosed = true;
     });
   });
 }

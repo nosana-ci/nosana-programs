@@ -58,6 +58,7 @@ const constants = {
     InvalidTokenAccount: 'This token account is not valid.',
     InvalidMint: 'This mint is invalid.',
     InvalidVault: 'This account has an invalid vault.',
+    VaultNotEmpty: 'This vault is not empty.',
 
     // stake errors
     StakeAmountNotEnough: 'This amount is not enough.',
