@@ -37,7 +37,7 @@ pub struct Work<'info> {
         constraint = stake.time_unstake == 0 @ NosanaError::NodeNoStake,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(constraint = nft.owner == authority.key() @ NosanaError::Unauthorized)]
+    #[account(constraint = nft.owner == authority.key() @ NosanaError::NodeNftWrongOwner)]
     pub nft: Account<'info, TokenAccount>,
     /// CHECK: we're going to deserialize this account within the instruction
     #[account(address = find_metadata_account(&nft.mint).0 @ NosanaError::NodeNftWrongMetadata)]

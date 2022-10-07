@@ -29,6 +29,7 @@ const constants = {
     queued: 0,
     running: 1,
     done: 2,
+    quit: 3,
   },
 
   jobType: {
@@ -84,9 +85,11 @@ const constants = {
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
     NodeQueueDoesNotMatch: 'This node queue does not match.',
+    NodeStakeUnauthorized: 'This node is not authorizing this stake.',
     NodeNotEnoughStake: 'This node has not staked enough tokens.',
     NodeAlreadyQueued: 'This node is already present in the queue.',
     NodeNftWrongMetadata: 'This metadata does not have the correct address.',
+    NodeNftWrongOwner: 'This NFT is not owned by this node.',
     NodeKeyInvalidCollection: 'This access key does not belong to a verified collection.',
 
     // pool errors

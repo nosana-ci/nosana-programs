@@ -10,14 +10,12 @@ use nosana_staking::StakeAccount;
 pub struct Claim<'info> {
     #[account(
         mut,
-        constraint = Clock::get()?.unix_timestamp - job.time_start > market.job_timeout
-                  && job.status == JobStatus::Running as u8
-                   @ NosanaError::Unauthorized,
+        has_one = market @ NosanaError::InvalidMarket,
+        constraint = job.status == JobStatus::Stopped as u8 @ NosanaError::JobInWrongState,
     )]
     pub job: Account<'info, JobAccount>,
-    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
+    #[account(has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
-    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
@@ -26,7 +24,7 @@ pub struct Claim<'info> {
         constraint = stake.time_unstake == 0 @ NosanaError::NodeNoStake,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(constraint = nft.owner == authority.key() @ NosanaError::Unauthorized)]
+    #[account(constraint = nft.owner == authority.key() @ NosanaError::NodeNftWrongOwner)]
     pub nft: Account<'info, TokenAccount>,
     /// CHECK: we're going to deserialize this account within the instruction
     #[account(address = find_metadata_account(&nft.mint).0 @ NosanaError::NodeNftWrongMetadata)]
@@ -34,7 +32,7 @@ pub struct Claim<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn _handler(ctx: Context<Claim>) -> Result<()> {
+pub fn handler(ctx: Context<Claim>) -> Result<()> {
     // get and verify our nft collection in the metadata, if required
     if ctx.accounts.market.node_access_key != id::SYSTEM_PROGRAM {
         let metadata: Metadata = Metadata::from_account_info(&ctx.accounts.metadata).unwrap();

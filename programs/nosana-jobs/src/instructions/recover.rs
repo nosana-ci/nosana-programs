@@ -2,12 +2,13 @@ use crate::*;
 use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
-pub struct Finish<'info> {
+pub struct Recover<'info> {
     #[account(
         mut,
+        close = authority,
         has_one = market @ NosanaError::InvalidMarket,
-        constraint = job.node == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.status == JobStatus::Running as u8 @ NosanaError::JobInWrongState
+        constraint = job.project == authority.key() @ NosanaError::Unauthorized,
+        constraint = job.status == JobStatus::Stopped as u8 @ NosanaError::JobInWrongState,
     )]
     pub job: Account<'info, JobAccount>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
@@ -20,13 +21,8 @@ pub struct Finish<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
-    // finish the job
-    ctx.accounts
-        .job
-        .finish(ipfs_result, Clock::get()?.unix_timestamp);
-
-    // reimburse the node
+pub fn handler(ctx: Context<Recover>) -> Result<()> {
+    // recover the funds
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),

@@ -2,7 +2,7 @@ import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import { buf2hex, getTimestamp, getTokenBalance, now, pda, sleep } from '../utils';
 import { BN } from '@project-serum/anchor';
-import { Context } from 'mocha';
+import { Context, describe } from 'mocha';
 
 /**
  * Helper to set the job accounts and seeds
@@ -236,6 +236,50 @@ export default function suite() {
   });
 
   describe('clean()', async function () {
+    it('can find a running job in the market', async function () {
+      // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
+      const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '2' } }]);
+
+      expect(jobs.length).to.equal(1);
+
+      const job = jobs[0];
+
+      expect(job.account.node.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.account.status).to.equal(this.constants.jobStatus.running);
+
+      this.accounts.job = job.publicKey;
+    });
+
+    it('can not recover the funds from a running job', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .recover()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.JobInWrongState);
+    });
+
+    it('can not clean job that is running', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .clean()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.JobInWrongState);
+    });
+
+    it('can not claim job this is running', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .claim()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.JobInWrongState);
+    });
+
     it('can find a finished job in the market', async function () {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
       const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '3' } }]);
@@ -274,6 +318,160 @@ export default function suite() {
       // wait and clean
       await sleep(Math.abs(now - expired));
       await this.jobsProgram.methods.clean().accounts(this.accounts).rpc();
+    });
+  });
+
+  describe('quit()', async function () {
+    it('can list a jobs and start working on it', async function () {
+      await setJobAccountAndSeed(this, true);
+      const tx = await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).instruction();
+
+      await setJobAccountAndSeed(this);
+      await this.jobsProgram.methods.work().accounts(this.accounts).preInstructions([tx]).rpc();
+
+      this.balances.user -= this.constants.jobPrice;
+      this.balances.user -= this.constants.feePrice;
+      this.balances.vaultJob += this.constants.jobPrice;
+    });
+
+    it('can not quit a job for another node', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .quit()
+        .accounts({
+          ...this.accounts,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([this.users.node1.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can quit a job', async function () {
+      await this.jobsProgram.methods.quit().accounts(this.accounts).rpc();
+    });
+
+    it('can find a quited job', async function () {
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(job.status).to.equal(this.constants.jobStatus.quit);
+    });
+  });
+
+  describe('claim()', async function () {
+    it('can not claim a stopped job with wrong metadata', async function () {
+      let msg = ''
+      const user = this.users.node1
+      await this.jobsProgram.methods
+        .claim()
+        .accounts({
+          ...this.accounts,
+          authority: user.publicKey,
+          nft: user.ataNft,
+          stake: user.stake,
+        })
+        .signers([user.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.NodeNftWrongMetadata);
+    });
+
+    it('can not claim a stopped job with another stake', async function () {
+      let msg = ''
+      const user = this.users.node1
+      await this.jobsProgram.methods
+        .claim()
+        .accounts({
+          ...this.accounts,
+          authority: user.publicKey,
+          metadata: user.metadata,
+          nft: user.ataNft,
+        })
+        .signers([user.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can not claim a stopped job with wrong nft', async function () {
+      let msg = ''
+      const user = this.users.node1
+      await this.jobsProgram.methods
+        .claim()
+        .accounts({
+          ...this.accounts,
+          authority: user.publicKey,
+          metadata: user.metadata,
+          stake: user.stake,
+        })
+        .signers([user.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.NodeNftWrongOwner);
+    });
+
+    it('can claim a stopped job with another node', async function () {
+      const user = this.users.node1
+      await this.jobsProgram.methods
+        .claim()
+        .accounts({
+          ...this.accounts,
+          authority: user.publicKey,
+          nft: user.ataNft,
+          metadata: user.metadata,
+          stake: user.stake,
+        })
+        .signers([user.user])
+        .rpc();
+    });
+
+    it('can find a re-claimed job', async function () {
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(job.status).to.equal(this.constants.jobStatus.running);
+      expect(job.node.toString()).to.equal(this.users.node1.publicKey.toString());
+    });
+
+    it('can not quit job for another node', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .quit()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can quit a job again', async function () {
+      await this.jobsProgram.methods
+        .quit()
+        .accounts({
+          ...this.accounts,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([this.users.node1.user])
+        .rpc();
+    });
+  });
+
+  describe('recover()', async function () {
+    it('can not recover the funds from another project', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .recover()
+        .accounts({
+          ...this.accounts,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([this.users.node1.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can recover a stopped job', async function () {
+      await this.jobsProgram.methods.recover().accounts(this.accounts).rpc();
+      this.balances.user += this.constants.jobPrice;
+      this.balances.vaultJob -= this.constants.jobPrice;
     });
   });
 

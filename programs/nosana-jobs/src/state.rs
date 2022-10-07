@@ -193,10 +193,7 @@ impl JobAccount {
     }
 
     pub fn quit(&mut self) {
-        self.node = id::SYSTEM_PROGRAM;
-        // self.node = Pubkey::default();
-        self.status = JobStatus::Queued as u8;
-        self.time_start = 0;
+        self.status = JobStatus::Stopped as u8;
     }
 
     pub fn finish(&mut self, ipfs_result: [u8; 32], time_end: i64) {
@@ -249,9 +246,11 @@ impl From<u8> for QueueType {
 ///
 #[repr(u8)]
 pub enum JobStatus {
+    #[allow(dead_code)]
     Queued = 0,
     Running = 1,
     Done = 2,
+    Stopped = 3,
 }
 
 /// ### Job Type

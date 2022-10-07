@@ -34,5 +34,24 @@ export default function suite() {
         'xnos'
       );
     });
+
+    it('can stake for other nodes', async function () {
+      for (const node of [this.users.node1, this.users.node2, ...this.users.otherNodes]) {
+        await this.stakingProgram.methods
+          .stake(new anchor.BN(this.constants.stakeAmount * 2), new anchor.BN(3 * this.constants.stakeDurationMin))
+          .accounts({
+            ...this.accounts,
+            user: node.ata,
+            authority: node.publicKey,
+            stake: node.stake,
+            vault: node.vault,
+          })
+          .signers([node.user])
+          .rpc();
+        this.balances.vaultStaking += this.constants.stakeAmount * 2;
+        node.balance -= this.constants.stakeAmount * 2;
+        expect(await getTokenBalance(this.provider, node.ata)).to.equal(node.balance);
+      }
+    });
   });
 }

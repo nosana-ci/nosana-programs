@@ -85,6 +85,15 @@ pub mod nosana_jobs {
         list::handler(ctx, ipfs_job)
     }
 
+    /// ### Recover
+    ///
+    /// The `recover()` instruction recovers funds from a jobs that has been [Quit](#quit)'ed.
+    /// When there is a node available, a [JobAccount](#job-account) will automatically be created.
+    ///
+    pub fn recover(ctx: Context<Recover>) -> Result<()> {
+        recover::handler(ctx)
+    }
+
     /*************************************************************************
     NODE INSTRUCTIONS
     */
@@ -111,6 +120,15 @@ pub mod nosana_jobs {
     ///
     pub fn stop(ctx: Context<Stop>) -> Result<()> {
         stop::handler(ctx)
+    }
+
+    /// ### Claim
+    ///
+    /// With the `claim()` instruction a node exits the node queue
+    /// from a [MarketAccount](#market-account).
+    ///
+    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+        claim::handler(ctx)
     }
 
     /// ### Finish

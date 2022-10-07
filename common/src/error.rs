@@ -55,18 +55,24 @@ pub enum NosanaError {
     JobAccountAlreadyInitialized,
     #[msg("The Market Account is not writable.")]
     MarketNotMutable,
+    #[msg("This market is not valid.")]
+    InvalidMarket,
 
     // node errors
     #[msg("This node does not have an active stake.")]
     NodeNoStake,
     #[msg("This node queue does not match.")]
     NodeQueueDoesNotMatch,
+    #[msg("This node is not authorizing this stake.")]
+    NodeStakeUnauthorized,
     #[msg("This node has not staked enough tokens.")]
     NodeNotEnoughStake,
     #[msg("This node is already present in the queue.")]
     NodeAlreadyQueued,
     #[msg("This metadata does not have the correct address.")]
     NodeNftWrongMetadata,
+    #[msg("This NFT is not owned by this node.")]
+    NodeNftWrongOwner,
     #[msg("This access key does not belong to a verified collection.")]
     NodeKeyInvalidCollection,
 
