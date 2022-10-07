@@ -232,6 +232,7 @@ A number of 3 accounts make up for the Nosana Rewards Program's state.
 
 The `ReflectionAccount` struct holds all the information on the reflection pool.
 
+The total size of this account is `89` bytes.
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `rate`                      | `u128`                      | `16`    | `8`     | The current reward rate.                                                                          |
@@ -244,6 +245,7 @@ The `ReflectionAccount` struct holds all the information on the reflection pool.
 
 The `RewardAccount` struct holds all the information for any given user account.
 
+The total size of this account is `73` bytes.
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |

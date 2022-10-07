@@ -70,6 +70,9 @@ impl MarketAccount {
     }
 
     pub fn add_to_queue(&mut self, order: Order) {
+        if self.job_type == JobType::Unknown as u8 {
+            return;
+        }
         if self.queue_type == QueueType::Unknown as u8 {
             self.set_queue_type(if order.job_price != 0 {
                 QueueType::Job

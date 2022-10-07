@@ -126,6 +126,16 @@ export default function suite() {
       await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
     });
 
+    it('can not work and enter the market queue twice', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .work()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.NodeAlreadyQueued);
+    });
+
     it('can fetch a market with a node queue', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
       const queue = market.queue as [];

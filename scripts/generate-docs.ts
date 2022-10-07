@@ -8,6 +8,7 @@ import nosanaRewards from '../target/idl/nosana_rewards.json';
 import nosanaStaking from '../target/idl/nosana_staking.json';
 import { writeFileSync, readFileSync } from 'fs';
 import commandLineArgs from 'command-line-args';
+import doc = Mocha.reporters.doc;
 
 const options = commandLineArgs([
   { name: 'enhance', alias: 'e', type: Boolean },
@@ -34,9 +35,9 @@ const typeToString = (field) =>
   typeof field.type === 'string'
     ? field.type
     : 'vec' in field.type
-    ? `Vec<${field.type.vec}>`
+    ? `Vec<${Object.values(field.type.vec)[0]}>`
     : 'array' in field.type
-    ? `[${field.type.array[0]}; ${field.type.array[1]}]`
+    ? `${JSON.stringify(field.type.array)}`
     : field.toString();
 
 /**
@@ -49,8 +50,8 @@ const sizes = {
   i64: 16,
   u128: 16,
   publicKey: 32,
-  '[u8; 32]': 32,
-  'Vec<publicKey>': 100 * 32,
+  '["u8",32]': 32,
+  'Vec<Order>': 100 * (32 + 32 + 8),
 };
 
 const descriptions = (name) => {
@@ -68,8 +69,6 @@ const descriptions = (name) => {
       return 'The signing authority of the program invocation.';
     case 'newAuthority':
       return 'The new authority of the  [SettingsAccount](#settings-account).';
-    case 'feePayer':
-      return 'The signing Fee Payer address.';
     case 'rent':
       return 'The official Solana rent address. Responsible for lamports.';
     case 'mint':
@@ -140,6 +139,8 @@ const descriptions = (name) => {
       return 'The current total xNOS.';
 
     // job arguments
+    case 'jobExpiration':
+      return 'The expiration time in seconds for jobs.';
     case 'jobTimeout':
       return 'The timeout time in seconds for jobs.';
     case 'jobType':
@@ -154,6 +155,10 @@ const descriptions = (name) => {
       return 'The byte array representing the IPFS hash to the results.';
     case 'ipfsJob':
       return 'The byte array representing the IPFS hash to the job.';
+    case 'payer':
+      return 'The paying identy for the rent.';
+    case 'seed':
+      return 'A new pubkey, or the system program pubkey';
     case 'queue':
       return 'The queue of order in the market.';
     case 'queueType':
@@ -372,7 +377,11 @@ function main() {
         data.push(`### ${title(account.name)}`, '\n');
       }
 
-      // accounts table
+      let size = 8;
+      for (const field of account.type.fields) size += sizes[typeToString(field)];
+      data.push(`The total size of this account is \`${size.toLocaleString('en')}\` bytes.`)
+
+        // accounts table
       const at = new MarkdownTable([30, 30, 10, 10, 100]);
       data.push(at.row(['Name', 'Type', 'Size', 'Offset', 'Description']), at.sep());
       let offset = 8;
@@ -433,7 +442,7 @@ function main() {
           data.push(`A number of ${t.type.fields.length} variants are defined in this \`struct\`:`);
           data.push(tt.row(['Name', 'Type']), tt.sep());
           for (const field of t.type.fields) {
-            data.push(tt.row([`\`${field.name}\``, `\`${field.type}\``]));
+            data.push(tt.row([`\`${field.name}\``, `\`${typeToString(field)}\``]));
           }
         } else {
           throw 'woops';

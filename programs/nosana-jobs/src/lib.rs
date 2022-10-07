@@ -13,6 +13,10 @@ declare_id!(id::JOBS_PROGRAM);
 pub mod nosana_jobs {
     use super::*;
 
+    /*************************************************************************
+    ADMIN INSTRUCTIONS
+    */
+
     /// ### Open
     ///
     /// The `open()` instruction initializes a [MarketAccount](#market-account) and an
@@ -34,16 +38,6 @@ pub mod nosana_jobs {
             job_type,
             node_stake_minimum,
         )
-    }
-
-    /// ### Close
-    ///
-    /// The `close()` instruction closes a [MarketAccount](#market-account) and the
-    /// associated [VaultAccount](#vault-account).
-    /// The vault has to be empty of tokens.
-    ///
-    pub fn close(ctx: Context<Close>) -> Result<()> {
-        close::handler(ctx)
     }
 
     /// ### Update
@@ -68,28 +62,37 @@ pub mod nosana_jobs {
         )
     }
 
+    /// ### Close
+    ///
+    /// The `close()` instruction closes a [MarketAccount](#market-account) and the
+    /// associated [VaultAccount](#vault-account).
+    /// The vault has to be empty of tokens.
+    ///
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        close::handler(ctx)
+    }
+
+    /*************************************************************************
+    PROJECT INSTRUCTIONS
+    */
+
     /// ### List
     ///
     /// The `list()` instruction lists a job, with its required data.
-    /// When there is a node ready in the queue it will immediately start running.
-    /// The [JobAccount](#job-account) is optionally created
+    /// When there is a node available, a [JobAccount](#job-account) will automatically be created.
     ///
     pub fn list(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
         list::handler(ctx, ipfs_job)
     }
 
-    /// ### Clean
-    ///
-    /// The `clean()` instruction closes an existing [JobAccount](#job-account).
-    /// When the job was still queued the tokens will be returned to the user.
-    ///
-    pub fn clean(ctx: Context<Clean>) -> Result<()> {
-        clean::handler(ctx)
-    }
+    /*************************************************************************
+    NODE INSTRUCTIONS
+    */
 
     /// ### Work
     ///
     /// With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
+    /// When there is a job available, a [JobAccount](#job-account) will automatically be created.
     ///
     /// A few requirements are enforced:
     ///
@@ -125,5 +128,24 @@ pub mod nosana_jobs {
     ///
     pub fn quit(ctx: Context<Quit>) -> Result<()> {
         quit::handler(ctx)
+    }
+
+    /*************************************************************************
+    ANONYMOUS INSTRUCTIONS
+    */
+
+    /// ### Clean
+    ///
+    /// The `clean()` instruction closes an [JobAccount](#job-account).
+    /// The job has be finished and the job expiration time has to be exceeded.
+    ///
+    /// This [filter](https://solanacookbook.com/guides/get-program-accounts) finds finished jobs:
+    ///
+    /// ```json
+    /// { "memcmp": { "offset": 208, "bytes": "2" } }
+    /// ```
+    ///
+    pub fn clean(ctx: Context<Clean>) -> Result<()> {
+        clean::handler(ctx)
     }
 }

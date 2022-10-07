@@ -191,6 +191,7 @@ A number of 2 accounts make up for the Nosana Pools Program's state.
 
 The `PoolAccount` struct holds all the information for any given pool.
 
+The total size of this account is `139` bytes.
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |

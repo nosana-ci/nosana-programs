@@ -8,20 +8,21 @@ pub struct List<'info> {
     ///  - if there's a node queued, a new account will be initialized
     ///  - this new account should not already have data in it
     ///  - if there is no node queued, we're using the dummy account that's already initialized
-    ///  - the seed key is used as init_if_needed validator
     #[account(
         init_if_needed,
         payer = payer,
         space = JobAccount::SIZE,
         constraint = JobAccount::is_created(&job) != MarketAccount::has_node(&market)
             @ NosanaError::JobAccountAlreadyInitialized,
-        constraint = JobAccount::is_seed_allowed(MarketAccount::has_node(&market), seed.key())
-            @ NosanaError::JobSeedAddressViolation,
         seeds = [ JobAccount::get_seed(MarketAccount::has_node(&market), seed.key()).as_ref() ],
         bump,
     )]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
-    /// CHECK: this is a key used as seed for the job account, validated above
+    /// CHECK: this is a key used as seed for the job account, set to default for the dummy account
+    #[account(
+        constraint = JobAccount::is_seed_allowed(MarketAccount::has_node(&market), seed.key())
+            @ NosanaError::JobSeedAddressViolation,
+    )]
     pub seed: AccountInfo<'info>,
     #[account(mut @ NosanaError::MarketNotMutable, has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,

@@ -12,20 +12,21 @@ pub struct Work<'info> {
     ///  - if there's a job queued, a new account will be initialized
     ///  - this new account should not already have data in it
     ///  - if there is no job queued, we're using the dummy account that's already initialized
-    ///  - the seed key is used as init_if_needed validator
     #[account(
         init_if_needed,
         payer = payer,
         space = JobAccount::SIZE,
         constraint = JobAccount::is_created(&job) != MarketAccount::has_job(&market)
             @ NosanaError::JobAccountAlreadyInitialized,
-        constraint = JobAccount::is_seed_allowed(MarketAccount::has_job(&market), seed.key())
-            @ NosanaError::JobSeedAddressViolation,
         seeds = [ JobAccount::get_seed(MarketAccount::has_job(&market), seed.key()).as_ref() ],
         bump,
     )]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
-    /// CHECK: this is a key used as seed for the job account, validated above
+    /// CHECK: this is a key used as seed for the job account, set to default for the dummy account
+    #[account(
+        constraint = JobAccount::is_seed_allowed(MarketAccount::has_job(&market), seed.key())
+            @ NosanaError::JobSeedAddressViolation,
+    )]
     pub seed: AccountInfo<'info>,
     #[account(mut @ NosanaError::MarketNotMutable)]
     pub market: Account<'info, MarketAccount>,
@@ -63,6 +64,12 @@ pub fn handler(ctx: Context<Work>) -> Result<()> {
     let market: &mut MarketAccount = &mut ctx.accounts.market;
     match QueueType::from(market.queue_type) {
         QueueType::Node | QueueType::Unknown => {
+            require!(
+                market
+                    .find_node_in_queue(ctx.accounts.authority.key())
+                    .is_none(),
+                NosanaError::NodeAlreadyQueued
+            );
             market.add_to_queue(Order::new_node(ctx.accounts.authority.key()))
         }
         QueueType::Job => {
