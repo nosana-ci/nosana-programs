@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 
 type NosanaTotals = {
@@ -25,6 +25,8 @@ type NosanaBalances = {
 
 type NosanaMarket = {
   address: PublicKey;
+  dummyKey: Keypair;
+  usedKey: Keypair;
   jobExpiration: number;
   jobTimeout: number;
   jobType: number;
@@ -73,8 +75,6 @@ type NosanaAccounts = {
 
   // jobs specific
   job: PublicKey;
-  seed: PublicKey;
-  oldSeed: PublicKey;
   market: PublicKey;
   nft: PublicKey;
   metadata: PublicKey;

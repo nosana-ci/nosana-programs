@@ -51,12 +51,10 @@ pub enum NosanaError {
     JobInWrongState,
     #[msg("The job has not yet expired.")]
     JobNotExpired,
-    #[msg("This JobAccount seed is not allowed.")]
-    JobSeedAddressViolation,
-    #[msg("This JobAccount is already initialized.")]
-    JobAccountAlreadyInitialized,
-    #[msg("The Market Account is not writable.")]
-    MarketNotMutable,
+    #[msg("This JobAccount address not allowed.")]
+    JobAddressInvalid,
+    #[msg("This JobAccount constraint is not satisfied. Use a new or dummy account only.")]
+    JobConstraintNotSatisfied,
     #[msg("This market is not valid.")]
     InvalidMarket,
 

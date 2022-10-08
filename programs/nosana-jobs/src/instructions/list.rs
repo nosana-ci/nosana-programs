@@ -4,39 +4,27 @@ use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, ReflectionAc
 
 #[derive(Accounts)]
 pub struct List<'info> {
-    /// we're verifying that:
-    ///  - if there's a node queued, a new account will be initialized
-    ///  - this new account should not already have data in it
-    ///  - if there is no node queued, we're using the dummy account that's already initialized
     #[account(
         init_if_needed,
         payer = payer,
         space = JobAccount::SIZE,
-        constraint = JobAccount::is_created(&job) != MarketAccount::has_node(&market)
-            @ NosanaError::JobAccountAlreadyInitialized,
-        seeds = [ JobAccount::get_seed(MarketAccount::has_node(&market), seed.key()).as_ref() ],
-        bump,
+        constraint = JobAccount::constraint(job.status, market.queue_type, QueueType::Node)
+            @ NosanaError::JobConstraintNotSatisfied,
     )]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
-    /// CHECK: this is a key used as seed for the job account, set to default for the dummy account
-    #[account(
-        constraint = JobAccount::is_seed_allowed(MarketAccount::has_node(&market), seed.key())
-            @ NosanaError::JobSeedAddressViolation,
-    )]
-    pub seed: AccountInfo<'info>,
-    #[account(mut @ NosanaError::MarketNotMutable, has_one = vault @ NosanaError::InvalidVault)]
+    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
     #[account(mut)]
-    pub vault: Box<Account<'info, TokenAccount>>,
+    pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub user: Box<Account<'info, TokenAccount>>,
+    pub user: Account<'info, TokenAccount>,
     #[account(mut)]
     pub payer: Signer<'info>,
+    #[account(mut)]
+    pub rewards_reflection: Account<'info, ReflectionAccount>,
+    #[account(mut)]
+    pub rewards_vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
-    #[account(mut)]
-    pub rewards_reflection: Box<Account<'info, ReflectionAccount>>,
-    #[account(mut)]
-    pub rewards_vault: Box<Account<'info, TokenAccount>>,
     pub rewards_program: Program<'info, NosanaRewards>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
@@ -47,7 +35,7 @@ pub fn handler(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
     let market_key: Pubkey = ctx.accounts.market.key();
     let market: &mut MarketAccount = &mut ctx.accounts.market;
     match QueueType::from(market.queue_type) {
-        QueueType::Job | QueueType::Unknown => market.add_to_queue(Order::new_job(
+        QueueType::Job | QueueType::Empty => market.add_to_queue(Order::new_job(
             ctx.accounts.authority.key(),
             ipfs_job,
             market.job_price,

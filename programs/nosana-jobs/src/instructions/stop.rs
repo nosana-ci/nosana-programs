@@ -8,7 +8,6 @@ pub struct Stop<'info> {
 }
 
 pub fn handler(ctx: Context<Stop>) -> Result<()> {
-    // exit the queue
     ctx.accounts
         .market
         .remove_node_from_queue(ctx.accounts.authority.key());

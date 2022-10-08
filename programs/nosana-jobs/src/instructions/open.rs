@@ -20,10 +20,9 @@ pub struct Open<'info> {
         init_if_needed,
         payer = authority,
         space = JobAccount::SIZE,
-        seeds = [ id::SYSTEM_PROGRAM.as_ref() ],
-        bump,
+        address = id::DUMMY_JOB @NosanaError::JobAddressInvalid,
     )]
-    pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
+    pub job: Account<'info, JobAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     /// CHECK: Only the account address is needed for an access key
@@ -39,7 +38,7 @@ pub fn handler(
     job_price: u64,
     job_timeout: i64,
     job_type: u8,
-    node_stake_minimum: u64,
+    node_xnos_minimum: u64,
 ) -> Result<()> {
     ctx.accounts.market.init(
         ctx.accounts.authority.key(),
@@ -48,10 +47,10 @@ pub fn handler(
         job_timeout,
         JobType::from(job_type) as u8,
         ctx.accounts.access_key.key(),
-        node_stake_minimum,
+        node_xnos_minimum,
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
-    ctx.accounts.job.project = id::JOBS_PROGRAM;
+    ctx.accounts.job.set_dummy();
     Ok(())
 }

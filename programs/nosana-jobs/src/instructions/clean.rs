@@ -11,9 +11,9 @@ pub struct Clean<'info> {
             @ NosanaError::JobNotExpired,
     )]
     pub job: Account<'info, JobAccount>,
+    pub market: Account<'info, MarketAccount>,
     /// CHECK: this account is verified as the original payer for the job
     pub payer: AccountInfo<'info>,
-    pub market: Account<'info, MarketAccount>,
 }
 
 pub fn handler(_ctx: Context<Clean>) -> Result<()> {

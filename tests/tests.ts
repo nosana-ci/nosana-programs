@@ -6,7 +6,7 @@ import { PublicKey } from '@solana/web3.js';
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BN } from '@project-serum/anchor';
 import { constants } from './contstants';
-import { pda } from './utils';
+import { getDummyKey, pda } from './utils';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
 // local test suites
@@ -73,6 +73,7 @@ describe('nosana programs', async function () {
 
     // nosana market
     this.market = {} as NosanaMarket;
+    this.market.dummyKey = await getDummyKey();
     this.market.jobExpiration = this.constants.jobTimeout;
     this.market.jobPrice = this.constants.jobPrice;
     this.market.jobTimeout = this.constants.jobTimeout;

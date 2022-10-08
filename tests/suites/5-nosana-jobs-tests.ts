@@ -10,13 +10,10 @@ import { Context, describe } from 'mocha';
  * @param dummy
  * @param seed
  */
-async function setJobAccountAndSeed(
-  mochaContext: Context,
-  dummy = false,
-  seed = anchor.web3.Keypair.generate().publicKey
-) {
-  mochaContext.accounts.seed = dummy ? mochaContext.accounts.systemProgram : seed;
-  mochaContext.accounts.job = await pda([mochaContext.accounts.seed.toBuffer()], mochaContext.jobsProgram.programId);
+function setJobAccountAndGetKey(mochaContext: Context, dummy = false) {
+  const key = dummy ? mochaContext.market.dummyKey : anchor.web3.Keypair.generate();
+  mochaContext.accounts.job = key.publicKey;
+  return key;
 }
 
 export default function suite() {
@@ -31,7 +28,7 @@ export default function suite() {
     expect(market.jobPrice.toNumber()).to.equal(this.market.jobPrice, 'jobPrice');
     expect(market.jobTimeout.toNumber()).to.equal(this.market.jobTimeout, 'jobTimeout');
     expect(market.jobType).to.equal(this.market.jobType, 'jobType');
-    expect(market.nodeStakeMinimum.toNumber()).to.equal(this.market.nodeStakeMinimum, 'nodeStakeMinimum');
+    expect(market.nodeXnosMinimum.toNumber()).to.equal(this.market.nodeStakeMinimum, 'nodeStakeMinimum');
     expect(market.nodeAccessKey.toString()).to.equal(this.market.nodeAccessKey.toString(), 'nodeStakeMinimum');
     expect(market.queueType).to.equal(this.market.queueType, 'queueType');
     expect((market.queue as []).length).to.equal(this.market.queueLength, 'length');
@@ -39,8 +36,8 @@ export default function suite() {
 
   describe('open()', async function () {
     it('can open a market, vault, and dummy job', async function () {
-      const throwAwayKeypair = anchor.web3.Keypair.generate();
-      this.accounts.market = throwAwayKeypair.publicKey;
+      const marketKey = anchor.web3.Keypair.generate();
+      this.accounts.market = marketKey.publicKey;
       this.market.address = this.accounts.market;
       this.accounts.vault = await pda(
         [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
@@ -48,8 +45,8 @@ export default function suite() {
       );
       this.vaults.jobs = this.accounts.vault;
       this.marketClosed = false;
-      await setJobAccountAndSeed(this, true);
 
+      const jobKey = setJobAccountAndGetKey(this, true);
       await this.jobsProgram.methods
         .open(
           new BN(this.market.jobExpiration),
@@ -59,24 +56,24 @@ export default function suite() {
           new BN(this.market.nodeStakeMinimum)
         )
         .accounts(this.accounts)
-        .signers([throwAwayKeypair])
+        .signers([marketKey, jobKey])
         .rpc();
     });
 
     it('can fetch the dummy / queued job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.status).to.equal(this.constants.jobStatus.queued);
+      expect(job.status).to.equal(this.constants.jobStatus.dummy);
       expect(job.project.toString()).to.equal(this.jobsProgram.programId.toString());
-      expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
-      expect(job.market.toString()).to.equal(this.accounts.systemProgram.toString());
+      expect(job.node.toString()).to.equal(this.jobsProgram.programId.toString());
+      expect(job.market.toString()).to.equal(this.jobsProgram.programId.toString());
       expect(job.project.toString()).to.equal(this.jobsProgram.programId.toString());
     });
   });
 
   describe('list()', async function () {
     it('can list a job when there are no nodes', async function () {
-      await setJobAccountAndSeed(this, true);
-      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
+      const key = setJobAccountAndGetKey(this, true);
+      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).signers([key]).rpc();
 
       // update balances
       this.balances.user -= this.constants.jobPrice;
@@ -96,19 +93,24 @@ export default function suite() {
   });
 
   describe('work()', async function () {
-    it('can not create a job with system seed as node, because it exists', async function () {
+    it('can not start work with the dummy account', async function () {
       let msg = '';
+      const key = setJobAccountAndGetKey(this, true);
       await this.jobsProgram.methods
         .work()
         .accounts(this.accounts)
+        .signers([key])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobAccountAlreadyInitialized);
+      expect(msg).to.equal(this.constants.errors.JobConstraintNotSatisfied);
     });
 
-    it('can work on a job with a new seed as node', async function () {
-      await setJobAccountAndSeed(this);
-      await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
+    it('can work on job,with a new key', async function () {
+      const key = setJobAccountAndGetKey(this);
+
+      this.market.usedKey = key; // remember for later
+
+      await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
 
       this.market.queueLength -= 1;
       this.market.queueType = this.constants.queueType.unknown;
@@ -127,9 +129,8 @@ export default function suite() {
     });
 
     it('can work and enter the market queue as a node', async function () {
-      this.accounts.oldSeed = this.accounts.seed;
-      await setJobAccountAndSeed(this, true);
-      await this.jobsProgram.methods.work().accounts(this.accounts).rpc();
+      const key = setJobAccountAndGetKey(this, true);
+      await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
 
       // update market
       this.market.queueType = this.constants.queueType.node;
@@ -138,9 +139,11 @@ export default function suite() {
 
     it('can not work and enter the market queue twice', async function () {
       let msg = '';
+      const key = setJobAccountAndGetKey(this, true);
       await this.jobsProgram.methods
         .work()
         .accounts(this.accounts)
+        .signers([key])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.NodeAlreadyQueued);
@@ -155,28 +158,33 @@ export default function suite() {
   describe('list()', async function () {
     it('can not list job for creation with system seed', async function () {
       let msg = '';
+      const key = setJobAccountAndGetKey(this, true);
       await this.jobsProgram.methods
         .list(this.constants.ipfsData)
         .accounts(this.accounts)
+        .signers([key])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobAccountAlreadyInitialized);
+      expect(msg).to.equal(this.constants.errors.JobConstraintNotSatisfied);
     });
 
     it('can not list a job account with a used seed', async function () {
       let msg = '';
-      await setJobAccountAndSeed(this, false, this.accounts.oldSeed);
       await this.jobsProgram.methods
         .list(this.constants.ipfsData)
-        .accounts(this.accounts)
+        .accounts({
+          ...this.accounts,
+          job: this.market.usedKey.publicKey,
+        })
+        .signers([this.market.usedKey])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobAccountAlreadyInitialized);
+      expect(msg).to.equal(this.constants.errors.JobConstraintNotSatisfied);
     });
 
     it('can create a job account with a new seed', async function () {
-      await setJobAccountAndSeed(this);
-      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).rpc();
+      const key = setJobAccountAndGetKey(this);
+      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).signers([key]).rpc();
 
       // update market
       this.market.queueType = this.constants.queueType.unknown;
@@ -322,16 +330,18 @@ export default function suite() {
   });
 
   describe('quit()', async function () {
-    it('can list a jobs and start working on it', async function () {
-      await setJobAccountAndSeed(this, true);
-      const tx = await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).instruction();
-
-      await setJobAccountAndSeed(this);
-      await this.jobsProgram.methods.work().accounts(this.accounts).preInstructions([tx]).rpc();
+    it('can list a job', async function () {
+      const key = setJobAccountAndGetKey(this, true);
+      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).signers([key]).rpc();
 
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
+    });
+
+    it('can start working on it', async function () {
+      const key = setJobAccountAndGetKey(this, false);
+      await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
     });
 
     it('can not quit a job for another node', async function () {

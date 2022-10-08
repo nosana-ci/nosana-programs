@@ -28,7 +28,7 @@ pub mod nosana_jobs {
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
-        node_stake_minimum: u64,
+        node_xnos_minimum: u64,
     ) -> Result<()> {
         open::handler(
             ctx,
@@ -36,7 +36,7 @@ pub mod nosana_jobs {
             job_price,
             job_timeout,
             job_type,
-            node_stake_minimum,
+            node_xnos_minimum,
         )
     }
 

@@ -1,5 +1,6 @@
 import * as anchor from '@project-serum/anchor';
-import SecretKey = require('./keys/devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP.json');
+import MintKey = require('./keys/devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP.json');
+import DummyKey = require('./keys/dumxV9afosyVJ5LNGUmeo4JpuajWXRJ9SH8Mc8B3cGn.json');
 import { createMint, createAssociatedTokenAccount, mintTo } from '@solana/spl-token';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
@@ -19,6 +20,13 @@ async function getTokenBalance(provider: AnchorProvider, wallet: PublicKey) {
 
 /**
  *
+ */
+async function getDummyKey() {
+  return anchor.web3.Keypair.fromSecretKey(new Uint8Array(DummyKey));
+}
+
+/**
+ *
  * @param connection
  * @param payer
  * @param authority
@@ -30,7 +38,7 @@ async function createNosMint(connection: Connection, payer: Signer, authority: P
     authority,
     null,
     6,
-    anchor.web3.Keypair.fromSecretKey(new Uint8Array(SecretKey))
+    anchor.web3.Keypair.fromSecretKey(new Uint8Array(MintKey))
   );
 }
 
@@ -192,6 +200,7 @@ async function getUsers(mochaContext: Context, amount: number) {
 export {
   buf2hex,
   calculateXnos,
+  getDummyKey,
   getTimestamp,
   getTokenBalance,
   getUsers,

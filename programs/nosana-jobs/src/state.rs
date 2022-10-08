@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
 use nosana_common::id;
 use std::mem::size_of;
 
@@ -16,7 +17,7 @@ pub struct MarketAccount {
     pub vault: Pubkey,
     pub vault_bump: u8,
     pub node_access_key: Pubkey,
-    pub node_stake_minimum: u64,
+    pub node_xnos_minimum: u64,
     pub queue_type: u8,
     pub queue: Vec<Order>,
 }
@@ -35,7 +36,7 @@ impl MarketAccount {
         job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
-        node_stake_minimum: u64,
+        node_xnos_minimum: u64,
         vault: Pubkey,
         vault_bump: u8,
     ) {
@@ -45,11 +46,11 @@ impl MarketAccount {
         self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.node_access_key = node_access_key;
-        self.node_stake_minimum = node_stake_minimum;
+        self.node_xnos_minimum = node_xnos_minimum;
         self.vault = vault;
         self.vault_bump = vault_bump;
         self.queue = Vec::new();
-        self.queue_type = QueueType::Unknown as u8;
+        self.queue_type = QueueType::Empty as u8;
     }
 
     pub fn update(
@@ -66,14 +67,14 @@ impl MarketAccount {
         self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.node_access_key = node_access_key;
-        self.node_stake_minimum = node_stake_minimum;
+        self.node_xnos_minimum = node_stake_minimum;
     }
 
     pub fn add_to_queue(&mut self, order: Order) {
         if self.job_type == JobType::Unknown as u8 {
             return;
         }
-        if self.queue_type == QueueType::Unknown as u8 {
+        if self.queue_type == QueueType::Empty as u8 {
             self.set_queue_type(if order.job_price != 0 {
                 QueueType::Job
             } else {
@@ -91,7 +92,7 @@ impl MarketAccount {
     pub fn pop_from_queue(&mut self) -> Order {
         // we check if there is one left
         if self.queue.len() == 1 {
-            self.set_queue_type(QueueType::Unknown);
+            self.set_queue_type(QueueType::Empty);
         }
         self.queue.pop().unwrap()
     }
@@ -106,12 +107,17 @@ impl MarketAccount {
         self.queue_type = queue_type as u8;
     }
 
-    pub fn has_node(market: &Account<MarketAccount>) -> bool {
-        market.queue_type == QueueType::Node as u8
-    }
+    /***
 
-    pub fn has_job(market: &Account<MarketAccount>) -> bool {
-        market.queue_type == QueueType::Job as u8
+    */
+    pub fn metadata_constraint(metadata: &AccountInfo, node_access_key: Pubkey) -> bool {
+        if node_access_key == id::SYSTEM_PROGRAM {
+            true
+        } else {
+            let metadata: Metadata = Metadata::from_account_info(metadata).unwrap();
+            let collection: Collection = metadata.collection.unwrap();
+            collection.verified && collection.key == node_access_key
+        }
     }
 }
 
@@ -165,6 +171,14 @@ pub struct JobAccount {
 impl JobAccount {
     pub const SIZE: usize = 8 + size_of::<JobAccount>();
 
+    pub fn set_dummy(&mut self) {
+        self.market = id::JOBS_PROGRAM;
+        self.node = id::JOBS_PROGRAM;
+        self.payer = id::JOBS_PROGRAM;
+        self.project = id::JOBS_PROGRAM;
+        self.status = JobStatus::Dummy as u8;
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn create(
         &mut self,
@@ -202,20 +216,23 @@ impl JobAccount {
         self.time_end = time_end;
     }
 
-    pub fn get_seed(available: bool, seed: Pubkey) -> Pubkey {
-        if available {
-            seed
-        } else {
-            id::SYSTEM_PROGRAM
-        }
-    }
-
-    pub fn is_seed_allowed(available: bool, seed: Pubkey) -> bool {
-        available && seed != id::SYSTEM_PROGRAM || !available && seed == id::SYSTEM_PROGRAM
-    }
-
-    pub fn is_created(job_account: &Account<JobAccount>) -> bool {
-        job_account.project != id::SYSTEM_PROGRAM
+    /***
+      This constraint verifies that:
+       - if there's an order queued (could be a node or job, queue_type matches the scenario) queued;
+           - a new job account will be initialized
+           - the new account should not have data in it (re-init attack)
+       - if there no order available, OR :
+           - no new job account will be initialized
+           - the dummy account is passed that's already created
+           - a new job data will end up in the end of queue
+    */
+    pub fn constraint(job_status: u8, queue_type: u8, scenario: QueueType) -> bool {
+        job_status
+            == if queue_type == scenario as u8 {
+                JobStatus::Null as u8
+            } else {
+                JobStatus::Dummy as u8
+            }
     }
 }
 
@@ -227,7 +244,7 @@ impl JobAccount {
 pub enum QueueType {
     Job = 0,
     Node = 1,
-    Unknown = 255,
+    Empty = 255,
 }
 
 impl From<u8> for QueueType {
@@ -235,22 +252,22 @@ impl From<u8> for QueueType {
         match queue_type {
             0 => QueueType::Job,
             1 => QueueType::Node,
-            _ => QueueType::Unknown,
+            _ => QueueType::Empty,
         }
     }
 }
 
 /// ### Job Status
 ///
-/// The `JobStatus` describes the status of any job
+/// The `JobStatus` describes the status of a job.
 ///
 #[repr(u8)]
 pub enum JobStatus {
-    #[allow(dead_code)]
-    Queued = 0,
+    Null = 0,
     Running = 1,
     Done = 2,
     Stopped = 3,
+    Dummy = 100,
 }
 
 /// ### Job Type

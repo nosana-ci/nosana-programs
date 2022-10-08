@@ -30,6 +30,7 @@ const constants = {
     running: 1,
     done: 2,
     quit: 3,
+    dummy: 100,
   },
 
   jobType: {
@@ -85,7 +86,7 @@ const constants = {
     JobInWrongState: 'This job does not have the right status.',
     JobNotExpired: 'The job has not yet expired.',
     JobSeedAddressViolation: 'This JobAccount seed is not allowed.',
-    JobAccountAlreadyInitialized: 'This JobAccount is already initialized.',
+    JobConstraintNotSatisfied: 'This JobAccount constraint is not satisfied. Use a new or dummy account only.',
 
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
