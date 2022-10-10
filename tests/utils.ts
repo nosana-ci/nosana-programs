@@ -21,7 +21,7 @@ async function getTokenBalance(provider: AnchorProvider, wallet: PublicKey) {
 /**
  *
  */
-async function getDummyKey() {
+function getDummyKey() {
   return anchor.web3.Keypair.fromSecretKey(new Uint8Array(DummyKey));
 }
 

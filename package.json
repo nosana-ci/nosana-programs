@@ -30,7 +30,7 @@
     "prettier:fix": "prettier '{scripts,tests}/**/*.ts' --w",
     "script:claim-fee-pool": "ts-node scripts/claim-fee-pool",
     "script:create-fee-dist-pool": "ts-node scripts/create-fee-dist-pool",
-    "script:create-market": "ts-node scripts/create-market",
+    "script:open-market": "ts-node scripts/open-market",
     "script:draw-mint-pass-lottery": "ts-node scripts/draw-mint-pass-lottery",
     "script:generate-docs": "ts-node scripts/generate-docs",
     "script:get-staking-address": "ts-node scripts/get-staking-address",

@@ -1,0 +1,9 @@
+{
+  "jobExpiration": 2678400,
+  "jobPrice": 100000000,
+  "jobTimeout": 3600,
+  "jobType": 0,
+  "nodeAccessKey": "CBLH5YsCPhaQ79zDyzqxEMNMVrE5N7J6h4hrtYNahPLU",
+  "nodeMinimumStake": 10000000000,
+  "mint": "devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP"
+}

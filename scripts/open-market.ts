@@ -3,8 +3,8 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 // @ts-ignore
 import { NosanaJobs } from '../target/types/nosana_jobs';
-import { constants } from '../tests/contstants';
-import { pda } from '../tests/utils';
+import { getDummyKey, pda } from '../tests/utils';
+import MarketConfig = require('../tests/data/market.json');
 
 async function main() {
   // anchor
@@ -16,8 +16,9 @@ async function main() {
   const marketKey = Keypair.generate();
 
   // public keys
-  const mint = new PublicKey('devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP');
+  const mint = new PublicKey(MarketConfig.mint);
   const market = marketKey.publicKey;
+  const jobKey = getDummyKey();
   const programId = new PublicKey('nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM');
 
   // program
@@ -27,23 +28,24 @@ async function main() {
   // open pool
   const tx = await program.methods
     .open(
-      new BN(14 * 24 * 60 * 60), // job expiration
-      new BN(100 * constants.decimals), // job price = 1 NOS
-      new BN(60 * 60), // job timeout = 1 hour
-      constants.jobType.default, // job type = default
-      new BN(10_000 * constants.decimals) // minimum stake = 10,000.- NOS
+      new BN(MarketConfig.jobExpiration),
+      new BN(MarketConfig.jobPrice),
+      new BN(MarketConfig.jobType),
+      MarketConfig.jobType,
+      new BN(MarketConfig.nodeMinimumStake)
     )
     .accounts({
+      job: jobKey.publicKey,
       mint,
       market,
       vault: await pda([market.toBuffer(), mint.toBuffer()], programId),
       authority: wallet.publicKey,
-      accessKey: new PublicKey('nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3'),
+      accessKey: new PublicKey(MarketConfig.nodeAccessKey),
       rent: web3.SYSVAR_RENT_PUBKEY,
       systemProgram: web3.SystemProgram.programId,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
-    .signers([marketKey])
+    .signers([jobKey, marketKey])
     .rpc();
 
   // log data
