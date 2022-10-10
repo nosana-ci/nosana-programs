@@ -225,7 +225,7 @@ impl JobAccount {
        - if there's an order queued (could be a node or job, queue_type matches the scenario);
            - a new job account will be initialized
            - the new account should not have data in it (re-init attack)
-       - if there no order available, OR the queue is of the wrong queue:
+       - if the queue is empty, OR the queue is of the wrong type:
            - a new order data will end up in the end of queue
            - no new job account will be initialized
            - the dummy account is passed that's already created
