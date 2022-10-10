@@ -158,9 +158,7 @@ pub mod nosana_jobs {
     ///
     /// This [filter](https://solanacookbook.com/guides/get-program-accounts) finds finished jobs:
     ///
-    /// ```json
-    /// { "memcmp": { "offset": 208, "bytes": "2" } }
-    /// ```
+    /// > { "memcmp": { "offset": 208, "bytes": "2" } }
     ///
     pub fn clean(ctx: Context<Clean>) -> Result<()> {
         clean::handler(ctx)
