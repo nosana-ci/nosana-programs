@@ -12,7 +12,8 @@ pub struct Close<'info> {
 
 pub fn handler(ctx: Context<Close>) -> Result<()> {
     // decrease the reflection pool
-    (&mut ctx.accounts.reflection)
+    ctx.accounts
+        .reflection
         .remove_rewards_account(ctx.accounts.reward.reflection, ctx.accounts.reward.xnos);
     Ok(())
 }

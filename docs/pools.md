@@ -17,8 +17,6 @@
 
 A number of 4 instruction are defined in the Nosana Pools program.
 
-### Example
-
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
@@ -32,7 +30,7 @@ const program = new Program(idl, programId);
 The `open()` instruction lets you open a Nosana Pool's [PoolAccount](#pool-account)
 and [VaultAccount](#vault-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -86,7 +84,7 @@ The `claimFee()` instruction claims emissions from a Nosana Pool
 with claim type [`1`](#claim-type),
 and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -124,7 +122,7 @@ The `claimTransfer()` instruction claims emissions from a Nosana Pool
 with claim type [`0`](#claim-type),
 and transfer these to a given user.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -157,7 +155,7 @@ let tx = await program.methods
 The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
 and [VaultAccount](#vault-account)..
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -193,6 +191,7 @@ A number of 2 accounts make up for the Nosana Pools Program's state.
 
 The `PoolAccount` struct holds all the information for any given pool.
 
+The total size of this account is `139` bytes.
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
@@ -217,7 +216,7 @@ A number of 1 type variants are defined in the Nosana Pools Program's state.
 
 The `ClaimType` of any pool describes the way withdraw (claim) works.
 
-A number of 3 variants are defined:
+A number of 3 variants are defined in this `enum`:
 | Name                                  | Number                                |
 |---------------------------------------|---------------------------------------|
 | `Transfer`                            | `0`                                   |

@@ -6,13 +6,15 @@ import { PublicKey } from '@solana/web3.js';
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BN } from '@project-serum/anchor';
 import { constants } from './contstants';
-import { pda } from './utils';
+import { getDummyKey, pda } from './utils';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
 // local test suites
 import initTests from './suites/1-initialization-tests';
 import stakingTests from './suites/2-nosana-staking-tests';
+import stakingInitTests from './suites/2-nosana-staking-init-tests';
 import rewardTests from './suites/3-nosana-rewards-tests';
+import rewardInitTests from './suites/3-nosana-rewards-init-tests';
 import poolTests from './suites/4-nosana-pools-tests';
 import jobTests from './suites/5-nosana-jobs-tests';
 
@@ -21,7 +23,7 @@ import rewardScenario from './suites/scenario/rewards-tests';
 import claimTransferScenario from './suites/scenario/claim-transfer-tests';
 
 // types
-import { NosanaAccounts, NosanaVaults } from './types/nosana';
+import { NosanaAccounts, NosanaMarket, NosanaVaults } from './types/nosana';
 
 // run
 describe('nosana programs', async function () {
@@ -69,6 +71,18 @@ describe('nosana programs', async function () {
       this.stakingProgram.programId
     );
 
+    // nosana market
+    this.market = {} as NosanaMarket;
+    this.market.dummyKey = await getDummyKey();
+    this.market.jobExpiration = this.constants.jobTimeout;
+    this.market.jobPrice = this.constants.jobPrice;
+    this.market.jobTimeout = this.constants.jobTimeout;
+    this.market.jobType = this.constants.jobType.default;
+    this.market.nodeStakeMinimum = this.constants.minimumNodeStake;
+    this.market.queueType = this.constants.queueType.unknown;
+    this.market.queueLength = 0;
+    this.marketClosed = true;
+
     // public keys to be used in the instructions
     this.accounts = {} as NosanaAccounts;
     this.accounts.systemProgram = anchor.web3.SystemProgram.programId;
@@ -77,7 +91,7 @@ describe('nosana programs', async function () {
     this.accounts.rewardsProgram = this.rewardsProgram.programId;
     this.accounts.rent = anchor.web3.SYSVAR_RENT_PUBKEY;
     this.accounts.authority = this.publicKey;
-    this.accounts.feePayer = this.publicKey;
+    this.accounts.payer = this.publicKey;
     this.accounts.mint = this.mint;
     this.accounts.user = await getAssociatedTokenAddress(this.mint, this.publicKey);
     this.accounts.reflection = await pda([utf8.encode('reflection')], this.rewardsProgram.programId);
@@ -87,7 +101,6 @@ describe('nosana programs', async function () {
     this.accounts.tokenAccount = this.accounts.user;
     this.accounts.rewardsVault = this.vaults.rewards;
     this.accounts.rewardsReflection = this.accounts.reflection;
-    this.accounts.accessKey = new PublicKey('nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3');
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId
@@ -109,8 +122,8 @@ describe('nosana programs', async function () {
       break;
     case 'jobs':
       describe('initialization', initTests);
-      describe('staking', stakingTests);
-      describe('rewards', rewardTests);
+      describe('staking', stakingInitTests);
+      describe('rewards', rewardInitTests);
       describe('jobs', jobTests);
       break;
     case 'pools':

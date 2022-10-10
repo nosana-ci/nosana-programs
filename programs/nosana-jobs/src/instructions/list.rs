@@ -3,8 +3,14 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, ReflectionAccount};
 
 #[derive(Accounts)]
-pub struct Create<'info> {
-    #[account(init, payer = fee_payer, space = JobAccount::SIZE)]
+pub struct List<'info> {
+    #[account(
+        init_if_needed,
+        payer = payer,
+        space = JobAccount::SIZE,
+        constraint = JobAccount::constraint(job.status, market.queue_type, QueueType::Node)
+            @ NosanaError::JobConstraintNotSatisfied,
+    )]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
     #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
@@ -13,31 +19,36 @@ pub struct Create<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub fee_payer: Signer<'info>,
-    pub authority: Signer<'info>,
+    pub payer: Signer<'info>,
     #[account(mut)]
     pub rewards_reflection: Account<'info, ReflectionAccount>,
     #[account(mut)]
     pub rewards_vault: Account<'info, TokenAccount>,
+    pub authority: Signer<'info>,
     pub rewards_program: Program<'info, NosanaRewards>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
-    // queue the job
-    let job: &mut JobAccount = &mut ctx.accounts.job;
-    job.create(
-        ctx.accounts.authority.key(),
-        ipfs_job,
-        ctx.accounts.market.key(),
-        ctx.accounts.market.job_price,
-    );
-
-    // claim the job for a node that might be queued
-    let node: Pubkey = ctx.accounts.market.get_node();
-    if node != id::SYSTEM_PROGRAM {
-        job.claim(node, Clock::get()?.unix_timestamp);
+pub fn handler(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
+    // load writable market
+    let market_key: Pubkey = ctx.accounts.market.key();
+    let market: &mut MarketAccount = &mut ctx.accounts.market;
+    match QueueType::from(market.queue_type) {
+        QueueType::Job | QueueType::Empty => market.add_to_queue(Order::new_job(
+            ctx.accounts.authority.key(),
+            ipfs_job,
+            market.job_price,
+        )),
+        QueueType::Node => ctx.accounts.job.create(
+            ipfs_job,
+            market_key,
+            market.pop_from_queue().user,
+            ctx.accounts.payer.key(),
+            market.job_price,
+            ctx.accounts.authority.key(),
+            Clock::get()?.unix_timestamp,
+        ),
     }
 
     // deposit tokens for the job
@@ -50,7 +61,7 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
                 authority: ctx.accounts.authority.to_account_info(),
             },
         ),
-        job.price,
+        market.job_price,
     )?;
 
     // send fee to stakers
@@ -65,6 +76,6 @@ pub fn handler(ctx: Context<Create>, ipfs_job: [u8; 32]) -> Result<()> {
                 token_program: ctx.accounts.token_program.to_account_info(),
             },
         ),
-        job.price / MarketAccount::JOB_FEE_FRACTION,
+        market.job_price / MarketAccount::JOB_FEE_FRACTION,
     )
 }

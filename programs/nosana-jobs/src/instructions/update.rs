@@ -11,12 +11,14 @@ pub struct Update<'info> {
 
 pub fn handler(
     ctx: Context<Update>,
+    job_expiration: i64,
     job_price: u64,
     job_timeout: i64,
     job_type: u8,
     node_stake_minimum: u64,
 ) -> Result<()> {
-    (&mut ctx.accounts.market).update(
+    ctx.accounts.market.update(
+        job_expiration,
         job_price,
         job_timeout,
         job_type,

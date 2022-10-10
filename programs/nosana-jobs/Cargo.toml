@@ -17,8 +17,8 @@ no-entrypoint = []
 cpi = ["no-entrypoint"]
 
 [dependencies]
-anchor-lang = "0.25.0"
 anchor-spl = "0.25.0"
+anchor-lang = { version = "0.25.0", features = ["init-if-needed"] }
 mpl-token-metadata = { version = "1.4.3", features = [ "no-entrypoint" ] }
 nosana-staking = { path = "../nosana-staking", features = ["cpi"] }
 nosana-rewards = { path = "../nosana-rewards", features = ["cpi"] }

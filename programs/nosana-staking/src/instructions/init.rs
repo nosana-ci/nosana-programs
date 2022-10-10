@@ -18,6 +18,6 @@ pub struct Init<'info> {
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
     // get settings account and init
-    (&mut ctx.accounts.settings).set(id::AUTHORITY, id::TOKEN_ACCOUNT);
+    ctx.accounts.settings.set(id::AUTHORITY, id::TOKEN_ACCOUNT);
     Ok(())
 }

@@ -20,7 +20,8 @@ const constants = {
   slashAmount: 1e3 * decimals,
   minimumNodeStake: 1e4 * decimals,
   feeAmount: 1e5 * decimals,
-  jobTimeout: 60 * 60,
+  jobTimeout: 5,
+  jobExpiration: 5,
   initialRate,
 
   // status options for jobs
@@ -28,10 +29,23 @@ const constants = {
     queued: 0,
     running: 1,
     done: 2,
+    quit: 3,
+    dummy: 100,
   },
 
   jobType: {
     default: 0,
+    small: 1,
+    medium: 2,
+    large: 3,
+    gpu: 4,
+    unknown: 255,
+  },
+
+  queueType: {
+    job: 0,
+    node: 1,
+    unknown: 255,
   },
 
   // type for claim
@@ -51,6 +65,7 @@ const constants = {
     InvalidTokenAccount: 'This token account is not valid.',
     InvalidMint: 'This mint is invalid.',
     InvalidVault: 'This account has an invalid vault.',
+    VaultNotEmpty: 'This vault is not empty.',
 
     // stake errors
     StakeAmountNotEnough: 'This amount is not enough.',
@@ -69,13 +84,18 @@ const constants = {
 
     // job errors
     JobInWrongState: 'This job does not have the right status.',
+    JobNotExpired: 'The job has not yet expired.',
+    JobSeedAddressViolation: 'This JobAccount seed is not allowed.',
+    JobConstraintNotSatisfied: 'This JobAccount constraint is not satisfied. Use a new or dummy account only.',
 
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
     NodeQueueDoesNotMatch: 'This node queue does not match.',
+    NodeStakeUnauthorized: 'This node is not authorizing this stake.',
     NodeNotEnoughStake: 'This node has not staked enough tokens.',
     NodeAlreadyQueued: 'This node is already present in the queue.',
     NodeNftWrongMetadata: 'This metadata does not have the correct address.',
+    NodeNftWrongOwner: 'This NFT is not owned by this node.',
     NodeKeyInvalidCollection: 'This access key does not belong to a verified collection.',
 
     // pool errors

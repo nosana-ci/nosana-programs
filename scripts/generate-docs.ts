@@ -34,9 +34,9 @@ const typeToString = (field) =>
   typeof field.type === 'string'
     ? field.type
     : 'vec' in field.type
-    ? `Vec<${field.type.vec}>`
+    ? `Vec<${Object.values(field.type.vec)[0]}>`
     : 'array' in field.type
-    ? `[${field.type.array[0]}; ${field.type.array[1]}]`
+    ? `${JSON.stringify(field.type.array)}`
     : field.toString();
 
 /**
@@ -49,8 +49,8 @@ const sizes = {
   i64: 16,
   u128: 16,
   publicKey: 32,
-  '[u8; 32]': 32,
-  'Vec<publicKey>': 100 * 32,
+  '["u8",32]': 32,
+  'Vec<Order>': 100 * (32 + 32 + 8),
 };
 
 const descriptions = (name) => {
@@ -68,8 +68,6 @@ const descriptions = (name) => {
       return 'The signing authority of the program invocation.';
     case 'newAuthority':
       return 'The new authority of the  [SettingsAccount](#settings-account).';
-    case 'feePayer':
-      return 'The signing Fee Payer address.';
     case 'rent':
       return 'The official Solana rent address. Responsible for lamports.';
     case 'mint':
@@ -140,6 +138,20 @@ const descriptions = (name) => {
       return 'The current total xNOS.';
 
     // job arguments
+    case 'jobExpiration':
+      return 'The expiration time in seconds for jobs.';
+    case 'node':
+      return 'The node that runs this job.';
+    case 'project':
+      return 'The project that listed this job.';
+    case 'price':
+      return 'The price in [$NOS](/tokens/token).';
+    case 'status':
+      return 'The job status (queued / running / done).';
+    case 'timeStart':
+      return 'The unix time this job has started running.';
+    case 'timeEnd':
+      return 'The unix time this job has finished running.';
     case 'jobTimeout':
       return 'The timeout time in seconds for jobs.';
     case 'jobType':
@@ -148,10 +160,20 @@ const descriptions = (name) => {
       return 'The price for jobs in this market.';
     case 'nodeStakeMinimum':
       return 'The number of tokens a node needs to stake to qualify.';
+    case 'nodeAccessKey':
+      return 'The NFT collection address of an NFT that the node holds, in order to access this market.';
     case 'ipfsResult':
       return 'The byte array representing the IPFS hash to the results.';
     case 'ipfsJob':
       return 'The byte array representing the IPFS hash to the job.';
+    case 'payer':
+      return 'The paying identy for the rent.';
+    case 'seed':
+      return 'A new pubkey, or the system program pubkey';
+    case 'queue':
+      return 'The queue of order in the market.';
+    case 'queueType':
+      return 'The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.';
 
     // default
     default:
@@ -230,9 +252,7 @@ function main() {
       `A number of ${idl.instructions.length} instruction are defined in the ${title(idl.name)} program.`,
       ''
     );
-    data.push(options.enhance ? '::: details Example' : '### Example');
     data.push(
-      '',
       'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).',
       '',
       '```typescript',
@@ -242,7 +262,6 @@ function main() {
       '```',
       ''
     );
-    if (options.enhance) data.push(':::');
 
     if (options.enhance) data.push(':::: tabs');
     for (const instruction of idl.instructions) {
@@ -258,7 +277,7 @@ function main() {
       // accounts table
       // data.push(options.enhance? '::: details Accounts' : undefined)
       const at = new MarkdownTable([25, 90, 100]);
-      data.push('#### Accounts', '', at.row(['Name', 'Type', 'Description']), at.sep());
+      data.push('#### Account Info', '', at.row(['Name', 'Type', 'Description']), at.sep());
       const signers = [];
       for (const account of instruction.accounts) {
         data.push(
@@ -369,6 +388,10 @@ function main() {
         data.push(`### ${title(account.name)}`, '\n');
       }
 
+      let size = 8;
+      for (const field of account.type.fields) size += sizes[typeToString(field)];
+      data.push(`The total size of this account is \`${size.toLocaleString('en')}\` bytes.`);
+
       // accounts table
       const at = new MarkdownTable([30, 30, 10, 10, 100]);
       data.push(at.row(['Name', 'Type', 'Size', 'Offset', 'Description']), at.sep());
@@ -417,14 +440,25 @@ function main() {
         }
 
         // types table
-        data.push(`A number of ${t.type.variants.length} variants are defined:`);
         const tt = new MarkdownTable();
-        data.push(tt.row(['Name', 'Number']), tt.sep());
-        for (const field of t.type.variants) {
-          data.push(
-            tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
-          );
+        if (t.type.kind === 'enum') {
+          data.push(`A number of ${t.type.variants.length} variants are defined in this \`enum\`:`);
+          data.push(tt.row(['Name', 'Number']), tt.sep());
+          for (const field of t.type.variants) {
+            data.push(
+              tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
+            );
+          }
+        } else if (t.type.kind === 'struct') {
+          data.push(`A number of ${t.type.fields.length} variants are defined in this \`struct\`:`);
+          data.push(tt.row(['Name', 'Type']), tt.sep());
+          for (const field of t.type.fields) {
+            data.push(tt.row([`\`${field.name}\``, `\`${typeToString(field)}\``]));
+          }
+        } else {
+          throw 'woops';
         }
+
         data.push('');
       }
 

@@ -17,8 +17,6 @@
 
 A number of 6 instruction are defined in the Nosana Rewards program.
 
-### Example
-
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
@@ -32,7 +30,7 @@ const program = new Program(idl, programId);
 The `init()` instruction initializes the [ReflectionAccount](#reflection-account)
 and [VaultAccount](#vault-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -68,7 +66,7 @@ let tx = await program.methods
 
 The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -100,7 +98,7 @@ let tx = await program.methods
 
 The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -139,7 +137,7 @@ let tx = await program.methods
 ### Claim
 The `claim()` instruction sends a user's rewards to a given wallet.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -175,7 +173,7 @@ let tx = await program.methods
 
 The `sync()` instruction re-calculates a users' reflection score.
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -202,7 +200,7 @@ let tx = await program.methods
 
 The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
 
-#### Accounts
+#### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -234,6 +232,7 @@ A number of 3 accounts make up for the Nosana Rewards Program's state.
 
 The `ReflectionAccount` struct holds all the information on the reflection pool.
 
+The total size of this account is `89` bytes.
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `rate`                      | `u128`                      | `16`    | `8`     | The current reward rate.                                                                          |
@@ -246,6 +245,7 @@ The `ReflectionAccount` struct holds all the information on the reflection pool.
 
 The `RewardAccount` struct holds all the information for any given user account.
 
+The total size of this account is `73` bytes.
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |

@@ -13,6 +13,8 @@ pub enum NosanaError {
     InvalidMint,
     #[msg("This account has an invalid vault.")]
     InvalidVault,
+    #[msg("This payer account is not valid.")]
+    InvalidPayer,
     #[msg("This vault is not empty.")]
     VaultNotEmpty,
 
@@ -47,18 +49,30 @@ pub enum NosanaError {
     // job errors
     #[msg("This job does not have the right status.")]
     JobInWrongState,
+    #[msg("The job has not yet expired.")]
+    JobNotExpired,
+    #[msg("This JobAccount address not allowed.")]
+    JobAddressInvalid,
+    #[msg("This JobAccount constraint is not satisfied. Use a new or dummy account only.")]
+    JobConstraintNotSatisfied,
+    #[msg("This market is not valid.")]
+    InvalidMarket,
 
     // node errors
     #[msg("This node does not have an active stake.")]
     NodeNoStake,
     #[msg("This node queue does not match.")]
     NodeQueueDoesNotMatch,
+    #[msg("This node is not authorizing this stake.")]
+    NodeStakeUnauthorized,
     #[msg("This node has not staked enough tokens.")]
     NodeNotEnoughStake,
     #[msg("This node is already present in the queue.")]
     NodeAlreadyQueued,
     #[msg("This metadata does not have the correct address.")]
     NodeNftWrongMetadata,
+    #[msg("This NFT is not owned by this node.")]
+    NodeNftWrongOwner,
     #[msg("This access key does not belong to a verified collection.")]
     NodeKeyInvalidCollection,
 

@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
 
 type NosanaTotals = {
@@ -23,6 +23,20 @@ type NosanaBalances = {
   vaultPool: number;
 };
 
+type NosanaMarket = {
+  address: PublicKey;
+  dummyKey: Keypair;
+  usedKey: Keypair;
+  jobExpiration: number;
+  jobTimeout: number;
+  jobType: number;
+  jobPrice: number;
+  nodeStakeMinimum: number;
+  nodeAccessKey: PublicKey;
+  queueType: number;
+  queueLength: number;
+};
+
 type NosanaAccounts = {
   systemProgram: PublicKey;
   tokenProgram: PublicKey;
@@ -34,7 +48,7 @@ type NosanaAccounts = {
 
   // main user
   authority: PublicKey;
-  feePayer: PublicKey;
+  payer: PublicKey;
 
   // token
   mint: PublicKey;

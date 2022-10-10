@@ -31,6 +31,8 @@ pub struct Init<'info> {
 
 pub fn handler(ctx: Context<Init>) -> Result<()> {
     // init reflection account
-    (&mut ctx.accounts.reflection).init(ctx.accounts.vault.key(), *ctx.bumps.get("vault").unwrap());
+    ctx.accounts
+        .reflection
+        .init(ctx.accounts.vault.key(), *ctx.bumps.get("vault").unwrap());
     Ok(())
 }

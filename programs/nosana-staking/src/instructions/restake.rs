@@ -13,6 +13,6 @@ pub struct Restake<'info> {
 
 pub fn handler(ctx: Context<Restake>) -> Result<()> {
     // get stake account and restake stake
-    (&mut ctx.accounts.stake).unstake(0);
+    ctx.accounts.stake.unstake(0);
     Ok(())
 }

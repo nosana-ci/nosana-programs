@@ -61,7 +61,7 @@ async function makeTicketsCsv() {
     let lastTime = await provider.connection.getBlockTime(lastHeight);
     while (lastTime < waitForBlock) {
       console.log(`Waiting ${waitForBlock - lastTime} more seconds (${lastTime})`);
-      await sleep(1500);
+      await sleep(1.5);
       lastHeight = await provider.connection.getBlockHeight();
       lastTime = await provider.connection.getBlockTime(lastHeight);
     }

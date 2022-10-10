@@ -29,7 +29,7 @@ pub fn handler(ctx: Context<Enter>) -> Result<()> {
     let reflection: &mut Account<ReflectionAccount> = &mut ctx.accounts.reflection;
 
     // initialize the reward account
-    (&mut ctx.accounts.reward).init(
+    ctx.accounts.reward.init(
         ctx.accounts.authority.key(),
         *ctx.bumps.get("reward").unwrap(),
         reflection.add_rewards_account(stake.xnos, 0),

@@ -7,7 +7,7 @@ import { NosanaPools } from '../../target/types/nosana_pools';
 import { NosanaJobs } from '../../target/types/nosana_jobs';
 import { NosanaRewards } from '../../target/types/nosana_rewards';
 import { constants } from '../contstants';
-import { NosanaAccounts, NosanaBalances, NosanaTotals, NosanaVaults } from './nosana';
+import { NosanaAccounts, NosanaBalances, NosanaMarket, NosanaTotals, NosanaVaults } from './nosana';
 
 declare module 'mocha' {
   export interface Context {
@@ -36,6 +36,8 @@ declare module 'mocha' {
     // dynamic values
     total: NosanaTotals;
     balances: NosanaBalances;
+    market: NosanaMarket;
+    marketClosed: boolean;
     poolClosed: boolean;
 
     // public key collections

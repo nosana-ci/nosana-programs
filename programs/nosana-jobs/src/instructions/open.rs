@@ -2,7 +2,7 @@ use crate::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
-pub struct Init<'info> {
+pub struct Open<'info> {
     #[account(address = id::NOS_TOKEN @ NosanaError::InvalidMint)]
     pub mint: Account<'info, Mint>,
     #[account(init, payer = authority, space = MarketAccount::SIZE)]
@@ -16,6 +16,13 @@ pub struct Init<'info> {
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
+    #[account(
+        init_if_needed,
+        payer = authority,
+        space = JobAccount::SIZE,
+        address = id::DUMMY_JOB @NosanaError::JobAddressInvalid,
+    )]
+    pub job: Account<'info, JobAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     /// CHECK: Only the account address is needed for an access key
@@ -26,21 +33,24 @@ pub struct Init<'info> {
 }
 
 pub fn handler(
-    ctx: Context<Init>,
+    ctx: Context<Open>,
+    job_expiration: i64,
     job_price: u64,
     job_timeout: i64,
     job_type: u8,
-    node_stake_minimum: u64,
+    node_xnos_minimum: u64,
 ) -> Result<()> {
-    (&mut ctx.accounts.market).init(
+    ctx.accounts.market.init(
         ctx.accounts.authority.key(),
+        job_expiration,
         job_price,
         job_timeout,
         JobType::from(job_type) as u8,
         ctx.accounts.access_key.key(),
-        node_stake_minimum,
+        node_xnos_minimum,
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
+    ctx.accounts.job.set_dummy();
     Ok(())
 }
