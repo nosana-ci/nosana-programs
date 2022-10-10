@@ -124,8 +124,7 @@ pub mod nosana_jobs {
 
     /// ### Claim
     ///
-    /// With the `claim()` instruction a node exits the node queue
-    /// from a [MarketAccount](#market-account).
+    /// With the `claim()` instruction a node claims a job that is [stopped](#stop).
     ///
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         claim::handler(ctx)

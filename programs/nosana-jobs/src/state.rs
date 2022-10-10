@@ -108,7 +108,11 @@ impl MarketAccount {
     }
 
     /***
-
+      This constraint verifies that:
+       - if a node's access key is non-default (SystemProgram)
+            - the collection should have the verified = true trait
+            - the collection address should match the node access key
+       - else it's always OK to enter
     */
     pub fn metadata_constraint(metadata: &AccountInfo, node_access_key: Pubkey) -> bool {
         if node_access_key == id::SYSTEM_PROGRAM {
@@ -218,13 +222,13 @@ impl JobAccount {
 
     /***
       This constraint verifies that:
-       - if there's an order queued (could be a node or job, queue_type matches the scenario) queued;
+       - if there's an order queued (could be a node or job, queue_type matches the scenario);
            - a new job account will be initialized
            - the new account should not have data in it (re-init attack)
-       - if there no order available, OR :
+       - if there no order available, OR the queue is of the wrong queue:
+           - a new order data will end up in the end of queue
            - no new job account will be initialized
            - the dummy account is passed that's already created
-           - a new job data will end up in the end of queue
     */
     pub fn constraint(job_status: u8, queue_type: u8, scenario: QueueType) -> bool {
         job_status
