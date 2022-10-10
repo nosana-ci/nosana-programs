@@ -156,10 +156,6 @@ pub mod nosana_jobs {
     /// The `clean()` instruction closes an [JobAccount](#job-account).
     /// The job has be finished and the job expiration time has to be exceeded.
     ///
-    /// This [filter](https://solanacookbook.com/guides/get-program-accounts) finds finished jobs:
-    ///
-    /// > { "memcmp": { "offset": 208, "bytes": "2" } }
-    ///
     pub fn clean(ctx: Context<Clean>) -> Result<()> {
         clean::handler(ctx)
     }
