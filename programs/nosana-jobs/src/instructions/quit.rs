@@ -2,9 +2,12 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct Quit<'info> {
+    #[account(mut)]
+    pub job: Account<'info, JobAccount>,
     #[account(
         mut,
         close = payer,
+        has_one = job @ NosanaError::InvalidJobAccount,
         has_one = payer @ NosanaError::InvalidPayer,
         constraint = run.node == authority.key() @ NosanaError::Unauthorized,
     )]
@@ -14,6 +17,7 @@ pub struct Quit<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(_ctx: Context<Quit>) -> Result<()> {
+pub fn handler(ctx: Context<Quit>) -> Result<()> {
+    ctx.accounts.job.quit();
     Ok(())
 }

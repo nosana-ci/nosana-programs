@@ -268,8 +268,9 @@ impl JobAccount {
         self.state = JobState::Stopped as u8;
     }
 
-    pub fn finish(&mut self, ipfs_result: [u8; 32], time_end: i64) {
+    pub fn finish(&mut self, ipfs_result: [u8; 32], node: Pubkey, time_end: i64) {
         self.ipfs_result = ipfs_result;
+        self.node = node;
         self.state = JobState::Done as u8;
         self.time_end = time_end;
     }

@@ -30,11 +30,13 @@ pub struct Finish<'info> {
 
 pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
     // finish the job
-    ctx.accounts
-        .job
-        .finish(ipfs_result, Clock::get()?.unix_timestamp);
+    ctx.accounts.job.finish(
+        ipfs_result,
+        ctx.accounts.authority.key(),
+        Clock::get()?.unix_timestamp,
+    );
 
-    // reimburse the node
+    // reimburse the worker
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),

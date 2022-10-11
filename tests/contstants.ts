@@ -29,8 +29,7 @@ const constants = {
     queued: 0,
     running: 1,
     done: 2,
-    quit: 3,
-    dummy: 100,
+    stopped: 3,
   },
 
   runState: {
