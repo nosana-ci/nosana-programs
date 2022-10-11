@@ -574,12 +574,13 @@ export default function suite() {
 
       expect(runs.length).to.equal(1 + 1); // also dummy account
 
-      const run = runs.pop();
-
-      expect(run.account.node.toString()).to.equal(this.accounts.authority.toString());
-
-      this.accounts.run = run.publicKey;
-      this.accounts.job = run.account.job;
+      for (const run of runs) {
+        if (run.account.state !== this.constants.runState.dummy) {
+          expect(run.account.node.toString()).to.equal(this.accounts.authority.toString());
+          this.accounts.run = run.publicKey;
+          this.accounts.job = run.account.job;
+        }
+      }
     });
 
     it('can not finish another nodes job', async function () {
