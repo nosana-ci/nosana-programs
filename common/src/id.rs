@@ -49,7 +49,7 @@ pub use authority::ID as AUTHORITY;
 mod authority {
     use super::*;
     #[cfg(feature = "mainnet")]
-    declare_id!("nosP9DVJQVuRqub7JLf3K5Z2pwx3612egECNqCueE9m");
+    declare_id!("NosanarMxfrZbyCx5CotBVrzxiPcrnhj6ickpX9vRkB");
     #[cfg(not(feature = "mainnet"))]
     declare_id!("XXXxddiNnmoD2h2LbQYaL76Swi21MaQbtBbRynAdQL8");
 }

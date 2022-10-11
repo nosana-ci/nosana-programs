@@ -23,7 +23,7 @@ pub struct Open<'info> {
         address = id::DUMMY_JOB @NosanaError::RunAddressInvalid,
     )]
     pub run: Account<'info, RunAccount>,
-    #[account(mut)]
+    #[account(mut, address = id::AUTHORITY @ NosanaError::Unauthorized)]
     pub authority: Signer<'info>,
     /// CHECK: Only the account address is needed for an access key
     pub access_key: AccountInfo<'info>,

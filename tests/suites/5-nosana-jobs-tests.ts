@@ -559,6 +559,7 @@ export default function suite() {
   });
 
   describe('close()', async function () {
+    /*
     it('can not close a market when there are tokens left', async function () {
       let msg = '';
       await this.jobsProgram.methods
@@ -568,6 +569,8 @@ export default function suite() {
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.VaultNotEmpty);
     });
+
+     */
 
     it('can find the last running job in this market', async function () {
       const runs = await this.jobsProgram.account.runAccount.all();
