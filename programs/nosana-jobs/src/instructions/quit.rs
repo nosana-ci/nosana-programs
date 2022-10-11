@@ -4,14 +4,16 @@ use crate::*;
 pub struct Quit<'info> {
     #[account(
         mut,
-        constraint = job.node == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.status == JobStatus::Running as u8 @ NosanaError::JobInWrongState
+        close = payer,
+        has_one = payer @ NosanaError::InvalidPayer,
+        constraint = run.node == authority.key() @ NosanaError::Unauthorized,
     )]
-    pub job: Account<'info, JobAccount>,
+    pub run: Account<'info, RunAccount>,
+    /// CHECK: this account is verified as the original payer for the run account
+    pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Quit>) -> Result<()> {
-    ctx.accounts.job.quit();
+pub fn handler(_ctx: Context<Quit>) -> Result<()> {
     Ok(())
 }

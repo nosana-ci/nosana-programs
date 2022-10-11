@@ -10,6 +10,6 @@ pub struct Stop<'info> {
 pub fn handler(ctx: Context<Stop>) -> Result<()> {
     ctx.accounts
         .market
-        .remove_node_from_queue(ctx.accounts.authority.key());
+        .remove_from_queue(ctx.accounts.authority.key);
     Ok(())
 }

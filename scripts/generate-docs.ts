@@ -449,12 +449,6 @@ function main() {
               tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
             );
           }
-        } else if (t.type.kind === 'struct') {
-          data.push(`A number of ${t.type.fields.length} variants are defined in this \`struct\`:`);
-          data.push(tt.row(['Name', 'Type']), tt.sep());
-          for (const field of t.type.fields) {
-            data.push(tt.row([`\`${field.name}\``, `\`${typeToString(field)}\``]));
-          }
         } else {
           throw 'woops';
         }

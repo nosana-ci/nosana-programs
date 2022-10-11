@@ -7,8 +7,8 @@ use nosana_staking::StakeAccount;
 pub struct Claim<'info> {
     #[account(
         mut,
-        has_one = market @ NosanaError::InvalidMarket,
-        constraint = job.status == JobStatus::Stopped as u8 @ NosanaError::JobInWrongState,
+        has_one = market @ NosanaError::InvalidMarketAccount,
+        constraint = job.state == JobState::Stopped as u8 @ NosanaError::JobInWrongState,
     )]
     pub job: Account<'info, JobAccount>,
     pub market: Account<'info, MarketAccount>,

@@ -19,10 +19,10 @@ pub struct Open<'info> {
     #[account(
         init_if_needed,
         payer = authority,
-        space = JobAccount::SIZE,
-        address = id::DUMMY_JOB @NosanaError::JobAddressInvalid,
+        space = RunAccount::SIZE,
+        address = id::DUMMY_JOB @NosanaError::RunAddressInvalid,
     )]
-    pub job: Account<'info, JobAccount>,
+    pub run: Account<'info, RunAccount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     /// CHECK: Only the account address is needed for an access key
@@ -40,6 +40,7 @@ pub fn handler(
     job_type: u8,
     node_xnos_minimum: u64,
 ) -> Result<()> {
+    ctx.accounts.run.create_dummy();
     ctx.accounts.market.init(
         ctx.accounts.authority.key(),
         job_expiration,
@@ -51,6 +52,5 @@ pub fn handler(
         ctx.accounts.vault.key(),
         *ctx.bumps.get("vault").unwrap(),
     );
-    ctx.accounts.job.set_dummy();
     Ok(())
 }
