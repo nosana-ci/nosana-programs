@@ -18,8 +18,8 @@ pub mod nosana_jobs {
     */
 
     /// ### Open
-    /// The `open()` instruction initializes a [MarketAccount](#market-account) and an
-    /// associated [VaultAccount](#vault-account) for token deposits.
+    /// The `open()` instruction initializes a [MarketAccount](#market-account)
+    /// and [VaultAccount](#vault-account).
     pub fn open(
         ctx: Context<Open>,
         job_expiration: i64,
@@ -71,14 +71,13 @@ pub mod nosana_jobs {
 
     /// ### List
     /// The `list()` instruction lists a job, with its required data.
-    /// When there is a node available, a [JobAccount](#job-account) will automatically be created.
+    /// When there is a job available, a [RunAccount](#run-account) will automatically be created.
     pub fn list(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
         list::handler(ctx, ipfs_job)
     }
 
     /// ### Recover
     /// The `recover()` instruction recovers funds from a jobs that has been [Quit](#quit)'ed.
-    /// The [JobAccount](#job-account) will automatically be created.
     pub fn recover(ctx: Context<Recover>) -> Result<()> {
         recover::handler(ctx)
     }
@@ -89,7 +88,7 @@ pub mod nosana_jobs {
 
     /// ### Work
     /// With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
-    /// When there is a job available, a [JobAccount](#job-account) will automatically be created.
+    /// When there is a job available, a [RunAccount](#run-account) will automatically be created.
     pub fn work(ctx: Context<Work>) -> Result<()> {
         work::handler(ctx)
     }
