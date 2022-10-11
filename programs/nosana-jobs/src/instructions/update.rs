@@ -2,7 +2,7 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct Update<'info> {
-    #[account(mut, has_one = authority @ NosanaError::InvalidVault)]
+    #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
     pub market: Account<'info, MarketAccount>,
     /// CHECK: Only the account address is needed for an access key
     pub access_key: AccountInfo<'info>,

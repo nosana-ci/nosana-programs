@@ -3,10 +3,7 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
 pub struct Finish<'info> {
-    #[account(
-        mut,
-        has_one = market @ NosanaError::InvalidMarketAccount,
-    )]
+    #[account(mut, has_one = market @ NosanaError::InvalidMarketAccount)]
     pub job: Account<'info, JobAccount>,
     #[account(
         mut,
