@@ -255,13 +255,6 @@ let tx = await program.methods
 With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
 When there is a job available, a [RunAccount](#run-account) will automatically be created.
 The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/stake).
-To find assigned jobs:
-
-```ts
-const runs = await this.jobsProgram.account.runAccount.all([
-{ memcmp: { offset: 8 + 32, bytes: authority.toBase58() } },
-]);
-```
 
 #### Account Info
 
