@@ -536,7 +536,6 @@ export default function suite() {
     });
   });
 
-
   describe('recover()', async function () {
     it('can not recover the funds from another project', async function () {
       let msg = '';
