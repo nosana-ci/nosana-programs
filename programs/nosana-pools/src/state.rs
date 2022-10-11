@@ -1,9 +1,10 @@
 use anchor_lang::prelude::*;
 
-/// ### Pool Account
-///
+/***
+ Accounts and Types
+*/
+
 /// The `PoolAccount` struct holds all the information for any given pool.
-///
 #[account]
 pub struct PoolAccount {
     pub authority: Pubkey,
@@ -54,10 +55,7 @@ impl PoolAccount {
     }
 }
 
-/// ### Claim Type
-///
-/// The `ClaimType` of any pool describes the way withdraw (claim) works.
-///
+/// The `ClaimType` of any pool describes the way withdraw ([claim](#claim)) works.
 #[repr(u8)]
 pub enum ClaimType {
     Transfer = 0,

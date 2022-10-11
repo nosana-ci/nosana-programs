@@ -3,10 +3,11 @@ use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
 use nosana_common::id;
 use std::mem::size_of;
 
-/// ### Market Account
-///
+/***
+ Accounts and Types
+*/
+
 /// The `MarketAccount` struct holds all the information about jobs and the nodes queue.
-///
 #[account]
 pub struct MarketAccount {
     pub authority: Pubkey,
@@ -138,10 +139,7 @@ impl MarketAccount {
     }
 }
 
-/// ### Queue Type
-///
 /// The `QueueType` describes the type of queue
-///
 #[repr(u8)]
 pub enum QueueType {
     Job = 0,
@@ -159,10 +157,7 @@ impl From<u8> for QueueType {
     }
 }
 
-/// ### Run Account
-///
 /// The `RunAccount` struct holds temporary information that matches nodes to jobs.
-///
 #[account]
 pub struct RunAccount {
     pub job: Pubkey,
@@ -210,10 +205,7 @@ impl RunAccount {
     }
 }
 
-/// ### Run State
-///
-/// The `RunState` describes the status of a run account.
-///
+/// The `RunState` type describes the state a run account could have.
 #[repr(u8)]
 pub enum RunState {
     Null = 0,
@@ -221,10 +213,7 @@ pub enum RunState {
     Dummy = 2,
 }
 
-/// ### Job Account
-///
 /// The `JobAccount` struct holds all the information about any individual jobs.
-///
 #[account]
 pub struct JobAccount {
     pub ipfs_job: [u8; 32],
@@ -276,10 +265,7 @@ impl JobAccount {
     }
 }
 
-/// ### Job State
-///
 /// The `JobState` describes the status of a job.
-///
 #[repr(u8)]
 pub enum JobState {
     Queued = 0,
@@ -288,10 +274,7 @@ pub enum JobState {
     Stopped = 3,
 }
 
-/// ### Job Type
-///
 /// The `JobType` describes the type of any job.
-///
 #[repr(u8)]
 pub enum JobType {
     Default = 0,

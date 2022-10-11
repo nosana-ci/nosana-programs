@@ -1,10 +1,11 @@
 use anchor_lang::prelude::*;
 use nosana_common::constants::NOS_TOTAL_SUPPLY;
 
-/// ### Reflection Account
-///
+/***
+ Accounts and Types
+*/
+
 /// The `ReflectionAccount` struct holds all the information on the reflection pool.
-///
 #[account]
 pub struct ReflectionAccount {
     pub rate: u128,
@@ -74,10 +75,7 @@ impl ReflectionAccount {
     }
 }
 
-/// ### Reward Account
-///
 /// The `RewardAccount` struct holds all the information for any given user account.
-///
 #[account]
 pub struct RewardAccount {
     pub authority: Pubkey,

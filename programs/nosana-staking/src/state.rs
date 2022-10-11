@@ -1,7 +1,9 @@
 use anchor_lang::prelude::*;
 use nosana_common::constants;
 
-/// ### Constants
+/***
+Constants
+*/
 
 pub const STAKE_MINIMUM: u64 = constants::NOS_DECIMALS;
 pub const SECONDS_PER_DAY: u128 = 24 * 60 * 60;
@@ -10,11 +12,12 @@ pub const DURATION_MAX: u128 = 365 * SECONDS_PER_DAY; // 1 year
 pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
 pub const XNOS_DIV: u128 = 4 * DURATION_MAX / 12; // 0.25 growth per month
 
-/// ### Settings Account
-///
+/***
+ Accounts and Types
+*/
+
 /// The `SettingsAccount` struct holds the information about the
 /// slashing authority and token account.
-///
 #[account]
 pub struct SettingsAccount {
     pub authority: Pubkey,
@@ -30,10 +33,7 @@ impl SettingsAccount {
     }
 }
 
-/// ### Stake Account
-///
 /// The `StakeAccount` struct holds all the information for any given stake.
-///
 #[account]
 pub struct StakeAccount {
     pub amount: u64,

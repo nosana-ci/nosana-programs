@@ -59,11 +59,9 @@ let tx = await program.methods
 ### Stake
 
 The `stake()` instruction creates a new stake [StakeAccount](#stake-account)
-for the authority.
-It initializes a unique [VaultAccount](#vault-account) for the staker.
-This will transfer amount of NOS tokens from user to the vault locked
-for duration seconds of time.
-The stake account is a PDA based on the authority.
+for the authority. It initializes a unique [VaultAccount](#vault-account) for the staker.
+It transfers `amount` of [NOS](/tokens/token) tokens from user to the vault locked for
+duration seconds of time. The stake and vault account is a PDA based on the authority.
 
 #### Account Info
 
@@ -169,9 +167,6 @@ let tx = await program.methods
 The `topup()` instruction performs a top-up of an existing stake.
 An `amount` of NOS is transferred to the vault and the stake is update.
 
-- You can only top-up if the stake is not unstaked yet
-- A top-up is always for the duration of the original stake
-
 #### Account Info
 
 | Name                   | Type                                                                                    | Description                                                                                       |
@@ -246,9 +241,8 @@ let tx = await program.methods
 ### Claim
 
 The `claim()` instruction will transfer back all your stake tokens if the delay has
-passed after they whey unstaked.
-Claiming will close the [StakeAccount](#stake-account) and
-[VaultAccount](#vault-account) of the staker.
+passed after they whey unstaked. Claiming will close the [StakeAccount](#stake-account)
+and [VaultAccount](#vault-account) of the staker.
 
 #### Account Info
 
@@ -280,11 +274,9 @@ let tx = await program.methods
 
 ### Slash
 
-The `slash()` instruction reduces a stake's NOS tokens.
-This can only be done by the Slashing Authority declared in
-[SettingsAccount](#settings-account) authority.
-The tokens that are slashed will be sent to the [SettingsAccount](#settings-account)
-tokenAccount account.
+The `slash()` instruction reduces a stake's NOS tokens. This can only be done by the
+Slashing Authority declared in [SettingsAccount](#settings-account) authority. The tokens
+are be sent to the [SettingsAccount](#settings-account) tokenAccount account.
 
 Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
@@ -326,12 +318,10 @@ let tx = await program.methods
   .rpc();
 ```
 
-### Update Setting
+### Update Settings
 
-The `updateSettings()` instruction sets the Slashing Authority in
-[SettingsAccount](#settings-account) authority to a new account.
-It also sets the token account in [SettingsAccount](#settings-account) tokenAccount to a
-new token account. This can only by called by the current authority.
+The `updateSettings()` instruction sets the Slashing Authority to a new account. It also
+sets the token account to a `tokenAccount`. This may be done by the current `authority`.
 
 #### Account Info
 

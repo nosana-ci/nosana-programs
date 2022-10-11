@@ -34,7 +34,7 @@ const typeToString = (field) =>
   typeof field.type === 'string'
     ? field.type
     : 'vec' in field.type
-    ? `Vec<${Object.values(field.type.vec)[0]}>`
+    ? `Vec<${field.type.vec}>`
     : 'array' in field.type
     ? `${JSON.stringify(field.type.array)}`
     : field.toString();
@@ -50,7 +50,7 @@ const sizes = {
   u128: 16,
   publicKey: 32,
   '["u8",32]': 32,
-  'Vec<Pubkey>': 100 * 32,
+  'Vec<publicKey>': 100 * 32,
 };
 
 const descriptions = (name) => {
@@ -270,11 +270,8 @@ function main() {
       if (options.enhance) data.push(`@tab ${title(instruction.name)}`);
 
       // docs from idl
-      try {
-        data.push(...instruction['docs']);
-      } catch (e) {
-        data.push(`### ${title(instruction.name)}`, '');
-      }
+      data.push(`### ${title(instruction.name)}`, '');
+      if ('docs' in instruction) data.push(...instruction['docs'], '');
 
       // accounts table
       // data.push(options.enhance? '::: details Accounts' : undefined)
@@ -384,11 +381,8 @@ function main() {
       if (options.enhance) data.push(`@tab ${title(account.name)}`);
 
       // title
-      try {
-        data.push(...account['docs']);
-      } catch (e) {
-        data.push(`### ${title(account.name)}`, '\n');
-      }
+      data.push(`### ${title(account.name)}`, '');
+      if ('docs' in account) data.push(...account['docs'], '');
 
       let size = 8;
       for (const field of account.type.fields) size += sizes[typeToString(field)];
@@ -435,11 +429,8 @@ function main() {
       for (const t of idl.types) {
         if (options.enhance) data.push(`@tab ${title(t.name)}`);
 
-        try {
-          data.push(...t['docs']);
-        } catch (e) {
-          data.push(`### ${title(t.name)}`, '\n');
-        }
+        data.push(`### ${title(t.name)}`, '\n');
+        if ('docs' in t) data.push(...t['docs'], '');
 
         // types table
         const tt = new MarkdownTable();

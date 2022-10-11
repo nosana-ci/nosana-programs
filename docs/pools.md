@@ -80,9 +80,8 @@ let tx = await program.methods
 
 ### Claim Fee
 
-The `claimFee()` instruction claims emissions from a Nosana Pool
-with claim type [`1`](#claim-type),
-and adds these as rewards (fees) to the [Rewards Program](/programs/rewards).
+The `claimFee()` instruction claims emissions from a Nosana Pool with claim type
+[`1`](#claim-type), and adds these as fees to the [Rewards Program](/programs/rewards).
 
 #### Account Info
 
@@ -119,8 +118,7 @@ let tx = await program.methods
 ### Claim Transfer
 
 The `claimTransfer()` instruction claims emissions from a Nosana Pool
-with claim type [`0`](#claim-type),
-and transfer these to a given user.
+with claim type [`0`](#claim-type), and transfer these to a given user.
 
 #### Account Info
 
@@ -153,7 +151,7 @@ let tx = await program.methods
 ### Close
 
 The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
-and [VaultAccount](#vault-account)..
+and [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -214,7 +212,8 @@ A number of 1 type variants are defined in the Nosana Pools Program's state.
 
 ### Claim Type
 
-The `ClaimType` of any pool describes the way withdraw (claim) works.
+
+The `ClaimType` of any pool describes the way withdraw ([claim](#claim)) works.
 
 A number of 3 variants are defined in this `enum`:
 | Name                                  | Number                                |
