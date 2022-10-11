@@ -50,7 +50,7 @@ const sizes = {
   u128: 16,
   publicKey: 32,
   '["u8",32]': 32,
-  'Vec<Order>': 100 * (32 + 32 + 8),
+  'Vec<Pubkey>': 100 * 32,
 };
 
 const descriptions = (name) => {
@@ -94,6 +94,8 @@ const descriptions = (name) => {
       return 'The [MarketAccount](#market-account) address.';
     case 'job':
       return 'The [JobAccount](#job-account) address.';
+    case 'run':
+      return 'The [RunAccount](#run-account) address.';
     case 'metadata':
       return 'The Metaplex Metadata address, that belongs to the NFT.';
     case 'pool':
@@ -448,12 +450,6 @@ function main() {
             data.push(
               tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
             );
-          }
-        } else if (t.type.kind === 'struct') {
-          data.push(`A number of ${t.type.fields.length} variants are defined in this \`struct\`:`);
-          data.push(tt.row(['Name', 'Type']), tt.sep());
-          for (const field of t.type.fields) {
-            data.push(tt.row([`\`${field.name}\``, `\`${typeToString(field)}\``]));
           }
         } else {
           throw 'woops';

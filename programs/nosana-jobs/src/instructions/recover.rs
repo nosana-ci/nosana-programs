@@ -7,9 +7,9 @@ pub struct Recover<'info> {
         mut,
         close = payer,
         has_one = payer @ NosanaError::InvalidPayer,
-        has_one = market @ NosanaError::InvalidMarket,
+        has_one = market @ NosanaError::InvalidMarketAccount,
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.status == JobStatus::Stopped as u8 @ NosanaError::JobInWrongState,
+        constraint = job.state == JobState::Stopped as u8 @ NosanaError::JobInWrongState,
     )]
     pub job: Account<'info, JobAccount>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]

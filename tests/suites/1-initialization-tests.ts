@@ -33,7 +33,7 @@ export default function suite() {
 
     it('can create the NFT collection', async function () {
       this.nftConfig.isCollection = true;
-      const { mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
+      const { mintAddress } = await this.metaplex.nfts().create(this.nftConfig);
       this.nftConfig.isCollection = false;
 
       // set collection
@@ -42,14 +42,11 @@ export default function suite() {
       this.market.nodeAccessKey = this.nftConfig.collection;
     });
     it('can mint NFT', async function () {
-      const { metadataAddress, mintAddress } = await this.metaplex.nfts().create(this.nftConfig).run();
-      await this.metaplex
-        .nfts()
-        .verifyCollection({
-          mintAddress,
-          collectionMintAddress: this.nftConfig.collection,
-        })
-        .run();
+      const { metadataAddress, mintAddress } = await this.metaplex.nfts().create(this.nftConfig);
+      await this.metaplex.nfts().verifyCollection({
+        mintAddress,
+        collectionMintAddress: this.nftConfig.collection,
+      });
       this.accounts.nft = await getAssociatedTokenAddress(mintAddress, this.publicKey);
       expect(await getTokenBalance(this.provider, this.accounts.nft)).to.equal(1);
 
@@ -60,14 +57,11 @@ export default function suite() {
     it('can mint more NFTs', async function () {
       const mochaContext = this;
       await mapUsers(this.users.nodes, async function (node) {
-        const { mintAddress, nft } = await mochaContext.metaplex.nfts().create(mochaContext.nftConfig).run();
-        await mochaContext.metaplex
-          .nfts()
-          .verifyCollection({
-            mintAddress,
-            collectionMintAddress: mochaContext.nftConfig.collection,
-          })
-          .run();
+        const { mintAddress, nft } = await mochaContext.metaplex.nfts().create(mochaContext.nftConfig);
+        await mochaContext.metaplex.nfts().verifyCollection({
+          mintAddress,
+          collectionMintAddress: mochaContext.nftConfig.collection,
+        });
         node.metadata = nft.metadataAddress;
         node.ataNft = await createAssociatedTokenAccount(
           mochaContext.connection,

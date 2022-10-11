@@ -7,10 +7,12 @@ use nosana_staking::StakeAccount;
 pub struct Claim<'info> {
     #[account(
         mut,
-        has_one = market @ NosanaError::InvalidMarket,
-        constraint = job.status == JobStatus::Stopped as u8 @ NosanaError::JobInWrongState,
+        has_one = market @ NosanaError::InvalidMarketAccount,
+        constraint = job.state == JobState::Stopped as u8 @ NosanaError::JobInWrongState,
     )]
     pub job: Account<'info, JobAccount>,
+    #[account(init, payer = payer, space = RunAccount::SIZE)]
+    pub run: Box<Account<'info, RunAccount>>,
     pub market: Account<'info, MarketAccount>,
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
@@ -27,12 +29,21 @@ pub struct Claim<'info> {
             @ NosanaError::NodeKeyInvalidCollection,
     )]
     pub metadata: AccountInfo<'info>,
+    #[account(mut)]
+    pub payer: Signer<'info>,
     pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<Claim>) -> Result<()> {
+    ctx.accounts.run.create(
+        ctx.accounts.job.key(),
+        ctx.accounts.authority.key(),
+        ctx.accounts.payer.key(),
+        Clock::get()?.unix_timestamp,
+    );
     ctx.accounts
         .job
-        .claim(ctx.accounts.authority.key(), Clock::get()?.unix_timestamp);
+        .claim(ctx.accounts.authority.key(), ctx.accounts.run.time);
     Ok(())
 }

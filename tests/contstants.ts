@@ -25,12 +25,17 @@ const constants = {
   initialRate,
 
   // status options for jobs
-  jobStatus: {
+  jobState: {
     queued: 0,
     running: 1,
     done: 2,
-    quit: 3,
-    dummy: 100,
+    stopped: 3,
+  },
+
+  runState: {
+    null: 0,
+    created: 1,
+    dummy: 2,
   },
 
   jobType: {
@@ -86,7 +91,7 @@ const constants = {
     JobInWrongState: 'This job does not have the right status.',
     JobNotExpired: 'The job has not yet expired.',
     JobSeedAddressViolation: 'This JobAccount seed is not allowed.',
-    JobConstraintNotSatisfied: 'This JobAccount constraint is not satisfied. Use a new or dummy account only.',
+    RunConstraintNotSatisfied: 'This RunAccount constraint is not satisfied. Use a new or dummy account only.',
 
     // node errors
     NodeNoStake: 'This node does not have an active stake.',

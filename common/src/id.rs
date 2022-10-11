@@ -33,7 +33,7 @@ mod pools_program {
 pub use dummy_job::ID as DUMMY_JOB;
 mod dummy_job {
     use super::*;
-    declare_id!("dumxV9afosyVJ5LNGUmeo4JpuajWXRJ9SH8Mc8B3cGn");
+    declare_id!("dumQVNHZ1KNcLmzjMaDPEA5vFCzwHEEcQmZ8JHmmCNH");
 }
 
 pub use nos_token::ID as NOS_TOKEN;

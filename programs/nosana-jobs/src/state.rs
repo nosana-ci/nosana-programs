@@ -19,11 +19,11 @@ pub struct MarketAccount {
     pub node_access_key: Pubkey,
     pub node_xnos_minimum: u64,
     pub queue_type: u8,
-    pub queue: Vec<Order>,
+    pub queue: Vec<Pubkey>,
 }
 
 impl MarketAccount {
-    pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Order; 100]>();
+    pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Pubkey; 100]>();
     pub const JOB_FEE_FRACTION: u64 = 10;
     pub const EXPIRATION: u64 = 10;
 
@@ -70,12 +70,12 @@ impl MarketAccount {
         self.node_xnos_minimum = node_stake_minimum;
     }
 
-    pub fn add_to_queue(&mut self, order: Order) {
+    pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) {
         if self.job_type == JobType::Unknown as u8 {
             return;
         }
         if self.queue_type == QueueType::Empty as u8 {
-            self.set_queue_type(if order.job_price != 0 {
+            self.set_queue_type(if is_job {
                 QueueType::Job
             } else {
                 QueueType::Node
@@ -84,12 +84,12 @@ impl MarketAccount {
         self.queue.push(order);
     }
 
-    pub fn remove_node_from_queue(&mut self, node: Pubkey) -> Order {
-        let index: usize = self.find_node_in_queue(node).unwrap();
+    pub fn remove_from_queue(&mut self, node: &Pubkey) -> Pubkey {
+        let index: usize = self.find_in_queue(node).unwrap();
         self.queue.remove(index)
     }
 
-    pub fn pop_from_queue(&mut self) -> Order {
+    pub fn pop_from_queue(&mut self) -> Pubkey {
         // we check if there is one left
         if self.queue.len() == 1 {
             self.set_queue_type(QueueType::Empty);
@@ -97,10 +97,8 @@ impl MarketAccount {
         self.queue.pop().unwrap()
     }
 
-    pub fn find_node_in_queue(&mut self, node: Pubkey) -> Option<usize> {
-        self.queue
-            .iter()
-            .position(|order: &Order| order.user == node)
+    pub fn find_in_queue(&mut self, pubkey: &Pubkey) -> Option<usize> {
+        MarketAccount::find_in_queue_static(&self.queue, pubkey)
     }
 
     pub fn set_queue_type(&mut self, queue_type: QueueType) {
@@ -123,120 +121,20 @@ impl MarketAccount {
             collection.verified && collection.key == node_access_key
         }
     }
-}
 
-/// ### Order
-///
-/// The `Order` struct is type used to describe orders in the market.
-///
-#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
-pub struct Order {
-    pub user: Pubkey,
-    pub ipfs_job: [u8; 32],
-    pub job_price: u64,
-}
-
-impl Order {
-    pub fn new_job(user: Pubkey, ipfs_job: [u8; 32], job_price: u64) -> Order {
-        Order {
-            user,
-            ipfs_job,
-            job_price,
-        }
-    }
-
-    pub fn new_node(user: Pubkey) -> Order {
-        Order {
-            user,
-            ipfs_job: [0; 32],
-            job_price: 0,
-        }
-    }
-}
-
-/// ### Job Account
-///
-/// The `JobAccount` struct holds all the information about any individual jobs.
-///
-#[account]
-pub struct JobAccount {
-    pub ipfs_job: [u8; 32],
-    pub ipfs_result: [u8; 32],
-    pub market: Pubkey,
-    pub node: Pubkey,
-    pub payer: Pubkey,
-    pub price: u64,
-    pub project: Pubkey,
-    pub status: u8,
-    pub time_end: i64,
-    pub time_start: i64,
-}
-
-impl JobAccount {
-    pub const SIZE: usize = 8 + size_of::<JobAccount>();
-
-    pub fn set_dummy(&mut self) {
-        self.market = id::JOBS_PROGRAM;
-        self.node = id::JOBS_PROGRAM;
-        self.payer = id::JOBS_PROGRAM;
-        self.project = id::JOBS_PROGRAM;
-        self.status = JobStatus::Dummy as u8;
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub fn create(
-        &mut self,
-        ipfs_job: [u8; 32],
-        market: Pubkey,
-        node: Pubkey,
-        payer: Pubkey,
-        price: u64,
-        project: Pubkey,
-        time_start: i64,
-    ) {
-        self.ipfs_job = ipfs_job;
-        self.market = market;
-        self.node = node;
-        self.payer = payer;
-        self.price = price;
-        self.project = project;
-        self.status = JobStatus::Running as u8;
-        self.time_start = time_start;
-    }
-
-    pub fn claim(&mut self, node: Pubkey, time_start: i64) {
-        self.node = node;
-        self.status = JobStatus::Running as u8;
-        self.time_start = time_start;
-    }
-
-    pub fn quit(&mut self) {
-        self.status = JobStatus::Stopped as u8;
-    }
-
-    pub fn finish(&mut self, ipfs_result: [u8; 32], time_end: i64) {
-        self.ipfs_result = ipfs_result;
-        self.status = JobStatus::Done as u8;
-        self.time_end = time_end;
+    pub fn find_in_queue_static(queue: &[Pubkey], pubkey: &Pubkey) -> Option<usize> {
+        queue.iter().position(|order: &Pubkey| order == pubkey)
     }
 
     /***
-      This constraint verifies that:
-       - if there's an order queued (could be a node or job, queue_type matches the scenario);
-           - a new job account will be initialized
-           - the new account should not have data in it (re-init attack)
-       - if the queue is empty, OR the queue is of the wrong type:
-           - a new order data will end up in the end of queue
-           - no new job account will be initialized
-           - the dummy account is passed that's already created
+     This constraint verifies that nodes can only enter the queue once
     */
-    pub fn constraint(job_status: u8, queue_type: u8, scenario: QueueType) -> bool {
-        job_status
-            == if queue_type == scenario as u8 {
-                JobStatus::Null as u8
-            } else {
-                JobStatus::Dummy as u8
-            }
+    pub fn node_constraint(node: &Pubkey, queue: &[Pubkey], queue_type: u8) -> bool {
+        if queue_type != QueueType::Job as u8 {
+            MarketAccount::find_in_queue_static(queue, node).is_none()
+        } else {
+            true
+        }
     }
 }
 
@@ -261,17 +159,133 @@ impl From<u8> for QueueType {
     }
 }
 
-/// ### Job Status
+/// ### Run Account
 ///
-/// The `JobStatus` describes the status of a job.
+/// The `RunAccount` struct holds temporary information that matches nodes to jobs.
+///
+#[account]
+pub struct RunAccount {
+    pub job: Pubkey,
+    pub node: Pubkey,
+    pub payer: Pubkey,
+    pub state: u8,
+    pub time: i64,
+}
+
+impl RunAccount {
+    pub const SIZE: usize = 8 + size_of::<RunAccount>();
+
+    pub fn create(&mut self, job: Pubkey, node: Pubkey, payer: Pubkey, time: i64) {
+        self.job = job;
+        self.node = node;
+        self.payer = payer;
+        self.state = RunState::Created as u8;
+        self.time = time;
+    }
+
+    pub fn create_dummy(&mut self) {
+        self.job = id::JOBS_PROGRAM;
+        self.node = id::JOBS_PROGRAM;
+        self.payer = id::JOBS_PROGRAM;
+        self.state = RunState::Dummy as u8;
+    }
+
+    /***
+      This constraint verifies that:
+       - if there's an order queued (could be a node or job, queue_type matches the scenario);
+           - a new run account will be initialized
+           - the new run account should not have data in it (re-init attack)
+       - if the queue is empty, OR the queue is of the wrong type:
+           - a new public key will be put in the end of queue
+           - no new run account will be initialized
+           - the run dummy account is passed that's already created
+    */
+    pub fn constraint(run_state: u8, queue_type: u8, scenario: QueueType) -> bool {
+        run_state
+            == if queue_type == scenario as u8 {
+                RunState::Null as u8
+            } else {
+                RunState::Dummy as u8
+            }
+    }
+}
+
+/// ### Run State
+///
+/// The `RunState` describes the status of a run account.
 ///
 #[repr(u8)]
-pub enum JobStatus {
+pub enum RunState {
     Null = 0,
+    Created = 1,
+    Dummy = 2,
+}
+
+/// ### Job Account
+///
+/// The `JobAccount` struct holds all the information about any individual jobs.
+///
+#[account]
+pub struct JobAccount {
+    pub ipfs_job: [u8; 32],
+    pub ipfs_result: [u8; 32],
+    pub market: Pubkey,
+    pub node: Pubkey,
+    pub payer: Pubkey,
+    pub price: u64,
+    pub project: Pubkey,
+    pub state: u8,
+    pub time_end: i64,
+    pub time_start: i64,
+}
+
+impl JobAccount {
+    pub const SIZE: usize = 8 + size_of::<JobAccount>();
+
+    pub fn create(
+        &mut self,
+        ipfs_job: [u8; 32],
+        market: Pubkey,
+        payer: Pubkey,
+        price: u64,
+        project: Pubkey,
+    ) {
+        self.ipfs_job = ipfs_job;
+        self.market = market;
+        self.payer = payer;
+        self.price = price;
+        self.project = project;
+        self.state = JobState::Queued as u8;
+    }
+
+    pub fn claim(&mut self, node: Pubkey, time_start: i64) {
+        self.node = node;
+        self.state = JobState::Running as u8;
+        self.time_start = time_start;
+    }
+
+    pub fn quit(&mut self) {
+        self.state = JobState::Stopped as u8;
+    }
+
+    pub fn finish(&mut self, ipfs_result: [u8; 32], node: Pubkey, time_end: i64) {
+        self.ipfs_result = ipfs_result;
+        self.node = node;
+        self.state = JobState::Done as u8;
+        self.time_end = time_end;
+    }
+}
+
+/// ### Job State
+///
+/// The `JobState` describes the status of a job.
+///
+#[repr(u8)]
+pub enum JobState {
+    Queued = 0,
     Running = 1,
     Done = 2,
     Stopped = 3,
-    Dummy = 100,
 }
 
 /// ### Job Type

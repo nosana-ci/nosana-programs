@@ -8,10 +8,19 @@ import { Context, describe } from 'mocha';
  * Helper to set the job accounts and seeds
  * @param mochaContext
  * @param dummy
- * @param seed
  */
-function setJobAccountAndGetKey(mochaContext: Context, dummy = false) {
+function setRunAccountAndGetKey(mochaContext: Context, dummy = false) {
   const key = dummy ? mochaContext.market.dummyKey : anchor.web3.Keypair.generate();
+  mochaContext.accounts.run = key.publicKey;
+  return key;
+}
+
+/**
+ * Helper to set the job accounts and seeds
+ * @param mochaContext
+ */
+function getNewJobKey(mochaContext: Context) {
+  const key = anchor.web3.Keypair.generate();
   mochaContext.accounts.job = key.publicKey;
   return key;
 }
@@ -46,7 +55,7 @@ export default function suite() {
       this.vaults.jobs = this.accounts.vault;
       this.marketClosed = false;
 
-      const jobKey = setJobAccountAndGetKey(this, true);
+      const jobKey = setRunAccountAndGetKey(this, true);
       await this.jobsProgram.methods
         .open(
           new BN(this.market.jobExpiration),
@@ -60,20 +69,25 @@ export default function suite() {
         .rpc();
     });
 
-    it('can fetch the dummy / queued job', async function () {
-      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.status).to.equal(this.constants.jobStatus.dummy);
-      expect(job.project.toString()).to.equal(this.jobsProgram.programId.toString());
-      expect(job.node.toString()).to.equal(this.jobsProgram.programId.toString());
-      expect(job.market.toString()).to.equal(this.jobsProgram.programId.toString());
-      expect(job.project.toString()).to.equal(this.jobsProgram.programId.toString());
+    it('can fetch the dummy run account', async function () {
+      const run = await this.jobsProgram.account.runAccount.fetch(this.accounts.run);
+      expect(run.state).to.equal(this.constants.runState.dummy);
+      expect(run.node.toString()).to.equal(this.jobsProgram.programId.toString());
+      expect(run.job.toString()).to.equal(this.jobsProgram.programId.toString());
+      expect(run.payer.toString()).to.equal(this.jobsProgram.programId.toString());
+      expect(run.time.toNumber()).to.equal(0);
     });
   });
 
   describe('list()', async function () {
     it('can list a job when there are no nodes', async function () {
-      const key = setJobAccountAndGetKey(this, true);
-      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).signers([key]).rpc();
+      const jobKey = getNewJobKey(this);
+      const runKey = setRunAccountAndGetKey(this, true);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc();
 
       // update balances
       this.balances.user -= this.constants.jobPrice;
@@ -87,26 +101,25 @@ export default function suite() {
 
     it('can read a job order in the market', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      expect(market.queue[0].user.toString()).to.equal(this.accounts.authority.toString());
-      expect(buf2hex(market.queue[0].ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
+      expect(market.queue[0].toString()).to.equal(this.accounts.job.toString());
     });
   });
 
   describe('work()', async function () {
     it('can not start work with the dummy account', async function () {
       let msg = '';
-      const key = setJobAccountAndGetKey(this, true);
+      const key = setRunAccountAndGetKey(this, true);
       await this.jobsProgram.methods
         .work()
         .accounts(this.accounts)
         .signers([key])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobConstraintNotSatisfied);
+      expect(msg).to.equal(this.constants.errors.RunConstraintNotSatisfied);
     });
 
-    it('can work on job,with a new key', async function () {
-      const key = setJobAccountAndGetKey(this);
+    it('can work on job, with a new run key', async function () {
+      const key = setRunAccountAndGetKey(this);
 
       this.market.usedKey = key; // remember for later
 
@@ -116,20 +129,27 @@ export default function suite() {
       this.market.queueType = this.constants.queueType.unknown;
     });
 
-    it('can fetch the running job', async function () {
+    it('can fetch the craeted run account', async function () {
+      const run = await this.jobsProgram.account.runAccount.fetch(this.accounts.run);
+      expect(run.state).to.equal(this.constants.runState.created);
+      expect(run.node.toString()).to.equal(this.accounts.authority.toString());
+      expect(run.job.toString()).to.equal(this.accounts.job.toString());
+      expect(run.time.toNumber()).to.not.equal(0);
+    });
+
+    it('can fetch the created job account', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.status).to.equal(this.constants.jobStatus.running);
+      expect(job.state).to.equal(this.constants.jobState.queued);
       expect(job.project.toString()).to.equal(this.accounts.authority.toString());
-      expect(job.node.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
       expect(job.market.toString()).to.equal(this.accounts.market.toString());
       expect(job.price.toNumber()).to.equal(new BN(this.constants.jobPrice).toNumber());
-      expect(job.timeStart.toNumber()).to.not.equal(0);
       expect(job.timeEnd.toNumber()).to.equal(0);
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
 
     it('can work and enter the market queue as a node', async function () {
-      const key = setJobAccountAndGetKey(this, true);
+      const key = setRunAccountAndGetKey(this, true);
       await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
 
       // update market
@@ -139,7 +159,7 @@ export default function suite() {
 
     it('can not work and enter the market queue twice', async function () {
       let msg = '';
-      const key = setJobAccountAndGetKey(this, true);
+      const key = setRunAccountAndGetKey(this, true);
       await this.jobsProgram.methods
         .work()
         .accounts(this.accounts)
@@ -151,40 +171,47 @@ export default function suite() {
 
     it('can fetch a market with a node queue', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      expect(market.queue[0].user.toString()).to.equal(this.accounts.authority.toString());
+      expect(market.queue[0].toString()).to.equal(this.accounts.authority.toString());
     });
   });
 
   describe('list()', async function () {
     it('can not list job for creation with system seed', async function () {
       let msg = '';
-      const key = setJobAccountAndGetKey(this, true);
+      const runKey = setRunAccountAndGetKey(this, true);
+      const jobKey = getNewJobKey(this);
       await this.jobsProgram.methods
         .list(this.constants.ipfsData)
         .accounts(this.accounts)
-        .signers([key])
+        .signers([jobKey, runKey])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobConstraintNotSatisfied);
+      expect(msg).to.equal(this.constants.errors.RunConstraintNotSatisfied);
     });
 
     it('can not list a job account with a used seed', async function () {
       let msg = '';
+      const jobKey = getNewJobKey(this);
       await this.jobsProgram.methods
         .list(this.constants.ipfsData)
         .accounts({
           ...this.accounts,
-          job: this.market.usedKey.publicKey,
+          run: this.market.usedKey.publicKey,
         })
-        .signers([this.market.usedKey])
+        .signers([jobKey, this.market.usedKey])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobConstraintNotSatisfied);
+      expect(msg).to.equal(this.constants.errors.RunConstraintNotSatisfied);
     });
 
     it('can create a job account with a new seed', async function () {
-      const key = setJobAccountAndGetKey(this);
-      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).signers([key]).rpc();
+      const runKey = setRunAccountAndGetKey(this);
+      const jobKey = getNewJobKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc();
 
       // update market
       this.market.queueType = this.constants.queueType.unknown;
@@ -197,7 +224,7 @@ export default function suite() {
 
     it('can fetch a running job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.status).to.equal(this.constants.jobStatus.running);
+      expect(job.state).to.equal(this.constants.jobState.running);
       expect(job.node.toString()).to.equal(this.accounts.authority.toString());
       expect(job.project.toString()).to.equal(this.accounts.authority.toString());
       expect(job.timeStart.toNumber()).to.be.closeTo(now(), 100);
@@ -234,7 +261,7 @@ export default function suite() {
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobInWrongState);
+      expect(msg).to.equal(this.constants.errors.SolanaAccountNotInitialized);
     });
 
     it('can fetch a finished job', async function () {
@@ -246,16 +273,18 @@ export default function suite() {
   describe('clean()', async function () {
     it('can find a running job in the market', async function () {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
-      const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '2' } }]);
+      const runs = await this.jobsProgram.account.runAccount.all([
+        { memcmp: { offset: 8 + 32, bytes: this.accounts.authority.toBase58() } },
+      ]);
 
-      expect(jobs.length).to.equal(1);
+      expect(runs.length).to.equal(1);
 
-      const job = jobs[0];
+      const job = await this.jobsProgram.account.jobAccount.fetch(runs[0].account.job);
 
-      expect(job.account.node.toString()).to.equal(this.accounts.authority.toString());
-      expect(job.account.status).to.equal(this.constants.jobStatus.running);
+      expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
+      expect(job.state).to.not.equal(this.constants.jobState.done);
 
-      this.accounts.job = job.publicKey;
+      this.accounts.job = runs[0].account.job;
     });
 
     it('can not recover the funds from a running job', async function () {
@@ -278,11 +307,13 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.JobInWrongState);
     });
 
-    it('can not claim job this is running', async function () {
+    it('can not claim job that is running', async function () {
       let msg = '';
+      const runKey = setRunAccountAndGetKey(this);
       await this.jobsProgram.methods
         .claim()
         .accounts(this.accounts)
+        .signers([runKey])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.JobInWrongState);
@@ -297,7 +328,7 @@ export default function suite() {
       const job = jobs[0];
 
       expect(job.account.node.toString()).to.equal(this.accounts.authority.toString());
-      expect(job.account.status).to.equal(this.constants.jobStatus.done);
+      expect(job.account.state).to.equal(this.constants.jobState.done);
 
       this.accounts.job = job.publicKey;
     });
@@ -331,8 +362,13 @@ export default function suite() {
 
   describe('quit()', async function () {
     it('can list a job', async function () {
-      const key = setJobAccountAndGetKey(this, true);
-      await this.jobsProgram.methods.list(this.constants.ipfsData).accounts(this.accounts).signers([key]).rpc();
+      const runKey = setRunAccountAndGetKey(this, true);
+      const jobKey = getNewJobKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc();
 
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
@@ -340,7 +376,7 @@ export default function suite() {
     });
 
     it('can start working on it', async function () {
-      const key = setJobAccountAndGetKey(this, false);
+      const key = setRunAccountAndGetKey(this, false);
       await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
     });
 
@@ -364,7 +400,7 @@ export default function suite() {
 
     it('can find a quited job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.status).to.equal(this.constants.jobStatus.quit);
+      expect(job.state).to.equal(this.constants.jobState.stopped);
     });
   });
 
@@ -372,6 +408,7 @@ export default function suite() {
     it('can not claim a stopped job with wrong metadata', async function () {
       let msg = '';
       const user = this.users.node1;
+      const runKey = setRunAccountAndGetKey(this);
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -380,7 +417,7 @@ export default function suite() {
           nft: user.ataNft,
           stake: user.stake,
         })
-        .signers([user.user])
+        .signers([runKey, user.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.NodeNftWrongMetadata);
@@ -389,6 +426,7 @@ export default function suite() {
     it('can not claim a stopped job with another stake', async function () {
       let msg = '';
       const user = this.users.node1;
+      const runKey = setRunAccountAndGetKey(this);
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -397,7 +435,7 @@ export default function suite() {
           metadata: user.metadata,
           nft: user.ataNft,
         })
-        .signers([user.user])
+        .signers([runKey, user.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.Unauthorized);
@@ -406,6 +444,7 @@ export default function suite() {
     it('can not claim a stopped job with wrong nft', async function () {
       let msg = '';
       const user = this.users.node1;
+      const runKey = setRunAccountAndGetKey(this);
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -414,7 +453,7 @@ export default function suite() {
           metadata: user.metadata,
           stake: user.stake,
         })
-        .signers([user.user])
+        .signers([runKey, user.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.NodeNftWrongOwner);
@@ -422,6 +461,7 @@ export default function suite() {
 
     it('can claim a stopped job with another node', async function () {
       const user = this.users.node1;
+      const runKey = setRunAccountAndGetKey(this);
       await this.jobsProgram.methods
         .claim()
         .accounts({
@@ -431,14 +471,23 @@ export default function suite() {
           metadata: user.metadata,
           stake: user.stake,
         })
-        .signers([user.user])
+        .signers([runKey, user.user])
         .rpc();
     });
 
     it('can find a re-claimed job', async function () {
-      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.status).to.equal(this.constants.jobStatus.running);
-      expect(job.node.toString()).to.equal(this.users.node1.publicKey.toString());
+      const user = this.users.node1;
+      const runs = await this.jobsProgram.account.runAccount.all([
+        { memcmp: { offset: 8 + 32, bytes: user.publicKey.toBase58() } },
+      ]);
+      expect(runs.length).to.equal(1);
+
+      const job = await this.jobsProgram.account.jobAccount.fetch(runs[0].account.job);
+      expect(job.state).to.equal(this.constants.jobState.running);
+      expect(job.node.toString()).to.equal(user.publicKey.toString());
+
+      this.accounts.run = runs[0].publicKey;
+      this.accounts.job = runs[0].account.job;
     });
 
     it('can not quit job for another node', async function () {
@@ -452,13 +501,14 @@ export default function suite() {
     });
 
     it('can quit a job again', async function () {
+      const user = this.users.node1;
       await this.jobsProgram.methods
         .quit()
         .accounts({
           ...this.accounts,
-          authority: this.users.node1.publicKey,
+          authority: user.publicKey,
         })
-        .signers([this.users.node1.user])
+        .signers([user.user])
         .rpc();
     });
   });
@@ -520,15 +570,20 @@ export default function suite() {
     });
 
     it('can find the last running job in this market', async function () {
-      const runningJobs = await this.jobsProgram.account.jobAccount.all([
-        { memcmp: { offset: 72, bytes: this.accounts.market.toBase58() } },
-        { memcmp: { offset: 208, bytes: '2' } },
-      ]);
-      expect(runningJobs.length).to.equal(1);
-      this.accounts.job = runningJobs.pop().publicKey;
+      const runs = await this.jobsProgram.account.runAccount.all();
+
+      expect(runs.length).to.equal(1 + 1); // also dummy account
+
+      for (const run of runs) {
+        if (run.account.state !== this.constants.runState.dummy) {
+          expect(run.account.node.toString()).to.equal(this.accounts.authority.toString());
+          this.accounts.run = run.publicKey;
+          this.accounts.job = run.account.job;
+        }
+      }
     });
 
-    it('can not finish anoter nodes job', async function () {
+    it('can not finish another nodes job', async function () {
       let msg = '';
       await this.jobsProgram.methods
         .finish(this.constants.ipfsData)
@@ -550,11 +605,8 @@ export default function suite() {
 
     it('can see no more running jobs in this market', async function () {
       // https://docs.nosana.io/programs/jobs.html#job-account
-      const runningJobs = await this.jobsProgram.account.jobAccount.all([
-        { memcmp: { offset: 72, bytes: this.accounts.market.toBase58() } },
-        { memcmp: { offset: 208, bytes: '2' } },
-      ]);
-      expect(runningJobs.length).to.equal(0);
+      const runs = await this.jobsProgram.account.runAccount.all();
+      expect(runs.length).to.equal(1);
     });
 
     it('can close the market', async function () {

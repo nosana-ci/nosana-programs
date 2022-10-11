@@ -5,28 +5,38 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 pub struct Finish<'info> {
     #[account(
         mut,
-        has_one = market @ NosanaError::InvalidMarket,
-        constraint = job.node == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.status == JobStatus::Running as u8 @ NosanaError::JobInWrongState
+        has_one = market @ NosanaError::InvalidMarketAccount,
     )]
     pub job: Account<'info, JobAccount>,
+    #[account(
+        mut,
+        close = payer,
+        has_one = payer @ NosanaError::InvalidPayer,
+        has_one = job @ NosanaError::InvalidJobAccount,
+        constraint = run.node == authority.key() @ NosanaError::Unauthorized,
+    )]
+    pub run: Account<'info, RunAccount>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
+    /// CHECK: this account is verified as the original payer for the run account
+    pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
 pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
     // finish the job
-    ctx.accounts
-        .job
-        .finish(ipfs_result, Clock::get()?.unix_timestamp);
+    ctx.accounts.job.finish(
+        ipfs_result,
+        ctx.accounts.authority.key(),
+        Clock::get()?.unix_timestamp,
+    );
 
-    // reimburse the node
+    // reimburse the worker
     transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),

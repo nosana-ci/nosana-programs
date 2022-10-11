@@ -18,7 +18,7 @@ async function main() {
   // public keys
   const mint = new PublicKey(MarketConfig.mint);
   const market = marketKey.publicKey;
-  const jobKey = getDummyKey();
+  const runKey = getDummyKey();
   const programId = new PublicKey('nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM');
 
   // program
@@ -35,7 +35,7 @@ async function main() {
       new BN(MarketConfig.nodeMinimumStake)
     )
     .accounts({
-      job: jobKey.publicKey,
+      run: runKey.publicKey,
       mint,
       market,
       vault: await pda([market.toBuffer(), mint.toBuffer()], programId),
@@ -45,7 +45,7 @@ async function main() {
       systemProgram: web3.SystemProgram.programId,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
-    .signers([jobKey, marketKey])
+    .signers([runKey, marketKey])
     .rpc();
 
   // log data

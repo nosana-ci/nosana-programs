@@ -2,12 +2,18 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct Quit<'info> {
+    #[account(mut)]
+    pub job: Account<'info, JobAccount>,
     #[account(
         mut,
-        constraint = job.node == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.status == JobStatus::Running as u8 @ NosanaError::JobInWrongState
+        close = payer,
+        has_one = job @ NosanaError::InvalidJobAccount,
+        has_one = payer @ NosanaError::InvalidPayer,
+        constraint = run.node == authority.key() @ NosanaError::Unauthorized,
     )]
-    pub job: Account<'info, JobAccount>,
+    pub run: Account<'info, RunAccount>,
+    /// CHECK: this account is verified as the original payer for the run account
+    pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 
