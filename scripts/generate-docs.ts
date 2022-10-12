@@ -6,12 +6,13 @@ import nosanaPools from '../target/idl/nosana_pools.json';
 import nosanaRewards from '../target/idl/nosana_rewards.json';
 // @ts-ignore
 import nosanaStaking from '../target/idl/nosana_staking.json';
-import { writeFileSync, readFileSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync } from 'fs';
 import commandLineArgs from 'command-line-args';
 import { BorshAccountsCoder } from '@project-serum/anchor';
 
 const options = commandLineArgs([
   { name: 'enhance', alias: 'e', type: Boolean },
+  { name: 'diagrams', alias: 'd', type: Boolean },
   { name: 'output-dir', alias: 'o', type: String },
 ]);
 
@@ -162,7 +163,8 @@ const descriptions = (name) => {
     case 'jobPrice':
       return 'The price for jobs in this market.';
     case 'nodeStakeMinimum':
-      return 'The number of tokens a node needs to stake to qualify.';
+    case 'nodeXnosMinimum':
+      return 'The amount of [`xNOS`](#/programs/staking) a node needs to qualify for a market.';
     case 'nodeAccessKey':
       return 'The NFT collection address of an NFT that the node holds, in order to access this market.';
     case 'ipfsResult':
@@ -375,7 +377,7 @@ function main() {
       '## Accounts',
       '',
       `A number of ${idl.accounts.length + 1} accounts make up for the ${title(idl.name)} Program's state.`,
-      options.enhance ? '\n::: tabs\n' : ''
+      options.enhance ? '\n:::: tabs\n' : ''
     );
 
     for (const account of idl.accounts) {
@@ -420,11 +422,13 @@ function main() {
       );
     }
     if (options.enhance) data.push(':::');
+    data.push('');
 
     // the vault account
     if (options.enhance) data.push('@tab Vault Account');
     data.push('### Vault Account', '', 'The `VaultAccount` is a regular Solana Token Account.', '');
-    if (options.enhance) data.push(':::');
+    if (options.enhance) data.push('::::');
+    data.push('');
 
     /**
      * TYPES
@@ -463,6 +467,17 @@ function main() {
       }
 
       if (options.enhance) data.push(':::');
+    }
+
+    /**
+     * DIAGRAMS
+     */
+    if (options.diagrams) {
+      const file = `./docs/diagrams/${idl.name.split('_')[1]}.md`;
+      if (existsSync(file)) {
+        const doc = readFileSync(file).toString().split('\n');
+        data.push(...doc);
+      }
     }
 
     /**
