@@ -35,7 +35,6 @@ async function main() {
       new BN(MarketConfig.nodeMinimumStake)
     )
     .accounts({
-      run: runKey.publicKey,
       mint,
       market,
       vault: await pda([market.toBuffer(), mint.toBuffer()], programId),
