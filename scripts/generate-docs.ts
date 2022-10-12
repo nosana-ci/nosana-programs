@@ -433,15 +433,16 @@ function main() {
         );
         offset += size;
       }
-      const discriminator = [...BorshAccountsCoder.accountDiscriminator(account.name)];
+      const discriminator = BorshAccountsCoder.accountDiscriminator(account.name);
       data.push(
         '',
-        `${options.enhance ? '::: details' : '####'} Discriminator`,
+        `${options.enhance ? '::: details' : '####'} Anchor Account Discriminator`,
         '',
-        `The ${title(account.name)}'s 8 byte discriminator is:`,
+        `The first 8 bytes, also known as Anchor's 8 byte discriminator, for the ${title(account.name)}`,
+        `are **\`${discriminator.toString('hex')}\`**, which can also be expressed in byte array:`,
         '',
         '```json',
-        `${options.enhance ? JSON.stringify(discriminator, null, 2) : '[' + discriminator + ']'}`,
+        `${options.enhance ? JSON.stringify([...discriminator], null, 2) : '[' + [...discriminator] + ']'}`,
         '```',
         ''
       );

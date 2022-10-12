@@ -308,9 +308,10 @@ The total size of this account is `89` bytes.
 | `vault`                     | `publicKey`                 | `32`    | `56`    | The [VaultAccount](#vault-account) address.                                                       |
 | `vaultBump`                 | `u8`                        | `1`     | `88`    | The bump for the [VaultAccount](#vault-account).                                                  |
 
-#### Discriminator
+#### Anchor Account Discriminator
 
-The Reflection Account's 8 byte discriminator is:
+The first 8 bytes, also known as Anchor's 8 byte discriminator, for the Reflection Account
+are **`cd99a036ef1adbbc`**, which can also be expressed in byte array:
 
 ```json
 [205,153,160,54,239,26,219,188]
@@ -328,9 +329,10 @@ The total size of this account is `73` bytes.
 | `reflection`                | `u128`                      | `16`    | `41`    | The [ReflectionAccount](#reflection-account) address.                                             |
 | `xnos`                      | `u128`                      | `16`    | `57`    | n/a                                                                                               |
 
-#### Discriminator
+#### Anchor Account Discriminator
 
-The Reward Account's 8 byte discriminator is:
+The first 8 bytes, also known as Anchor's 8 byte discriminator, for the Reward Account
+are **`e1511ffd54eaab81`**, which can also be expressed in byte array:
 
 ```json
 [225,81,31,253,84,234,171,129]
