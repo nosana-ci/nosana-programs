@@ -232,8 +232,8 @@ A number of 2 accounts make up for the Nosana Pools Program's state.
 ### Pool Account
 
 The `PoolAccount` struct holds all the information for any given pool.
-
 The total size of this account is `139` bytes.
+
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
@@ -255,11 +255,9 @@ are **`74d2bb77c4c43489`**, which can also be expressed in byte array:
 [116,210,187,119,196,196,52,137]
 ```
 
-
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
-
 
 ## Types
 

@@ -591,8 +591,8 @@ A number of 4 accounts make up for the Nosana Jobs Program's state.
 ### Market Account
 
 The `MarketAccount` struct holds all the information about jobs and the nodes queue.
-
 The total size of this account is `3,355` bytes.
+
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
@@ -619,8 +619,8 @@ are **`c94ebbe1f0c6c9fb`**, which can also be expressed in byte array:
 ### Run Account
 
 The `RunAccount` struct holds temporary information that matches nodes to jobs.
-
 The total size of this account is `121` bytes.
+
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `job`                       | `publicKey`                 | `32`    | `8`     | The [JobAccount](#job-account) address.                                                           |
@@ -641,8 +641,8 @@ are **`c2a96ee6eb0be116`**, which can also be expressed in byte array:
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
-
 The total size of this account is `241` bytes.
+
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `ipfsJob`                   | `["u8",32]`                 | `32`    | `8`     | The byte array representing the IPFS hash to the job.                                             |
@@ -665,11 +665,9 @@ are **`5b10a2052dd27d41`**, which can also be expressed in byte array:
 [91,16,162,5,45,210,125,65]
 ```
 
-
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
-
 
 ## Types
 

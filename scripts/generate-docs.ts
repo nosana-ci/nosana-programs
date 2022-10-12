@@ -410,11 +410,11 @@ function main() {
 
       // title
       data.push(`### ${title(account.name)}`, '');
-      if ('docs' in account) data.push(...account['docs'], '');
+      if ('docs' in account) data.push(...account['docs']);
 
       let size = 8;
       for (const field of account.type.fields) size += sizes[typeToString(field)];
-      data.push(`The total size of this account is \`${size.toLocaleString('en')}\` bytes.`);
+      data.push(`The total size of this account is \`${size.toLocaleString('en')}\` bytes.`, '');
 
       // accounts table
       const at = new MarkdownTable([30, 30, 10, 10, 100]);
@@ -447,14 +447,12 @@ function main() {
         ''
       );
     }
-    if (options.enhance) data.push(':::');
-    data.push('');
+    if (options.enhance) data.push(':::', '');
 
     // the vault account
     if (options.enhance) data.push('@tab Vault Account');
     data.push('### Vault Account', '', 'The `VaultAccount` is a regular Solana Token Account.', '');
-    if (options.enhance) data.push('::::');
-    data.push('');
+    if (options.enhance) data.push('::::', '');
 
     /**
      * TYPES

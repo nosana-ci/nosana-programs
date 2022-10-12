@@ -456,8 +456,8 @@ A number of 3 accounts make up for the Nosana Staking Program's state.
 
 The `SettingsAccount` struct holds the information about the
 slashing authority and token account.
-
 The total size of this account is `72` bytes.
+
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
@@ -475,8 +475,8 @@ are **`3f59cb9b4ced733a`**, which can also be expressed in byte array:
 ### Stake Account
 
 The `StakeAccount` struct holds all the information for any given stake.
-
 The total size of this account is `121` bytes.
+
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
 | `amount`                    | `u64`                       | `8`     | `8`     | The number of tokens.                                                                             |
@@ -495,7 +495,6 @@ are **`509e437c32bdc0ff`**, which can also be expressed in byte array:
 ```json
 [80,158,67,124,50,189,192,255]
 ```
-
 
 ### Vault Account
 
