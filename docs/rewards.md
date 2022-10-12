@@ -32,6 +32,8 @@ and [VaultAccount](#vault-account).
 
 #### Account Info
 
+The following 7 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token Mint address for this instruction.                                                      |
@@ -55,7 +57,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Init Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -79,6 +82,8 @@ The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account
 
 #### Account Info
 
+The following 5 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `reflection`           | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [ReflectionAccount](#reflection-account) address.                                             |
@@ -100,7 +105,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Enter Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -122,6 +128,8 @@ The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-a
 
 #### Account Info
 
+The following 5 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
@@ -131,6 +139,8 @@ The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-a
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Arguments
+
+The following 1 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -149,7 +159,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Add Fee Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -172,6 +183,8 @@ let tx = await program.methods
 The `claim()` instruction sends a user's rewards to a given wallet.
 
 #### Account Info
+
+The following 7 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -196,7 +209,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Claim Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -220,6 +234,8 @@ The `sync()` instruction re-calculates a users' reflection points.
 
 #### Account Info
 
+The following 3 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `reward`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [RewardAccount](#reward-account) address.                                                     |
@@ -239,7 +255,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Sync Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -257,6 +274,8 @@ let tx = await program.methods
 The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
 
 #### Account Info
+
+The following 3 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -277,7 +296,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Close Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods

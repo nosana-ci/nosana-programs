@@ -32,6 +32,8 @@ of the Nosana Staking program.
 
 #### Account Info
 
+The following 4 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `settings`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [SettingsAccount](#settings-account) address.                                                 |
@@ -52,7 +54,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Init Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -76,6 +79,8 @@ duration seconds of time. The stake and vault account is a PDA based on the auth
 
 #### Account Info
 
+The following 8 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token Mint address for this instruction.                                                      |
@@ -88,6 +93,8 @@ duration seconds of time. The stake and vault account is a PDA based on the auth
 | `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana rent address. Responsible for lamports.                                       |
 
 #### Arguments
+
+The following 2 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -107,7 +114,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Stake Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -135,6 +143,8 @@ The `unstake()` instruction will initiate the unstake delay.
 
 #### Account Info
 
+The following 3 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [StakeAccount](/programs/staking#stake-account) address.                                      |
@@ -154,7 +164,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Unstake Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -175,6 +186,8 @@ This will make a stake active again and reset the unstake time.
 
 #### Account Info
 
+The following 2 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [StakeAccount](/programs/staking#stake-account) address.                                      |
@@ -193,7 +206,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Restake Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -213,6 +227,8 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 
 #### Account Info
 
+The following 5 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
@@ -222,6 +238,8 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Arguments
+
+The following 1 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -240,7 +258,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Topup Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -265,12 +284,16 @@ The duration can only be increased which will result in a higher `xnos`.
 
 #### Account Info
 
+The following 2 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [StakeAccount](/programs/staking#stake-account) address.                                      |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 #### Arguments
+
+The following 1 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -289,7 +312,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Extend Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -312,6 +336,8 @@ and [VaultAccount](#vault-account) of the staker.
 
 #### Account Info
 
+The following 5 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
@@ -333,7 +359,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Claim Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -359,6 +386,8 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
 #### Account Info
 
+The following 6 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `settings`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [SettingsAccount](#settings-account) address.                                                 |
@@ -369,6 +398,8 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
 #### Arguments
+
+The following 1 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -387,7 +418,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Slash Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -413,6 +445,8 @@ sets the token account to a `tokenAccount`. This may be done by the current `aut
 
 #### Account Info
 
+The following 4 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `newAuthority`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The new authority of the  [SettingsAccount](#settings-account).                                   |
@@ -433,7 +467,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Update Settings Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods

@@ -173,7 +173,7 @@ const descriptions = (name) => {
       return 'The price for jobs in this market.';
     case 'nodeStakeMinimum':
     case 'nodeXnosMinimum':
-      return 'The amount of [`xNOS`](#/programs/staking) a node needs to qualify for a market.';
+      return 'The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.';
     case 'nodeAccessKey':
       return 'The NFT collection address of an NFT that the node holds, in order to access this market.';
     case 'ipfsResult':
@@ -288,7 +288,14 @@ function main() {
       // accounts table
       // data.push(options.enhance? '::: details Accounts' : undefined)
       const at = new MarkdownTable([25, 90, 100]);
-      data.push('#### Account Info', '', at.row(['Name', 'Type', 'Description']), at.sep());
+      data.push(
+        '#### Account Info',
+        '',
+        `The following ${instruction.accounts.length} account addresses should be provided when invoking this instruction.`,
+        '',
+        at.row(['Name', 'Type', 'Description']),
+        at.sep()
+      );
       const signers = [];
       for (const account of instruction.accounts) {
         data.push(
@@ -310,7 +317,14 @@ function main() {
         // args table
         // data.push(options.enhance? '::: details Arguments' : undefined)
         const ft = new MarkdownTable([25, 20, 10, 10, 60]);
-        data.push('#### Arguments', '', ft.row(['Name', 'Type', 'Size', 'Offset', 'Description']), ft.sep());
+        data.push(
+          '#### Arguments',
+          '',
+          `The following ${instruction.args.length} arguments should also be provided when invoking this instruction.`,
+          '',
+          ft.row(['Name', 'Type', 'Size', 'Offset', 'Description']),
+          ft.sep()
+        );
         let offset = 0;
         for (const arg of instruction.args) {
           const size = sizes[typeToString(arg)];
@@ -346,7 +360,12 @@ function main() {
       if (options.enhance) data.push(':::');
 
       data.push(`${options.enhance ? '::: details' : '####'} Example with Anchor`);
-      data.push('', 'To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).', '');
+      data.push(
+        '',
+        `To invoke the ${title(instruction.name)} Instruction`,
+        'with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).',
+        ''
+      );
 
       // code list
       const code = [];

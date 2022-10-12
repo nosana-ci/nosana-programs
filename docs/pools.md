@@ -32,6 +32,8 @@ and [VaultAccount](#vault-account).
 
 #### Account Info
 
+The following 8 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [PoolAccount](#pool-account) address.                                                         |
@@ -44,6 +46,8 @@ and [VaultAccount](#vault-account).
 | `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana rent address. Responsible for lamports.                                       |
 
 #### Arguments
+
+The following 4 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -65,7 +69,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Open Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -96,6 +101,8 @@ The `claimFee()` instruction claims emissions from a Nosana Pool with claim type
 
 #### Account Info
 
+The following 7 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
@@ -119,7 +126,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Claim Fee Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -144,6 +152,8 @@ with claim type [`0`](#claim-type), and transfer these to a given user.
 
 #### Account Info
 
+The following 5 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
@@ -165,7 +175,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Claim Transfer Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
@@ -188,6 +199,8 @@ and [VaultAccount](#vault-account).
 
 #### Account Info
 
+The following 5 account addresses should be provided when invoking this instruction.
+
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
@@ -209,7 +222,8 @@ which can also be expressed as an 8 byte discriminator:
 
 #### Example with Anchor
 
-To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
+To invoke the Close Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
