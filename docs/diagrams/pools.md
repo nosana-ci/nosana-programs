@@ -2,17 +2,16 @@
 
 ```mermaid
 flowchart TB
-    authority  -.-|open | nos1 -.-> vault -.-|claim| nos2 -.-> beneficiary
-    authority  -->|open | pool
-    authority  -->|close| pool
+    authority -.-|open | nos1 -.-> vault -.-|claim| nos2 -.-> beneficiary
+    authority -->|open | pool
+    authority -->|close| pool
+
     beneficiary -->|claim| pool
 
     authority(Pool Authority)
     beneficiary(Beneficiary Wallet)
-
     pool{Pool Account}
     vault{Vault Account}
-
     nos1[NOS]
     nos2[NOS]
 

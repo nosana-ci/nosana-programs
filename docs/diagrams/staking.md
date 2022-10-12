@@ -13,11 +13,9 @@ flowchart TB
     authority(Staking Authority)
     dao(Nosana Voting)
     network(Nosana Network)
-
     stake{Stake Account}
     vault{Vault Account}
     settings{Settings Account}
-
     nos[NOS]
     xnos[xNOS]
 

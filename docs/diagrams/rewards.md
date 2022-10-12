@@ -15,11 +15,9 @@ flowchart TB
     authority(Staking Authority)
     network(Nosana Network)
     anybody(Anonymous)
-
     reward{Reward Account}
     vault{Vault Account}
     reflection{Reflection Account}
-
     nos1[NOS]
     nos2[NOS]
 

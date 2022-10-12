@@ -12,11 +12,11 @@ flowchart TB
     vault   -.- nos2 -.-> node
     project -.- nos3 -.-> fee
 
-    node -->| stop  | market
-    node ---| work  | market -->| work  | run
-    node ---| claim | run    -->| claim | job
+    node -->| stop   | market
+    node ---| work   | market -->| work   | run
+    node ---| claim  | run    -->| claim  | job
     node ---| finish | run    -->| finish | job
-    node ---| quit  | run    -->| quit  | job
+    node ---| quit   | run    -->| quit   | job
 
     admin -->| open   | market
     admin -->| close  | market
@@ -29,11 +29,9 @@ flowchart TB
     project(Software Project)
     admin(Administrator)
     fee(Network Fees)
-
     nos1[NOS]
     nos2[NOS]
     nos3[NOS]
-
     market{Market Account}
     job{Job Account}
     run{Run Account}
