@@ -83,7 +83,7 @@ pub mod nosana_jobs {
 
     /// With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
     /// When there is a job available, a [RunAccount](#run-account) will automatically be created.
-    /// The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/stake).
+    /// The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/staking).
     pub fn work(ctx: Context<Work>) -> Result<()> {
         work::handler(ctx)
     }

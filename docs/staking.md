@@ -364,6 +364,14 @@ The total size of this account is `72` bytes.
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
 | `tokenAccount`              | `publicKey`                 | `32`    | `40`    | The token account where slash deposits will go.                                                   |
 
+#### Discriminator
+
+The Settings Account's 8 byte discriminator is:
+
+```json
+[63,89,203,155,76,237,115,58]
+```
+
 ### Stake Account
 
 The `StakeAccount` struct holds all the information for any given stake.
@@ -378,6 +386,14 @@ The total size of this account is `121` bytes.
 | `vault`                     | `publicKey`                 | `32`    | `72`    | The [VaultAccount](#vault-account) address.                                                       |
 | `vaultBump`                 | `u8`                        | `1`     | `104`   | The bump for the [VaultAccount](#vault-account).                                                  |
 | `xnos`                      | `u128`                      | `16`    | `105`   | n/a                                                                                               |
+
+#### Discriminator
+
+The Stake Account's 8 byte discriminator is:
+
+```json
+[80,158,67,124,50,189,192,255]
+```
 
 ### Vault Account
 

@@ -254,7 +254,7 @@ let tx = await program.methods
 
 With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
 When there is a job available, a [RunAccount](#run-account) will automatically be created.
-The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/stake).
+The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/staking).
 
 #### Account Info
 
@@ -486,6 +486,14 @@ The total size of this account is `3,355` bytes.
 | `queueType`                 | `u8`                        | `1`     | `154`   | The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.                                  |
 | `queue`                     | `Vec<publicKey>`            | `3200`  | `155`   | The queue of order in the market.                                                                 |
 
+#### Discriminator
+
+The Market Account's 8 byte discriminator is:
+
+```json
+[201,78,187,225,240,198,201,251]
+```
+
 ### Run Account
 
 The `RunAccount` struct holds temporary information that matches nodes to jobs.
@@ -498,6 +506,14 @@ The total size of this account is `121` bytes.
 | `payer`                     | `publicKey`                 | `32`    | `72`    | The paying identy for the rent.                                                                   |
 | `state`                     | `u8`                        | `1`     | `104`   | n/a                                                                                               |
 | `time`                      | `i64`                       | `16`    | `105`   | n/a                                                                                               |
+
+#### Discriminator
+
+The Run Account's 8 byte discriminator is:
+
+```json
+[194,169,110,230,235,11,225,22]
+```
 
 ### Job Account
 
@@ -516,6 +532,14 @@ The total size of this account is `241` bytes.
 | `state`                     | `u8`                        | `1`     | `208`   | n/a                                                                                               |
 | `timeEnd`                   | `i64`                       | `16`    | `209`   | The unix time this job has finished running.                                                      |
 | `timeStart`                 | `i64`                       | `16`    | `225`   | The unix time this job has started running.                                                       |
+
+#### Discriminator
+
+The Job Account's 8 byte discriminator is:
+
+```json
+[91,16,162,5,45,210,125,65]
+```
 
 ### Vault Account
 

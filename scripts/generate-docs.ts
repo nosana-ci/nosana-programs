@@ -8,6 +8,7 @@ import nosanaRewards from '../target/idl/nosana_rewards.json';
 import nosanaStaking from '../target/idl/nosana_staking.json';
 import { writeFileSync, readFileSync } from 'fs';
 import commandLineArgs from 'command-line-args';
+import { BorshAccountsCoder } from '@project-serum/anchor';
 
 const options = commandLineArgs([
   { name: 'enhance', alias: 'e', type: Boolean },
@@ -405,8 +406,20 @@ function main() {
         );
         offset += size;
       }
-      data.push('');
+      const discriminator = [...BorshAccountsCoder.accountDiscriminator(account.name)];
+      data.push(
+        '',
+        `${options.enhance ? '::: details' : '####'} Discriminator`,
+        '',
+        `The ${title(account.name)}'s 8 byte discriminator is:`,
+        '',
+        '```json',
+        `${options.enhance ? JSON.stringify(discriminator, null, 2) : '[' + discriminator + ']'}`,
+        '```',
+        ''
+      );
     }
+    if (options.enhance) data.push(':::');
 
     // the vault account
     if (options.enhance) data.push('@tab Vault Account');

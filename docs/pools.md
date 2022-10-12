@@ -202,6 +202,14 @@ The total size of this account is `139` bytes.
 | `vault`                     | `publicKey`                 | `32`    | `106`   | The [VaultAccount](#vault-account) address.                                                       |
 | `vaultBump`                 | `u8`                        | `1`     | `138`   | The bump for the [VaultAccount](#vault-account).                                                  |
 
+#### Discriminator
+
+The Pool Account's 8 byte discriminator is:
+
+```json
+[116,210,187,119,196,196,52,137]
+```
+
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
