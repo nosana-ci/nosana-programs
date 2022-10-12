@@ -63,7 +63,7 @@ which can also be expressed as an 8 byte discriminator:
 [228,220,155,71,199,189,60,45]
 ```
 
-#### details Example with Anchor
+#### Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -117,7 +117,7 @@ which can also be expressed as an 8 byte discriminator:
 [169,32,79,137,136,232,70,137]
 ```
 
-#### details Example with Anchor
+#### Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -163,7 +163,7 @@ which can also be expressed as an 8 byte discriminator:
 [202,178,58,190,230,234,229,17]
 ```
 
-#### details Example with Anchor
+#### Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -207,7 +207,7 @@ which can also be expressed as an 8 byte discriminator:
 [98,165,201,177,108,65,206,96]
 ```
 
-#### details Example with Anchor
+#### Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 

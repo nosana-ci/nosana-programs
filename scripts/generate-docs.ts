@@ -345,7 +345,7 @@ function main() {
       );
       if (options.enhance) data.push(':::');
 
-      data.push(`${options.enhance ? ':::' : '####'} details Example with Anchor`);
+      data.push(`${options.enhance ? '::: details' : '####'} Example with Anchor`);
       data.push('', 'To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).', '');
 
       // code list
