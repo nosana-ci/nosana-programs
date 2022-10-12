@@ -301,9 +301,8 @@ function main() {
         data.push(
           at.row([
             `\`${account.name}\``,
-            `<FontIcon icon="pencil" color="${account.isMut ? '#3EAF7C' : 'lightgrey'}" /><FontIcon icon="key" color="${
-              account.isSigner ? '#3EAF7C' : 'lightgrey'
-            }" />`,
+            `<FontIcon icon="pencil" color="${account.isMut ? '#3EAF7C' : 'lightgrey'}" />` +
+              `<FontIcon icon="key" color="${account.isSigner ? '#3EAF7C' : 'lightgrey'}" />`,
             `${descriptions(account.name)}`,
           ])
         );

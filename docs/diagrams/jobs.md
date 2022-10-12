@@ -1,28 +1,31 @@
 ## Diagram
 
-### Instructions
+### Instruction Diagram
 
 ```mermaid
 flowchart TB
-    admin -- open --> market
+
+    project --  recover -->  job
+    project --  list    ---  market
+    market  --  list    -->  job
+    market  --  list    -->  run
+    project -.- nos1    -.-> vault
+    vault   -.- nos2    -.-> node
+    project -.- nos3    -.-> fee
+
+    node -- stop  --> market
+    node -- work  --- market -- work  --> run
+    node -- claim --- run    -- claim --> job
+    node -- finish --- run    -- finish --> job
+    node -- quit  --- run    -- quit --> job
+
+    admin -- open   --> market
     admin -- update --> market
-    admin -- close --> market
+    admin -- close  --> market
 
-    project -- list --> job
-    project -- list --> run
-    project --> run
-    project -- recover --> job
-    project -.- nos1 -.-> vault -.- nos2 -.-> node
-    project -.- nos3 -.-> fee
+    all -- clean --> job
 
-    node -- work --> market -- work --> run
-    node -- stop --> market
-    node -- finish --> run -- finish --> job
-    node -- claim --> job
-    node -- quit --> job
-
-    job -- clean --> job
-
+    all(Everybody)
     node(Worker Node)
     project(Software Project)
     admin(Administrator)
@@ -44,14 +47,14 @@ flowchart TB
     class nos1,nos2,nos3 yellow
 ```
 
-### Queue
+### Queue Diagrams
 
-Below a representation of the functioning of the different queues.
+Below a representation of the functioning for the different [QueueTypes](#queue-type).
 
 ::: tabs
 
-@tab Nodes
-#### Nodes
+@tab Node Queue
+#### Node
 
 When there a more nodes than jobs in a given Market, the queue will fill up with nodes.
 The [`QueueType`](#queue-type) will be `Node` in this case.
@@ -88,8 +91,8 @@ flowchart TB
     class market grey;
 ```
 
-@tab Jobs
-#### Jobs
+@tab Job Queue
+#### Job Queue
 
 Vise versa, When there a more jobs than nodes in a given Market, the queue will fill up with jobs.
 The [`QueueType`](#queue-type) will be `Job` in this case.
@@ -103,9 +106,9 @@ flowchart TB
         subgraph Queue
             order1 --> order2 --> order3
         end
-        vault
     end
 
+    vault
     project --> Queue
     project --> vault
     order3 --> run
@@ -128,8 +131,8 @@ flowchart TB
     class market grey;
 ```
 
-@tab Empty
-#### Empty
+@tab Empty Queue
+#### Empty Queue
 
 Finally, at the point when the market is satisfied, the queue will be empty.
 The [`QueueType`](#queue-type) will be `Unknown` in this case.
@@ -148,8 +151,8 @@ flowchart TB
     node --> Queue
     project --> Queue
 
-    node(Node)
-    project(Project)
+    node(Worker Node)
+    project(Software Project)
     order{Order}
     market[Job Price<br>Job Timeout<br>Job Type<br>Job Expiration<br>Node Access Key<br>Node Minimum Stake]
 
