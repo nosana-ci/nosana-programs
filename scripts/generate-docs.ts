@@ -8,6 +8,8 @@ import nosanaRewards from '../target/idl/nosana_rewards.json';
 import nosanaStaking from '../target/idl/nosana_staking.json';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import commandLineArgs from 'command-line-args';
+import { snakeCase } from 'snake-case';
+import { sha256 } from 'js-sha256';
 import { BorshAccountsCoder } from '@project-serum/anchor';
 
 const options = commandLineArgs([
@@ -15,6 +17,13 @@ const options = commandLineArgs([
   { name: 'diagrams', alias: 'd', type: Boolean },
   { name: 'output-dir', alias: 'o', type: String },
 ]);
+
+// Not technically sighash, since we don't include the arguments, as Rust
+// doesn't allow function overloading.
+function dispatchId(ixName: string): Buffer {
+  const name = sha256.digest(`global:${snakeCase(ixName)}`) as unknown as ArrayBuffer;
+  return Buffer.from(name.slice(0, 8));
+}
 
 /**
  *
@@ -320,7 +329,23 @@ function main() {
         // data.push(options.enhance? ':::' : undefined) // accounts
       }
 
-      data.push(options.enhance ? '::: details Example' : '#### Example');
+      const dispatch = dispatchId(instruction.name);
+      data.push(
+        '',
+        `${options.enhance ? '::: details' : '####'} Solana Dispatch ID`,
+        '',
+        `The Solana dispatch ID for the ${title(instruction.name)} Instruction`,
+        `is **\`${dispatch.toString('hex')}\`**,`,
+        'which can also be expressed as an 8 byte discriminator:',
+        '',
+        '```json',
+        `${options.enhance ? JSON.stringify([...dispatch], null, 2) : '[' + [...dispatch] + ']'}`,
+        '```',
+        ''
+      );
+      if (options.enhance) data.push(':::');
+
+      data.push(`${options.enhance ? ':::' : '####'} details Example with Anchor`);
       data.push('', 'To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).', '');
 
       // code list

@@ -39,7 +39,18 @@ of the Nosana Staking program.
 | `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
 | `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana rent address. Responsible for lamports.                                       |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Init Instruction
+is **`dc3bcfec6cfa2f64`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[220,59,207,236,108,250,47,100]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -83,7 +94,18 @@ duration seconds of time. The stake and vault account is a PDA based on the auth
 | `amount`               | `u64`             | `8`     | `0`     | The number of tokens.                                     |
 | `duration`             | `u128`            | `16`    | `8`     | The duration of the stake.                                |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Stake Instruction
+is **`ceb0ca12c8d1b36c`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[206,176,202,18,200,209,179,108]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -119,7 +141,18 @@ The `unstake()` instruction will initiate the unstake delay.
 | `reward`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [RewardAccount](#reward-account) address.                                                     |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Unstake Instruction
+is **`5a5f6b2acd7c32e1`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[90,95,107,42,205,124,50,225]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -147,7 +180,18 @@ This will make a stake active again and reset the unstake time.
 | `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [StakeAccount](/programs/staking#stake-account) address.                                      |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Restake Instruction
+is **`61a1f1a70620d535`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[97,161,241,167,6,32,213,53]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -183,7 +227,18 @@ An `amount` of NOS is transferred to the vault and the stake is update.
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `amount`               | `u64`             | `8`     | `0`     | The number of tokens.                                     |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Topup Instruction
+is **`7e2a314ee197634d`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[126,42,49,78,225,151,99,77]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -221,7 +276,18 @@ The duration can only be increased which will result in a higher `xnos`.
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `duration`             | `u64`             | `8`     | `0`     | The duration of the stake.                                |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Extend Instruction
+is **`e47f0001e39a36a8`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[228,127,0,1,227,154,54,168]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -254,7 +320,18 @@ and [VaultAccount](#vault-account) of the staker.
 | `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Claim Instruction
+is **`3ec6d6c1d59f6cd2`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[62,198,214,193,213,159,108,210]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -297,7 +374,18 @@ Slashing is a feature used by the Nosana Protocol to punish bad actors.
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `amount`               | `u64`             | `8`     | `0`     | The number of tokens.                                     |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Slash Instruction
+is **`cc8d12a108b15c8e`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[204,141,18,161,8,177,92,142]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -332,7 +420,18 @@ sets the token account to a `tokenAccount`. This may be done by the current `aut
 | `settings`             | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [SettingsAccount](#settings-account) address.                                                 |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Update Settings Instruction
+is **`51a633d59e549d6c`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[81,166,51,213,158,84,157,108]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -394,6 +493,7 @@ The Stake Account's 8 byte discriminator is:
 ```json
 [80,158,67,124,50,189,192,255]
 ```
+
 
 ### Vault Account
 

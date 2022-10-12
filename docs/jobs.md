@@ -52,9 +52,20 @@ and [VaultAccount](#vault-account).
 | `jobPrice`             | `u64`             | `8`     | `16`    | The price for jobs in this market.                        |
 | `jobTimeout`           | `i64`             | `16`    | `24`    | The timeout time in seconds for jobs.                     |
 | `jobType`              | `u8`              | `1`     | `40`    | The [JobType](#job-type) number.                          |
-| `nodeXnosMinimum`      | `u64`             | `8`     | `41`    | n/a                                                       |
+| `nodeXnosMinimum`      | `u64`             | `8`     | `41`    | The amount of [`xNOS`](#/programs/staking) a node needs to qualify for a market.|
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Open Instruction
+is **`e4dc9b47c7bd3c2d`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[228,220,155,71,199,189,60,45]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -102,9 +113,20 @@ The `update()` instruction updates a [MarketAccount](#market-account) configurat
 | `jobPrice`             | `u64`             | `8`     | `16`    | The price for jobs in this market.                        |
 | `jobTimeout`           | `i64`             | `16`    | `24`    | The timeout time in seconds for jobs.                     |
 | `jobType`              | `u8`              | `1`     | `40`    | The [JobType](#job-type) number.                          |
-| `nodeStakeMinimum`     | `u64`             | `8`     | `41`    | The number of tokens a node needs to stake to qualify.    |
+| `nodeStakeMinimum`     | `u64`             | `8`     | `41`    | The amount of [`xNOS`](#/programs/staking) a node needs to qualify for a market.|
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Update Instruction
+is **`dbc858b09e3ffd7f`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[219,200,88,176,158,63,253,127]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -141,7 +163,18 @@ associated [VaultAccount](#vault-account). The vault has to be empty of tokens.
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Close Instruction
+is **`62a5c9b16c41ce60`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[98,165,201,177,108,65,206,96]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -187,7 +220,18 @@ When there is a job available, a [RunAccount](#run-account) will automatically b
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `ipfsJob`              | `["u8",32]`       | `32`    | `0`     | The byte array representing the IPFS hash to the job.     |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the List Instruction
+is **`36aec14311298426`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[54,174,193,67,17,41,132,38]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -230,7 +274,18 @@ The `recover()` instruction recovers funds from a jobs that has been [Quit](#qui
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Recover Instruction
+is **`6cd8263a6d927411`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[108,216,38,58,109,146,116,17]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -269,7 +324,18 @@ The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Work Instruction
+is **`0f432dc3d789e52f`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[15,67,45,195,215,137,229,47]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -302,7 +368,18 @@ With the `stop()` instruction a node exits the node queue from a
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Stop Instruction
+is **`2a85203cabfdb89b`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[42,133,32,60,171,253,184,155]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -336,7 +413,18 @@ The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Claim Instruction
+is **`3ec6d6c1d59f6cd2`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[62,198,214,193,213,159,108,210]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -382,7 +470,18 @@ and be reimbursed for the work.
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `ipfsResult`           | `["u8",32]`       | `32`    | `0`     | The byte array representing the IPFS hash to the results. |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Finish Instruction
+is **`434aaa847de9b625`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[67,74,170,132,125,233,182,37]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -418,7 +517,18 @@ With the `quit()` instruction a node can quit a job that it has started.
 | `payer`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The paying identy for the rent.                                                                   |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Quit Instruction
+is **`bf678df050816799`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[191,103,141,240,80,129,103,153]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -448,7 +558,18 @@ The job has be finished and the job expiration time has to be exceeded.
 | `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
 | `payer`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The paying identy for the rent.                                                                   |
 
-#### Example
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Clean Instruction
+is **`fabf388096fb0167`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[250,191,56,128,150,251,1,103]
+```
+
+#### details Example with Anchor
 
 To run the instructions with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -482,7 +603,7 @@ The total size of this account is `3,355` bytes.
 | `vault`                     | `publicKey`                 | `32`    | `81`    | The [VaultAccount](#vault-account) address.                                                       |
 | `vaultBump`                 | `u8`                        | `1`     | `113`   | The bump for the [VaultAccount](#vault-account).                                                  |
 | `nodeAccessKey`             | `publicKey`                 | `32`    | `114`   | The NFT collection address of an NFT that the node holds, in order to access this market.         |
-| `nodeXnosMinimum`           | `u64`                       | `8`     | `146`   | n/a                                                                                               |
+| `nodeXnosMinimum`           | `u64`                       | `8`     | `146`   | The amount of [`xNOS`](#/programs/staking) a node needs to qualify for a market.                  |
 | `queueType`                 | `u8`                        | `1`     | `154`   | The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.                                  |
 | `queue`                     | `Vec<publicKey>`            | `3200`  | `155`   | The queue of order in the market.                                                                 |
 
@@ -541,9 +662,11 @@ The Job Account's 8 byte discriminator is:
 [91,16,162,5,45,210,125,65]
 ```
 
+
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
+
 
 ## Types
 
