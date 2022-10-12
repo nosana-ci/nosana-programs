@@ -2,13 +2,13 @@
 
 ```mermaid
 flowchart TB
-    authority -- stake<br>unstake<br>restake<br>extend<br>topup<br>claim --> stake
-    authority -.- nos -.- vault
+    authority -->|stake<br>unstake<br>restake<br>extend<br>topup<br>claim| stake
 
-    dao -- slash --> stake
-    dao -- updateSettings --> settings
+    authority -.-|stake<br>unstake<br>topup<br>claim| nos  -.- vault
+    stake     -.- xnos -.- network
 
-    stake -.- xnos -.- network
+    dao -->|slash| stake
+    dao -->|updateSettings| settings
 
     authority(Staking Authority)
     dao(Nosana Voting)
