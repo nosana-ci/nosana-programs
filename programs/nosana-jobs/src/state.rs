@@ -189,7 +189,7 @@ impl RunAccount {
         payer: AccountInfo<'info>,
         system_program: AccountInfo<'info>,
     ) {
-        utils::cpi_init_account(
+        utils::cpi_create_account(
             account.to_account_info(),
             payer.to_account_info(),
             system_program.to_account_info(),

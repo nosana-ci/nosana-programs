@@ -33,7 +33,7 @@ pub fn account_is_closed(account: &AccountInfo) -> bool {
         || account.try_borrow_data().unwrap()[..8] == CLOSED_ACCOUNT_DISCRIMINATOR
 }
 
-pub fn cpi_init_account<'info>(
+pub fn cpi_create_account<'info>(
     account: AccountInfo<'info>,
     payer: AccountInfo<'info>,
     system_program: AccountInfo<'info>,
