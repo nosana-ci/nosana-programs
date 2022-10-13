@@ -22,7 +22,7 @@ pub struct Claim<'info> {
     pub stake: Account<'info, StakeAccount>,
     #[account(constraint = nft.owner == authority.key() @ NosanaError::NodeNftWrongOwner)]
     pub nft: Account<'info, TokenAccount>,
-    /// CHECK: Metaplex metadata is verfied against NFT and Collection node access key
+    /// CHECK: Metaplex metadata is verified against NFT and Collection node access key
     #[account(
         address = find_metadata_account(&nft.mint).0 @ NosanaError::NodeNftWrongMetadata,
         constraint = MarketAccount::metadata_constraint(&metadata, market.node_access_key)
@@ -35,15 +35,14 @@ pub struct Claim<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Claim>) -> Result<()> {
-    ctx.accounts.run.create(
-        ctx.accounts.job.key(),
-        ctx.accounts.authority.key(),
-        ctx.accounts.payer.key(),
-        Clock::get()?.unix_timestamp,
-    );
-    ctx.accounts
-        .job
-        .claim(ctx.accounts.authority.key(), ctx.accounts.run.time);
-    Ok(())
+impl<'info> Claim<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.job.claim(self.authority.key(), self.run.time);
+        self.run.create(
+            self.job.key(),
+            self.authority.key(),
+            self.payer.key(),
+            Clock::get()?.unix_timestamp,
+        )
+    }
 }

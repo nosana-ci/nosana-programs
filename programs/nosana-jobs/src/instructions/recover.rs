@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Recover<'info> {
@@ -24,22 +24,15 @@ pub struct Recover<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Recover>) -> Result<()> {
-    // recover the funds
-    transfer(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.vault.to_account_info(),
-                to: ctx.accounts.user.to_account_info(),
-                authority: ctx.accounts.vault.to_account_info(),
-            },
-            &[&[
-                ctx.accounts.market.key().as_ref(),
-                id::NOS_TOKEN.as_ref(),
-                &[ctx.accounts.market.vault_bump],
-            ]],
-        ),
-        ctx.accounts.job.price,
-    )
+impl<'info> Recover<'info> {
+    pub fn handler(&self) -> Result<()> {
+        utils::cpi_transfer_tokens(
+            self.vault.to_account_info(),
+            self.user.to_account_info(),
+            self.vault.to_account_info(),
+            self.token_program.to_account_info(),
+            seeds!(self.market),
+            self.job.price,
+        )
+    }
 }

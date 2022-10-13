@@ -7,9 +7,9 @@ pub struct Stop<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Stop>) -> Result<()> {
-    ctx.accounts
-        .market
-        .remove_from_queue(ctx.accounts.authority.key);
-    Ok(())
+impl<'info> Stop<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.market.remove_from_queue(self.authority.key);
+        Ok(())
+    }
 }

@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
-use nosana_common::id;
+use nosana_common::writer::BpfWriter;
+use nosana_common::{id, utils};
 use std::mem::size_of;
 
 /***
@@ -71,9 +72,9 @@ impl MarketAccount {
         self.node_xnos_minimum = node_stake_minimum;
     }
 
-    pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) {
+    pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) -> Result<()> {
         if self.job_type == JobType::Unknown as u8 {
-            return;
+            return Ok(());
         }
         if self.queue_type == QueueType::Empty as u8 {
             self.set_queue_type(if is_job {
@@ -83,6 +84,7 @@ impl MarketAccount {
             })
         }
         self.queue.push(order);
+        Ok(())
     }
 
     pub fn remove_from_queue(&mut self, node: &Pubkey) -> Pubkey {
@@ -170,39 +172,38 @@ pub struct RunAccount {
 impl RunAccount {
     pub const SIZE: usize = 8 + size_of::<RunAccount>();
 
-    pub fn create(&mut self, job: Pubkey, node: Pubkey, payer: Pubkey, time: i64) {
+    pub fn from_account_info<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
+        Account::try_from_unchecked(info).unwrap()
+    }
+
+    pub fn create(&mut self, job: Pubkey, node: Pubkey, payer: Pubkey, time: i64) -> Result<()> {
         self.job = job;
         self.node = node;
         self.payer = payer;
-        self.state = RunState::Created as u8;
         self.time = time;
+        Ok(())
     }
 
-    /***
-      This constraint verifies that:
-       - if there's an order queued (could be a node or job, queue_type matches the scenario);
-           - a new run account will be initialized
-           - the new run account should not have data in it (re-init attack)
-       - if the queue is empty, OR the queue is of the wrong type:
-           - a new public key will be put in the end of queue
-           - no new run account will be initialized
-           - the run dummy account is passed that's already created
-    */
-    pub fn constraint(run_state: u8, queue_type: u8, scenario: QueueType) -> bool {
-        run_state
-            == if queue_type == scenario as u8 {
-                RunState::Null as u8
-            } else {
-                RunState::Created as u8
-            }
+    pub fn cpi_init<'a>(
+        account: AccountInfo<'a>,
+        payer: AccountInfo<'a>,
+        system_program: AccountInfo<'a>,
+    ) {
+        utils::cpi_init_account(
+            account.to_account_info(),
+            payer.to_account_info(),
+            system_program.to_account_info(),
+            RunAccount::SIZE,
+            &id::JOBS_PROGRAM,
+        )
+        .unwrap()
     }
-}
 
-/// The `RunState` type describes the state a run account could have.
-#[repr(u8)]
-pub enum RunState {
-    Null = 0,
-    Created = 1,
+    pub fn serialize(&self, info: AccountInfo) -> Result<()> {
+        let dst: &mut [u8] = &mut info.try_borrow_mut_data().unwrap();
+        let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
+        RunAccount::try_serialize(self, &mut writer)
+    }
 }
 
 /// The `JobAccount` struct holds all the information about any individual jobs.

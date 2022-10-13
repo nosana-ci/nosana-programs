@@ -32,12 +32,6 @@ const constants = {
     stopped: 3,
   },
 
-  runState: {
-    null: 0,
-    created: 1,
-    dummy: 2,
-  },
-
   jobType: {
     default: 0,
     small: 1,

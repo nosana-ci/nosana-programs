@@ -9,21 +9,23 @@ pub struct Update<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(
-    ctx: Context<Update>,
-    job_expiration: i64,
-    job_price: u64,
-    job_timeout: i64,
-    job_type: u8,
-    node_stake_minimum: u64,
-) -> Result<()> {
-    ctx.accounts.market.update(
-        job_expiration,
-        job_price,
-        job_timeout,
-        job_type,
-        ctx.accounts.access_key.key(),
-        node_stake_minimum,
-    );
-    Ok(())
+impl<'info> Update<'info> {
+    pub fn handler(
+        &mut self,
+        job_expiration: i64,
+        job_price: u64,
+        job_timeout: i64,
+        job_type: u8,
+        node_stake_minimum: u64,
+    ) -> Result<()> {
+        self.market.update(
+            job_expiration,
+            job_price,
+            job_timeout,
+            job_type,
+            self.access_key.key(),
+            node_stake_minimum,
+        );
+        Ok(())
+    }
 }

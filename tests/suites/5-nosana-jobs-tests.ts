@@ -109,7 +109,6 @@ export default function suite() {
 
     it('can fetch the craeted run account', async function () {
       const run = await this.jobsProgram.account.runAccount.fetch(this.accounts.run);
-      expect(run.state).to.equal(this.constants.runState.created);
       expect(run.node.toString()).to.equal(this.accounts.authority.toString());
       expect(run.job.toString()).to.equal(this.accounts.job.toString());
       expect(run.time.toNumber()).to.not.equal(0);

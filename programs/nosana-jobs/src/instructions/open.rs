@@ -25,24 +25,27 @@ pub struct Open<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(
-    ctx: Context<Open>,
-    job_expiration: i64,
-    job_price: u64,
-    job_timeout: i64,
-    job_type: u8,
-    node_xnos_minimum: u64,
-) -> Result<()> {
-    ctx.accounts.market.init(
-        ctx.accounts.authority.key(),
-        job_expiration,
-        job_price,
-        job_timeout,
-        JobType::from(job_type) as u8,
-        ctx.accounts.access_key.key(),
-        node_xnos_minimum,
-        ctx.accounts.vault.key(),
-        *ctx.bumps.get("vault").unwrap(),
-    );
-    Ok(())
+impl<'info> Open<'info> {
+    pub fn handler(
+        &mut self,
+        job_expiration: i64,
+        job_price: u64,
+        job_timeout: i64,
+        job_type: u8,
+        node_xnos_minimum: u64,
+        vault_bump: u8,
+    ) -> Result<()> {
+        self.market.init(
+            self.authority.key(),
+            job_expiration,
+            job_price,
+            job_timeout,
+            JobType::from(job_type) as u8,
+            self.access_key.key(),
+            node_xnos_minimum,
+            self.vault.key(),
+            vault_bump,
+        );
+        Ok(())
+    }
 }
