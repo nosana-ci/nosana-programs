@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Finish<'info> {
@@ -20,34 +20,20 @@ pub struct Finish<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
+    #[account(mut)]
     pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
-    // finish the job
-    ctx.accounts.job.finish(
-        ipfs_result,
-        ctx.accounts.authority.key(),
-        Clock::get()?.unix_timestamp,
-    );
-
-    // reimburse the worker
-    transfer(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.vault.to_account_info(),
-                to: ctx.accounts.user.to_account_info(),
-                authority: ctx.accounts.vault.to_account_info(),
-            },
-            &[&[
-                ctx.accounts.market.key().as_ref(),
-                id::NOS_TOKEN.as_ref(),
-                &[ctx.accounts.market.vault_bump],
-            ]],
-        ),
-        ctx.accounts.job.price,
-    )
+impl<'info> Finish<'info> {
+    pub fn handler(&mut self, ipfs_result: [u8; 32]) -> Result<()> {
+        self.job.finish(
+            ipfs_result,
+            self.authority.key(),
+            Clock::get()?.unix_timestamp,
+        );
+        // reimburse node
+        transfer_tokens_to_user!(self, seeds!(self.market), self.vault.amount)
+    }
 }

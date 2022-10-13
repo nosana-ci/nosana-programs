@@ -9,7 +9,7 @@
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`4`](#accounts)                                                                                                                    |
 | Instructions    | [`11`](#instructions)                                                                                                               |
-| Types           | [`4`](#types)                                                                                                                       |
+| Types           | [`3`](#types)                                                                                                                       |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
@@ -32,14 +32,13 @@ and [VaultAccount](#vault-account).
 
 #### Account Info
 
-The following 9 account addresses should be provided when invoking this instruction.
+The following 8 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `mint`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token Mint address for this instruction.                                                      |
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [MarketAccount](#market-account) address.                                                     |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
-| `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [RunAccount](#run-account) address.                                                           |
 | `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
 | `accessKey`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Node Access Key address.                                                                      |
 | `rent`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana rent address. Responsible for lamports.                                       |
@@ -87,14 +86,13 @@ let tx = await program.methods
     mint,              // 𐄂 writable, 𐄂 signer
     market,            // ✓ writable, ✓ signer
     vault,             // ✓ writable, 𐄂 signer
-    run,               // ✓ writable, ✓ signer
     authority,         // ✓ writable, ✓ signer
     accessKey,         // 𐄂 writable, 𐄂 signer
     rent,              // 𐄂 writable, 𐄂 signer
     systemProgram,     // 𐄂 writable, 𐄂 signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
-  .signers([marketKey, runKey, authorityKey])
+  .signers([marketKey, authorityKey])
   .rpc();
 ```
 
@@ -219,8 +217,8 @@ The following 12 account addresses should be provided when invoking this instruc
 | `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [JobAccount](#job-account) address.                                                           |
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
 | `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [RunAccount](#run-account) address.                                                           |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The paying identy for the rent.                                                                   |
 | `rewardsReflection`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [ReflectionAccount](/programs/rewards#reflection-account) address.   |
 | `rewardsVault`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [VaultAccount](/programs/rewards#vault-account) address.             |
@@ -262,8 +260,8 @@ let tx = await program.methods
     job,               // ✓ writable, ✓ signer
     market,            // ✓ writable, 𐄂 signer
     run,               // ✓ writable, ✓ signer
-    vault,             // ✓ writable, 𐄂 signer
     user,              // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
     payer,             // ✓ writable, ✓ signer
     rewardsReflection, // ✓ writable, 𐄂 signer
     rewardsVault,      // ✓ writable, 𐄂 signer
@@ -492,7 +490,7 @@ The following 8 account addresses should be provided when invoking this instruct
 | `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
-| `payer`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The paying identy for the rent.                                                                   |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
@@ -531,7 +529,7 @@ let tx = await program.methods
     market,            // 𐄂 writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
     user,              // ✓ writable, 𐄂 signer
-    payer,             // 𐄂 writable, 𐄂 signer
+    payer,             // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
@@ -657,28 +655,6 @@ are **`c94ebbe1f0c6c9fb`**, which can also be expressed in byte array:
 [201,78,187,225,240,198,201,251]
 ```
 
-### Run Account
-
-The `RunAccount` struct holds temporary information that matches nodes to jobs.
-The total size of this account is `121` bytes.
-
-| Name                        | Type                        | Size    | Offset  | Description                                                                                       |
-|-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
-| `job`                       | `publicKey`                 | `32`    | `8`     | The [JobAccount](#job-account) address.                                                           |
-| `node`                      | `publicKey`                 | `32`    | `40`    | The node that runs this job.                                                                      |
-| `payer`                     | `publicKey`                 | `32`    | `72`    | The paying identy for the rent.                                                                   |
-| `state`                     | `u8`                        | `1`     | `104`   | n/a                                                                                               |
-| `time`                      | `i64`                       | `16`    | `105`   | n/a                                                                                               |
-
-#### Anchor Account Discriminator
-
-The first 8 bytes, also known as Anchor's 8 byte discriminator, for the Run Account
-are **`c2a96ee6eb0be116`**, which can also be expressed in byte array:
-
-```json
-[194,169,110,230,235,11,225,22]
-```
-
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
@@ -706,13 +682,35 @@ are **`5b10a2052dd27d41`**, which can also be expressed in byte array:
 [91,16,162,5,45,210,125,65]
 ```
 
+### Run Account
+
+The `RunAccount` struct holds temporary information that matches nodes to jobs.
+The total size of this account is `121` bytes.
+
+| Name                        | Type                        | Size    | Offset  | Description                                                                                       |
+|-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
+| `job`                       | `publicKey`                 | `32`    | `8`     | The [JobAccount](#job-account) address.                                                           |
+| `node`                      | `publicKey`                 | `32`    | `40`    | The node that runs this job.                                                                      |
+| `payer`                     | `publicKey`                 | `32`    | `72`    | The paying identy for the rent.                                                                   |
+| `state`                     | `u8`                        | `1`     | `104`   | n/a                                                                                               |
+| `time`                      | `i64`                       | `16`    | `105`   | n/a                                                                                               |
+
+#### Anchor Account Discriminator
+
+The first 8 bytes, also known as Anchor's 8 byte discriminator, for the Run Account
+are **`c2a96ee6eb0be116`**, which can also be expressed in byte array:
+
+```json
+[194,169,110,230,235,11,225,22]
+```
+
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
 
 ## Types
 
-A number of 4 type variants are defined in the Nosana Jobs Program's state.
+A number of 3 type variants are defined in the Nosana Jobs Program's state.
 
 ### Queue Type
 
@@ -725,18 +723,6 @@ A number of 3 variants are defined in this `enum`:
 | `Job`                                 | `0`                                   |
 | `Node`                                | `1`                                   |
 | `Empty`                               | `2`                                   |
-
-### Run State
-
-
-The `RunState` type describes the state a run account could have.
-
-A number of 3 variants are defined in this `enum`:
-| Name                                  | Number                                |
-|---------------------------------------|---------------------------------------|
-| `Null`                                | `0`                                   |
-| `Created`                             | `1`                                   |
-| `Dummy`                               | `2`                                   |
 
 ### Job State
 

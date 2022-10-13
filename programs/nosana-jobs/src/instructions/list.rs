@@ -1,8 +1,6 @@
 use crate::*;
-use anchor_lang::system_program::{create_account, CreateAccount};
-use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount};
 use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, ReflectionAccount};
-use writer::BpfWriter;
 
 #[derive(Accounts)]
 pub struct List<'info> {
@@ -10,7 +8,7 @@ pub struct List<'info> {
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
     #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
     pub market: Box<Account<'info, MarketAccount>>,
-    ///CHECK: the run account is created optionally
+    /// CHECK: the run account is created optionally
     #[account(
         mut,
         signer @ NosanaError::MissingSignature,
@@ -19,9 +17,9 @@ pub struct List<'info> {
     )]
     pub run: AccountInfo<'info>,
     #[account(mut)]
-    pub vault: Account<'info, TokenAccount>,
-    #[account(mut)]
     pub user: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(mut)]
@@ -34,88 +32,40 @@ pub struct List<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
-    // create the job
-    ctx.accounts.job.create(
-        ipfs_job,
-        ctx.accounts.market.key(),
-        ctx.accounts.payer.key(),
-        ctx.accounts.market.job_price,
-        ctx.accounts.authority.key(),
-    );
+impl<'info> List<'info> {
+    pub fn handler(&mut self, ipfs_job: [u8; 32]) -> Result<()> {
+        // pay job and network fee
+        transfer_tokens_to_vault!(self, &[], self.market.job_price)?;
+        transfer_tokens_to_network!(
+            self,
+            self.market.job_price / MarketAccount::JOB_FEE_FRACTION
+        )?;
 
-    // update the market
-    match QueueType::from(ctx.accounts.market.queue_type) {
-        QueueType::Job | QueueType::Empty => ctx
-            .accounts
-            .market
-            .add_to_queue(ctx.accounts.job.key(), true),
+        // create the job
+        self.job.create(
+            ipfs_job,
+            self.market.key(),
+            self.payer.key(),
+            self.market.job_price,
+            self.authority.key(),
+        );
 
-        QueueType::Node => {
-            ctx.accounts.job.claim(
-                ctx.accounts.market.pop_from_queue(),
-                Clock::get()?.unix_timestamp,
-            );
-
-            // run account info
-            let run_info: AccountInfo = ctx.accounts.run.to_account_info();
-
-            // init run account
-            create_account(
-                CpiContext::new(
-                    ctx.accounts.system_program.to_account_info(),
-                    CreateAccount {
-                        from: ctx.accounts.payer.to_account_info(),
-                        to: run_info.to_account_info(),
-                    },
+        // update the market
+        match QueueType::from(self.market.queue_type) {
+            QueueType::Job | QueueType::Empty => self.market.add_to_queue(self.job.key(), true),
+            QueueType::Node => {
+                self.job.claim(
+                    self.market.pop_from_queue(),
+                    Clock::get().unwrap().unix_timestamp,
+                );
+                RunAccount::initialize(
+                    self.run.to_account_info(),
+                    self.payer.to_account_info(),
+                    self.system_program.to_account_info(),
+                    self.job.key(),
+                    self.job.node,
                 )
-                .with_signer(&[]),
-                Rent::get()?.minimum_balance(RunAccount::SIZE),
-                RunAccount::SIZE as u64,
-                &id::JOBS_PROGRAM,
-            )?;
-
-            // modify run account
-            let mut run: Account<RunAccount> = Account::try_from_unchecked(&run_info).unwrap();
-            run.create(
-                ctx.accounts.job.key(),
-                ctx.accounts.job.node,
-                ctx.accounts.job.payer.key(),
-                ctx.accounts.job.time_start,
-            );
-
-            // serialize run account
-            let dst: &mut [u8] = &mut run_info.try_borrow_mut_data().unwrap();
-            let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
-            RunAccount::try_serialize(&run, &mut writer)?;
+            }
         }
     }
-
-    // deposit tokens
-    transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.user.to_account_info(),
-                to: ctx.accounts.vault.to_account_info(),
-                authority: ctx.accounts.authority.to_account_info(),
-            },
-        ),
-        ctx.accounts.market.job_price,
-    )?;
-
-    // pay fee
-    nosana_rewards::cpi::add_fee(
-        CpiContext::new(
-            ctx.accounts.rewards_program.to_account_info(),
-            AddFee {
-                user: ctx.accounts.user.to_account_info(),
-                reflection: ctx.accounts.rewards_reflection.to_account_info(),
-                vault: ctx.accounts.rewards_vault.to_account_info(),
-                authority: ctx.accounts.authority.to_account_info(),
-                token_program: ctx.accounts.token_program.to_account_info(),
-            },
-        ),
-        ctx.accounts.market.job_price / MarketAccount::JOB_FEE_FRACTION,
-    )
 }

@@ -17,7 +17,8 @@ pub struct Quit<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Quit>) -> Result<()> {
-    ctx.accounts.job.quit();
-    Ok(())
+impl<'info> Quit<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.job.quit()
+    }
 }

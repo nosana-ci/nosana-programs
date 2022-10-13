@@ -16,6 +16,8 @@ pub struct Clean<'info> {
     pub payer: AccountInfo<'info>,
 }
 
-pub fn handler(_ctx: Context<Clean>) -> Result<()> {
-    Ok(())
+impl<'info> Clean<'info> {
+    pub fn handler(&self) -> Result<()> {
+        Ok(())
+    }
 }
