@@ -1,18 +1,20 @@
+use crate::writer::BpfWriter;
 use crate::*;
+use anchor_lang::system_program::{create_account, CreateAccount};
 use anchor_spl::token::TokenAccount;
 use mpl_token_metadata::pda::find_metadata_account;
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
 pub struct Work<'info> {
+    ///CHECK: the run account is created optionally
     #[account(
-        init_if_needed,
-        payer = payer,
-        space = RunAccount::SIZE,
-        constraint = RunAccount::constraint(run.state, market.queue_type, QueueType::Job)
-            @ NosanaError::RunConstraintNotSatisfied,
+        mut,
+        signer @ NosanaError::MissingSignature,
+        owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
+        constraint = run.lamports() == 0 @ NosanaError::LamportsNonNull
     )]
-    pub run: Account<'info, RunAccount>,
+    pub run: AccountInfo<'info>,
     #[account(
         mut,
         constraint = MarketAccount::node_constraint(authority.key, &market.queue, market.queue_type)
@@ -47,12 +49,39 @@ pub fn handler(ctx: Context<Work>) -> Result<()> {
             .market
             .add_to_queue(ctx.accounts.authority.key(), false),
 
-        QueueType::Job => ctx.accounts.run.create(
-            ctx.accounts.market.pop_from_queue(),
-            ctx.accounts.authority.key(),
-            ctx.accounts.payer.key(),
-            Clock::get()?.unix_timestamp,
-        ),
+        QueueType::Job => {
+            // run account info
+            let run_info: AccountInfo = ctx.accounts.run.to_account_info();
+
+            // init run account
+            create_account(
+                CpiContext::new(
+                    ctx.accounts.system_program.to_account_info(),
+                    CreateAccount {
+                        from: ctx.accounts.payer.to_account_info(),
+                        to: run_info.to_account_info(),
+                    },
+                )
+                .with_signer(&[]),
+                Rent::get()?.minimum_balance(RunAccount::SIZE),
+                RunAccount::SIZE as u64,
+                &id::JOBS_PROGRAM,
+            )?;
+
+            // modify run account
+            let mut run: Account<RunAccount> = Account::try_from_unchecked(&run_info).unwrap();
+            run.create(
+                ctx.accounts.market.pop_from_queue(),
+                ctx.accounts.authority.key(),
+                ctx.accounts.payer.key(),
+                Clock::get()?.unix_timestamp,
+            );
+
+            // serialize run account
+            let dst: &mut [u8] = &mut run_info.try_borrow_mut_data().unwrap();
+            let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
+            RunAccount::try_serialize(&run, &mut writer)?;
+        }
     }
     Ok(())
 }

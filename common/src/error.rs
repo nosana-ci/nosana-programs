@@ -7,6 +7,10 @@ pub enum NosanaError {
     Unauthorized,
     #[msg("This account is owned by an invalid program.")]
     InvalidOwner,
+    #[msg("This account has lamports.")]
+    LamportsNonNull,
+    #[msg("This account is missing a signature.")]
+    MissingSignature,
     #[msg("This token account is not valid.")]
     InvalidTokenAccount,
     #[msg("This mint is invalid.")]
@@ -53,8 +57,6 @@ pub enum NosanaError {
     JobNotExpired,
     #[msg("This RunAccount address not allowed.")]
     RunAddressInvalid,
-    #[msg("This RunAccount constraint is not satisfied. Use a new or dummy account only.")]
-    RunConstraintNotSatisfied,
     #[msg("This market account is not valid.")]
     InvalidMarketAccount,
     #[msg("This job account is not valid.")]

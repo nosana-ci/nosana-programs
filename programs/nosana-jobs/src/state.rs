@@ -178,13 +178,6 @@ impl RunAccount {
         self.time = time;
     }
 
-    pub fn create_dummy(&mut self) {
-        self.job = id::JOBS_PROGRAM;
-        self.node = id::JOBS_PROGRAM;
-        self.payer = id::JOBS_PROGRAM;
-        self.state = RunState::Dummy as u8;
-    }
-
     /***
       This constraint verifies that:
        - if there's an order queued (could be a node or job, queue_type matches the scenario);
@@ -200,7 +193,7 @@ impl RunAccount {
             == if queue_type == scenario as u8 {
                 RunState::Null as u8
             } else {
-                RunState::Dummy as u8
+                RunState::Created as u8
             }
     }
 }
@@ -210,7 +203,6 @@ impl RunAccount {
 pub enum RunState {
     Null = 0,
     Created = 1,
-    Dummy = 2,
 }
 
 /// The `JobAccount` struct holds all the information about any individual jobs.
