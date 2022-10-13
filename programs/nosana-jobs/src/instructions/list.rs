@@ -33,59 +33,13 @@ pub struct List<'info> {
 }
 
 impl<'info> List<'info> {
-    fn handle_run_account(&mut self) -> Result<()> {
-        // cpi system program
-        RunAccount::cpi_init(
-            self.run.to_account_info(),
-            self.payer.to_account_info(),
-            self.system_program.to_account_info(),
-        );
-
-        // get and modify run account
-        let info: AccountInfo = self.run.to_account_info();
-        let mut run: Account<RunAccount> = RunAccount::from_account_info(&info);
-        run.create(
-            self.job.key(),
-            self.job.node,
-            self.job.payer.key(),
-            self.job.time_start,
-        )?;
-
-        // write
-        run.serialize(self.run.to_account_info())
-    }
-
-    fn cpi_pay_job(&self) -> Result<()> {
-        utils::cpi_transfer_tokens(
-            self.user.to_account_info(),
-            self.vault.to_account_info(),
-            self.authority.to_account_info(),
-            self.token_program.to_account_info(),
-            &[],
-            self.market.job_price,
-        )
-    }
-
-    fn cpi_pay_fee(&self) -> Result<()> {
-        nosana_rewards::cpi::add_fee(
-            CpiContext::new(
-                self.rewards_program.to_account_info(),
-                AddFee {
-                    user: self.user.to_account_info(),
-                    reflection: self.rewards_reflection.to_account_info(),
-                    vault: self.rewards_vault.to_account_info(),
-                    authority: self.authority.to_account_info(),
-                    token_program: self.token_program.to_account_info(),
-                },
-            ),
-            self.market.job_price / MarketAccount::JOB_FEE_FRACTION,
-        )
-    }
-
     pub fn handler(&mut self, ipfs_job: [u8; 32]) -> Result<()> {
-        // cpi token payments
-        self.cpi_pay_job().unwrap();
-        self.cpi_pay_fee().unwrap();
+        // pay job and network fee
+        transfer_tokens_to_vault!(self, &[], self.market.job_price)?;
+        transfer_tokens_to_network!(
+            self,
+            self.market.job_price / MarketAccount::JOB_FEE_FRACTION
+        )?;
 
         // create the job
         self.job.create(
@@ -98,14 +52,20 @@ impl<'info> List<'info> {
 
         // update the market
         match QueueType::from(self.market.queue_type) {
+            QueueType::Job | QueueType::Empty => self.market.add_to_queue(self.job.key(), true),
             QueueType::Node => {
                 self.job.claim(
                     self.market.pop_from_queue(),
                     Clock::get().unwrap().unix_timestamp,
                 );
-                self.handle_run_account()
+                RunAccount::initialize(
+                    self.run.to_account_info(),
+                    self.payer.to_account_info(),
+                    self.system_program.to_account_info(),
+                    self.job.key(),
+                    self.job.node,
+                )
             }
-            QueueType::Job | QueueType::Empty => self.market.add_to_queue(self.job.key(), true),
         }
     }
 }

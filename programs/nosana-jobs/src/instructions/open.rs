@@ -45,7 +45,6 @@ impl<'info> Open<'info> {
             node_xnos_minimum,
             self.vault.key(),
             vault_bump,
-        );
-        Ok(())
+        )
     }
 }

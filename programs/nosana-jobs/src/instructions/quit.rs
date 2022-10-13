@@ -19,7 +19,6 @@ pub struct Quit<'info> {
 
 impl<'info> Quit<'info> {
     pub fn handler(&mut self) -> Result<()> {
-        self.job.quit();
-        Ok(())
+        self.job.quit()
     }
 }

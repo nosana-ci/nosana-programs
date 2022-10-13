@@ -26,13 +26,6 @@ pub struct Recover<'info> {
 
 impl<'info> Recover<'info> {
     pub fn handler(&self) -> Result<()> {
-        utils::cpi_transfer_tokens(
-            self.vault.to_account_info(),
-            self.user.to_account_info(),
-            self.vault.to_account_info(),
-            self.token_program.to_account_info(),
-            seeds!(self.market),
-            self.job.price,
-        )
+        transfer_tokens_to_user!(self, seeds!(self.market), self.job.price)
     }
 }

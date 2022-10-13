@@ -25,7 +25,6 @@ impl<'info> Update<'info> {
             job_type,
             self.access_key.key(),
             node_stake_minimum,
-        );
-        Ok(())
+        )
     }
 }

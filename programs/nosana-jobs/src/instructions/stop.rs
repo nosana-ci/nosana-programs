@@ -9,7 +9,6 @@ pub struct Stop<'info> {
 
 impl<'info> Stop<'info> {
     pub fn handler(&mut self) -> Result<()> {
-        self.market.remove_from_queue(self.authority.key);
-        Ok(())
+        self.market.remove_from_queue(self.authority.key)
     }
 }

@@ -41,34 +41,18 @@ pub struct Work<'info> {
 }
 
 impl<'info> Work<'info> {
-    fn handle_run_account(&mut self) -> Result<()> {
-        // cpi system program
-        RunAccount::cpi_init(
-            self.run.to_account_info(),
-            self.payer.to_account_info(),
-            self.system_program.to_account_info(),
-        );
-
-        // get and modify run account
-        let info: AccountInfo = self.run.to_account_info();
-        let mut run: Account<RunAccount> = RunAccount::from_account_info(&info);
-        run.create(
-            self.market.pop_from_queue(),
-            self.authority.key(),
-            self.payer.key(),
-            Clock::get().unwrap().unix_timestamp,
-        )?;
-
-        // serialize run account
-        run.serialize(info)
-    }
-
     pub fn handler(&mut self) -> Result<()> {
         match QueueType::from(self.market.queue_type) {
             QueueType::Node | QueueType::Empty => {
                 self.market.add_to_queue(self.authority.key(), false)
             }
-            QueueType::Job => self.handle_run_account(),
+            QueueType::Job => RunAccount::initialize(
+                self.run.to_account_info(),
+                self.payer.to_account_info(),
+                self.system_program.to_account_info(),
+                self.market.pop_from_queue(),
+                self.authority.key(),
+            ),
         }
     }
 }

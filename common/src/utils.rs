@@ -34,21 +34,14 @@ pub fn account_is_closed(account: &AccountInfo) -> bool {
 }
 
 pub fn cpi_create_account<'info>(
-    account: AccountInfo<'info>,
-    payer: AccountInfo<'info>,
     system_program: AccountInfo<'info>,
+    from: AccountInfo<'info>,
+    to: AccountInfo<'info>,
     space: usize,
     owner: &Pubkey,
 ) -> Result<()> {
     anchor_lang::system_program::create_account(
-        CpiContext::new(
-            system_program,
-            CreateAccount {
-                from: payer,
-                to: account,
-            },
-        )
-        .with_signer(&[]),
+        CpiContext::new(system_program, CreateAccount { from, to }).with_signer(&[]),
         Rent::get()?.minimum_balance(space),
         space as u64,
         owner,
@@ -56,10 +49,10 @@ pub fn cpi_create_account<'info>(
 }
 
 pub fn cpi_transfer_tokens<'info, 'a, 'b, 'c>(
+    token_program: AccountInfo<'info>,
     from: AccountInfo<'info>,
     to: AccountInfo<'info>,
     authority: AccountInfo<'info>,
-    token_program: AccountInfo<'info>,
     signer_seeds: &'a [&'b [&'c [u8]]],
     amount: u64,
 ) -> Result<()> {
@@ -78,10 +71,10 @@ pub fn cpi_transfer_tokens<'info, 'a, 'b, 'c>(
 }
 
 pub fn cpi_close_token_account<'info, 'a, 'b, 'c>(
+    token_program: AccountInfo<'info>,
     account: AccountInfo<'info>,
     destination: AccountInfo<'info>,
     authority: AccountInfo<'info>,
-    token_program: AccountInfo<'info>,
     signer_seeds: &'a [&'b [&'c [u8]]],
 ) -> Result<()> {
     anchor_spl::token::close_account(CpiContext::new_with_signer(

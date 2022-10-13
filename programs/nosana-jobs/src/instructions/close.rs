@@ -20,20 +20,7 @@ pub struct Close<'info> {
 
 impl<'info> Close<'info> {
     pub fn handler(&self) -> Result<()> {
-        utils::cpi_transfer_tokens(
-            self.vault.to_account_info(),
-            self.user.to_account_info(),
-            self.vault.to_account_info(),
-            self.token_program.to_account_info(),
-            seeds!(self.market),
-            self.vault.amount,
-        )?;
-        utils::cpi_close_token_account(
-            self.vault.to_account_info(),
-            self.authority.to_account_info(),
-            self.vault.to_account_info(),
-            self.token_program.to_account_info(),
-            seeds!(self.market),
-        )
+        transfer_tokens_to_user!(self, seeds!(self.market), self.vault.amount)?;
+        close_vault!(self, seeds!(self.market))
     }
 }

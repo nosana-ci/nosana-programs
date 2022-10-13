@@ -41,7 +41,7 @@ impl MarketAccount {
         node_xnos_minimum: u64,
         vault: Pubkey,
         vault_bump: u8,
-    ) {
+    ) -> Result<()> {
         self.authority = authority;
         self.job_expiration = job_expiration;
         self.job_price = job_price;
@@ -53,6 +53,7 @@ impl MarketAccount {
         self.vault_bump = vault_bump;
         self.queue = Vec::new();
         self.queue_type = QueueType::Empty as u8;
+        Ok(())
     }
 
     pub fn update(
@@ -63,13 +64,14 @@ impl MarketAccount {
         job_type: u8,
         node_access_key: Pubkey,
         node_stake_minimum: u64,
-    ) {
+    ) -> Result<()> {
         self.job_expiration = job_expiration;
         self.job_price = job_price;
         self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.node_access_key = node_access_key;
         self.node_xnos_minimum = node_stake_minimum;
+        Ok(())
     }
 
     pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) -> Result<()> {
@@ -87,9 +89,10 @@ impl MarketAccount {
         Ok(())
     }
 
-    pub fn remove_from_queue(&mut self, node: &Pubkey) -> Pubkey {
+    pub fn remove_from_queue(&mut self, node: &Pubkey) -> Result<()> {
         let index: usize = self.find_in_queue(node).unwrap();
-        self.queue.remove(index)
+        self.queue.remove(index);
+        Ok(())
     }
 
     pub fn pop_from_queue(&mut self) -> Pubkey {
@@ -159,53 +162,6 @@ impl From<u8> for QueueType {
     }
 }
 
-/// The `RunAccount` struct holds temporary information that matches nodes to jobs.
-#[account]
-pub struct RunAccount {
-    pub job: Pubkey,
-    pub node: Pubkey,
-    pub payer: Pubkey,
-    pub state: u8,
-    pub time: i64,
-}
-
-impl RunAccount {
-    pub const SIZE: usize = 8 + size_of::<RunAccount>();
-
-    pub fn from_account_info<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
-        Account::try_from_unchecked(info).unwrap()
-    }
-
-    pub fn create(&mut self, job: Pubkey, node: Pubkey, payer: Pubkey, time: i64) -> Result<()> {
-        self.job = job;
-        self.node = node;
-        self.payer = payer;
-        self.time = time;
-        Ok(())
-    }
-
-    pub fn cpi_init<'info>(
-        account: AccountInfo<'info>,
-        payer: AccountInfo<'info>,
-        system_program: AccountInfo<'info>,
-    ) {
-        utils::cpi_create_account(
-            account.to_account_info(),
-            payer.to_account_info(),
-            system_program.to_account_info(),
-            RunAccount::SIZE,
-            &id::JOBS_PROGRAM,
-        )
-        .unwrap()
-    }
-
-    pub fn serialize(&self, info: AccountInfo) -> Result<()> {
-        let dst: &mut [u8] = &mut info.try_borrow_mut_data().unwrap();
-        let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
-        RunAccount::try_serialize(self, &mut writer)
-    }
-}
-
 /// The `JobAccount` struct holds all the information about any individual jobs.
 #[account]
 pub struct JobAccount {
@@ -246,8 +202,9 @@ impl JobAccount {
         self.time_start = time_start;
     }
 
-    pub fn quit(&mut self) {
+    pub fn quit(&mut self) -> Result<()> {
         self.state = JobState::Stopped as u8;
+        Ok(())
     }
 
     pub fn finish(&mut self, ipfs_result: [u8; 32], node: Pubkey, time_end: i64) {
@@ -288,5 +245,60 @@ impl From<u8> for JobType {
             4 => JobType::Gpu,
             _ => JobType::Unknown,
         }
+    }
+}
+
+/// The `RunAccount` struct holds temporary information that matches nodes to jobs.
+#[account]
+pub struct RunAccount {
+    pub job: Pubkey,
+    pub node: Pubkey,
+    pub payer: Pubkey,
+    pub state: u8,
+    pub time: i64,
+}
+
+impl RunAccount {
+    pub const SIZE: usize = 8 + size_of::<RunAccount>();
+
+    fn from_account_info<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
+        Account::try_from_unchecked(info).unwrap()
+    }
+
+    fn serialize(&self, info: AccountInfo) -> Result<()> {
+        let dst: &mut [u8] = &mut info.try_borrow_mut_data().unwrap();
+        let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
+        RunAccount::try_serialize(self, &mut writer)
+    }
+
+    pub fn create(&mut self, job: Pubkey, node: Pubkey, payer: Pubkey, time: i64) -> Result<()> {
+        self.job = job;
+        self.node = node;
+        self.payer = payer;
+        self.time = time;
+        Ok(())
+    }
+
+    pub fn initialize<'info>(
+        account: AccountInfo<'info>,
+        payer: AccountInfo<'info>,
+        system_program: AccountInfo<'info>,
+        job: Pubkey,
+        node: Pubkey,
+    ) -> Result<()> {
+        utils::cpi_create_account(
+            system_program.to_account_info(),
+            payer.to_account_info(),
+            account.to_account_info(),
+            RunAccount::SIZE,
+            &id::JOBS_PROGRAM,
+        )?;
+
+        // deserialize and modify run account
+        let mut run: Account<RunAccount> = RunAccount::from_account_info(&account);
+        run.create(job, node, payer.key(), Clock::get().unwrap().unix_timestamp)?;
+
+        // write
+        run.serialize(account)
     }
 }

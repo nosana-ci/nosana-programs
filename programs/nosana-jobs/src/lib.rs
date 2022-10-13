@@ -1,6 +1,5 @@
-#[macro_use]
-mod macros;
 mod instructions;
+mod macros;
 mod security;
 mod state;
 

@@ -26,23 +26,13 @@ pub struct Finish<'info> {
 }
 
 impl<'info> Finish<'info> {
-    fn reimburse_node(&self) -> Result<()> {
-        utils::cpi_transfer_tokens(
-            self.vault.to_account_info(),
-            self.user.to_account_info(),
-            self.vault.to_account_info(),
-            self.token_program.to_account_info(),
-            seeds!(self.market),
-            self.vault.amount,
-        )
-    }
-
     pub fn handler(&mut self, ipfs_result: [u8; 32]) -> Result<()> {
         self.job.finish(
             ipfs_result,
             self.authority.key(),
             Clock::get()?.unix_timestamp,
         );
-        self.reimburse_node()
+        // reimburse node
+        transfer_tokens_to_user!(self, seeds!(self.market), self.vault.amount)
     }
 }
