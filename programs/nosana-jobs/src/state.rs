@@ -184,10 +184,10 @@ impl RunAccount {
         Ok(())
     }
 
-    pub fn cpi_init<'a>(
-        account: AccountInfo<'a>,
-        payer: AccountInfo<'a>,
-        system_program: AccountInfo<'a>,
+    pub fn cpi_init<'info>(
+        account: AccountInfo<'info>,
+        payer: AccountInfo<'info>,
+        system_program: AccountInfo<'info>,
     ) {
         utils::cpi_init_account(
             account.to_account_info(),
