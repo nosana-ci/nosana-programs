@@ -20,6 +20,7 @@ pub struct Finish<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
+    #[account(mut)]
     pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

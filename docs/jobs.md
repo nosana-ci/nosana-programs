@@ -655,28 +655,6 @@ are **`c94ebbe1f0c6c9fb`**, which can also be expressed in byte array:
 [201,78,187,225,240,198,201,251]
 ```
 
-### Run Account
-
-The `RunAccount` struct holds temporary information that matches nodes to jobs.
-The total size of this account is `121` bytes.
-
-| Name                        | Type                        | Size    | Offset  | Description                                                                                       |
-|-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
-| `job`                       | `publicKey`                 | `32`    | `8`     | The [JobAccount](#job-account) address.                                                           |
-| `node`                      | `publicKey`                 | `32`    | `40`    | The node that runs this job.                                                                      |
-| `payer`                     | `publicKey`                 | `32`    | `72`    | The paying identy for the rent.                                                                   |
-| `state`                     | `u8`                        | `1`     | `104`   | n/a                                                                                               |
-| `time`                      | `i64`                       | `16`    | `105`   | n/a                                                                                               |
-
-#### Anchor Account Discriminator
-
-The first 8 bytes, also known as Anchor's 8 byte discriminator, for the Run Account
-are **`c2a96ee6eb0be116`**, which can also be expressed in byte array:
-
-```json
-[194,169,110,230,235,11,225,22]
-```
-
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
@@ -702,6 +680,28 @@ are **`5b10a2052dd27d41`**, which can also be expressed in byte array:
 
 ```json
 [91,16,162,5,45,210,125,65]
+```
+
+### Run Account
+
+The `RunAccount` struct holds temporary information that matches nodes to jobs.
+The total size of this account is `121` bytes.
+
+| Name                        | Type                        | Size    | Offset  | Description                                                                                       |
+|-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
+| `job`                       | `publicKey`                 | `32`    | `8`     | The [JobAccount](#job-account) address.                                                           |
+| `node`                      | `publicKey`                 | `32`    | `40`    | The node that runs this job.                                                                      |
+| `payer`                     | `publicKey`                 | `32`    | `72`    | The paying identy for the rent.                                                                   |
+| `state`                     | `u8`                        | `1`     | `104`   | n/a                                                                                               |
+| `time`                      | `i64`                       | `16`    | `105`   | n/a                                                                                               |
+
+#### Anchor Account Discriminator
+
+The first 8 bytes, also known as Anchor's 8 byte discriminator, for the Run Account
+are **`c2a96ee6eb0be116`**, which can also be expressed in byte array:
+
+```json
+[194,169,110,230,235,11,225,22]
 ```
 
 ### Vault Account
