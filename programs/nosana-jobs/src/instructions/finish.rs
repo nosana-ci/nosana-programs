@@ -34,6 +34,11 @@ impl<'info> Finish<'info> {
             Clock::get()?.unix_timestamp,
         );
         // reimburse node
-        transfer_tokens_to_user!(self, seeds!(self.market), self.vault.amount)
+        transfer_tokens_from_vault!(
+            self,
+            user,
+            seeds!(self.market, self.vault),
+            self.vault.amount
+        )
     }
 }

@@ -1,4 +1,5 @@
 mod instructions;
+mod macros;
 mod security;
 mod state;
 
@@ -22,24 +23,30 @@ pub mod nosana_pools {
         claim_type: u8,
         closeable: bool,
     ) -> Result<()> {
-        open::handler(ctx, emission, start_time, claim_type, closeable)
+        ctx.accounts.handler(
+            emission,
+            start_time,
+            claim_type,
+            closeable,
+            *ctx.bumps.get("vault").unwrap(),
+        )
     }
 
     /// The `claimFee()` instruction claims emissions from a Nosana Pool with claim type
     /// [`1`](#claim-type), and adds these as fees to the [Rewards Program](/programs/rewards).
     pub fn claim_fee(ctx: Context<ClaimFee>) -> Result<()> {
-        claim_fee::handler(ctx)
+        ctx.accounts.handler()
     }
 
     /// The `claimTransfer()` instruction claims emissions from a Nosana Pool
     /// with claim type [`0`](#claim-type), and transfer these to a given user.
     pub fn claim_transfer(ctx: Context<ClaimTransfer>) -> Result<()> {
-        claim_transfer::handler(ctx)
+        ctx.accounts.handler()
     }
 
     /// The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
     /// and [VaultAccount](#vault-account).
     pub fn close(ctx: Context<Close>) -> Result<()> {
-        close::handler(ctx)
+        ctx.accounts.handler()
     }
 }

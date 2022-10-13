@@ -32,7 +32,7 @@ impl PoolAccount {
         start_time: i64,
         vault: Pubkey,
         vault_bump: u8,
-    ) {
+    ) -> Result<()> {
         self.authority = authority;
         self.beneficiary = beneficiary;
         self.claim_type = claim_type;
@@ -42,6 +42,7 @@ impl PoolAccount {
         self.start_time = start_time;
         self.vault = vault;
         self.vault_bump = vault_bump;
+        Ok(())
     }
 
     pub fn claim(&mut self, amount_available: u64, now: i64) -> u64 {

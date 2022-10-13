@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount};
 use nosana_staking::StakeAccount;
 
 #[derive(Accounts)]
@@ -23,37 +23,30 @@ pub struct Claim<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Claim>) -> Result<()> {
-    // get rewards and stats account
-    let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
-    let reflection: &mut Account<ReflectionAccount> = &mut ctx.accounts.reflection;
+impl<'info> Claim<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        // determine amount to claim
+        let amount: u128 = self.reward.get_amount(self.reflection.rate);
+        if amount == 0 {
+            return Ok(());
+        }
 
-    // determine amount to claim
-    let amount: u128 = reward.get_amount(reflection.rate);
-    if amount == 0 {
-        return Ok(());
+        // decrease the reflection pool
+        self.reflection
+            .remove_rewards_account(self.reward.reflection, self.reward.xnos + amount)?;
+
+        // re-enter the pool with the current stake
+        self.reward.update(
+            self.reflection.add_rewards_account(self.stake.xnos, 0),
+            self.stake.xnos,
+        )?;
+
+        // pay-out pending reward
+        transfer_tokens_from_vault!(
+            self,
+            user,
+            seeds!(self.reflection, self.vault),
+            u64::try_from(amount).unwrap()
+        )
     }
-
-    // decrease the reflection pool
-    reflection.remove_rewards_account(reward.reflection, reward.xnos + amount);
-
-    // re-enter the pool with the current stake
-    reward.update(
-        reflection.add_rewards_account(ctx.accounts.stake.xnos, 0),
-        ctx.accounts.stake.xnos,
-    );
-
-    // pay-out pending reward
-    transfer(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.vault.to_account_info(),
-                to: ctx.accounts.user.to_account_info(),
-                authority: ctx.accounts.vault.to_account_info(),
-            },
-            &[&[id::NOS_TOKEN.as_ref(), &[reflection.vault_bump]]],
-        ),
-        u64::try_from(amount).unwrap(),
-    )
 }

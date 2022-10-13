@@ -11,20 +11,18 @@ pub struct Extend<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
-    // test duration
-    require!(duration > 0, NosanaError::StakeDurationTooShort);
+impl<'info> Extend<'info> {
+    pub fn handler(&mut self, duration: u64) -> Result<()> {
+        // test duration
+        require!(duration > 0, NosanaError::StakeDurationTooShort);
 
-    // get stake account
-    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+        // test new duration
+        require!(
+            self.stake.duration + duration <= u64::try_from(DURATION_MAX).unwrap(),
+            NosanaError::StakeDurationTooLong
+        );
 
-    // test new duration
-    require!(
-        stake.duration + duration <= u64::try_from(DURATION_MAX).unwrap(),
-        NosanaError::StakeDurationTooLong
-    );
-
-    // extend stake
-    stake.extend(duration);
-    Ok(())
+        // extend stake
+        self.stake.extend(duration)
+    }
 }

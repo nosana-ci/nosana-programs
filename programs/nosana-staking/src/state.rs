@@ -27,9 +27,10 @@ pub struct SettingsAccount {
 impl SettingsAccount {
     pub const SIZE: usize = 8 + std::mem::size_of::<SettingsAccount>();
 
-    pub fn set(&mut self, authority: Pubkey, token_account: Pubkey) {
+    pub fn set(&mut self, authority: Pubkey, token_account: Pubkey) -> Result<()> {
         self.authority = authority;
         self.token_account = token_account;
+        Ok(())
     }
 }
 
@@ -65,9 +66,10 @@ impl StakeAccount {
         self.update_xnos();
     }
 
-    pub fn unstake(&mut self, time: i64) {
+    pub fn unstake(&mut self, time: i64) -> Result<()> {
         self.time_unstake = time;
         self.update_xnos();
+        Ok(())
     }
 
     pub fn topup(&mut self, amount: u64) {
@@ -80,9 +82,10 @@ impl StakeAccount {
         self.update_xnos();
     }
 
-    pub fn extend(&mut self, duration: u64) {
+    pub fn extend(&mut self, duration: u64) -> Result<()> {
         self.duration += duration;
         self.update_xnos();
+        Ok(())
     }
 
     fn update_xnos(&mut self) {

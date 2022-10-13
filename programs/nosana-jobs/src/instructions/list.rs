@@ -35,11 +35,8 @@ pub struct List<'info> {
 impl<'info> List<'info> {
     pub fn handler(&mut self, ipfs_job: [u8; 32]) -> Result<()> {
         // pay job and network fee
-        transfer_tokens_to_vault!(self, &[], self.market.job_price)?;
-        transfer_tokens_to_network!(
-            self,
-            self.market.job_price / MarketAccount::JOB_FEE_FRACTION
-        )?;
+        transfer_tokens_to_vault!(self, self.market.job_price)?;
+        transfer_fee!(self, user, authority, &[], self.market.job_fee())?;
 
         // create the job
         self.job.create(

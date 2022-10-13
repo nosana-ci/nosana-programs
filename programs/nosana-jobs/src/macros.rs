@@ -1,9 +1,9 @@
 #[macro_export]
 macro_rules! seeds {
-    ($market: expr) => {
+    ($market: expr, $vault: expr) => {
         &[&[
             $market.key().as_ref(),
-            &id::NOS_TOKEN.as_ref(),
+            $vault.mint.as_ref(),
             &[$market.vault_bump],
         ][..]][..]
     };

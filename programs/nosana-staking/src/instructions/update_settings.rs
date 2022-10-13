@@ -17,11 +17,9 @@ pub struct UpdateSettings<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<UpdateSettings>) -> Result<()> {
-    // get settings account and update it
-    ctx.accounts.settings.set(
-        ctx.accounts.new_authority.key(),
-        ctx.accounts.token_account.key(),
-    );
-    Ok(())
+impl<'info> UpdateSettings<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.settings
+            .set(self.new_authority.key(), self.token_account.key())
+    }
 }

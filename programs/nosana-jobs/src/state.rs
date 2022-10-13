@@ -74,6 +74,10 @@ impl MarketAccount {
         Ok(())
     }
 
+    pub fn job_fee(&self) -> u64 {
+        self.job_price / MarketAccount::JOB_FEE_FRACTION
+    }
+
     pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) -> Result<()> {
         if self.job_type == JobType::Unknown as u8 {
             return Ok(());

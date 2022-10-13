@@ -29,10 +29,8 @@ pub struct Init<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<Init>) -> Result<()> {
-    // init reflection account
-    ctx.accounts
-        .reflection
-        .init(ctx.accounts.vault.key(), *ctx.bumps.get("vault").unwrap());
-    Ok(())
+impl<'info> Init<'info> {
+    pub fn handler(&mut self, vault_bump: u8) -> Result<()> {
+        self.reflection.init(self.vault.key(), vault_bump)
+    }
 }

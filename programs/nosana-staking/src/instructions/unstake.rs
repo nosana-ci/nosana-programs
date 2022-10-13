@@ -17,8 +17,8 @@ pub struct Unstake<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Unstake>) -> Result<()> {
-    // get stake account, and unstake stake
-    ctx.accounts.stake.unstake(Clock::get()?.unix_timestamp);
-    Ok(())
+impl<'info> Unstake<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.stake.unstake(Clock::get()?.unix_timestamp)
+    }
 }

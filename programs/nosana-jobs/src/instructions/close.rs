@@ -20,7 +20,12 @@ pub struct Close<'info> {
 
 impl<'info> Close<'info> {
     pub fn handler(&self) -> Result<()> {
-        transfer_tokens_to_user!(self, seeds!(self.market), self.vault.amount)?;
-        close_vault!(self, seeds!(self.market))
+        transfer_tokens_from_vault!(
+            self,
+            user,
+            seeds!(self.market, self.vault),
+            self.vault.amount
+        )?;
+        close_vault!(self, seeds!(self.market, self.vault))
     }
 }

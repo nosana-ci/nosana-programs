@@ -11,8 +11,8 @@ pub struct Restake<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Restake>) -> Result<()> {
-    // get stake account and restake stake
-    ctx.accounts.stake.unstake(0);
-    Ok(())
+impl<'info> Restake<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.stake.unstake(0)
+    }
 }
