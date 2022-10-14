@@ -75,10 +75,10 @@ impl StakeAccount {
     }
 
     pub fn withdraw(&mut self, balance: u64, now: i64) -> u64 {
-        (u64::try_from(now - self.time_unstake).unwrap()) // time that has passed
-            / self.duration // fraction of total of total unstake duration
-            * self.amount // number of tokens that have been unvested from total amount
-            - (self.amount - balance) // minus the number of tokens that have been claimed already
+        (u64::try_from(now - self.time_unstake).unwrap()) // time that has passed since unstake
+            / self.duration // fraction of total unstake duration
+            * self.amount // number of tokens that may be withdrawn from total amount
+            - (self.amount - balance) // minus the number of tokens that have been withdrawn already
     }
 
     pub fn topup(&mut self, amount: u64) {
