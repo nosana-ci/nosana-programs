@@ -13,7 +13,7 @@ pub struct Slash<'info> {
     pub stake: Account<'info, StakeAccount>,
     #[account(mut, address = settings.token_account @ NosanaError::InvalidTokenAccount)]
     pub token_account: Account<'info, TokenAccount>,
-    #[account(mut, address = stake.vault @ NosanaError::InvalidTokenAccount)]
+    #[account(mut, address = stake.vault @ NosanaError::InvalidVault)]
     pub vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

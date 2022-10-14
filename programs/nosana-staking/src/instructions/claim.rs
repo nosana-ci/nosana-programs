@@ -5,7 +5,7 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct Claim<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, address = stake.vault @ NosanaError::InvalidTokenAccount)]
+    #[account(mut, address = stake.vault @ NosanaError::InvalidVault)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
