@@ -1,3 +1,7 @@
+/***
+ * Macros
+ */
+
 #[macro_export]
 macro_rules! seeds {
     ($stake: expr, $vault: expr) => {

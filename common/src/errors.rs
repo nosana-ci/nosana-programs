@@ -25,32 +25,4 @@ pub enum NosanaError {
     InvalidPayer,
     #[msg("This vault is not empty.")]
     VaultNotEmpty,
-
-    // stake errors
-    #[msg("This amount is not enough.")]
-    StakeAmountNotEnough,
-    #[msg("This stake is already running.")]
-    StakeAlreadyInitialized,
-    #[msg("This stake is already claimed.")]
-    StakeAlreadyClaimed,
-    #[msg("This stake is already staked.")]
-    StakeAlreadyStaked,
-    #[msg("This stake is already unstaked.")]
-    StakeAlreadyUnstaked,
-    #[msg("This stake is not yet unstaked.")]
-    StakeNotUnstaked,
-    #[msg("This stake is still locked.")]
-    StakeLocked,
-    #[msg("This stake duration is not long enough.")]
-    StakeDurationTooShort,
-    #[msg("This stake duration is too long.")]
-    StakeDurationTooLong,
-    #[msg("This stake account does not exist.")]
-    StakeDoesNotExist,
-    #[msg("This stake is not allowed to decrease.")]
-    StakeDecreased,
-    #[msg("This stake still has a reward account.")]
-    StakeHasReward,
-    #[msg("This stake does not match the reward account.")]
-    StakeDoesNotMatchReward,
 }

@@ -11,9 +11,9 @@ pub struct Claim<'info> {
         mut,
         close = authority,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked,
+        constraint = stake.time_unstake != 0 @ NosanaStakingError::NotUnstaked,
         constraint = stake.time_unstake + i64::try_from(stake.duration).unwrap() <
-            Clock::get()?.unix_timestamp @ NosanaError::StakeLocked,
+            Clock::get()?.unix_timestamp @ NosanaStakingError::Locked,
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]

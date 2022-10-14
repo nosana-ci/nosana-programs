@@ -1,12 +1,12 @@
 use crate::*;
-use nosana_staking::StakeAccount;
+use nosana_staking::{NosanaStakingError, StakeAccount};
 
 #[derive(Accounts)]
 pub struct Sync<'info> {
     #[account(mut)]
     pub reward: Account<'info, RewardAccount>,
     #[account(
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
+        constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked,
         constraint = stake.authority == reward.authority @ NosanaError::Unauthorized,
     )]
     pub stake: Account<'info, StakeAccount>,

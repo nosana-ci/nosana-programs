@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
-use nosana_common::constants;
+use nosana_common::constants::NOS_DECIMALS;
 
 /***
-Constants
-*/
+ * Constants
+ */
 
-pub const STAKE_MINIMUM: u64 = constants::NOS_DECIMALS;
+pub const STAKE_MINIMUM: u64 = NOS_DECIMALS;
 pub const SECONDS_PER_DAY: u128 = 24 * 60 * 60;
 pub const DURATION_MIN: u128 = 14 * SECONDS_PER_DAY; // 2 weeks
 pub const DURATION_MAX: u128 = 365 * SECONDS_PER_DAY; // 1 year
@@ -13,8 +13,8 @@ pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
 pub const XNOS_DIV: u128 = 4 * DURATION_MAX / 12; // 0.25 growth per month
 
 /***
- Accounts and Types
-*/
+ * Accounts
+ */
 
 /// The `SettingsAccount` struct holds the information about the
 /// slashing authority and token account.

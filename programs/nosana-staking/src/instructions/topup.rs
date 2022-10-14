@@ -5,12 +5,12 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct Topup<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, address = stake.vault @ NosanaError::InvalidTokenAccount)]
+    #[account(mut, address = stake.vault @ NosanaError::InvalidVault)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
+        constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked,
     )]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
@@ -20,7 +20,7 @@ pub struct Topup<'info> {
 impl<'info> Topup<'info> {
     pub fn handler(&mut self, amount: u64) -> Result<()> {
         // test amount
-        require!(amount > 0, NosanaError::StakeAmountNotEnough);
+        require!(amount > 0, NosanaStakingError::AmountNotEnough);
 
         // get stake account and topup stake
         self.stake.topup(amount);

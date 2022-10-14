@@ -2,8 +2,8 @@ use anchor_lang::prelude::*;
 use nosana_common::constants::NOS_TOTAL_SUPPLY;
 
 /***
- Accounts and Types
-*/
+ * Accounts
+ */
 
 /// The `ReflectionAccount` struct holds all the information on the reflection pool.
 #[account]

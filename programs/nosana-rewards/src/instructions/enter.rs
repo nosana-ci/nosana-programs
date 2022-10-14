@@ -1,5 +1,5 @@
 use crate::*;
-use nosana_staking::StakeAccount;
+use nosana_staking::{NosanaStakingError, StakeAccount};
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
@@ -7,7 +7,7 @@ pub struct Enter<'info> {
     pub reflection: Account<'info, ReflectionAccount>,
     #[account(
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+        constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(

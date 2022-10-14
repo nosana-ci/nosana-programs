@@ -24,7 +24,7 @@ impl<'info> Slash<'info> {
         // test amount
         require!(
             amount <= self.stake.amount,
-            NosanaError::StakeAmountNotEnough
+            NosanaStakingError::AmountNotEnough
         );
 
         // slash stake

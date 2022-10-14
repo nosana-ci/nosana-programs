@@ -34,9 +34,15 @@ pub struct Stake<'info> {
 impl<'info> Stake<'info> {
     pub fn handler(&mut self, amount: u64, duration: u128, vault_bump: u8) -> Result<()> {
         // test duration and amount
-        require!(duration >= DURATION_MIN, NosanaError::StakeDurationTooShort);
-        require!(duration <= DURATION_MAX, NosanaError::StakeDurationTooLong);
-        require!(amount >= STAKE_MINIMUM, NosanaError::StakeAmountNotEnough);
+        require!(
+            duration >= DURATION_MIN,
+            NosanaStakingError::DurationTooShort
+        );
+        require!(
+            duration <= DURATION_MAX,
+            NosanaStakingError::DurationTooLong
+        );
+        require!(amount >= STAKE_MINIMUM, NosanaStakingError::AmountNotEnough);
 
         // get stake account and init stake
         self.stake.init(

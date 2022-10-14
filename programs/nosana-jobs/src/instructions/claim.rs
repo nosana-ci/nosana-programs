@@ -1,7 +1,7 @@
 use crate::*;
 use anchor_spl::token::TokenAccount;
 use mpl_token_metadata::pda::find_metadata_account;
-use nosana_staking::StakeAccount;
+use nosana_staking::{NosanaStakingError, StakeAccount};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -15,7 +15,7 @@ pub struct Claim<'info> {
     pub run: Box<Account<'info, RunAccount>>,
     pub market: Account<'info, MarketAccount>,
     #[account(
-        address = pda::nosana_staking(authority.key) @ NosanaError::StakeDoesNotMatchReward,
+        address = pda::nosana_staking(authority.key) @ NosanaStakingError::DoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
     )]

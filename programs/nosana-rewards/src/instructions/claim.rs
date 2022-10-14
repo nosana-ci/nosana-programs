@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use nosana_staking::StakeAccount;
+use nosana_staking::{NosanaStakingError, StakeAccount};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -14,8 +14,8 @@ pub struct Claim<'info> {
     pub reward: Account<'info, RewardAccount>,
     #[account(
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
-        constraint = stake.xnos >= reward.xnos @ NosanaError::StakeDecreased,
+        constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked,
+        constraint = stake.xnos >= reward.xnos @ NosanaStakingError::Decreased,
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]

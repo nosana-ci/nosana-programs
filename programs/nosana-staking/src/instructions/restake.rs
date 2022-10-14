@@ -5,7 +5,7 @@ pub struct Restake<'info> {
     #[account(
         mut,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake != 0 @ NosanaError::StakeAlreadyStaked,
+        constraint = stake.time_unstake != 0 @ NosanaStakingError::AlreadyStaked,
     )]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,

@@ -1,12 +1,14 @@
+mod errors;
 mod instructions;
 mod macros;
 mod security;
 mod state;
 
 use anchor_lang::prelude::*;
+pub use errors::*;
 use instructions::*;
 use nosana_common::*;
-pub use state::*; // expose stake for cpi
+pub use state::*; // expose stake for cpi // expose errors for cpi
 
 declare_id!(id::STAKING_PROGRAM);
 
