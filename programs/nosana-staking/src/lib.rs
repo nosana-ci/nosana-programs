@@ -48,10 +48,14 @@ pub mod nosana_staking {
         ctx.accounts.handler(duration)
     }
 
-    /// The `claim()` instruction will transfer back all your stake tokens if the delay has
-    /// passed after they whey unstaked. Claiming will close the [StakeAccount](#stake-account)
-    /// and [VaultAccount](#vault-account) of the staker.
-    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+    /// The `close()` instruction will close the [StakeAccount](#stake-account)
+    /// and empty [VaultAccount](#vault-account) of the staker.
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
+    /// The `withdraw()` instruction will transfer back released tokens
+    pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
         ctx.accounts.handler()
     }
 

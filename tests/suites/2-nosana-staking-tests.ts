@@ -259,22 +259,25 @@ export default function suite() {
     });
   });
 
-  describe('claim()', async function () {
-    it('can not claim before unstake', async function () {
+  describe('close()', async function () {
+    it('can not close before unstake', async function () {
       let msg = '';
       await this.stakingProgram.methods
-        .claim()
+        .close()
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.StakeNotUnstaked);
     });
 
-    it('can not claim after too soon unstake', async function () {
+    it('can unstake', async function () {
       await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
+    });
+
+    it('can not close after too soon unstake', async function () {
       let msg = '';
       await this.stakingProgram.methods
-        .claim()
+        .close()
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));

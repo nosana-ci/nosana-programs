@@ -67,6 +67,20 @@ impl StakeAccount {
         Ok(())
     }
 
+    pub fn restake(&mut self, amount: u64) -> Result<()> {
+        self.amount = amount;
+        self.time_unstake = 0;
+        self.update_xnos();
+        Ok(())
+    }
+
+    pub fn withdraw(&mut self, balance: u64, now: i64) -> u64 {
+        (u64::try_from(now - self.time_unstake).unwrap()) // time that has passed
+            / self.duration // fraction of total of total unstake duration
+            * self.amount // number of tokens that have been unvested from total amount
+            - (self.amount - balance) // minus the number of tokens that have been claimed already
+    }
+
     pub fn topup(&mut self, amount: u64) {
         self.amount += amount;
         self.update_xnos();

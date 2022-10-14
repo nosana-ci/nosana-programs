@@ -8,14 +8,14 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE)                                          |
 | Accounts        | [`3`](#accounts)                                                                                                                    |
-| Instructions    | [`9`](#instructions)                                                                                                                |
+| Instructions    | [`10`](#instructions)                                                                                                               |
 | Types           | [`0`](#types)                                                                                                                       |
 | Domain          | `nosana-staking.sol`                                                                                                                |
 |  Address        | [`nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE`](https://explorer.solana.com/address/nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE)    |
 
 ## Instructions
 
-A number of 9 instruction are defined in the Nosana Staking program.
+A number of 10 instruction are defined in the Nosana Staking program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -182,10 +182,11 @@ Make a stake active again and reset the unstake time.
 
 #### Account Info
 
-The following 2 account addresses should be provided when invoking this instruction.
+The following 3 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [StakeAccount](/programs/staking#stake-account) address.                                      |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
@@ -209,6 +210,7 @@ with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 let tx = await program.methods
   .restake()
   .accounts({
+    vault,             // ✓ writable, 𐄂 signer
     stake,             // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
@@ -322,11 +324,56 @@ let tx = await program.methods
   .rpc();
 ```
 
-### Claim
+### Close
 
-The `claim()` instruction will transfer back all your stake tokens if the delay has
-passed after they whey unstaked. Claiming will close the [StakeAccount](#stake-account)
-and [VaultAccount](#vault-account) of the staker.
+The `close()` instruction will close the [StakeAccount](#stake-account)
+and empty [VaultAccount](#vault-account) of the staker.
+
+#### Account Info
+
+The following 5 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [StakeAccount](/programs/staking#stake-account) address.                                      |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Close Instruction
+is **`62a5c9b16c41ce60`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[98,165,201,177,108,65,206,96]
+```
+
+#### Example with Anchor
+
+To invoke the Close Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .close()
+  .accounts({
+    user,              // ✓ writable, 𐄂 signer
+    stake,             // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    authority,         // ✓ writable, ✓ signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
+### Withdraw
+
+The `withdraw()` instruction will transfer back released tokens
 
 #### Account Info
 
@@ -343,22 +390,22 @@ The following 5 account addresses should be provided when invoking this instruct
 
 #### Solana Dispatch ID
 
-The Solana dispatch ID for the Claim Instruction
-is **`3ec6d6c1d59f6cd2`**,
+The Solana dispatch ID for the Withdraw Instruction
+is **`b712469c946da122`**,
 which can also be expressed as an 8 byte discriminator:
 
 ```json
-[62,198,214,193,213,159,108,210]
+[183,18,70,156,148,109,161,34]
 ```
 
 #### Example with Anchor
 
-To invoke the Claim Instruction
+To invoke the Withdraw Instruction
 with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 
 ```typescript
 let tx = await program.methods
-  .claim()
+  .withdraw()
   .accounts({
     user,              // ✓ writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
@@ -382,10 +429,10 @@ The following 6 account addresses should be provided when invoking this instruct
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `settings`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [SettingsAccount](#settings-account) address.                                                 |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `stake`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [StakeAccount](/programs/staking#stake-account) address.                                      |
 | `tokenAccount`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The token account where slash deposits will go.                                                   |
-| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `settings`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [SettingsAccount](#settings-account) address.                                                 |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
 
@@ -419,10 +466,10 @@ let tx = await program.methods
     amount,            // type: u64
   )
   .accounts({
-    settings,          // 𐄂 writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
     stake,             // ✓ writable, 𐄂 signer
     tokenAccount,      // ✓ writable, 𐄂 signer
-    vault,             // ✓ writable, 𐄂 signer
+    settings,          // 𐄂 writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
