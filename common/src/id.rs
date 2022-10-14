@@ -1,5 +1,9 @@
 use anchor_lang::declare_id;
 
+/***
+ * IDs
+ */
+
 pub use system_program::ID as SYSTEM_PROGRAM;
 mod system_program {
     use super::*;

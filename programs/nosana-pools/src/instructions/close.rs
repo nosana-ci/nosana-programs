@@ -12,7 +12,7 @@ pub struct Close<'info> {
         close = authority,
         has_one = authority @ NosanaError::Unauthorized,
         has_one = vault @ NosanaError::InvalidVault,
-        constraint = pool.closeable || vault.amount == 0 @ NosanaError::PoolNotCloseable
+        constraint = pool.closeable || vault.amount == 0 @ NosanaPoolsError::NotCloseable
     )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]

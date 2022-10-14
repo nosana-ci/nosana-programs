@@ -22,7 +22,7 @@ pub struct Work<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
-        address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
+        address = pda::nosana_staking(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
     )]

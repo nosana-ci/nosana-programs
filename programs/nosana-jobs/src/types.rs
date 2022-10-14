@@ -1,3 +1,7 @@
+/***
+ * Types
+ */
+
 /// The `QueueType` describes the type of queue
 #[repr(u8)]
 pub enum QueueType {

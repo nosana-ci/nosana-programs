@@ -9,9 +9,9 @@ pub struct ClaimTransfer<'info> {
     pub beneficiary: Account<'info, TokenAccount>,
     #[account(
         mut,
-        has_one = beneficiary @ NosanaError::PoolWrongBeneficiary,
-        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted,
-        constraint = pool.claim_type == ClaimType::Transfer as u8 @ NosanaError::PoolWrongClaimType,
+        has_one = beneficiary @ NosanaPoolsError::WrongBeneficiary,
+        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaPoolsError::NotStarted,
+        constraint = pool.claim_type == ClaimType::Transfer as u8 @ NosanaPoolsError::WrongClaimType,
     )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]
@@ -27,7 +27,7 @@ impl<'info> ClaimTransfer<'info> {
 
         // TODO: the below is not a requirement anymore, can be removed?
         // the pool must have enough funds for an emission
-        require!(amount >= self.pool.emission, NosanaError::PoolUnderfunded);
+        require!(amount >= self.pool.emission, NosanaPoolsError::Underfunded);
 
         // transfer tokens from the vault back to the user
         transfer_tokens_from_vault!(self, beneficiary, seeds!(self.pool), amount)

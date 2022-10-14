@@ -2,12 +2,12 @@ use crate::{JobState, JobType, QueueType};
 use anchor_lang::prelude::*;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
 use nosana_common::writer::BpfWriter;
-use nosana_common::{id, utils};
+use nosana_common::{cpi, id};
 use std::mem::size_of;
 
 /***
- Accounts and Types
-*/
+ * Accounts
+ */
 
 /// The `MarketAccount` struct holds all the information about jobs and the nodes queue.
 #[account]
@@ -240,7 +240,7 @@ impl RunAccount {
         job: Pubkey,
         node: Pubkey,
     ) -> Result<()> {
-        utils::cpi_create_account(
+        cpi::create_account(
             system_program,
             payer.to_account_info(),
             run_account.to_account_info(),

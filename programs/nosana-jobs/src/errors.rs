@@ -1,5 +1,9 @@
 use anchor_lang::prelude::*;
 
+/***
+ * Errors
+ */
+
 #[error_code]
 pub enum NosanaJobsError {
     // market errors

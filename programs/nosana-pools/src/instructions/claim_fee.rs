@@ -12,9 +12,9 @@ pub struct ClaimFee<'info> {
     pub rewards_vault: Account<'info, TokenAccount>,
     #[account(
         mut,
-        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted,
-        constraint = pool.claim_type == ClaimType::AddFee as u8 @ NosanaError::PoolWrongClaimType,
-        constraint = pool.beneficiary == rewards_vault.key() @ NosanaError::PoolWrongBeneficiary,
+        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaPoolsError::NotStarted,
+        constraint = pool.claim_type == ClaimType::AddFee as u8 @ NosanaPoolsError::WrongClaimType,
+        constraint = pool.beneficiary == rewards_vault.key() @ NosanaPoolsError::WrongBeneficiary,
     )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]

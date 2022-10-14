@@ -1,12 +1,16 @@
+mod errors;
 mod instructions;
 mod macros;
 mod security;
 mod state;
+mod types;
 
 use anchor_lang::prelude::*;
+use errors::*;
 use instructions::*;
 use nosana_common::*;
 use state::*;
+use types::*;
 
 declare_id!(id::POOLS_PROGRAM);
 

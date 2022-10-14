@@ -1,5 +1,9 @@
 use nosana_common::security_txt;
 
+/***
+ * Security
+ */
+
 security_txt! {
     name: "Nosana Jobs",
     project_url: "https://nosana.io",

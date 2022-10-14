@@ -1,5 +1,9 @@
 use anchor_lang::prelude::*;
 
+/***
+ * Errors
+ */
+
 #[error_code]
 pub enum NosanaError {
     // generic errors
@@ -49,16 +53,4 @@ pub enum NosanaError {
     StakeHasReward,
     #[msg("This stake does not match the reward account.")]
     StakeDoesNotMatchReward,
-
-    // pool errors
-    #[msg("This pool has not started yet.")]
-    PoolNotStarted,
-    #[msg("This pool does not have enough funds.")]
-    PoolUnderfunded,
-    #[msg("This pool is not closeable.")]
-    PoolNotCloseable,
-    #[msg("This pool has a different claim type.")]
-    PoolWrongClaimType,
-    #[msg("This pool does not match the beneficiary.")]
-    PoolWrongBeneficiary,
 }

@@ -2,6 +2,10 @@ use anchor_lang::solana_program::program_memory::sol_memcpy;
 use std::cmp;
 use std::io::{self, Write};
 
+/***
+ * Writer
+ */
+
 #[derive(Debug, Default)]
 pub struct BpfWriter<T> {
     inner: T,
