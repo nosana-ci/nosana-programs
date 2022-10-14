@@ -5,7 +5,7 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct Withdraw<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut)]
+    #[account(mut, constraint = vault.amount != 0 @ NosanaError::VaultEmpty)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
@@ -24,6 +24,10 @@ impl<'info> Withdraw<'info> {
         let amount: u64 = self
             .stake
             .withdraw(self.vault.amount, Clock::get()?.unix_timestamp);
-        transfer_tokens_from_vault!(self, user, seeds!(self.stake, self.vault), amount)
+        if amount > 0 {
+            transfer_tokens_from_vault!(self, user, seeds!(self.stake, self.vault), amount)
+        } else {
+            Ok(())
+        }
     }
 }
