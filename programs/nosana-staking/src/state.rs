@@ -2,17 +2,6 @@ use anchor_lang::prelude::*;
 use nosana_common::constants::NOS_DECIMALS;
 
 /***
- * Constants
- */
-
-pub const STAKE_MINIMUM: u64 = NOS_DECIMALS;
-pub const SECONDS_PER_DAY: u128 = 24 * 60 * 60;
-pub const DURATION_MIN: u128 = 14 * SECONDS_PER_DAY; // 2 weeks
-pub const DURATION_MAX: u128 = 365 * SECONDS_PER_DAY; // 1 year
-pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
-pub const XNOS_DIV: u128 = 4 * DURATION_MAX / 12; // 0.25 growth per month
-
-/***
  * Accounts
  */
 
@@ -48,6 +37,12 @@ pub struct StakeAccount {
 
 impl StakeAccount {
     pub const SIZE: usize = 8 + std::mem::size_of::<StakeAccount>();
+    pub const STAKE_MINIMUM: u64 = NOS_DECIMALS;
+    pub const SECONDS_PER_DAY: u128 = 24 * 60 * 60;
+    pub const DURATION_MIN: u128 = 14 * StakeAccount::SECONDS_PER_DAY; // 2 weeks
+    pub const DURATION_MAX: u128 = 365 * StakeAccount::SECONDS_PER_DAY; // 1 year
+    pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
+    pub const XNOS_DIV: u128 = 4 * StakeAccount::DURATION_MAX / 12; // 0.25 growth per month
 
     pub fn init(
         &mut self,
@@ -92,9 +87,10 @@ impl StakeAccount {
         self.xnos = if self.time_unstake != 0 {
             0
         } else {
-            (u128::from(self.duration) * XNOS_PRECISION / XNOS_DIV + XNOS_PRECISION)
+            (u128::from(self.duration) * StakeAccount::XNOS_PRECISION / StakeAccount::XNOS_DIV
+                + StakeAccount::XNOS_PRECISION)
                 * u128::from(self.amount)
-                / XNOS_PRECISION
+                / StakeAccount::XNOS_PRECISION
         }
     }
 }

@@ -18,7 +18,7 @@ impl<'info> Extend<'info> {
 
         // test new duration
         require!(
-            self.stake.duration + duration <= u64::try_from(DURATION_MAX).unwrap(),
+            self.stake.duration + duration <= u64::try_from(StakeAccount::DURATION_MAX).unwrap(),
             NosanaStakingError::DurationTooLong
         );
 
