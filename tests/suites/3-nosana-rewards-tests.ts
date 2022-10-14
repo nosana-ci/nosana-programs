@@ -201,7 +201,10 @@ export default function suite() {
 
       stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
       expect(stake.timeUnstake.toNumber()).to.not.equal(0);
-      await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
+      await this.stakingProgram.methods
+        .restake()
+        .accounts({ ...this.accounts, vault: this.vaults.staking })
+        .rpc();
     });
 
     it('can close other reward accounts', async function () {
