@@ -74,7 +74,7 @@ impl StakeAccount {
         Ok(())
     }
 
-    pub fn withdraw(&mut self, balance: u64, now: i64) -> u64 {
+    pub fn withdraw(&self, balance: u64, now: i64) -> u64 {
         (u64::try_from(now - self.time_unstake).unwrap()) // time that has passed since unstake
             / self.duration // fraction of total unstake duration
             * self.amount // number of tokens that may be withdrawn from total amount

@@ -20,7 +20,7 @@ pub struct Withdraw<'info> {
 }
 
 impl<'info> Withdraw<'info> {
-    pub fn handler(&mut self) -> Result<()> {
+    pub fn handler(&self) -> Result<()> {
         let amount: u64 = self
             .stake
             .withdraw(self.vault.amount, Clock::get()?.unix_timestamp);
