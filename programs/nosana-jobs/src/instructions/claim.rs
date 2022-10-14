@@ -7,8 +7,8 @@ use nosana_staking::StakeAccount;
 pub struct Claim<'info> {
     #[account(
         mut,
-        has_one = market @ NosanaError::InvalidMarketAccount,
-        constraint = job.state == JobState::Stopped as u8 @ NosanaError::JobInWrongState,
+        has_one = market @ NosanaJobsError::InvalidMarketAccount,
+        constraint = job.state == JobState::Stopped as u8 @ NosanaJobsError::JobInWrongState,
     )]
     pub job: Account<'info, JobAccount>,
     #[account(init, payer = payer, space = RunAccount::SIZE)]
@@ -17,16 +17,16 @@ pub struct Claim<'info> {
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.xnos >= market.node_xnos_minimum as u128 @ NosanaError::NodeNotEnoughStake,
+        constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(constraint = nft.owner == authority.key() @ NosanaError::NodeNftWrongOwner)]
+    #[account(constraint = nft.owner == authority.key() @ NosanaJobsError::NodeNftWrongOwner)]
     pub nft: Account<'info, TokenAccount>,
     /// CHECK: Metaplex metadata is verified against NFT and Collection node access key
     #[account(
-        address = find_metadata_account(&nft.mint).0 @ NosanaError::NodeNftWrongMetadata,
+        address = find_metadata_account(&nft.mint).0 @ NosanaJobsError::NodeNftWrongMetadata,
         constraint = MarketAccount::metadata_constraint(&metadata, market.node_access_key)
-            @ NosanaError::NodeKeyInvalidCollection,
+            @ NosanaJobsError::NodeKeyInvalidCollection,
     )]
     pub metadata: AccountInfo<'info>,
     #[account(mut)]

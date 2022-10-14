@@ -51,13 +51,11 @@ impl<'info> List<'info> {
         match QueueType::from(self.market.queue_type) {
             QueueType::Job | QueueType::Empty => self.market.add_to_queue(self.job.key(), true),
             QueueType::Node => {
-                self.job.claim(
-                    self.market.pop_from_queue(),
-                    Clock::get().unwrap().unix_timestamp,
-                );
+                self.job
+                    .claim(self.market.pop_from_queue(), Clock::get()?.unix_timestamp);
                 RunAccount::initialize(
-                    self.run.to_account_info(),
                     self.payer.to_account_info(),
+                    self.run.to_account_info(),
                     self.system_program.to_account_info(),
                     self.job.key(),
                     self.job.node,

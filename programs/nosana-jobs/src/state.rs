@@ -1,3 +1,4 @@
+use crate::{JobState, JobType, QueueType};
 use anchor_lang::prelude::*;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
 use nosana_common::writer::BpfWriter;
@@ -19,7 +20,7 @@ pub struct MarketAccount {
     pub vault: Pubkey,
     pub vault_bump: u8,
     pub node_access_key: Pubkey,
-    pub node_xnos_minimum: u64,
+    pub node_xnos_minimum: u128,
     pub queue_type: u8,
     pub queue: Vec<Pubkey>,
 }
@@ -38,7 +39,7 @@ impl MarketAccount {
         job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
-        node_xnos_minimum: u64,
+        node_xnos_minimum: u128,
         vault: Pubkey,
         vault_bump: u8,
     ) -> Result<()> {
@@ -63,7 +64,7 @@ impl MarketAccount {
         job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
-        node_stake_minimum: u64,
+        node_stake_minimum: u128,
     ) -> Result<()> {
         self.job_expiration = job_expiration;
         self.job_price = job_price;
@@ -148,24 +149,6 @@ impl MarketAccount {
     }
 }
 
-/// The `QueueType` describes the type of queue
-#[repr(u8)]
-pub enum QueueType {
-    Job = 0,
-    Node = 1,
-    Empty = 255,
-}
-
-impl From<u8> for QueueType {
-    fn from(queue_type: u8) -> Self {
-        match queue_type {
-            0 => QueueType::Job,
-            1 => QueueType::Node,
-            _ => QueueType::Empty,
-        }
-    }
-}
-
 /// The `JobAccount` struct holds all the information about any individual jobs.
 #[account]
 pub struct JobAccount {
@@ -219,39 +202,6 @@ impl JobAccount {
     }
 }
 
-/// The `JobState` describes the status of a job.
-#[repr(u8)]
-pub enum JobState {
-    Queued = 0,
-    Running = 1,
-    Done = 2,
-    Stopped = 3,
-}
-
-/// The `JobType` describes the type of any job.
-#[repr(u8)]
-pub enum JobType {
-    Default = 0,
-    Small = 1,
-    Medium = 2,
-    Large = 3,
-    Gpu = 4,
-    Unknown = 255,
-}
-
-impl From<u8> for JobType {
-    fn from(job_type: u8) -> Self {
-        match job_type {
-            0 => JobType::Default,
-            1 => JobType::Small,
-            2 => JobType::Medium,
-            3 => JobType::Large,
-            4 => JobType::Gpu,
-            _ => JobType::Unknown,
-        }
-    }
-}
-
 /// The `RunAccount` struct holds temporary information that matches nodes to jobs.
 #[account]
 pub struct RunAccount {
@@ -284,25 +234,25 @@ impl RunAccount {
     }
 
     pub fn initialize<'info>(
-        account: AccountInfo<'info>,
         payer: AccountInfo<'info>,
+        run_account: AccountInfo<'info>,
         system_program: AccountInfo<'info>,
         job: Pubkey,
         node: Pubkey,
     ) -> Result<()> {
         utils::cpi_create_account(
-            system_program.to_account_info(),
+            system_program,
             payer.to_account_info(),
-            account.to_account_info(),
+            run_account.to_account_info(),
             RunAccount::SIZE,
             &id::JOBS_PROGRAM,
         )?;
 
         // deserialize and modify run account
-        let mut run: Account<RunAccount> = RunAccount::from_account_info(&account);
-        run.create(job, node, payer.key(), Clock::get().unwrap().unix_timestamp)?;
+        let mut run: Account<RunAccount> = RunAccount::from_account_info(&run_account);
+        run.create(job, node, payer.key(), Clock::get()?.unix_timestamp)?;
 
         // write
-        run.serialize(account)
+        run.serialize(run_account)
     }
 }

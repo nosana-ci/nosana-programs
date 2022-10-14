@@ -7,7 +7,7 @@ pub struct Quit<'info> {
     #[account(
         mut,
         close = payer,
-        has_one = job @ NosanaError::InvalidJobAccount,
+        has_one = job @ NosanaJobsError::InvalidJobAccount,
         has_one = payer @ NosanaError::InvalidPayer,
         constraint = run.node == authority.key() @ NosanaError::Unauthorized,
     )]

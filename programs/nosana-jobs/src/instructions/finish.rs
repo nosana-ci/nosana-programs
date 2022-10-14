@@ -3,13 +3,13 @@ use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Finish<'info> {
-    #[account(mut, has_one = market @ NosanaError::InvalidMarketAccount)]
+    #[account(mut, has_one = market @ NosanaJobsError::InvalidMarketAccount)]
     pub job: Account<'info, JobAccount>,
     #[account(
         mut,
         close = payer,
         has_one = payer @ NosanaError::InvalidPayer,
-        has_one = job @ NosanaError::InvalidJobAccount,
+        has_one = job @ NosanaJobsError::InvalidJobAccount,
         constraint = run.node == authority.key() @ NosanaError::Unauthorized,
     )]
     pub run: Account<'info, RunAccount>,

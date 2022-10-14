@@ -16,7 +16,7 @@ impl<'info> Update<'info> {
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
-        node_stake_minimum: u64,
+        node_stake_minimum: u128,
     ) -> Result<()> {
         self.market.update(
             job_expiration,

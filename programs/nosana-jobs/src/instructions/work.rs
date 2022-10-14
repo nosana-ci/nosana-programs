@@ -16,7 +16,7 @@ pub struct Work<'info> {
     #[account(
         mut,
         constraint = MarketAccount::node_constraint(authority.key, &market.queue, market.queue_type)
-            @ NosanaError::NodeAlreadyQueued
+            @ NosanaJobsError::NodeAlreadyQueued
     )]
     pub market: Account<'info, MarketAccount>,
     #[account(mut)]
@@ -24,16 +24,16 @@ pub struct Work<'info> {
     #[account(
         address = utils::get_staking_address(authority.key) @ NosanaError::StakeDoesNotMatchReward,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.xnos >= market.node_xnos_minimum as u128 @ NosanaError::NodeNotEnoughStake,
+        constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(constraint = nft.owner == authority.key() @ NosanaError::NodeNftWrongOwner)]
+    #[account(constraint = nft.owner == authority.key() @ NosanaJobsError::NodeNftWrongOwner)]
     pub nft: Account<'info, TokenAccount>,
     /// CHECK: Metaplex metadata is verified against NFT and Collection node access key
     #[account(
-        address = find_metadata_account(&nft.mint).0 @ NosanaError::NodeNftWrongMetadata,
+        address = find_metadata_account(&nft.mint).0 @ NosanaJobsError::NodeNftWrongMetadata,
         constraint = MarketAccount::metadata_constraint(&metadata, market.node_access_key)
-            @ NosanaError::NodeKeyInvalidCollection,
+            @ NosanaJobsError::NodeKeyInvalidCollection,
     )]
     pub metadata: AccountInfo<'info>,
     pub authority: Signer<'info>,
@@ -47,8 +47,8 @@ impl<'info> Work<'info> {
                 self.market.add_to_queue(self.authority.key(), false)
             }
             QueueType::Job => RunAccount::initialize(
-                self.run.to_account_info(),
                 self.payer.to_account_info(),
+                self.run.to_account_info(),
                 self.system_program.to_account_info(),
                 self.market.pop_from_queue(),
                 self.authority.key(),
