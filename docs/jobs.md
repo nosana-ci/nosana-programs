@@ -55,7 +55,7 @@ The following 5 arguments should also be provided when invoking this instruction
 | `jobPrice`             | `u64`             | `8`     | `16`    | The price for jobs in this market.                        |
 | `jobTimeout`           | `i64`             | `16`    | `24`    | The timeout time in seconds for jobs.                     |
 | `jobType`              | `u8`              | `1`     | `40`    | The [JobType](#job-type) number.                          |
-| `nodeXnosMinimum`      | `u64`             | `8`     | `41`    | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.|
+| `nodeXnosMinimum`      | `u128`            | `16`    | `41`    | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.|
 
 
 #### Solana Dispatch ID
@@ -80,7 +80,7 @@ let tx = await program.methods
     jobPrice,          // type: u64
     jobTimeout,        // type: i64
     jobType,           // type: u8
-    nodeXnosMinimum,   // type: u64
+    nodeXnosMinimum,   // type: u128
   )
   .accounts({
     mint,              // 𐄂 writable, 𐄂 signer
@@ -120,7 +120,7 @@ The following 5 arguments should also be provided when invoking this instruction
 | `jobPrice`             | `u64`             | `8`     | `16`    | The price for jobs in this market.                        |
 | `jobTimeout`           | `i64`             | `16`    | `24`    | The timeout time in seconds for jobs.                     |
 | `jobType`              | `u8`              | `1`     | `40`    | The [JobType](#job-type) number.                          |
-| `nodeStakeMinimum`     | `u64`             | `8`     | `41`    | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.|
+| `nodeStakeMinimum`     | `u128`            | `16`    | `41`    | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.|
 
 
 #### Solana Dispatch ID
@@ -145,7 +145,7 @@ let tx = await program.methods
     jobPrice,          // type: u64
     jobTimeout,        // type: i64
     jobType,           // type: u8
-    nodeStakeMinimum,  // type: u64
+    nodeStakeMinimum,  // type: u128
   )
   .accounts({
     market,            // ✓ writable, 𐄂 signer
@@ -630,7 +630,7 @@ A number of 4 accounts make up for the Nosana Jobs Program's state.
 ### Market Account
 
 The `MarketAccount` struct holds all the information about jobs and the nodes queue.
-The total size of this account is `3,355` bytes.
+The total size of this account is `3,363` bytes.
 
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
@@ -642,9 +642,9 @@ The total size of this account is `3,355` bytes.
 | `vault`                     | `publicKey`                 | `32`    | `81`    | The [VaultAccount](#vault-account) address.                                                       |
 | `vaultBump`                 | `u8`                        | `1`     | `113`   | The bump for the [VaultAccount](#vault-account).                                                  |
 | `nodeAccessKey`             | `publicKey`                 | `32`    | `114`   | The NFT collection address of an NFT that the node holds, in order to access this market.         |
-| `nodeXnosMinimum`           | `u64`                       | `8`     | `146`   | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.                   |
-| `queueType`                 | `u8`                        | `1`     | `154`   | The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.                                  |
-| `queue`                     | `Vec<publicKey>`            | `3200`  | `155`   | The queue of order in the market.                                                                 |
+| `nodeXnosMinimum`           | `u128`                      | `16`    | `146`   | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.                   |
+| `queueType`                 | `u8`                        | `1`     | `162`   | The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.                                  |
+| `queue`                     | `Vec<publicKey>`            | `3200`  | `163`   | The queue of order in the market.                                                                 |
 
 #### Anchor Account Discriminator
 
