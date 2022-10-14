@@ -60,6 +60,7 @@ const constants = {
   errors: {
     // generic errors
     Unauthorized: 'This account is not authorized to perform this action.',
+    InvalidAccount: 'This account is not valid.',
     InvalidOwner: 'This account is owned by an invalid program.',
     InvalidTokenAccount: 'This token account is not valid.',
     InvalidMint: 'This mint is invalid.',
@@ -79,7 +80,7 @@ const constants = {
     StakeDoesNotExist: 'This stake account does not exist.',
     StakeDecreased: 'This stake is not allowed to decrease.',
     StakeHasReward: 'This stake still has a reward account.',
-    StakeDoesNotMatchReward: 'This stake does not match the reward account.',
+    InvalidStakeAccount: 'This stake does not belong to the authority.',
 
     // job errors
     JobInWrongState: 'This job does not have the right status.',

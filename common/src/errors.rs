@@ -15,6 +15,8 @@ pub enum NosanaError {
     LamportsNonNull,
     #[msg("This account is missing a signature.")]
     MissingSignature,
+    #[msg("This account is not valid.")]
+    InvalidAccount,
     #[msg("This token account is not valid.")]
     InvalidTokenAccount,
     #[msg("This mint is invalid.")]

@@ -5,11 +5,6 @@ use anchor_lang::declare_id;
  */
 
 pub use system_program::ID as SYSTEM_PROGRAM;
-
-/***
- * IDs
- */
-
 mod system_program {
     use super::*;
     declare_id!("11111111111111111111111111111111");

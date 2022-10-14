@@ -19,8 +19,6 @@ pub enum NosanaJobsError {
     JobNotExpired,
 
     // node errors
-    #[msg("This node does not have an active stake.")]
-    NodeNoStake,
     #[msg("This node queue does not match.")]
     NodeQueueDoesNotMatch,
     #[msg("This node is not authorizing this stake.")]

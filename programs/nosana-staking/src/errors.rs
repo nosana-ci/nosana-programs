@@ -30,6 +30,6 @@ pub enum NosanaStakingError {
     Decreased,
     #[msg("This stake still has a reward account.")]
     HasReward,
-    #[msg("This stake does not match the reward account.")]
-    DoesNotMatchReward,
+    #[msg("This stake does not belong to the authority.")]
+    InvalidStakeAccount,
 }

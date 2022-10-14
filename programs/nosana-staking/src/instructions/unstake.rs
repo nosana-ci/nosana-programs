@@ -10,7 +10,7 @@ pub struct Unstake<'info> {
     pub stake: Account<'info, StakeAccount>,
     /// CHECK: we only want to verify this account does not exist
     #[account(
-        address = pda::nosana_rewards(authority.key) @ NosanaStakingError::DoesNotMatchReward,
+        address = pda::nosana_rewards(authority.key) @ NosanaError::InvalidAccount,
         constraint = utils::account_is_closed(&reward) @ NosanaStakingError::HasReward,
     )]
     pub reward: AccountInfo<'info>,

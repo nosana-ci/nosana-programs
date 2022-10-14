@@ -1,7 +1,4 @@
-use crate::{
-    constants::{PREFIX_REWARDS, PREFIX_STAKE},
-    id,
-};
+use crate::{constants, id};
 use anchor_lang::prelude::*;
 
 /***
@@ -14,7 +11,7 @@ fn get_address(seeds: &[&[u8]], program_id: &Pubkey) -> Pubkey {
 
 pub fn nosana_rewards(authority: &Pubkey) -> Pubkey {
     get_address(
-        &[PREFIX_REWARDS.as_ref(), authority.as_ref()],
+        &[constants::PREFIX_REWARDS.as_ref(), authority.as_ref()],
         &id::REWARDS_PROGRAM,
     )
 }
@@ -22,7 +19,7 @@ pub fn nosana_rewards(authority: &Pubkey) -> Pubkey {
 pub fn nosana_staking(authority: &Pubkey) -> Pubkey {
     get_address(
         &[
-            PREFIX_STAKE.as_ref(),
+            constants::PREFIX_STAKE.as_ref(),
             id::NOS_TOKEN.as_ref(),
             authority.as_ref(),
         ],

@@ -15,7 +15,7 @@ pub struct Claim<'info> {
     pub run: Box<Account<'info, RunAccount>>,
     pub market: Account<'info, MarketAccount>,
     #[account(
-        address = pda::nosana_staking(authority.key) @ NosanaStakingError::DoesNotMatchReward,
+        address = pda::nosana_staking(authority.key) @ NosanaStakingError::InvalidStakeAccount,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
     )]
