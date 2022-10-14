@@ -214,7 +214,7 @@ pub struct RunAccount {
 impl RunAccount {
     pub const SIZE: usize = 8 + size_of::<RunAccount>();
 
-    fn from_account_info<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
+    fn from<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
         Account::try_from_unchecked(info).unwrap()
     }
 
@@ -248,7 +248,7 @@ impl RunAccount {
         )?;
 
         // deserialize and modify run account
-        let mut run: Account<RunAccount> = RunAccount::from_account_info(&run_account);
+        let mut run: Account<RunAccount> = RunAccount::from(&run_account);
         run.create(job, node, payer.key(), Clock::get()?.unix_timestamp)?;
 
         // write

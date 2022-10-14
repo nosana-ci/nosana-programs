@@ -51,7 +51,7 @@ impl<'info> Stake<'info> {
         self.stake.init(
             amount,
             self.authority.key(),
-            u64::try_from(duration).unwrap(),
+            duration.try_into().unwrap(),
             self.vault.key(),
             vault_bump,
         );

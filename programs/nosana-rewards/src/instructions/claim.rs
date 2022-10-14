@@ -46,7 +46,7 @@ impl<'info> Claim<'info> {
             self,
             user,
             seeds!(self.reflection, self.vault),
-            u64::try_from(amount).unwrap()
+            amount.try_into().unwrap()
         )
     }
 }
