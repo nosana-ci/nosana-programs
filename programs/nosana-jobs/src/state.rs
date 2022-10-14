@@ -27,7 +27,6 @@ pub struct MarketAccount {
 impl MarketAccount {
     pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Pubkey; 100]>();
     pub const JOB_FEE_FRACTION: u64 = 10;
-    pub const EXPIRATION: u64 = 10;
 
     #[allow(clippy::too_many_arguments)]
     pub fn init(
