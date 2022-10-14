@@ -61,8 +61,8 @@ impl StakeAccount {
         self.update_xnos();
     }
 
-    pub fn unstake(&mut self, time: i64) -> Result<()> {
-        self.time_unstake = time;
+    pub fn unstake(&mut self, now: i64) -> Result<()> {
+        self.time_unstake = now;
         self.update_xnos();
         Ok(())
     }
