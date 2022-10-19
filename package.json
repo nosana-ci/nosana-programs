@@ -31,6 +31,7 @@
     "script:claim-fee-pool": "ts-node scripts/claim-fee-pool",
     "script:close-market": "ts-node scripts/close-market",
     "script:create-fee-dist-pool": "ts-node scripts/create-fee-dist-pool",
+    "script:create-vesting": "ts-node scripts/create-vesting-pool",
     "script:draw-mint-pass-lottery": "ts-node scripts/draw-mint-pass-lottery",
     "script:generate-docs": "ts-node scripts/generate-docs",
     "script:get-staking-address": "ts-node scripts/get-staking-address",
