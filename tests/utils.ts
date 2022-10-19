@@ -136,6 +136,8 @@ const now = function () {
 
 /**
  *
+ * @param location
+ * @param data
  */
 const solanaExplorer = function (location: string, data = false) {
   let url = `https://explorer.solana.com/${location.length >= 80 ? 'tx' : 'address'}/${location}`;
