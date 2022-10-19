@@ -1,13 +1,19 @@
-import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
+import { AnchorProvider, Wallet } from '@project-serum/anchor';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
 
-import { NosanaStaking } from '../../target/types/nosana_staking';
-import { NosanaPools } from '../../target/types/nosana_pools';
-import { NosanaJobs } from '../../target/types/nosana_jobs';
-import { NosanaRewards } from '../../target/types/nosana_rewards';
 import { constants } from '../contstants';
-import { NosanaAccounts, NosanaBalances, NosanaMarket, NosanaTotals, NosanaVaults } from './nosana';
+import {
+  JobsProgram,
+  NosanaAccounts,
+  NosanaBalances,
+  NosanaMarket,
+  NosanaTotals,
+  NosanaVaults,
+  PoolsProgram,
+  RewardsProgram,
+  StakingProgram,
+} from './nosana';
 
 declare module 'mocha' {
   export interface Context {
@@ -24,10 +30,10 @@ declare module 'mocha' {
     mint: PublicKey;
 
     // main programs
-    jobsProgram: Program<NosanaJobs>;
-    stakingProgram: Program<NosanaStaking>;
-    rewardsProgram: Program<NosanaRewards>;
-    poolsProgram: Program<NosanaPools>;
+    jobsProgram: JobsProgram;
+    stakingProgram: StakingProgram;
+    rewardsProgram: RewardsProgram;
+    poolsProgram: PoolsProgram;
 
     // metaplex
     metaplex: Metaplex;

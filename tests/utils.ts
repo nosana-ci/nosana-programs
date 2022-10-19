@@ -5,9 +5,46 @@ import { createMint, createAssociatedTokenAccount, mintTo } from '@solana/spl-to
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Context } from 'mocha';
-import { AnchorProvider, BN } from '@project-serum/anchor';
+import { AnchorProvider, BN, Idl, Program, setProvider, Wallet } from '@project-serum/anchor';
 import { expect } from 'chai';
+import { createInterface } from 'readline';
 import _ = require('lodash');
+import { JobsProgram, PoolsProgram, RewardsProgram, StakingProgram } from './types/nosana';
+import { constants } from './contstants';
+
+/**
+ *
+ * @param address
+ */
+async function setupProgram(address: PublicKey) {
+  const idl = (await Program.fetchIdl(address.toString())) as Idl;
+  const program = new Program(idl, address);
+  return program;
+}
+
+/**
+ *
+ * @param NosanaProgram
+ */
+async function setupAnchorAndPrograms() {
+  // anchor
+  const provider = AnchorProvider.env();
+  setProvider(provider);
+  const wallet = provider.wallet as Wallet;
+
+  const programs = {
+    staking: (await setupProgram(constants.stakingProgramAddress)) as unknown as StakingProgram,
+    rewards: (await setupProgram(constants.rewardsProgramAddress)) as unknown as RewardsProgram,
+    pools: (await setupProgram(constants.poolsProgramAddress)) as unknown as PoolsProgram,
+    jobs: (await setupProgram(constants.stakingProgramAddress)) as unknown as JobsProgram,
+  };
+
+  return {
+    provider,
+    wallet,
+    programs,
+  };
+}
 
 /**
  *
@@ -96,6 +133,42 @@ const getTimestamp = () => Math.floor(Date.now() / 1e3);
 const now = function () {
   return Math.floor(Date.now() / 1e3);
 };
+
+/**
+ *
+ */
+const solanaExplorer = function (location: string, data = false) {
+  let url = `https://explorer.solana.com/${location.length >= 80 ? 'tx' : 'address'}/${location}`;
+  if (data) url += '/anchor-account';
+  if (process.env.ANCHOR_PROVIDER_URL.toLowerCase().includes('devnet')) url += '?cluster=devnet';
+  return url;
+};
+
+/**
+ *
+ * @param question
+ */
+async function ask(question): Promise<boolean> {
+  const readline = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  readline.setPrompt(`${question} [yes/no]\n`);
+  readline.prompt();
+
+  return new Promise((resolve) => {
+    let userInput;
+    readline.on('line', (input) => {
+      userInput = input;
+      readline.close();
+    });
+
+    readline.on('close', () => {
+      resolve(userInput === 'yes');
+    });
+  });
+}
 
 /**
  *
@@ -198,6 +271,7 @@ async function getUsers(mochaContext: Context, amount: number) {
 }
 
 export {
+  ask,
   buf2hex,
   calculateXnos,
   getDummyKey,
@@ -207,8 +281,11 @@ export {
   createNosMint,
   now,
   pda,
+  setupAnchorAndPrograms,
   setupSolanaUser,
+  setupProgram,
   sleep,
+  solanaExplorer,
   updateRewards,
   mapUsers,
   mintNosTo,

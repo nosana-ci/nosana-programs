@@ -1,4 +1,4 @@
-import { AnchorProvider, Program, setProvider, Wallet, web3, BN, Idl } from '@project-serum/anchor';
+import { web3, BN } from '@project-serum/anchor';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import {
@@ -7,74 +7,38 @@ import {
   TOKEN_PROGRAM_ID,
   transfer,
 } from '@solana/spl-token';
-import { pda } from '../tests/utils';
+import { pda, ask, solanaExplorer, setupAnchorAndPrograms } from '../tests/utils';
 import { constants } from '../tests/contstants';
 import poolConfigs = require('./../tests/data/pools.json');
-// @ts-ignore
-import { NosanaPools } from '../target/types/nosana_pools';
-
-import { createInterface } from 'readline';
-
-async function ask(q) {
-  const readline = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  readline.setPrompt(q);
-  readline.prompt();
-
-  let response;
-  return new Promise((resolve) => {
-    readline.on('line', (userInput) => {
-      response = userInput;
-      readline.close();
-    });
-
-    readline.on('close', () => {
-      resolve(response);
-    });
-  });
-}
 
 async function main() {
-  // anchor
-  const provider = AnchorProvider.env();
-  setProvider(provider);
-  const wallet = provider.wallet as Wallet;
+  const { provider, wallet, programs } = await setupAnchorAndPrograms();
+  const program = programs.pools;
 
-  // program
-  const poolsId = new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD');
-  const idl = (await Program.fetchIdl(poolsId.toString())) as Idl;
-  const program = new Program(idl, poolsId) as unknown as Program<NosanaPools>;
+  console.log('2Mos5YWjtdeYv3ZpUnGfDj6Z1Keo1KuvdbU7M2XTXz1siSw7jPUv2xQjkFxfs9fVgqC3wedVfHTnqW4JoLzp5ZRc'.length);
 
   // readline
-
   for (const poolConfig of poolConfigs) {
     console.log(`\nStart time: ${new Date(poolConfig.startTime * 1000)}`);
     console.log(poolConfig);
 
-    const answer1 = await ask('\n\nShould we create this vesting? [yes/no]\n');
-    console.log(`Your answer is ${answer1}`);
-
-    if (answer1 === 'yes') {
-      // pool config
-      const throwAwayKeypair = Keypair.generate();
-
+    if (await ask('\n\nShould we create this vesting?\n')) {
       console.log('Lets go!');
+
       // public keys
+      const throwAwayKeypair = Keypair.generate();
       const mint = new PublicKey(poolConfig.mint);
       const beneficiary = new PublicKey(poolConfig.beneficiary);
-      const vault = await pda([utf8.encode('vault'), throwAwayKeypair.publicKey.toBuffer()], poolsId);
+      const vault = await pda([utf8.encode('vault'), throwAwayKeypair.publicKey.toBuffer()], program.programId);
 
       // creating ATA
       const beneficiaryAta = await getAssociatedTokenAddress(mint, beneficiary);
-      console.log(`Creating ATA: ${beneficiaryAta.toString()}`);
+      console.log(`Creating ATA:\n${solanaExplorer(beneficiaryAta.toString())}\n`);
       await getOrCreateAssociatedTokenAccount(provider.connection, wallet.payer, mint, beneficiary);
 
       // the pool and vault
-      console.log(`Creating pool: ${throwAwayKeypair.publicKey.toString()}`);
-      console.log(`Creating vault: ${vault.toString()}`);
+      console.log(`Creating pool:\n${solanaExplorer(throwAwayKeypair.publicKey.toString(), true)}\n`);
+      console.log(`Creating vault:\n${solanaExplorer(vault.toString())}\n`);
       let tx = await program.methods
         .open(new BN(poolConfig.emission), new BN(poolConfig.startTime), poolConfig.claimType, poolConfig.closeable)
         .accounts({
@@ -89,10 +53,9 @@ async function main() {
         })
         .signers([throwAwayKeypair])
         .rpc();
-      console.log(`https://explorer.solana.com/tx/${tx}`);
+      console.log(`Done!\n${solanaExplorer(tx)}`);
 
-      const answer2 = await ask('\n\nShould we fill the vesting? [yes/no]\n');
-      if (answer2 === 'yes') {
+      if (await ask('\n\nShould we fill the vesting?\n')) {
         console.log('Filling pool');
         tx = await transfer(
           provider.connection,
@@ -102,7 +65,7 @@ async function main() {
           wallet.payer,
           poolConfig.amount * constants.decimals
         );
-        console.log(`https://explorer.solana.com/tx/${tx}`);
+        console.log(`Done!\n${solanaExplorer(tx)}`);
       }
     }
   }

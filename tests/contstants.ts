@@ -1,4 +1,5 @@
 import { BN } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
 
 const decimals = 1e6;
 const secondsPerDay = 24 * 60 * 60;
@@ -23,6 +24,11 @@ const constants = {
   jobTimeout: 5,
   jobExpiration: 5,
   initialRate,
+
+  stakingProgramAddress: new PublicKey('nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'),
+  rewardsProgramAddress: new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'),
+  poolsProgramAddress: new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD'),
+  jobsProgramAddress: new PublicKey('nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM'),
 
   // status options for jobs
   jobState: {
