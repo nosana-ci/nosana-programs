@@ -15,14 +15,12 @@ async function main() {
   const { provider, wallet, programs } = await setupAnchorAndPrograms();
   const program = programs.pools;
 
-  console.log('2Mos5YWjtdeYv3ZpUnGfDj6Z1Keo1KuvdbU7M2XTXz1siSw7jPUv2xQjkFxfs9fVgqC3wedVfHTnqW4JoLzp5ZRc'.length);
-
   // readline
   for (const poolConfig of poolConfigs) {
     console.log(`\nStart time: ${new Date(poolConfig.startTime * 1000)}`);
     console.log(poolConfig);
 
-    if (await ask('\n\nShould we create this vesting?\n')) {
+    if (await ask('\n\nShould we create this vesting?')) {
       console.log('Lets go!');
 
       // public keys
@@ -55,7 +53,7 @@ async function main() {
         .rpc();
       console.log(`Done!\n${solanaExplorer(tx)}`);
 
-      if (await ask('\n\nShould we fill the vesting?\n')) {
+      if (await ask('\n\nShould we fill the vesting?')) {
         console.log('Filling pool');
         tx = await transfer(
           provider.connection,
