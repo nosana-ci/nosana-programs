@@ -27,7 +27,7 @@ function getNewJobKey(mochaContext: Context) {
 
 export default function suite() {
   afterEach(async function () {
-    if (this.marketClosed) return;
+    if (!this.exists.market) return;
     expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
     expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob);
 
@@ -53,7 +53,7 @@ export default function suite() {
         this.jobsProgram.programId
       );
       this.vaults.jobs = this.accounts.vault;
-      this.marketClosed = false;
+      this.exists.market = true;
 
       await this.jobsProgram.methods
         .open(
@@ -592,7 +592,7 @@ export default function suite() {
 
     it('can close the market', async function () {
       await this.jobsProgram.methods.close().accounts(this.accounts).rpc();
-      this.marketClosed = true;
+      this.exists.market = false;
     });
   });
 }

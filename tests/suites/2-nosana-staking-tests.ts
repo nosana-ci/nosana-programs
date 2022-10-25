@@ -1,12 +1,23 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import { calculateXnos, getTokenBalance, sleep } from '../utils';
+import { beforeEach } from 'mocha';
 
 export default function suite() {
+  beforeEach(async function () {
+    if (this.exists.stake) {
+      this.userBalanceBefore = await getTokenBalance(this.provider, this.accounts.user);
+      this.vaultBalanceBefore = await getTokenBalance(this.provider, this.accounts.vault);
+    }
+  });
+
   afterEach(async function () {
-    if (this.stakeClosed) return;
-    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
-    expect(await getTokenBalance(this.provider, this.accounts.vault)).to.equal(this.balances.vaultStaking);
+    if (this.exists.stake) {
+      this.userBalanceAfter = await getTokenBalance(this.provider, this.accounts.user);
+      this.vaultBalanceAfter = await getTokenBalance(this.provider, this.accounts.vault);
+      expect(this.userBalanceAfter).to.equal(this.balances.user, 'user');
+      expect(this.vaultBalanceAfter).to.equal(this.balances.vaultStaking, 'vault');
+    }
   });
 
   describe('init()', async function () {
@@ -54,7 +65,7 @@ export default function suite() {
         .rpc();
       this.balances.user -= this.constants.stakeMinimum;
       this.balances.vaultStaking += this.constants.stakeMinimum;
-      this.stakeClosed = false;
+      this.exists.stake = true;
 
       // test stake
       const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
@@ -68,7 +79,7 @@ export default function suite() {
       );
     });
 
-    it('can stake maximum', async function () {
+    it('can stake maximum for user 4', async function () {
       await this.stakingProgram.methods
         .stake(new anchor.BN(this.constants.stakeAmount), new anchor.BN(this.constants.stakeDurationMax))
         .accounts({
@@ -81,7 +92,6 @@ export default function suite() {
         .signers([this.users.user4.user])
         .rpc();
       this.users.user4.balance -= this.constants.stakeAmount;
-      this.balances.vaultStaking += this.constants.stakeAmount;
     });
 
     it('can stake for node 1', async function () {
@@ -98,7 +108,6 @@ export default function suite() {
         .signers([this.users.node1.user])
         .rpc();
       this.users.node1.balance -= amount;
-      this.balances.vaultStaking += amount;
     });
 
     it('can stake for node 2, and unstake', async function () {
@@ -124,7 +133,6 @@ export default function suite() {
         .signers([this.users.node2.user])
         .rpc();
       this.users.node2.balance -= this.constants.minimumNodeStake;
-      this.balances.vaultStaking += this.constants.minimumNodeStake;
     });
 
     it('can stake for other nodes', async function () {
@@ -140,7 +148,6 @@ export default function suite() {
           })
           .signers([node.user])
           .rpc();
-        this.balances.vaultStaking += this.constants.stakeAmount * 2;
         node.balance -= this.constants.stakeAmount * 2;
         expect(await getTokenBalance(this.provider, node.ata)).to.equal(node.balance);
       }
@@ -322,8 +329,19 @@ export default function suite() {
     });
 
     it('can withdraw during unstake', async function () {
-      await sleep(10);
+      await sleep(5);
       await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
+
+      const balanceAfter = await getTokenBalance(this.provider, this.accounts.user);
+      expect(balanceAfter).to.be.greaterThan(this.userBalanceBefore);
+
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      expect(stake.amount.toNumber()).to.equal(this.balances.vaultStaking);
+
+      const withDraw = balanceAfter - this.userBalanceBefore;
+
+      this.balances.user += withDraw;
+      this.balances.vaultStaking -= withDraw;
     });
   });
 
@@ -341,7 +359,6 @@ export default function suite() {
         .rpc();
 
       this.balances.user += this.constants.slashAmount;
-      this.balances.vaultStaking -= this.constants.slashAmount;
       const stakeAfter = await this.stakingProgram.account.stakeAccount.fetch(this.users.nodes[2].stake);
       expect(stakeAfter.amount.toNumber()).to.equal(stakeBefore.amount.toNumber() - this.constants.slashAmount);
     });
@@ -389,7 +406,6 @@ export default function suite() {
         .rpc();
 
       this.balances.user += this.constants.slashAmount;
-      this.balances.vaultStaking -= this.constants.slashAmount;
     });
 
     it('can update settings authority back', async function () {

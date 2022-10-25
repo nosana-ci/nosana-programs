@@ -23,7 +23,7 @@ import rewardScenario from './suites/scenario/rewards-tests';
 import claimTransferScenario from './suites/scenario/claim-transfer-tests';
 
 // types
-import { NosanaAccounts, NosanaMarket, NosanaVaults } from './types/nosana';
+import { NosanaAccounts, NosanaExists, NosanaMarket, NosanaVaults } from './types/nosana';
 
 // run
 describe('nosana programs', async function () {
@@ -60,9 +60,9 @@ describe('nosana programs', async function () {
     this.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
     this.nodes = { node1: null, node2: null, otherNodes: null };
     this.balances = { user: 0, beneficiary: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
-    this.stakeClosed = true;
-    this.poolClosed = true;
-    this.marketClosed = true;
+
+    this.exists = {} as NosanaExists;
+    this.exists.stake = false;
 
     // token vaults public keys
     this.vaults = {} as NosanaVaults;

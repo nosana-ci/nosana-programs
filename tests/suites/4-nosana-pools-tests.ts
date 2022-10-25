@@ -37,7 +37,7 @@ async function getPool(mochaContext: Context) {
  */
 export default function suite() {
   beforeEach(async function () {
-    if (!this.poolClosed) this.poolsBalanceBefore = await getTokenBalance(this.provider, this.vaults.pools);
+    if (this.exists.pool) this.poolsBalanceBefore = await getTokenBalance(this.provider, this.vaults.pools);
     this.rewardsBalanceBefore = await getTokenBalance(this.provider, this.vaults.rewards);
   });
 
@@ -58,7 +58,7 @@ export default function suite() {
       this.accounts.pool = throwAwayKeypair.publicKey;
       this.vaults.pools = await pda([utf8.encode('vault'), this.accounts.pool.toBuffer()], this.poolsProgram.programId);
       this.accounts.vault = this.vaults.pools;
-      this.poolClosed = false;
+      this.exists.pool = true;
 
       // start pool 3 second ago
       const startTime = now() - 3;
@@ -130,7 +130,7 @@ export default function suite() {
       await this.poolsProgram.methods.close().accounts(this.accounts).rpc();
       this.balances.user += amount;
       this.balances.vaultPool -= amount;
-      this.poolClosed = true;
+      this.exists.pool = false;
     });
   });
 }

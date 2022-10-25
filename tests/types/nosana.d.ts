@@ -21,6 +21,12 @@ type NosanaTotals = {
   rate: BN;
 };
 
+type NosanaExists = {
+  stake: boolean;
+  pool: boolean;
+  market: boolean;
+};
+
 type NosanaVaults = {
   staking: PublicKey;
   rewards: PublicKey;
