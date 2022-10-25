@@ -1,15 +1,16 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import { calculateXnos, getTokenBalance } from '../utils';
+import { calculateXnos, getTokenBalance, sleep } from '../utils';
 
 export default function suite() {
   afterEach(async function () {
+    if (this.stakeClosed) return;
     expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
+    expect(await getTokenBalance(this.provider, this.accounts.vault)).to.equal(this.balances.vaultStaking);
   });
 
   describe('init()', async function () {
     it('can initialize', async function () {
-      this.accounts.vault = this.vaults.staking;
       await this.stakingProgram.methods.init().accounts(this.accounts).rpc();
     });
   });
@@ -17,6 +18,7 @@ export default function suite() {
   describe('stake()', async function () {
     it('can not stake too short', async function () {
       let msg = '';
+      this.accounts.vault = this.vaults.staking;
       await this.stakingProgram.methods
         .stake(new anchor.BN(this.constants.stakeAmount), new anchor.BN(this.constants.stakeDurationMin - 1))
         .accounts(this.accounts)
@@ -52,6 +54,7 @@ export default function suite() {
         .rpc();
       this.balances.user -= this.constants.stakeMinimum;
       this.balances.vaultStaking += this.constants.stakeMinimum;
+      this.stakeClosed = false;
 
       // test stake
       const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
@@ -311,6 +314,17 @@ export default function suite() {
     });
 
      */
+  });
+
+  describe('withdraw()', async function () {
+    it('can unstake', async function () {
+      await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
+    });
+
+    it('can withdraw during unstake', async function () {
+      await sleep(10);
+      await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
+    });
   });
 
   describe('slash(), update_authority()', async function () {

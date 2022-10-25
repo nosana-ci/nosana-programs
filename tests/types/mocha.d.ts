@@ -43,6 +43,7 @@ declare module 'mocha' {
     total: NosanaTotals;
     balances: NosanaBalances;
     market: NosanaMarket;
+    stakeClosed: boolean;
     marketClosed: boolean;
     poolClosed: boolean;
 

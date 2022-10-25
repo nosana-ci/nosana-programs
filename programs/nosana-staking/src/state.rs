@@ -75,10 +75,12 @@ impl StakeAccount {
     }
 
     pub fn withdraw(&self, balance: u64, now: i64) -> u64 {
-        (u64::try_from(now - self.time_unstake).unwrap()) // time that has passed since unstake
-            / self.duration // fraction of total unstake duration
-            * self.amount // number of tokens that may be withdrawn from total amount
-            - (self.amount - balance) // minus the number of tokens that have been withdrawn already
+        std::cmp::min(
+            (u64::try_from(now - self.time_unstake).unwrap()) * NOS_DECIMALS / self.duration,
+            NOS_DECIMALS,
+        ) * self.amount
+            / NOS_DECIMALS
+            - (self.amount - balance)
     }
 
     pub fn topup(&mut self, amount: u64) {

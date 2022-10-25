@@ -60,7 +60,9 @@ describe('nosana programs', async function () {
     this.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
     this.nodes = { node1: null, node2: null, otherNodes: null };
     this.balances = { user: 0, beneficiary: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
+    this.stakeClosed = true;
     this.poolClosed = true;
+    this.marketClosed = true;
 
     // token vaults public keys
     this.vaults = {} as NosanaVaults;
@@ -81,7 +83,6 @@ describe('nosana programs', async function () {
     this.market.nodeStakeMinimum = this.constants.minimumNodeStake;
     this.market.queueType = this.constants.queueType.unknown;
     this.market.queueLength = 0;
-    this.marketClosed = true;
 
     // public keys to be used in the instructions
     this.accounts = {} as NosanaAccounts;

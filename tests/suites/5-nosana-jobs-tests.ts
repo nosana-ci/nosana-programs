@@ -107,7 +107,7 @@ export default function suite() {
       this.market.queueType = this.constants.queueType.unknown;
     });
 
-    it('can fetch the craeted run account', async function () {
+    it('can fetch the created run account', async function () {
       const run = await this.jobsProgram.account.runAccount.fetch(this.accounts.run);
       expect(run.node.toString()).to.equal(this.accounts.authority.toString());
       expect(run.job.toString()).to.equal(this.accounts.job.toString());
