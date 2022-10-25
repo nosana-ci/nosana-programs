@@ -1,16 +1,16 @@
 import * as anchor from '@project-serum/anchor';
-import MintKey = require('./keys/devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP.json');
-import DummyKey = require('./keys/dumQVNHZ1KNcLmzjMaDPEA5vFCzwHEEcQmZ8JHmmCNH.json');
-import { createMint, createAssociatedTokenAccount, mintTo } from '@solana/spl-token';
+import { AnchorProvider, BN, Idl, Program, setProvider, Wallet } from '@project-serum/anchor';
+import { createAssociatedTokenAccount, createMint, mintTo } from '@solana/spl-token';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Context } from 'mocha';
-import { AnchorProvider, BN, Idl, Program, setProvider, Wallet } from '@project-serum/anchor';
 import { expect } from 'chai';
 import { createInterface } from 'readline';
-import _ = require('lodash');
 import { JobsProgram, PoolsProgram, RewardsProgram, StakingProgram } from './types/nosana';
 import { constants } from './contstants';
+import MintKey = require('./keys/devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP.json');
+import DummyKey = require('./keys/dumQVNHZ1KNcLmzjMaDPEA5vFCzwHEEcQmZ8JHmmCNH.json');
+import _ = require('lodash');
 
 /**
  *
@@ -18,8 +18,7 @@ import { constants } from './contstants';
  */
 async function setupProgram(address: PublicKey) {
   const idl = (await Program.fetchIdl(address.toString())) as Idl;
-  const program = new Program(idl, address);
-  return program;
+  return new Program(idl, address);
 }
 
 /**
@@ -36,7 +35,7 @@ async function setupAnchorAndPrograms() {
     staking: (await setupProgram(constants.stakingProgramAddress)) as unknown as StakingProgram,
     rewards: (await setupProgram(constants.rewardsProgramAddress)) as unknown as RewardsProgram,
     pools: (await setupProgram(constants.poolsProgramAddress)) as unknown as PoolsProgram,
-    jobs: (await setupProgram(constants.stakingProgramAddress)) as unknown as JobsProgram,
+    jobs: (await setupProgram(constants.jobsProgramAddress)) as unknown as JobsProgram,
   };
 
   return {
