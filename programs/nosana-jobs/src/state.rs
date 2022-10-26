@@ -8,6 +8,7 @@ use std::mem::size_of;
  * Accounts
  */
 
+/// The `MarketAccount` struct holds all the information about jobs and the nodes queue.
 #[account]
 pub struct MarketAccount {
     pub authority: Pubkey,
@@ -146,6 +147,7 @@ impl MarketAccount {
     }
 }
 
+/// The `JobAccount` struct holds all the information about any individual jobs.
 #[account]
 pub struct JobAccount {
     pub ipfs_job: [u8; 32],
@@ -198,6 +200,7 @@ impl JobAccount {
     }
 }
 
+/// The `RunAccount` struct holds temporary information that matches nodes to jobs.
 #[account]
 pub struct RunAccount {
     pub job: Pubkey,
