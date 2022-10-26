@@ -324,12 +324,14 @@ export default function suite() {
   });
 
   describe('withdraw()', async function () {
-    it('can unstake', async function () {
-      await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
-    });
+    it('can withdraw after unstake', async function () {
+      const seconds = 10; // increase this number get a higher test reliability
+      const duration = this.constants.stakeDurationMin * 2 + 7;
+      const emission = this.balances.vaultStaking / duration;
+      const expectedWithdraw = Math.floor(emission * seconds);
 
-    it('can withdraw during unstake', async function () {
-      await sleep(5);
+      await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
+      await sleep(seconds);
       await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
 
       const balanceAfter = await getTokenBalance(this.provider, this.accounts.user);
@@ -337,8 +339,30 @@ export default function suite() {
 
       const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
       expect(stake.amount.toNumber()).to.equal(this.balances.vaultStaking);
+      expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum + this.constants.stakeAmount);
+      expect(stake.duration.toNumber()).to.equal(duration, 'duration');
 
       const withDraw = balanceAfter - this.userBalanceBefore;
+      expect(withDraw).to.be.closeTo(expectedWithdraw, 0, 'withdraw'); // we allow 0 second error
+
+      this.balances.user += withDraw;
+      this.balances.vaultStaking -= withDraw;
+    });
+
+    it('can withdraw a second time', async function () {
+      const seconds = 10; // increase this number get a higher test reliability
+      const duration = this.constants.stakeDurationMin * 2 + 7;
+      const emission = this.balances.vaultStaking / duration;
+      const expectedWithdraw = Math.floor(emission * seconds);
+
+      await sleep(seconds);
+      await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
+
+      const balanceAfter = await getTokenBalance(this.provider, this.accounts.user);
+      expect(balanceAfter).to.be.greaterThan(this.userBalanceBefore);
+
+      const withDraw = balanceAfter - this.userBalanceBefore;
+      expect(withDraw).to.be.closeTo(expectedWithdraw, emission, 'withdraw'); // we allow 1 second error
 
       this.balances.user += withDraw;
       this.balances.vaultStaking -= withDraw;
