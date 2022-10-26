@@ -327,7 +327,8 @@ export default function suite() {
     it('can withdraw after unstake', async function () {
       const seconds = 10; // increase this number get a higher test reliability
       const duration = this.constants.stakeDurationMin * 2 + 7;
-      const emission = this.balances.vaultStaking / duration;
+      const amount = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).amount.toNumber();
+      const emission = amount / duration;
       const expectedWithdraw = Math.floor(emission * seconds);
 
       await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
@@ -343,7 +344,7 @@ export default function suite() {
       expect(stake.duration.toNumber()).to.equal(duration, 'duration');
 
       const withDraw = balanceAfter - this.userBalanceBefore;
-      expect(withDraw).to.be.closeTo(expectedWithdraw, 0, 'withdraw'); // we allow 0 second error
+      expect(withDraw).to.be.closeTo(expectedWithdraw, emission, 'withdraw'); // we allow 0 second error
 
       this.balances.user += withDraw;
       this.balances.vaultStaking -= withDraw;
@@ -352,7 +353,8 @@ export default function suite() {
     it('can withdraw a second time', async function () {
       const seconds = 10; // increase this number get a higher test reliability
       const duration = this.constants.stakeDurationMin * 2 + 7;
-      const emission = this.balances.vaultStaking / duration;
+      const amount = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).amount.toNumber();
+      const emission = amount / duration;
       const expectedWithdraw = Math.floor(emission * seconds);
 
       await sleep(seconds);
