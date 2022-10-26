@@ -27,8 +27,7 @@ const program = new Program(idl, programId);
 
 ### Init
 
-The `init()` instruction initializes the [SettingsAccount](#settings-account)
-of the Nosana Staking program.
+Initialize the [SettingsAccount](#settings-account).
 
 #### Account Info
 
@@ -72,10 +71,8 @@ let tx = await program.methods
 
 ### Stake
 
-The `stake()` instruction creates a new stake [StakeAccount](#stake-account)
-for the authority. It initializes a unique [VaultAccount](#vault-account) for the staker.
-It transfers `amount` of [NOS](/tokens/token) tokens from user to the vault locked for
-duration seconds of time. The stake and vault account is a PDA based on the authority.
+Create a [StakeAccount](#stake-account) and [VaultAccount](#vault-account).
+Stake `amount` of [NOS](/tokens/token) tokens for `duration` fo seconds.
 
 #### Account Info
 
@@ -139,7 +136,7 @@ let tx = await program.methods
 
 ### Unstake
 
-The `unstake()` instruction will initiate the unstake delay.
+Start the unstake duration.
 
 #### Account Info
 
@@ -181,8 +178,7 @@ let tx = await program.methods
 
 ### Restake
 
-The `restake()` instruction undoes an unstake.
-This will make a stake active again and reset the unstake time.
+Make a stake active again and reset the unstake time.
 
 #### Account Info
 
@@ -222,8 +218,7 @@ let tx = await program.methods
 
 ### Topup
 
-The `topup()` instruction performs a top-up of an existing stake.
-An `amount` of NOS is transferred to the vault and the stake is update.
+Top-up `amount` of [NOS](/tokens/token) of a [StakeAccount](#stake-account).
 
 #### Account Info
 
@@ -279,8 +274,7 @@ let tx = await program.methods
 
 ### Extend
 
-The `extend()` instruction extends the duration of a stake.
-The duration can only be increased which will result in a higher `xnos`.
+Extend the `duration` of a [StakeAccount](#stake-account).
 
 #### Account Info
 
@@ -378,10 +372,8 @@ let tx = await program.methods
 
 ### Slash
 
-The `slash()` instruction reduces a stake's NOS tokens. This can only be done by the
-Slashing Authority declared in [SettingsAccount](#settings-account) authority. The tokens
-are be sent to the [SettingsAccount](#settings-account) tokenAccount account.
-
+Reduces a [StakeAccount](#stake-account)'s  [NOS](/tokens/token) tokens.
+This can only be done by the Slashing Authority.
 Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
 #### Account Info
@@ -440,8 +432,7 @@ let tx = await program.methods
 
 ### Update Settings
 
-The `updateSettings()` instruction sets the Slashing Authority to a new account. It also
-sets the token account to a `tokenAccount`. This may be done by the current `authority`.
+Update the Slashing Authority and Token Account.
 
 #### Account Info
 

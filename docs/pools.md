@@ -27,8 +27,7 @@ const program = new Program(idl, programId);
 
 ### Open
 
-The `open()` instruction lets you open a Nosana Pool's [PoolAccount](#pool-account)
-and [VaultAccount](#vault-account).
+Open a [PoolAccount](#pool-account) and [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -96,8 +95,7 @@ let tx = await program.methods
 
 ### Claim Fee
 
-The `claimFee()` instruction claims emissions from a Nosana Pool with claim type
-[`1`](#claim-type), and adds these as fees to the [Rewards Program](/programs/rewards).
+Add fees from a [PoolAccount](#pool-account) with claim type [`1`](#claim-type)
 
 #### Account Info
 
@@ -147,8 +145,7 @@ let tx = await program.methods
 
 ### Claim Transfer
 
-The `claimTransfer()` instruction claims emissions from a Nosana Pool
-with claim type [`0`](#claim-type), and transfer these to a given user.
+Claim emission from a [PoolAccount](#pool-account) with claim type [`0`](#claim-type)
 
 #### Account Info
 
@@ -194,8 +191,7 @@ let tx = await program.methods
 
 ### Close
 
-The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
-and [VaultAccount](#vault-account).
+Close a [PoolAccount](#pool-account) and [VaultAccount](#vault-account).
 
 #### Account Info
 

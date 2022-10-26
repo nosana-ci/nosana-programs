@@ -27,8 +27,7 @@ const program = new Program(idl, programId);
 
 ### Open
 
-The `open()` instruction initializes a [MarketAccount](#market-account)
-and [VaultAccount](#vault-account).
+Initialize a [MarketAccount](#market-account) and [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -98,7 +97,7 @@ let tx = await program.methods
 
 ### Update
 
-The `update()` instruction updates a [MarketAccount](#market-account) configurations.
+Update a [MarketAccount](#market-account)'s configurations.
 
 #### Account Info
 
@@ -158,8 +157,7 @@ let tx = await program.methods
 
 ### Close
 
-The `close()` instruction closes a [MarketAccount](#market-account) and the
-associated [VaultAccount](#vault-account). The vault has to be empty of tokens.
+Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -205,8 +203,7 @@ let tx = await program.methods
 
 ### List
 
-The `list()` instruction lists a job, with its required data.
-When there is a job available, a [RunAccount](#run-account) will automatically be created.
+Create a [JobAccount](#job-account) and optional [RunAccount](#run-account).
 
 #### Account Info
 
@@ -276,7 +273,7 @@ let tx = await program.methods
 
 ### Recover
 
-The `recover()` instruction recovers funds from a jobs that has been [Quit](#quit)'ed.
+Recover funds from a [JobAccount](#job-account) that has been [quit](#quit).
 
 #### Account Info
 
@@ -326,9 +323,7 @@ let tx = await program.methods
 
 ### Work
 
-With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
-When there is a job available, a [RunAccount](#run-account) will automatically be created.
-The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/staking).
+Enters the [MarketAccount](#market-account) queue, or create  a [RunAccount](#run-account).
 
 #### Account Info
 
@@ -380,8 +375,7 @@ let tx = await program.methods
 
 ### Stop
 
-With the `stop()` instruction a node exits the node queue from a
-[MarketAccount](#market-account).
+Exit the node queue from [MarketAccount](#market-account).
 
 #### Account Info
 
@@ -421,8 +415,7 @@ let tx = await program.methods
 
 ### Claim
 
-With the `claim()` instruction a node claims a job that is [stopped](#stop).
-The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/stake).
+Claim a job that is [stopped](#stop).
 
 #### Account Info
 
@@ -476,8 +469,7 @@ let tx = await program.methods
 
 ### Finish
 
-With the `finish()` instruction a node can can post the result for a job it has finished,
-and be reimbursed for the work.
+Post the result for a  [JobAccount](#job-account) to finish it and get paid.
 
 #### Account Info
 
@@ -539,7 +531,7 @@ let tx = await program.methods
 
 ### Quit
 
-With the `quit()` instruction a node can quit a job that it has started.
+Quit a [JobAccount](#job-account) that you have started.
 
 #### Account Info
 
@@ -583,8 +575,7 @@ let tx = await program.methods
 
 ### Clean
 
-The `clean()` instruction closes an [JobAccount](#job-account).
-The job has be finished and the job expiration time has to be exceeded.
+Close an [JobAccount](#job-account).
 
 #### Account Info
 

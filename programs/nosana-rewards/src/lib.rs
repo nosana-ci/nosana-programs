@@ -15,33 +15,32 @@ declare_id!(id::REWARDS_PROGRAM);
 pub mod nosana_rewards {
     use super::*;
 
-    /// The `init()` instruction initializes the [ReflectionAccount](#reflection-account)
-    /// and [VaultAccount](#vault-account).
+    /// Initialize the [ReflectionAccount](#reflection-account) and [VaultAccount](#vault-account).
     pub fn init(ctx: Context<Init>) -> Result<()> {
         ctx.accounts.handler(*ctx.bumps.get("vault").unwrap())
     }
 
-    /// The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account).
+    /// Initialize a [RewardsAccount](#rewards-account).
     pub fn enter(ctx: Context<Enter>) -> Result<()> {
         ctx.accounts.handler(*ctx.bumps.get("reward").unwrap())
     }
 
-    /// The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-account).
+    /// Send [NOS](/tokens/token) to the [VaultAccount](#vault-account).
     pub fn add_fee(ctx: Context<AddFee>, amount: u64) -> Result<()> {
         ctx.accounts.handler(amount)
     }
 
-    /// The `claim()` instruction sends a user's rewards to a given wallet.
+    /// Claim rewards from a [RewardsAccount](#rewards-account) and [VaultAccount](#vault-account).
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// The `sync()` instruction re-calculates a users' reflection points.
+    /// Re-calculate reflection points.
     pub fn sync(ctx: Context<Sync>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
+    /// Close a [RewardsAccount](#rewards-account).
     pub fn close(ctx: Context<Close>) -> Result<()> {
         ctx.accounts.handler()
     }

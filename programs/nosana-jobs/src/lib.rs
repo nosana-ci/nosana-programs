@@ -22,8 +22,7 @@ pub mod nosana_jobs {
      Admin Instructions
     */
 
-    /// The `open()` instruction initializes a [MarketAccount](#market-account)
-    /// and [VaultAccount](#vault-account).
+    /// Initialize a [MarketAccount](#market-account) and [VaultAccount](#vault-account).
     pub fn open(
         ctx: Context<Open>,
         job_expiration: i64,
@@ -42,7 +41,7 @@ pub mod nosana_jobs {
         )
     }
 
-    /// The `update()` instruction updates a [MarketAccount](#market-account) configurations.
+    /// Update a [MarketAccount](#market-account)'s configurations.
     pub fn update(
         ctx: Context<Update>,
         job_expiration: i64,
@@ -60,8 +59,7 @@ pub mod nosana_jobs {
         )
     }
 
-    /// The `close()` instruction closes a [MarketAccount](#market-account) and the
-    /// associated [VaultAccount](#vault-account). The vault has to be empty of tokens.
+    /// Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
     pub fn close(ctx: Context<Close>) -> Result<()> {
         ctx.accounts.handler()
     }
@@ -70,13 +68,12 @@ pub mod nosana_jobs {
      Project Instructions
     */
 
-    /// The `list()` instruction lists a job, with its required data.
-    /// When there is a job available, a [RunAccount](#run-account) will automatically be created.
+    /// Create a [JobAccount](#job-account) and optional [RunAccount](#run-account).
     pub fn list(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
         ctx.accounts.handler(ipfs_job)
     }
 
-    /// The `recover()` instruction recovers funds from a jobs that has been [Quit](#quit)'ed.
+    /// Recover funds from a [JobAccount](#job-account) that has been [quit](#quit).
     pub fn recover(ctx: Context<Recover>) -> Result<()> {
         ctx.accounts.handler()
     }
@@ -85,32 +82,27 @@ pub mod nosana_jobs {
      Node Instructions
     */
 
-    /// With the `work()` instruction a node enters the [MarketAccount](#market-account) queue.
-    /// When there is a job available, a [RunAccount](#run-account) will automatically be created.
-    /// The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/staking).
+    /// Enters the [MarketAccount](#market-account) queue, or create  a [RunAccount](#run-account).
     pub fn work(ctx: Context<Work>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// With the `stop()` instruction a node exits the node queue from a
-    /// [MarketAccount](#market-account).
+    /// Exit the node queue from [MarketAccount](#market-account).
     pub fn stop(ctx: Context<Stop>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// With the `claim()` instruction a node claims a job that is [stopped](#stop).
-    /// The node needs to hold a [Burner Phone](/tokens/nft) and have [`xNOS`](/programs/stake).
+    /// Claim a job that is [stopped](#stop).
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// With the `finish()` instruction a node can can post the result for a job it has finished,
-    /// and be reimbursed for the work.
+    /// Post the result for a  [JobAccount](#job-account) to finish it and get paid.
     pub fn finish(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
         ctx.accounts.handler(ipfs_result)
     }
 
-    /// With the `quit()` instruction a node can quit a job that it has started.
+    /// Quit a [JobAccount](#job-account) that you have started.
     pub fn quit(ctx: Context<Quit>) -> Result<()> {
         ctx.accounts.handler()
     }
@@ -119,8 +111,7 @@ pub mod nosana_jobs {
      Other Instructions
     */
 
-    /// The `clean()` instruction closes an [JobAccount](#job-account).
-    /// The job has be finished and the job expiration time has to be exceeded.
+    /// Close an [JobAccount](#job-account).
     pub fn clean(ctx: Context<Clean>) -> Result<()> {
         ctx.accounts.handler()
     }

@@ -18,8 +18,7 @@ declare_id!(id::POOLS_PROGRAM);
 pub mod nosana_pools {
     use super::*;
 
-    /// The `open()` instruction lets you open a Nosana Pool's [PoolAccount](#pool-account)
-    /// and [VaultAccount](#vault-account).
+    /// Open a [PoolAccount](#pool-account) and [VaultAccount](#vault-account).
     pub fn open(
         ctx: Context<Open>,
         emission: u64,
@@ -36,20 +35,17 @@ pub mod nosana_pools {
         )
     }
 
-    /// The `claimFee()` instruction claims emissions from a Nosana Pool with claim type
-    /// [`1`](#claim-type), and adds these as fees to the [Rewards Program](/programs/rewards).
+    /// Add fees from a [PoolAccount](#pool-account) with claim type [`1`](#claim-type)
     pub fn claim_fee(ctx: Context<ClaimFee>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// The `claimTransfer()` instruction claims emissions from a Nosana Pool
-    /// with claim type [`0`](#claim-type), and transfer these to a given user.
+    /// Claim emission from a [PoolAccount](#pool-account) with claim type [`0`](#claim-type)
     pub fn claim_transfer(ctx: Context<ClaimTransfer>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// The `close()` instruction closes a Nosana Pool's [PoolAccount](#pool-account)
-    /// and [VaultAccount](#vault-account).
+    /// Close a [PoolAccount](#pool-account) and [VaultAccount](#vault-account).
     pub fn close(ctx: Context<Close>) -> Result<()> {
         ctx.accounts.handler()
     }

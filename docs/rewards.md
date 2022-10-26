@@ -27,8 +27,7 @@ const program = new Program(idl, programId);
 
 ### Init
 
-The `init()` instruction initializes the [ReflectionAccount](#reflection-account)
-and [VaultAccount](#vault-account).
+Initialize the [ReflectionAccount](#reflection-account) and [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -78,7 +77,7 @@ let tx = await program.methods
 
 ### Enter
 
-The `enter()` instruction initializes a user's [RewardsAccount](#rewards-account).
+Initialize a [RewardsAccount](#rewards-account).
 
 #### Account Info
 
@@ -124,7 +123,7 @@ let tx = await program.methods
 
 ### Add Fee
 
-The `addFee()` instruction sends amount of tokens to the [VaultAccount](#vault-account).
+Send [NOS](/tokens/token) to the [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -180,7 +179,7 @@ let tx = await program.methods
 
 ### Claim
 
-The `claim()` instruction sends a user's rewards to a given wallet.
+Claim rewards from a [RewardsAccount](#rewards-account) and [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -230,7 +229,7 @@ let tx = await program.methods
 
 ### Sync
 
-The `sync()` instruction re-calculates a users' reflection points.
+Re-calculate reflection points.
 
 #### Account Info
 
@@ -271,7 +270,7 @@ let tx = await program.methods
 
 ### Close
 
-The `close()` instruction closes a users' [RewardsAccount](#rewards-account).
+Close a [RewardsAccount](#rewards-account).
 
 #### Account Info
 
