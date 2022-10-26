@@ -8,4 +8,4 @@ pub mod writer;
 
 // expose NosanaError without the "errors::" prefix
 mod errors;
-pub use errors::*;
+pub use errors::NosanaError;

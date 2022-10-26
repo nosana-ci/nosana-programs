@@ -16,7 +16,7 @@ pub fn create_account<'info>(
     anchor_lang::system_program::create_account(
         CpiContext::new(system_program, CreateAccount { from, to }).with_signer(&[]),
         Rent::get()?.minimum_balance(space),
-        space as u64,
+        space.try_into().unwrap(),
         owner,
     )
 }
