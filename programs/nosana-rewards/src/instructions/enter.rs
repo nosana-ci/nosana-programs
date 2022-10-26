@@ -1,5 +1,5 @@
 use crate::*;
-use nosana_staking::StakeAccount;
+use nosana_staking::{NosanaStakingError, StakeAccount};
 
 #[derive(Accounts)]
 pub struct Enter<'info> {
@@ -7,7 +7,7 @@ pub struct Enter<'info> {
     pub reflection: Account<'info, ReflectionAccount>,
     #[account(
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked
+        constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(
@@ -23,17 +23,13 @@ pub struct Enter<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Enter>) -> Result<()> {
-    // get stake, reward, and stats account
-    let stake: &Account<StakeAccount> = &ctx.accounts.stake;
-    let reflection: &mut Account<ReflectionAccount> = &mut ctx.accounts.reflection;
-
-    // initialize the reward account
-    ctx.accounts.reward.init(
-        ctx.accounts.authority.key(),
-        *ctx.bumps.get("reward").unwrap(),
-        reflection.add_rewards_account(stake.xnos, 0),
-        stake.xnos,
-    );
-    Ok(())
+impl<'info> Enter<'info> {
+    pub fn handler(&mut self, bump: u8) -> Result<()> {
+        self.reward.init(
+            self.authority.key(),
+            bump,
+            self.reflection.add_rewards_account(self.stake.xnos, 0),
+            self.stake.xnos,
+        )
+    }
 }

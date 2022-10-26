@@ -1,12 +1,16 @@
+mod errors;
 mod instructions;
 mod macros;
 mod security;
 mod state;
+mod types;
 
 use anchor_lang::prelude::*;
+use errors::*;
 use instructions::*;
 use nosana_common::*;
 use state::*;
+use types::*;
 
 declare_id!(id::JOBS_PROGRAM);
 
@@ -26,7 +30,7 @@ pub mod nosana_jobs {
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
-        node_xnos_minimum: u64,
+        node_xnos_minimum: u128,
     ) -> Result<()> {
         ctx.accounts.handler(
             job_expiration,
@@ -45,7 +49,7 @@ pub mod nosana_jobs {
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
-        node_stake_minimum: u64,
+        node_stake_minimum: u128,
     ) -> Result<()> {
         ctx.accounts.handler(
             job_expiration,

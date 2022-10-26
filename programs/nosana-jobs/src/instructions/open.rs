@@ -32,7 +32,7 @@ impl<'info> Open<'info> {
         job_price: u64,
         job_timeout: i64,
         job_type: u8,
-        node_xnos_minimum: u64,
+        node_xnos_minimum: u128,
         vault_bump: u8,
     ) -> Result<()> {
         self.market.init(

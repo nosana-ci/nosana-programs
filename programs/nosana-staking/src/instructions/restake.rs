@@ -5,14 +5,14 @@ pub struct Restake<'info> {
     #[account(
         mut,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake != 0 @ NosanaError::StakeAlreadyStaked,
+        constraint = stake.time_unstake != 0 @ NosanaStakingError::AlreadyStaked,
     )]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Restake>) -> Result<()> {
-    // get stake account and restake stake
-    ctx.accounts.stake.unstake(0);
-    Ok(())
+impl<'info> Restake<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.stake.unstake(0)
+    }
 }

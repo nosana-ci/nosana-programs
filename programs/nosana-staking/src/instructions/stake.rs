@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_spl::token::{transfer, Mint, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
@@ -31,31 +31,32 @@ pub struct Stake<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
-    // test duration and amount
-    require!(duration >= DURATION_MIN, NosanaError::StakeDurationTooShort);
-    require!(duration <= DURATION_MAX, NosanaError::StakeDurationTooLong);
-    require!(amount >= STAKE_MINIMUM, NosanaError::StakeAmountNotEnough);
+impl<'info> Stake<'info> {
+    pub fn handler(&mut self, amount: u64, duration: u128, vault_bump: u8) -> Result<()> {
+        // test duration and amount
+        require!(
+            duration >= StakeAccount::DURATION_MIN,
+            NosanaStakingError::DurationTooShort
+        );
+        require!(
+            duration <= StakeAccount::DURATION_MAX,
+            NosanaStakingError::DurationTooLong
+        );
+        require!(
+            amount >= StakeAccount::STAKE_MINIMUM,
+            NosanaStakingError::AmountNotEnough
+        );
 
-    // get stake account and init stake
-    ctx.accounts.stake.init(
-        amount,
-        *ctx.accounts.authority.key,
-        u64::try_from(duration).unwrap(),
-        *ctx.accounts.vault.to_account_info().key,
-        *ctx.bumps.get("vault").unwrap(),
-    );
+        // get stake account and init stake
+        self.stake.init(
+            amount,
+            self.authority.key(),
+            duration.try_into().unwrap(),
+            self.vault.key(),
+            vault_bump,
+        );
 
-    // transfer tokens to the vault
-    transfer(
-        CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.user.to_account_info(),
-                to: ctx.accounts.vault.to_account_info(),
-                authority: ctx.accounts.authority.to_account_info(),
-            },
-        ),
-        amount,
-    )
+        // transfer tokens to the vault
+        transfer_tokens_to_vault!(self, amount)
+    }
 }

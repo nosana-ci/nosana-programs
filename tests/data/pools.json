@@ -1,9 +1,11 @@
-{
-  "amount": 1000,
-  "beneficiary": "9FwfFSqrzxMn9EX1Qqp8fDvdSgXsgozGAbpcYW76gJK",
+[
+  {
+  "amount": 10000,
+  "beneficiary": "SJoerdd5JYyrZ1AW3w3gmsm3C4obfwXdpyRhyodaHbF",
   "claimType": 0,
   "closeable": true,
-  "emission": 25367,
+  "emission": 367,
   "startTime": 1661780725,
   "mint": "devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP"
-}
+  }
+]

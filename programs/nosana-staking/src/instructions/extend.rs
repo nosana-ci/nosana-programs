@@ -5,26 +5,24 @@ pub struct Extend<'info> {
     #[account(
         mut,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
+        constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked,
     )]
     pub stake: Account<'info, StakeAccount>,
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Extend>, duration: u64) -> Result<()> {
-    // test duration
-    require!(duration > 0, NosanaError::StakeDurationTooShort);
+impl<'info> Extend<'info> {
+    pub fn handler(&mut self, duration: u64) -> Result<()> {
+        // test duration
+        require!(duration > 0, NosanaStakingError::DurationTooShort);
 
-    // get stake account
-    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
+        // test new duration
+        require!(
+            self.stake.duration + duration <= StakeAccount::DURATION_MAX.try_into().unwrap(),
+            NosanaStakingError::DurationTooLong
+        );
 
-    // test new duration
-    require!(
-        stake.duration + duration <= u64::try_from(DURATION_MAX).unwrap(),
-        NosanaError::StakeDurationTooLong
-    );
-
-    // extend stake
-    stake.extend(duration);
-    Ok(())
+        // extend stake
+        self.stake.extend(duration)
+    }
 }

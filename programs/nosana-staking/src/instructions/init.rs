@@ -16,8 +16,8 @@ pub struct Init<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<Init>) -> Result<()> {
-    // get settings account and init
-    ctx.accounts.settings.set(id::AUTHORITY, id::TOKEN_ACCOUNT);
-    Ok(())
+impl<'info> Init<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.settings.set(id::AUTHORITY, id::TOKEN_ACCOUNT)
+    }
 }

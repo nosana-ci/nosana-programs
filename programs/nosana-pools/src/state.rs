@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
 /***
- Accounts and Types
-*/
+ * Accounts
+ */
 
 /// The `PoolAccount` struct holds all the information for any given pool.
 #[account]
@@ -32,7 +32,7 @@ impl PoolAccount {
         start_time: i64,
         vault: Pubkey,
         vault_bump: u8,
-    ) {
+    ) -> Result<()> {
         self.authority = authority;
         self.beneficiary = beneficiary;
         self.claim_type = claim_type;
@@ -42,6 +42,7 @@ impl PoolAccount {
         self.start_time = start_time;
         self.vault = vault;
         self.vault_bump = vault_bump;
+        Ok(())
     }
 
     pub fn claim(&mut self, amount_available: u64, now: i64) -> u64 {
@@ -52,23 +53,5 @@ impl PoolAccount {
         self.claimed_tokens += amount;
 
         amount
-    }
-}
-
-/// The `ClaimType` of any pool describes the way withdraw ([claim](#claim)) works.
-#[repr(u8)]
-pub enum ClaimType {
-    Transfer = 0,
-    AddFee = 1,
-    Unknown = 255,
-}
-
-impl From<u8> for ClaimType {
-    fn from(job_type: u8) -> Self {
-        match job_type {
-            0 => ClaimType::Transfer,
-            1 => ClaimType::AddFee,
-            _ => ClaimType::Unknown,
-        }
     }
 }

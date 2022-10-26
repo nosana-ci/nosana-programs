@@ -201,7 +201,7 @@ export default function suite() {
         })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.StakeDoesNotMatchReward);
+      expect(msg).to.equal(this.constants.errors.InvalidAccount);
 
       await this.stakingProgram.methods
         .unstake()

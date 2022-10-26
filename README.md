@@ -23,7 +23,6 @@ Four Nosana programs can be found in this repository, together with the [Nosana 
 | [Nosana Rewards](https://docs.nosana.io/programs/rewards) | `nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp` | [✅](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp?cluster=devnet) | [✅](https://explorer.solana.com/address/nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp) |
 | [Nosana Pools](https://docs.nosana.io/programs/pools)     | `nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD` | [✅](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD?cluster=devnet) | [✅](https://explorer.solana.com/address/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD) |
 | [Nosana Jobs](https://docs.nosana.io/programs/jobs)       | `nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM` | [✅](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM?cluster=devnet) | [✅](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM) |
-| [Nosana Voting](https://docs.nosana.io/programs/voting)   | `tbd`                                         | ⛔️                                                                                                  | ⛔ ️                                                                                  |
 
 ## Audits
 

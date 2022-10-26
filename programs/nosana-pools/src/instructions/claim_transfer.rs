@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct ClaimTransfer<'info> {
@@ -9,9 +9,9 @@ pub struct ClaimTransfer<'info> {
     pub beneficiary: Account<'info, TokenAccount>,
     #[account(
         mut,
-        has_one = beneficiary @ NosanaError::PoolWrongBeneficiary,
-        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaError::PoolNotStarted,
-        constraint = pool.claim_type == ClaimType::Transfer as u8 @ NosanaError::PoolWrongClaimType,
+        has_one = beneficiary @ NosanaPoolsError::WrongBeneficiary,
+        constraint = Clock::get()?.unix_timestamp > pool.start_time @ NosanaPoolsError::NotStarted,
+        constraint = pool.claim_type == ClaimType::Transfer as u8 @ NosanaPoolsError::WrongClaimType,
     )]
     pub pool: Account<'info, PoolAccount>,
     #[account(mut)]
@@ -19,31 +19,17 @@ pub struct ClaimTransfer<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<ClaimTransfer>) -> Result<()> {
-    let pool: &mut Account<PoolAccount> = &mut ctx.accounts.pool;
-    let vault: &mut Account<TokenAccount> = &mut ctx.accounts.vault;
+impl<'info> ClaimTransfer<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        let amount: u64 = self
+            .pool
+            .claim(self.vault.amount, Clock::get()?.unix_timestamp);
 
-    let amount: u64 = pool.claim(vault.amount, Clock::get()?.unix_timestamp);
+        // TODO: the below is not a requirement anymore, can be removed?
+        // the pool must have enough funds for an emission
+        require!(amount >= self.pool.emission, NosanaPoolsError::Underfunded);
 
-    // TODO: the below is not a requirement anymore, can be removed?
-    // the pool must have enough funds for an emission
-    require!(amount >= pool.emission, NosanaError::PoolUnderfunded);
-
-    // transfer tokens from the vault back to the user
-    transfer(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: vault.to_account_info(),
-                to: ctx.accounts.beneficiary.to_account_info(),
-                authority: vault.to_account_info(),
-            },
-            &[&[
-                constants::PREFIX_VAULT.as_ref(),
-                pool.key().as_ref(),
-                &[pool.vault_bump],
-            ]],
-        ),
-        amount,
-    )
+        // transfer tokens from the vault back to the user
+        transfer_tokens_from_vault!(self, beneficiary, seeds!(self.pool), amount)
+    }
 }

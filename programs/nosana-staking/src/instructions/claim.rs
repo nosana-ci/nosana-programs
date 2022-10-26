@@ -1,19 +1,19 @@
 use crate::*;
-use anchor_spl::token::{close_account, transfer, CloseAccount, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, address = stake.vault @ NosanaError::InvalidTokenAccount)]
+    #[account(mut, address = stake.vault @ NosanaError::InvalidVault)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         close = authority,
         has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.time_unstake != 0 @ NosanaError::StakeNotUnstaked,
+        constraint = stake.time_unstake != 0 @ NosanaStakingError::NotUnstaked,
         constraint = stake.time_unstake + i64::try_from(stake.duration).unwrap() <
-            Clock::get()?.unix_timestamp @ NosanaError::StakeLocked,
+            Clock::get()?.unix_timestamp @ NosanaStakingError::Locked,
     )]
     pub stake: Account<'info, StakeAccount>,
     #[account(mut)]
@@ -21,38 +21,14 @@ pub struct Claim<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Claim>) -> Result<()> {
-    // get stake and compose seeds
-    let stake: &mut Account<StakeAccount> = &mut ctx.accounts.stake;
-    let seeds: &[&[u8]; 4] = &[
-        b"vault".as_ref(),
-        id::NOS_TOKEN.as_ref(),
-        stake.authority.as_ref(),
-        &[stake.vault_bump],
-    ];
-
-    // transfer tokens from the vault back to the user
-    transfer(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.vault.to_account_info(),
-                to: ctx.accounts.user.to_account_info(),
-                authority: ctx.accounts.vault.to_account_info(),
-            },
-            &[&seeds[..]],
-        ),
-        ctx.accounts.vault.amount,
-    )?;
-
-    // close the token vault
-    close_account(CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        CloseAccount {
-            account: ctx.accounts.vault.to_account_info(),
-            destination: ctx.accounts.authority.to_account_info(),
-            authority: ctx.accounts.vault.to_account_info(),
-        },
-        &[&seeds[..]],
-    ))
+impl<'info> Claim<'info> {
+    pub fn handler(&self) -> Result<()> {
+        transfer_tokens_from_vault!(
+            self,
+            user,
+            seeds!(self.stake, self.vault),
+            self.vault.amount
+        )?;
+        close_vault!(self, seeds!(self.stake, self.vault))
+    }
 }

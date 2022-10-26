@@ -2,8 +2,8 @@ use anchor_lang::prelude::*;
 use nosana_common::constants::NOS_TOTAL_SUPPLY;
 
 /***
- Accounts and Types
-*/
+ * Accounts
+ */
 
 /// The `ReflectionAccount` struct holds all the information on the reflection pool.
 #[account]
@@ -32,12 +32,13 @@ impl ReflectionAccount {
     pub const INITIAL_RATE: u128 = (u128::MAX - (u128::MAX % NOS_TOTAL_SUPPLY)) / NOS_TOTAL_SUPPLY;
     // pub const INITIAL_RATE: u128 = u128::pow(10, 15);
 
-    pub fn init(&mut self, vault: Pubkey, vault_bump: u8) {
+    pub fn init(&mut self, vault: Pubkey, vault_bump: u8) -> Result<()> {
         self.rate = ReflectionAccount::INITIAL_RATE;
         self.total_reflection = 0;
         self.total_xnos = 0;
         self.vault = vault;
         self.vault_bump = vault_bump;
+        Ok(())
     }
 
     pub fn migrate(
@@ -69,9 +70,10 @@ impl ReflectionAccount {
         reflection
     }
 
-    pub fn remove_rewards_account(&mut self, reflection: u128, xnos: u128) {
+    pub fn remove_rewards_account(&mut self, reflection: u128, xnos: u128) -> Result<()> {
         self.total_xnos -= xnos;
         self.total_reflection -= reflection;
+        Ok(())
     }
 }
 
@@ -87,16 +89,24 @@ pub struct RewardAccount {
 impl RewardAccount {
     pub const SIZE: usize = 8 + std::mem::size_of::<RewardAccount>();
 
-    pub fn init(&mut self, authority: Pubkey, bump: u8, reflection: u128, tokens: u128) {
+    pub fn init(
+        &mut self,
+        authority: Pubkey,
+        bump: u8,
+        reflection: u128,
+        tokens: u128,
+    ) -> Result<()> {
         self.authority = authority;
         self.bump = bump;
         self.reflection = reflection;
         self.xnos = tokens;
+        Ok(())
     }
 
-    pub fn update(&mut self, reflection: u128, xnos: u128) {
+    pub fn update(&mut self, reflection: u128, xnos: u128) -> Result<()> {
         self.reflection = reflection;
         self.xnos = xnos;
+        Ok(())
     }
 
     pub fn get_amount(&mut self, rate: u128) -> u128 {

@@ -1,11 +1,11 @@
 // @ts-ignore
-import nosanaJobs from '../target/idl/nosana_jobs.json';
+import NosanaJobs from '../target/idl/nosana_jobs.json';
 // @ts-ignore
-import nosanaPools from '../target/idl/nosana_pools.json';
+import NosanaPools from '../target/idl/nosana_pools.json';
 // @ts-ignore
-import nosanaRewards from '../target/idl/nosana_rewards.json';
+import NosanaRewards from '../target/idl/nosana_rewards.json';
 // @ts-ignore
-import nosanaStaking from '../target/idl/nosana_staking.json';
+import NosanaStaking from '../target/idl/nosana_staking.json';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import commandLineArgs from 'command-line-args';
 import { snakeCase } from 'snake-case';
@@ -228,7 +228,7 @@ class MarkdownTable {
  *
  */
 function main() {
-  for (const idl of [nosanaPools, nosanaJobs, nosanaRewards, nosanaStaking]) {
+  for (const idl of [NosanaPools, NosanaJobs, NosanaRewards, NosanaStaking]) {
     console.log(`Generating docs for ${title(idl.name)}`);
 
     // we're going to load all documentatation into this data array
@@ -352,7 +352,7 @@ function main() {
         'which can also be expressed as an 8 byte discriminator:',
         '',
         '```json',
-        `${options.enhance ? JSON.stringify([...dispatch], null, 2) : '[' + [...dispatch] + ']'}`,
+        `${'[' + [...dispatch] + ']'}`,
         '```',
         ''
       );
@@ -460,7 +460,7 @@ function main() {
         `are **\`${discriminator.toString('hex')}\`**, which can also be expressed in byte array:`,
         '',
         '```json',
-        `${options.enhance ? JSON.stringify([...discriminator], null, 2) : '[' + [...discriminator] + ']'}`,
+        `${'[' + [...discriminator] + ']'}`,
         '```',
         ''
       );

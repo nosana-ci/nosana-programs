@@ -10,10 +10,9 @@ pub struct Close<'info> {
     pub authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<Close>) -> Result<()> {
-    // decrease the reflection pool
-    ctx.accounts
-        .reflection
-        .remove_rewards_account(ctx.accounts.reward.reflection, ctx.accounts.reward.xnos);
-    Ok(())
+impl<'info> Close<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.reflection
+            .remove_rewards_account(self.reward.reflection, self.reward.xnos)
+    }
 }

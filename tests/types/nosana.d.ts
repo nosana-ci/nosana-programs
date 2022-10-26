@@ -1,5 +1,19 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
+import { Program } from '@project-serum/anchor';
+// @ts-ignore
+import { NosanaStaking } from '../../target/types/nosana_staking';
+// @ts-ignore
+import { NosanaPools } from '../../target/types/nosana_pools';
+// @ts-ignore
+import { NosanaJobs } from '../../target/types/nosana_jobs';
+// @ts-ignore
+import { NosanaRewards } from '../../target/types/nosana_rewards';
+
+type JobsProgram = Program<NosanaJobs>;
+type StakingProgram = Program<NosanaStaking>;
+type RewardsProgram = Program<NosanaRewards>;
+type PoolsProgram = Program<NosanaPools>;
 
 type NosanaTotals = {
   xnos: BN;

@@ -1,12 +1,12 @@
 use crate::*;
-use nosana_staking::StakeAccount;
+use nosana_staking::{NosanaStakingError, StakeAccount};
 
 #[derive(Accounts)]
 pub struct Sync<'info> {
     #[account(mut)]
     pub reward: Account<'info, RewardAccount>,
     #[account(
-        constraint = stake.time_unstake == 0 @ NosanaError::StakeAlreadyUnstaked,
+        constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked,
         constraint = stake.authority == reward.authority @ NosanaError::Unauthorized,
     )]
     pub stake: Account<'info, StakeAccount>,
@@ -14,19 +14,17 @@ pub struct Sync<'info> {
     pub reflection: Account<'info, ReflectionAccount>,
 }
 
-pub fn handler(ctx: Context<Sync>) -> Result<()> {
-    // get reward and stats account
-    let reward: &mut Account<RewardAccount> = &mut ctx.accounts.reward;
-    let reflection: &mut Account<ReflectionAccount> = &mut ctx.accounts.reflection;
+impl<'info> Sync<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        // decrease the reflection pool
+        self.reflection
+            .remove_rewards_account(self.reward.reflection, self.reward.xnos)?;
 
-    // decrease the reflection pool
-    reflection.remove_rewards_account(reward.reflection, reward.xnos);
-
-    // re-enter the pool with the current stake
-    let amount: u128 = reward.get_amount(reflection.rate);
-    reward.update(
-        reflection.add_rewards_account(ctx.accounts.stake.xnos, amount),
-        ctx.accounts.stake.xnos,
-    );
-    Ok(())
+        // re-enter the pool with the current stake
+        let amount: u128 = self.reward.get_amount(self.reflection.rate);
+        self.reward.update(
+            self.reflection.add_rewards_account(self.stake.xnos, amount),
+            self.stake.xnos,
+        )
+    }
 }

@@ -1,12 +1,12 @@
+use crate::{JobState, JobType, QueueType};
 use anchor_lang::prelude::*;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
-use nosana_common::writer::BpfWriter;
-use nosana_common::{id, utils};
+use nosana_common::{cpi, id, writer::BpfWriter};
 use std::mem::size_of;
 
 /***
- Accounts and Types
-*/
+ * Accounts
+ */
 
 /// The `MarketAccount` struct holds all the information about jobs and the nodes queue.
 #[account]
@@ -19,7 +19,7 @@ pub struct MarketAccount {
     pub vault: Pubkey,
     pub vault_bump: u8,
     pub node_access_key: Pubkey,
-    pub node_xnos_minimum: u64,
+    pub node_xnos_minimum: u128,
     pub queue_type: u8,
     pub queue: Vec<Pubkey>,
 }
@@ -27,7 +27,6 @@ pub struct MarketAccount {
 impl MarketAccount {
     pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Pubkey; 100]>();
     pub const JOB_FEE_FRACTION: u64 = 10;
-    pub const EXPIRATION: u64 = 10;
 
     #[allow(clippy::too_many_arguments)]
     pub fn init(
@@ -38,7 +37,7 @@ impl MarketAccount {
         job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
-        node_xnos_minimum: u64,
+        node_xnos_minimum: u128,
         vault: Pubkey,
         vault_bump: u8,
     ) -> Result<()> {
@@ -63,7 +62,7 @@ impl MarketAccount {
         job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
-        node_stake_minimum: u64,
+        node_stake_minimum: u128,
     ) -> Result<()> {
         self.job_expiration = job_expiration;
         self.job_price = job_price;
@@ -72,6 +71,10 @@ impl MarketAccount {
         self.node_access_key = node_access_key;
         self.node_xnos_minimum = node_stake_minimum;
         Ok(())
+    }
+
+    pub fn job_fee(&self) -> u64 {
+        self.job_price / MarketAccount::JOB_FEE_FRACTION
     }
 
     pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) -> Result<()> {
@@ -144,24 +147,6 @@ impl MarketAccount {
     }
 }
 
-/// The `QueueType` describes the type of queue
-#[repr(u8)]
-pub enum QueueType {
-    Job = 0,
-    Node = 1,
-    Empty = 255,
-}
-
-impl From<u8> for QueueType {
-    fn from(queue_type: u8) -> Self {
-        match queue_type {
-            0 => QueueType::Job,
-            1 => QueueType::Node,
-            _ => QueueType::Empty,
-        }
-    }
-}
-
 /// The `JobAccount` struct holds all the information about any individual jobs.
 #[account]
 pub struct JobAccount {
@@ -215,39 +200,6 @@ impl JobAccount {
     }
 }
 
-/// The `JobState` describes the status of a job.
-#[repr(u8)]
-pub enum JobState {
-    Queued = 0,
-    Running = 1,
-    Done = 2,
-    Stopped = 3,
-}
-
-/// The `JobType` describes the type of any job.
-#[repr(u8)]
-pub enum JobType {
-    Default = 0,
-    Small = 1,
-    Medium = 2,
-    Large = 3,
-    Gpu = 4,
-    Unknown = 255,
-}
-
-impl From<u8> for JobType {
-    fn from(job_type: u8) -> Self {
-        match job_type {
-            0 => JobType::Default,
-            1 => JobType::Small,
-            2 => JobType::Medium,
-            3 => JobType::Large,
-            4 => JobType::Gpu,
-            _ => JobType::Unknown,
-        }
-    }
-}
-
 /// The `RunAccount` struct holds temporary information that matches nodes to jobs.
 #[account]
 pub struct RunAccount {
@@ -261,7 +213,7 @@ pub struct RunAccount {
 impl RunAccount {
     pub const SIZE: usize = 8 + size_of::<RunAccount>();
 
-    fn from_account_info<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
+    fn from<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
         Account::try_from_unchecked(info).unwrap()
     }
 
@@ -280,25 +232,25 @@ impl RunAccount {
     }
 
     pub fn initialize<'info>(
-        account: AccountInfo<'info>,
         payer: AccountInfo<'info>,
+        run_account: AccountInfo<'info>,
         system_program: AccountInfo<'info>,
         job: Pubkey,
         node: Pubkey,
     ) -> Result<()> {
-        utils::cpi_create_account(
-            system_program.to_account_info(),
+        cpi::create_account(
+            system_program,
             payer.to_account_info(),
-            account.to_account_info(),
+            run_account.to_account_info(),
             RunAccount::SIZE,
             &id::JOBS_PROGRAM,
         )?;
 
         // deserialize and modify run account
-        let mut run: Account<RunAccount> = RunAccount::from_account_info(&account);
-        run.create(job, node, payer.key(), Clock::get().unwrap().unix_timestamp)?;
+        let mut run: Account<RunAccount> = RunAccount::from(&run_account);
+        run.create(job, node, payer.key(), Clock::get()?.unix_timestamp)?;
 
         // write
-        run.serialize(account)
+        run.serialize(run_account)
     }
 }

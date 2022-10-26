@@ -7,9 +7,9 @@ pub struct Recover<'info> {
         mut,
         close = payer,
         has_one = payer @ NosanaError::InvalidPayer,
-        has_one = market @ NosanaError::InvalidMarketAccount,
+        has_one = market @ NosanaJobsError::InvalidMarketAccount,
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
-        constraint = job.state == JobState::Stopped as u8 @ NosanaError::JobInWrongState,
+        constraint = job.state == JobState::Stopped as u8 @ NosanaJobsError::JobInWrongState,
     )]
     pub job: Account<'info, JobAccount>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
@@ -26,6 +26,6 @@ pub struct Recover<'info> {
 
 impl<'info> Recover<'info> {
     pub fn handler(&self) -> Result<()> {
-        transfer_tokens_to_user!(self, seeds!(self.market), self.job.price)
+        transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), self.job.price)
     }
 }

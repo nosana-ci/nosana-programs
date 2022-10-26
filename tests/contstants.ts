@@ -1,4 +1,5 @@
 import { BN } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
 
 const decimals = 1e6;
 const secondsPerDay = 24 * 60 * 60;
@@ -23,6 +24,11 @@ const constants = {
   jobTimeout: 5,
   jobExpiration: 5,
   initialRate,
+
+  stakingProgramAddress: new PublicKey('nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'),
+  rewardsProgramAddress: new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'),
+  poolsProgramAddress: new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD'),
+  jobsProgramAddress: new PublicKey('nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM'),
 
   // status options for jobs
   jobState: {
@@ -60,6 +66,7 @@ const constants = {
   errors: {
     // generic errors
     Unauthorized: 'This account is not authorized to perform this action.',
+    InvalidAccount: 'This account is not valid.',
     InvalidOwner: 'This account is owned by an invalid program.',
     InvalidTokenAccount: 'This token account is not valid.',
     InvalidMint: 'This mint is invalid.',
@@ -79,7 +86,7 @@ const constants = {
     StakeDoesNotExist: 'This stake account does not exist.',
     StakeDecreased: 'This stake is not allowed to decrease.',
     StakeHasReward: 'This stake still has a reward account.',
-    StakeDoesNotMatchReward: 'This stake does not match the reward account.',
+    InvalidStakeAccount: 'This stake does not belong to the authority.',
 
     // job errors
     JobInWrongState: 'This job does not have the right status.',

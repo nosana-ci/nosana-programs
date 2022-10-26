@@ -35,11 +35,8 @@ pub struct List<'info> {
 impl<'info> List<'info> {
     pub fn handler(&mut self, ipfs_job: [u8; 32]) -> Result<()> {
         // pay job and network fee
-        transfer_tokens_to_vault!(self, &[], self.market.job_price)?;
-        transfer_tokens_to_network!(
-            self,
-            self.market.job_price / MarketAccount::JOB_FEE_FRACTION
-        )?;
+        transfer_tokens_to_vault!(self, self.market.job_price)?;
+        transfer_fee!(self, user, authority, &[], self.market.job_fee())?;
 
         // create the job
         self.job.create(
@@ -54,13 +51,11 @@ impl<'info> List<'info> {
         match QueueType::from(self.market.queue_type) {
             QueueType::Job | QueueType::Empty => self.market.add_to_queue(self.job.key(), true),
             QueueType::Node => {
-                self.job.claim(
-                    self.market.pop_from_queue(),
-                    Clock::get().unwrap().unix_timestamp,
-                );
+                self.job
+                    .claim(self.market.pop_from_queue(), Clock::get()?.unix_timestamp);
                 RunAccount::initialize(
-                    self.run.to_account_info(),
                     self.payer.to_account_info(),
+                    self.run.to_account_info(),
                     self.system_program.to_account_info(),
                     self.job.key(),
                     self.job.node,
