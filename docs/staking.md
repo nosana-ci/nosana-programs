@@ -326,8 +326,7 @@ let tx = await program.methods
 
 ### Close
 
-The `close()` instruction will close the [StakeAccount](#stake-account)
-and empty [VaultAccount](#vault-account) of the staker.
+Close a [StakeAccount](#stake-account) and [VaultAccount](#vault-account).
 
 #### Account Info
 
@@ -373,7 +372,7 @@ let tx = await program.methods
 
 ### Withdraw
 
-The `withdraw()` instruction will transfer back released tokens
+Withdraw  [NOS](/tokens/token) that is released after an [unstake](#unstake)
 
 #### Account Info
 
@@ -419,8 +418,7 @@ let tx = await program.methods
 
 ### Slash
 
-Reduces a [StakeAccount](#stake-account)'s  [NOS](/tokens/token) tokens.
-This can only be done by the Slashing Authority.
+Reduce a [StakeAccount](#stake-account)'s [NOS](/tokens/token) tokens.
 Slashing is a feature used by the Nosana Protocol to punish bad actors.
 
 #### Account Info

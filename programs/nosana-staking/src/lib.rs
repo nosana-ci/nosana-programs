@@ -48,19 +48,17 @@ pub mod nosana_staking {
         ctx.accounts.handler(duration)
     }
 
-    /// The `close()` instruction will close the [StakeAccount](#stake-account)
-    /// and empty [VaultAccount](#vault-account) of the staker.
+    /// Close a [StakeAccount](#stake-account) and [VaultAccount](#vault-account).
     pub fn close(ctx: Context<Close>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// The `withdraw()` instruction will transfer back released tokens
+    /// Withdraw  [NOS](/tokens/token) that is released after an [unstake](#unstake)
     pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// Reduces a [StakeAccount](#stake-account)'s  [NOS](/tokens/token) tokens.
-    /// This can only be done by the Slashing Authority.
+    /// Reduce a [StakeAccount](#stake-account)'s [NOS](/tokens/token) tokens.
     /// Slashing is a feature used by the Nosana Protocol to punish bad actors.
     pub fn slash(ctx: Context<Slash>, amount: u64) -> Result<()> {
         ctx.accounts.handler(amount)
