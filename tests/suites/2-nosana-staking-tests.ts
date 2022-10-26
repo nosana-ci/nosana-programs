@@ -372,6 +372,10 @@ export default function suite() {
 
     it('can restake', async function () {
       await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
+
+      const amountStake = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).amount.toNumber();
+      const amountVault = await getTokenBalance(this.provider, this.accounts.vault);
+      expect(amountStake).to.equal(amountVault);
     });
   });
 

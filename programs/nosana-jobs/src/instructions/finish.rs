@@ -38,7 +38,7 @@ impl<'info> Finish<'info> {
             self,
             user,
             seeds!(self.market, self.vault),
-            self.vault.amount
+            self.job.price
         )
     }
 }

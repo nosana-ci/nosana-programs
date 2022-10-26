@@ -1,7 +1,7 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
 import { BN } from '@project-serum/anchor';
-import { calculateXnos, getTokenBalance, updateRewards } from '../utils';
+import { getTokenBalance, updateRewards } from '../utils';
 
 export default function suite() {
   afterEach(async function () {
@@ -116,12 +116,6 @@ export default function suite() {
         .rpc();
       this.balances.user -= this.constants.stakeAmount;
       this.balances.vaultStaking += this.constants.stakeAmount;
-      expect((await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).xnos.toNumber()).to.equal(
-        calculateXnos(
-          this.constants.stakeDurationMin * 2 + 7,
-          this.constants.stakeAmount * 2 + this.constants.stakeMinimum
-        )
-      );
     });
 
     it('can not sync reward reflection for wrong accounts', async function () {
@@ -143,12 +137,6 @@ export default function suite() {
       // test xnos before vs after
       expect(before.xnos.toNumber()).to.be.lessThan(after.xnos.toNumber());
       expect(after.xnos.toNumber()).to.equal(stake);
-      expect(after.xnos.toNumber()).to.equal(
-        calculateXnos(
-          this.constants.stakeDurationMin * 2 + 7,
-          this.constants.stakeAmount * 2 + this.constants.stakeMinimum
-        )
-      );
 
       // update totals
       this.total.xnos.iadd(after.xnos.sub(before.xnos));

@@ -44,7 +44,7 @@ export default function suite() {
   });
 
   describe('open()', async function () {
-    it('can open a market, vault, and dummy job', async function () {
+    it('can open a market and vault', async function () {
       const marketKey = anchor.web3.Keypair.generate();
       this.accounts.market = marketKey.publicKey;
       this.market.address = this.accounts.market;
@@ -353,11 +353,19 @@ export default function suite() {
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
     });
 
     it('can start working on it', async function () {
       const key = getRunKey(this);
       await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
     });
 
     it('can not quit a job for another node', async function () {

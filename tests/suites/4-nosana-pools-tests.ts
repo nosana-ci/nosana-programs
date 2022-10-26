@@ -43,7 +43,7 @@ export default function suite() {
 
   afterEach(async function () {
     expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user, 'user');
-    if (!this.poolClosed)
+    if (this.exists.pool)
       expect(await getTokenBalance(this.provider, this.vaults.pools)).to.equal(this.balances.vaultPool, 'vaultPool');
     expect(await getTokenBalance(this.provider, this.vaults.rewards)).to.equal(
       this.balances.vaultRewards,
