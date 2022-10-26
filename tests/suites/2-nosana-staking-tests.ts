@@ -369,6 +369,10 @@ export default function suite() {
       this.balances.user += withDraw;
       this.balances.vaultStaking -= withDraw;
     });
+
+    it('can restake', async function () {
+      await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
+    });
   });
 
   describe('slash(), update_authority()', async function () {
