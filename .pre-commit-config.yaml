@@ -9,4 +9,6 @@ repos:
     hooks:
       - id: fmt
       - id: cargo-check
+        args: [ --release ]
       - id: clippy
+        args: [ --release ]
