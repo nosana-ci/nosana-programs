@@ -1,15 +1,27 @@
 import * as anchor from '@project-serum/anchor';
 import { expect } from 'chai';
-import { calculateXnos, getTokenBalance } from '../utils';
+import { calculateXnos, getTokenBalance, sleep } from '../utils';
+import { beforeEach } from 'mocha';
 
 export default function suite() {
+  beforeEach(async function () {
+    if (this.exists.stake) {
+      this.userBalanceBefore = await getTokenBalance(this.provider, this.accounts.user);
+      this.vaultBalanceBefore = await getTokenBalance(this.provider, this.accounts.vault);
+    }
+  });
+
   afterEach(async function () {
-    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
+    if (this.exists.stake) {
+      this.userBalanceAfter = await getTokenBalance(this.provider, this.accounts.user);
+      this.vaultBalanceAfter = await getTokenBalance(this.provider, this.accounts.vault);
+      expect(this.userBalanceAfter).to.equal(this.balances.user, 'user');
+      expect(this.vaultBalanceAfter).to.equal(this.balances.vaultStaking, 'vault');
+    }
   });
 
   describe('init()', async function () {
     it('can initialize', async function () {
-      this.accounts.vault = this.vaults.staking;
       await this.stakingProgram.methods.init().accounts(this.accounts).rpc();
     });
   });
@@ -17,6 +29,7 @@ export default function suite() {
   describe('stake()', async function () {
     it('can not stake too short', async function () {
       let msg = '';
+      this.accounts.vault = this.vaults.staking;
       await this.stakingProgram.methods
         .stake(new anchor.BN(this.constants.stakeAmount), new anchor.BN(this.constants.stakeDurationMin - 1))
         .accounts(this.accounts)
@@ -52,6 +65,7 @@ export default function suite() {
         .rpc();
       this.balances.user -= this.constants.stakeMinimum;
       this.balances.vaultStaking += this.constants.stakeMinimum;
+      this.exists.stake = true;
 
       // test stake
       const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
@@ -65,7 +79,7 @@ export default function suite() {
       );
     });
 
-    it('can stake maximum', async function () {
+    it('can stake maximum for user 4', async function () {
       await this.stakingProgram.methods
         .stake(new anchor.BN(this.constants.stakeAmount), new anchor.BN(this.constants.stakeDurationMax))
         .accounts({
@@ -78,7 +92,6 @@ export default function suite() {
         .signers([this.users.user4.user])
         .rpc();
       this.users.user4.balance -= this.constants.stakeAmount;
-      this.balances.vaultStaking += this.constants.stakeAmount;
     });
 
     it('can stake for node 1', async function () {
@@ -95,7 +108,6 @@ export default function suite() {
         .signers([this.users.node1.user])
         .rpc();
       this.users.node1.balance -= amount;
-      this.balances.vaultStaking += amount;
     });
 
     it('can stake for node 2, and unstake', async function () {
@@ -121,7 +133,6 @@ export default function suite() {
         .signers([this.users.node2.user])
         .rpc();
       this.users.node2.balance -= this.constants.minimumNodeStake;
-      this.balances.vaultStaking += this.constants.minimumNodeStake;
     });
 
     it('can stake for other nodes', async function () {
@@ -137,7 +148,6 @@ export default function suite() {
           })
           .signers([node.user])
           .rpc();
-        this.balances.vaultStaking += this.constants.stakeAmount * 2;
         node.balance -= this.constants.stakeAmount * 2;
         expect(await getTokenBalance(this.provider, node.ata)).to.equal(node.balance);
       }
@@ -259,22 +269,25 @@ export default function suite() {
     });
   });
 
-  describe('claim()', async function () {
-    it('can not claim before unstake', async function () {
+  describe('close()', async function () {
+    it('can not close before unstake', async function () {
       let msg = '';
       await this.stakingProgram.methods
-        .claim()
+        .close()
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
       expect(msg).to.equal(this.constants.errors.StakeNotUnstaked);
     });
 
-    it('can not claim after too soon unstake', async function () {
+    it('can unstake', async function () {
       await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
+    });
+
+    it('can not close after too soon unstake', async function () {
       let msg = '';
       await this.stakingProgram.methods
-        .claim()
+        .close()
         .accounts(this.accounts)
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
@@ -310,6 +323,62 @@ export default function suite() {
      */
   });
 
+  describe('withdraw()', async function () {
+    it('can withdraw after unstake', async function () {
+      const seconds = 10; // increase this number get a higher test reliability
+      const duration = this.constants.stakeDurationMin * 2 + 7;
+      const amount = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).amount.toNumber();
+      const emission = amount / duration;
+      const expectedWithdraw = Math.floor(emission * seconds);
+
+      await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
+      await sleep(seconds);
+      await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
+
+      const balanceAfter = await getTokenBalance(this.provider, this.accounts.user);
+      expect(balanceAfter).to.be.greaterThan(this.userBalanceBefore);
+
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      expect(stake.amount.toNumber()).to.equal(this.balances.vaultStaking);
+      expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum + this.constants.stakeAmount);
+      expect(stake.duration.toNumber()).to.equal(duration, 'duration');
+
+      const withDraw = balanceAfter - this.userBalanceBefore;
+      expect(withDraw).to.be.closeTo(expectedWithdraw, emission, 'withdraw'); // we allow 0 second error
+
+      this.balances.user += withDraw;
+      this.balances.vaultStaking -= withDraw;
+    });
+
+    it('can withdraw a second time', async function () {
+      const seconds = 10; // increase this number get a higher test reliability
+      const duration = this.constants.stakeDurationMin * 2 + 7;
+      const amount = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).amount.toNumber();
+      const emission = amount / duration;
+      const expectedWithdraw = Math.floor(emission * seconds);
+
+      await sleep(seconds);
+      await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
+
+      const balanceAfter = await getTokenBalance(this.provider, this.accounts.user);
+      expect(balanceAfter).to.be.greaterThan(this.userBalanceBefore);
+
+      const withDraw = balanceAfter - this.userBalanceBefore;
+      expect(withDraw).to.be.closeTo(expectedWithdraw, emission, 'withdraw'); // we allow 1 second error
+
+      this.balances.user += withDraw;
+      this.balances.vaultStaking -= withDraw;
+    });
+
+    it('can restake', async function () {
+      await this.stakingProgram.methods.restake().accounts(this.accounts).rpc();
+
+      const amountStake = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).amount.toNumber();
+      const amountVault = await getTokenBalance(this.provider, this.accounts.vault);
+      expect(amountStake).to.equal(amountVault);
+    });
+  });
+
   describe('slash(), update_authority()', async function () {
     it('can slash', async function () {
       const stakeBefore = await this.stakingProgram.account.stakeAccount.fetch(this.users.nodes[2].stake);
@@ -324,7 +393,6 @@ export default function suite() {
         .rpc();
 
       this.balances.user += this.constants.slashAmount;
-      this.balances.vaultStaking -= this.constants.slashAmount;
       const stakeAfter = await this.stakingProgram.account.stakeAccount.fetch(this.users.nodes[2].stake);
       expect(stakeAfter.amount.toNumber()).to.equal(stakeBefore.amount.toNumber() - this.constants.slashAmount);
     });
@@ -372,7 +440,6 @@ export default function suite() {
         .rpc();
 
       this.balances.user += this.constants.slashAmount;
-      this.balances.vaultStaking -= this.constants.slashAmount;
     });
 
     it('can update settings authority back', async function () {

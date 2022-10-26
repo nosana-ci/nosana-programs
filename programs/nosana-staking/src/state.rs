@@ -61,10 +61,25 @@ impl StakeAccount {
         self.update_xnos();
     }
 
-    pub fn unstake(&mut self, time: i64) -> Result<()> {
-        self.time_unstake = time;
+    pub fn unstake(&mut self, now: i64) -> Result<()> {
+        self.time_unstake = now;
         self.update_xnos();
         Ok(())
+    }
+
+    pub fn restake(&mut self, amount: u64) -> Result<()> {
+        self.amount = amount;
+        self.time_unstake = 0;
+        self.update_xnos();
+        Ok(())
+    }
+
+    pub fn withdraw(&self, balance: u64, now: i64) -> u64 {
+        std::cmp::min(
+            self.amount / self.duration // emission per second
+                * u64::try_from(now - self.time_unstake).unwrap(), // elapsed time in seconds
+            self.amount, // maximum allowed withdrawal amount
+        ) - (self.amount - balance) // already withdrawn
     }
 
     pub fn topup(&mut self, amount: u64) {

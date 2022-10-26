@@ -5,10 +5,11 @@ use anchor_spl::token::{Token, TokenAccount};
 pub struct Topup<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut, address = stake.vault @ NosanaError::InvalidVault)]
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
+        has_one = vault @ NosanaError::InvalidVault,
         has_one = authority @ NosanaError::Unauthorized,
         constraint = stake.time_unstake == 0 @ NosanaStakingError::AlreadyUnstaked,
     )]

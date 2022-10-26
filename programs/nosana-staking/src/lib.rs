@@ -48,15 +48,17 @@ pub mod nosana_staking {
         ctx.accounts.handler(duration)
     }
 
-    /// The `claim()` instruction will transfer back all your stake tokens if the delay has
-    /// passed after they whey unstaked. Claiming will close the [StakeAccount](#stake-account)
-    /// and [VaultAccount](#vault-account) of the staker.
-    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+    /// Close a [StakeAccount](#stake-account) and [VaultAccount](#vault-account).
+    pub fn close(ctx: Context<Close>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// Reduces a [StakeAccount](#stake-account)'s  [NOS](/tokens/token) tokens.
-    /// This can only be done by the Slashing Authority.
+    /// Withdraw  [NOS](/tokens/token) that is released after an [unstake](#unstake)
+    pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
+    /// Reduce a [StakeAccount](#stake-account)'s [NOS](/tokens/token) tokens.
     /// Slashing is a feature used by the Nosana Protocol to punish bad actors.
     pub fn slash(ctx: Context<Slash>, amount: u64) -> Result<()> {
         ctx.accounts.handler(amount)

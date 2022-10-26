@@ -7,6 +7,7 @@ import {
   JobsProgram,
   NosanaAccounts,
   NosanaBalances,
+  NosanaExists,
   NosanaMarket,
   NosanaTotals,
   NosanaVaults,
@@ -43,8 +44,7 @@ declare module 'mocha' {
     total: NosanaTotals;
     balances: NosanaBalances;
     market: NosanaMarket;
-    marketClosed: boolean;
-    poolClosed: boolean;
+    exists: NosanaExists;
 
     // public key collections
     vaults: NosanaVaults;

@@ -25,6 +25,8 @@ pub enum NosanaError {
     InvalidVault,
     #[msg("This payer account is not valid.")]
     InvalidPayer,
+    #[msg("This vault is empty.")]
+    VaultEmpty,
     #[msg("This vault is not empty.")]
     VaultNotEmpty,
 }

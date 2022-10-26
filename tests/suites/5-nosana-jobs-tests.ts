@@ -27,7 +27,7 @@ function getNewJobKey(mochaContext: Context) {
 
 export default function suite() {
   afterEach(async function () {
-    if (this.marketClosed) return;
+    if (!this.exists.market) return;
     expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
     expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob);
 
@@ -44,7 +44,7 @@ export default function suite() {
   });
 
   describe('open()', async function () {
-    it('can open a market, vault, and dummy job', async function () {
+    it('can open a market and vault', async function () {
       const marketKey = anchor.web3.Keypair.generate();
       this.accounts.market = marketKey.publicKey;
       this.market.address = this.accounts.market;
@@ -53,7 +53,7 @@ export default function suite() {
         this.jobsProgram.programId
       );
       this.vaults.jobs = this.accounts.vault;
-      this.marketClosed = false;
+      this.exists.market = true;
 
       await this.jobsProgram.methods
         .open(
@@ -107,7 +107,7 @@ export default function suite() {
       this.market.queueType = this.constants.queueType.unknown;
     });
 
-    it('can fetch the craeted run account', async function () {
+    it('can fetch the created run account', async function () {
       const run = await this.jobsProgram.account.runAccount.fetch(this.accounts.run);
       expect(run.node.toString()).to.equal(this.accounts.authority.toString());
       expect(run.job.toString()).to.equal(this.accounts.job.toString());
@@ -353,11 +353,19 @@ export default function suite() {
       this.balances.user -= this.constants.jobPrice;
       this.balances.user -= this.constants.feePrice;
       this.balances.vaultJob += this.constants.jobPrice;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
     });
 
     it('can start working on it', async function () {
       const key = getRunKey(this);
       await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
     });
 
     it('can not quit a job for another node', async function () {
@@ -592,7 +600,7 @@ export default function suite() {
 
     it('can close the market', async function () {
       await this.jobsProgram.methods.close().accounts(this.accounts).rpc();
-      this.marketClosed = true;
+      this.exists.market = false;
     });
   });
 }

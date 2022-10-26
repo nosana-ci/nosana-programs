@@ -7,12 +7,12 @@
     "@types/bn.js": "5.1.1",
     "@types/chai": "4.3.3",
     "@types/mocha": "10.0.0",
-    "@typescript-eslint/eslint-plugin": "5.40.1",
-    "@typescript-eslint/parser": "5.40.1",
+    "@typescript-eslint/eslint-plugin": "5.41.0",
+    "@typescript-eslint/parser": "5.41.0",
     "chai": "4.3.6",
     "command-line-args": "5.2.1",
     "csv-parse": "5.3.1",
-    "eslint": "8.25.0",
+    "eslint": "8.26.0",
     "mocha": "10.1.0",
     "prettier": "2.7.1",
     "seedrandom": "3.0.5",
@@ -21,6 +21,7 @@
     "typescript": "4.8.4"
   },
   "scripts": {
+    "test": "ts-mocha -t 1000000 tests/tests.ts",
     "lint": "npm run prettier && npm run eslint && npm run check-types",
     "lint:fix": "npm run prettier:fix && npm run eslint:fix && npm run check-types",
     "check-types": "tsc -p .",
@@ -38,7 +39,6 @@
     "script:init-rewards": "ts-node scripts/init-rewards",
     "script:open-market": "ts-node scripts/open-market",
     "script:sync-rewards": "ts-node scripts/sync-rewards",
-    "script:update-market": "ts-node scripts/update-market",
-    "test": "anchor test"
+    "script:update-market": "ts-node scripts/update-market"
   }
 }
