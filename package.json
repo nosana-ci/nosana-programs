@@ -1,9 +1,9 @@
 {
   "license": "MIT",
   "devDependencies": {
-    "@metaplex-foundation/js": "0.17.3",
+    "@metaplex-foundation/js": "0.17.4",
     "@project-serum/anchor": "0.25.0",
-    "@solana/spl-token": "0.3.5",
+    "@solana/spl-token": "0.3.6",
     "@types/bn.js": "5.1.1",
     "@types/chai": "4.3.3",
     "@types/mocha": "10.0.0",
