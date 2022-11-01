@@ -41,6 +41,7 @@ impl StakeAccount {
     pub const SECONDS_PER_DAY: u128 = 24 * 60 * 60;
     pub const DURATION_MIN: u128 = 14 * StakeAccount::SECONDS_PER_DAY; // 2 weeks
     pub const DURATION_MAX: u128 = 365 * StakeAccount::SECONDS_PER_DAY; // 1 year
+    pub const NOS_PRECISION: u64 = u64::pow(10, 10); // 1e10
     pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
     pub const XNOS_DIV: u128 = 4 * StakeAccount::DURATION_MAX / 12; // 0.25 growth per month
 
@@ -76,10 +77,11 @@ impl StakeAccount {
 
     pub fn withdraw(&self, balance: u64, now: i64) -> u64 {
         std::cmp::min(
-            self.amount / self.duration // emission per second
-                * u64::try_from(now - self.time_unstake).unwrap(), // elapsed time in seconds
-            self.amount, // maximum allowed withdrawal amount
-        ) - (self.amount - balance) // already withdrawn
+            (u64::try_from(now - self.time_unstake).unwrap()) * StakeAccount::NOS_PRECISION / self.duration,
+            StakeAccount::NOS_PRECISION,
+        ) * self.amount  // number of tokens that may be withdrawn from total amount
+            / StakeAccount::NOS_PRECISION // precision
+            - (self.amount - balance) // minus the number of tokens that have been withdrawn already
     }
 
     pub fn topup(&mut self, amount: u64) {
