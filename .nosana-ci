@@ -42,7 +42,7 @@ jobs:
     - name: anchor_test
       commands:
           - solana-keygen new --no-bip39-passphrase
-          - anchor test
+          - anchor test --skip-build
       resources:
         - node_modules
         - anchor_target
@@ -50,7 +50,7 @@ jobs:
     - name: cargo_test
       commands:
           - cargo check --release
-          - cargo test
-          - cargo clippy
+          - cargo test --release
+          - cargo clippy --release
       resources:
           - anchor_target
