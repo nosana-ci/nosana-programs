@@ -11,12 +11,9 @@ global:
         branch:
             - main
 
-    # Allow pipeline to stop if one job fails
-    allow_failure: false # default: false
-
 jobs:
 
-    - name: install_build
+    - name: install
       commands:
         - npm ci
 
@@ -24,7 +21,7 @@ jobs:
         - name: node_modules
           path: ./node_modules/
 
-    - name: npm_tests
+    - name: npm lint
       commands:
           - npm run eslint
           - npm run prettier
@@ -32,14 +29,14 @@ jobs:
       resources: 
         - node_modules
 
-    - name: anchor_build
+    - name: build
       commands:
         - anchor build
       artifacts:
         - name: anchor_target
           path: ./target/
 
-    - name: anchor_test
+    - name: anchor test
       commands:
           - solana-keygen new --no-bip39-passphrase
           - anchor test --skip-build
@@ -47,7 +44,7 @@ jobs:
         - node_modules
         - anchor_target
 
-    - name: cargo_test
+    - name: rust lint
       commands:
           - cargo check --release
           - cargo test --release
