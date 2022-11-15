@@ -103,7 +103,7 @@ impl MarketAccount {
         if self.queue.len() == 1 {
             self.set_queue_type(QueueType::Empty);
         }
-        self.queue.pop().unwrap()
+        self.queue.remove(0)
     }
 
     pub fn find_in_queue(&mut self, pubkey: &Pubkey) -> Option<usize> {
