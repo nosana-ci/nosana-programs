@@ -1,0 +1,53 @@
+# .nosana-ci.yml
+nosana:
+    description: Build and Test Nosana Contracts
+    backend: IPFS
+
+global:
+    image: registry.hub.docker.com/projectserum/build:v0.25.0
+
+    # Trigger pipeline on these branches:
+    trigger:
+        branch:
+            - main
+
+jobs:
+
+    - name: install
+      commands:
+        - npm ci
+
+      artifacts:
+        - name: node_modules
+          path: ./node_modules/
+
+    - name: npm lint
+      commands:
+          - npm run eslint
+          - npm run prettier
+          - npm run check-types
+      resources: 
+        - node_modules
+
+    - name: build
+      commands:
+        - anchor build
+      artifacts:
+        - name: anchor_target
+          path: ./target/
+
+    - name: anchor test
+      commands:
+          - solana-keygen new --no-bip39-passphrase
+          - anchor test --skip-build
+      resources:
+        - node_modules
+        - anchor_target
+
+    - name: rust lint
+      commands:
+          - cargo check --release
+          - cargo test --release
+          - cargo clippy --release
+      resources:
+          - anchor_target
