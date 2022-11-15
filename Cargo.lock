@@ -783,9 +783,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.5.0"
+version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f36ab16f4c83f2f18e136f53157a8c9ab3783d84eaefdec7962bf19c0e4d5548"
+checksum = "1d15278d9daa7813f7bf02abe91121695c15eca6acf255e448e63eb0e910ce80"
 dependencies = [
  "arrayref",
  "borsh",
@@ -831,6 +831,7 @@ dependencies = [
  "nosana-common",
  "nosana-rewards",
  "nosana-staking",
+ "spl-token",
 ]
 
 [[package]]
@@ -1369,11 +1370,12 @@ dependencies = [
 
 [[package]]
 name = "spl-token"
-version = "3.3.0"
+version = "3.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0cc67166ef99d10c18cb5e9c208901e6d8255c6513bb1f877977eba48e6cc4fb"
+checksum = "32d05653bed5932064a287340dbc8a3cb298ee717e5c7ec3353d7cdb9f8fb7e1"
 dependencies = [
  "arrayref",
+ "bytemuck",
  "num-derive",
  "num-traits",
  "num_enum",
