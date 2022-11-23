@@ -1,6 +1,7 @@
 /*
 use nosana_common::security_txt;
 
+#[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
     name: "Nosana Staking",
     project_url: "https://nosana.io",

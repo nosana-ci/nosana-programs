@@ -4,6 +4,7 @@ use nosana_common::security_txt;
  * Security
  */
 
+#[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
     name: "Nosana Jobs",
     project_url: "https://nosana.io",
