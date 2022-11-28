@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use nosana_common::security_txt;
 
 /***
