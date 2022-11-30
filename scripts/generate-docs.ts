@@ -249,6 +249,7 @@ function main() {
       pt.row(['Accounts', `[\`${idl.accounts.length + 1}\`](#accounts)`]),
       pt.row(['Instructions', `[\`${idl.instructions.length}\`](#instructions)`]),
       pt.row(['Types', `[\`${'types' in idl ? idl.types.length : 0}\`](#types)`]),
+      pt.row(['Errors', `[\`${'errors' in idl ? idl.errors.length : 0}\`](#errors)`]),
       pt.row(['Domain', `\`nosana-${idl.name.split('_')[1]}.sol\``]),
       pt.row([
         ' Address',
