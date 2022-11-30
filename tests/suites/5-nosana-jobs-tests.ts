@@ -408,7 +408,7 @@ export default function suite() {
         .signers([runKey, user.user])
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.NodeNftWrongMetadata);
+      expect(msg).to.equal(this.constants.errors.NodeKeyInvalidCollection);
     });
 
     it('can not claim a stopped job with another stake', async function () {

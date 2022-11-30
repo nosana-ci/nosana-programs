@@ -364,7 +364,7 @@ export default function suite() {
       expect(balanceAfter).to.be.greaterThan(this.userBalanceBefore);
 
       const withDraw = balanceAfter - this.userBalanceBefore;
-      expect(withDraw).to.be.closeTo(expectedWithdraw, emission, 'withdraw'); // we allow 1 second error
+      expect(withDraw).to.be.closeTo(expectedWithdraw, 2 * emission, 'withdraw'); // we allow 2 second error
 
       this.balances.user += withDraw;
       this.balances.vaultStaking -= withDraw;

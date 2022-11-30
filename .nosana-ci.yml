@@ -26,7 +26,7 @@ jobs:
           - npm run eslint
           - npm run prettier
           - npm run check-types
-      resources: 
+      resources:
         - node_modules
 
     - name: build

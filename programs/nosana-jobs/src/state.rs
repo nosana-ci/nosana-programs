@@ -1,5 +1,6 @@
 use crate::{JobState, JobType, QueueType};
 use anchor_lang::prelude::*;
+use mpl_token_metadata::pda::find_metadata_account;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
 use nosana_common::{cpi, id, writer::BpfWriter};
 use std::mem::size_of;
@@ -121,13 +122,19 @@ impl MarketAccount {
             - the collection address should match the node access key
        - else it's always OK to enter
     */
-    pub fn metadata_constraint(metadata: &AccountInfo, node_access_key: Pubkey) -> bool {
+    pub fn metadata_constraint(
+        metadata_info: &AccountInfo,
+        mint: &Pubkey,
+        node_access_key: Pubkey,
+    ) -> bool {
         if node_access_key == id::SYSTEM_PROGRAM {
             true
         } else {
-            let metadata: Metadata = Metadata::from_account_info(metadata).unwrap();
+            let metadata: Metadata = Metadata::from_account_info(metadata_info).unwrap();
             let collection: Collection = metadata.collection.unwrap();
-            collection.verified && collection.key == node_access_key
+            metadata_info.key() == find_metadata_account(mint).0
+                && collection.verified
+                && collection.key == node_access_key
         }
     }
 

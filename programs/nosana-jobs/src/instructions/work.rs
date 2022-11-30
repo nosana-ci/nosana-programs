@@ -1,6 +1,5 @@
 use crate::*;
 use anchor_spl::token::TokenAccount;
-use mpl_token_metadata::pda::find_metadata_account;
 use nosana_staking::{NosanaStakingError, StakeAccount};
 
 #[derive(Accounts)]
@@ -27,12 +26,14 @@ pub struct Work<'info> {
         constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
     )]
     pub stake: Account<'info, StakeAccount>,
-    #[account(constraint = nft.owner == authority.key() @ NosanaJobsError::NodeNftWrongOwner)]
+    #[account(
+        constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.owner == authority.key()
+            @ NosanaJobsError::NodeNftWrongOwner
+    )]
     pub nft: Account<'info, TokenAccount>,
     /// CHECK: Metaplex metadata is verified against NFT and Collection node access key
     #[account(
-        address = find_metadata_account(&nft.mint).0 @ NosanaJobsError::NodeNftWrongMetadata,
-        constraint = MarketAccount::metadata_constraint(&metadata, market.node_access_key)
+        constraint = MarketAccount::metadata_constraint(&metadata, &nft.mint, market.node_access_key)
             @ NosanaJobsError::NodeKeyInvalidCollection,
     )]
     pub metadata: AccountInfo<'info>,
