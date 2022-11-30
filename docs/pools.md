@@ -284,3 +284,28 @@ A number of 3 variants are defined in this `enum`:
 | `Transfer`                            | `0`                                   |
 | `AddFee`                              | `1`                                   |
 | `Unknown`                             | `255`                                 |
+
+## Errors
+
+A number of 5 errors are defined in the Nosana Pools Program.
+
+
+### `6000` - Not Started
+
+This pool has not started yet.
+
+### `6001` - Underfunded
+
+This pool does not have enough funds.
+
+### `6002` - Not Closeable
+
+This pool is not closeable.
+
+### `6003` - Wrong Claim Type
+
+This pool has a different claim type.
+
+### `6004` - Wrong Beneficiary
+
+This pool does not match the beneficiary.

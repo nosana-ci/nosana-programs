@@ -570,3 +570,60 @@ are **`509e437c32bdc0ff`**, which can also be expressed in byte array:
 ### Vault Account
 
 The `VaultAccount` is a regular Solana Token Account.
+
+## Errors
+
+A number of 13 errors are defined in the Nosana Staking Program.
+
+
+### `6000` - Amount Not Enough
+
+This amount is not enough.
+
+### `6001` - Already Initialized
+
+This stake is already running.
+
+### `6002` - Already Claimed
+
+This stake is already claimed.
+
+### `6003` - Already Staked
+
+This stake is already staked.
+
+### `6004` - Already Unstaked
+
+This stake is already unstaked.
+
+### `6005` - Not Unstaked
+
+This stake is not yet unstaked.
+
+### `6006` - Locked
+
+This stake is still locked.
+
+### `6007` - Duration Too Short
+
+This stake duration is not long enough.
+
+### `6008` - Duration Too Long
+
+This stake duration is too long.
+
+### `6009` - Does Not Exist
+
+This stake account does not exist.
+
+### `6010` - Decreased
+
+This stake is not allowed to decrease.
+
+### `6011` - Has Reward
+
+This stake still has a reward account.
+
+### `6012` - Invalid Stake Account
+
+This stake does not belong to the authority.

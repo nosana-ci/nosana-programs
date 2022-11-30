@@ -742,3 +742,52 @@ A number of 6 variants are defined in this `enum`:
 | `Large`                               | `3`                                   |
 | `Gpu`                                 | `4`                                   |
 | `Unknown`                             | `255`                                 |
+
+## Errors
+
+A number of 11 errors are defined in the Nosana Jobs Program.
+
+
+### `6000` - Invalid Market Account
+
+This market account is not valid.
+
+### `6001` - Invalid Job Account
+
+This job account is not valid.
+
+### `6002` - Job In Wrong State
+
+This job does not have the right status.
+
+### `6003` - Job Not Expired
+
+The job has not yet expired.
+
+### `6004` - Node Queue Does Not Match
+
+This node queue does not match.
+
+### `6005` - Node Stake Unauthorized
+
+This node is not authorizing this stake.
+
+### `6006` - Node Not Enough Stake
+
+This node has not staked enough tokens.
+
+### `6007` - Node Already Queued
+
+This node is already present in the queue.
+
+### `6008` - Node Nft Wrong Metadata
+
+This metadata does not have the correct address.
+
+### `6009` - Node Nft Wrong Owner
+
+This NFT is not owned by this node.
+
+### `6010` - Node Key Invalid Collection
+
+This access key does not belong to a verified collection.
