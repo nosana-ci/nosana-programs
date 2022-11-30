@@ -289,7 +289,6 @@ A number of 3 variants are defined in this `enum`:
 
 A number of 5 errors are defined in the Nosana Pools Program.
 
-
 ### `6000` - Not Started
 
 This pool has not started yet.

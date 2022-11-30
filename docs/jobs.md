@@ -747,7 +747,6 @@ A number of 6 variants are defined in this `enum`:
 
 A number of 11 errors are defined in the Nosana Jobs Program.
 
-
 ### `6000` - Invalid Market Account
 
 This market account is not valid.

@@ -575,7 +575,6 @@ The `VaultAccount` is a regular Solana Token Account.
 
 A number of 13 errors are defined in the Nosana Staking Program.
 
-
 ### `6000` - Amount Not Enough
 
 This amount is not enough.

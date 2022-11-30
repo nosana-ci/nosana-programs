@@ -508,7 +508,7 @@ function main() {
         data.push('');
       }
 
-      if (options.enhance) data.push(':::');
+      if (options.enhance) data.push(':::', '');
     }
 
     /**
@@ -519,12 +519,11 @@ function main() {
         '## Errors',
         '',
         `A number of ${idl.errors.length} errors are defined in the ${title(idl.name)} Program.`,
-        '',
         options.enhance ? '\n:::: tabs\n' : ''
       );
 
       for (const error of idl.errors) {
-        if (options.enhance) data.push(`@tab ${error.code}`, '', `::: warning Nosana Error`);
+        if (options.enhance) data.push(`@tab ${error.code}`, '', `::: warning Nosana Error`, '');
 
         data.push(`### \`${error.code}\` - ${title(error.name)}`, '', `${error.msg}`, '');
 
