@@ -106,4 +106,29 @@ export default function suite() {
       this.balances.vaultPool -= release;
     });
   });
+
+  describe('update_beneficiary()', async function () {
+    it('can not update the beneficiary from another pool', async function () {
+      let msg = '';
+      await this.poolsProgram.methods
+        .updateBeneficiary()
+        .accounts({
+          ...this.accounts,
+          newBeneficiary: this.users.user2.ata,
+        })
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can update the beneficiary from own pool', async function () {
+      await this.poolsProgram.methods
+        .updateBeneficiary()
+        .accounts({
+          ...this.accounts,
+          newBeneficiary: this.users.user2.ata,
+        })
+        .rpc();
+    });
+  });
 }
