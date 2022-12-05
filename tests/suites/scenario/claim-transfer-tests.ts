@@ -118,7 +118,7 @@ export default function suite() {
         })
         .rpc()
         .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.Unauthorized);
+      expect(msg).to.equal(this.constants.errors.SolanaTokenOwnerConstraint);
     });
 
     it('can update the beneficiary from own pool', async function () {
@@ -126,8 +126,10 @@ export default function suite() {
         .updateBeneficiary()
         .accounts({
           ...this.accounts,
+          authority: this.users.user1.ata,
           newBeneficiary: this.users.user2.ata,
         })
+        .signers([this.users.user1.user])
         .rpc();
     });
   });
