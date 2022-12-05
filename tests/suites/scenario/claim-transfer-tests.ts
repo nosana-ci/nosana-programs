@@ -126,7 +126,8 @@ export default function suite() {
         .updateBeneficiary()
         .accounts({
           ...this.accounts,
-          authority: this.users.user1.ata,
+          authority: this.users.user1.publicKey,
+          beneficiary: this.users.user1.ata,
           newBeneficiary: this.users.user2.ata,
         })
         .signers([this.users.user1.user])
