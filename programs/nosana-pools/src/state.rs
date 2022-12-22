@@ -54,4 +54,9 @@ impl PoolAccount {
 
         amount
     }
+
+    pub fn update_beneficiary(&mut self, beneficiary: Pubkey) -> Result<()> {
+        self.beneficiary = beneficiary;
+        Ok(())
+    }
 }

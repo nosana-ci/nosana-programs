@@ -49,4 +49,9 @@ pub mod nosana_pools {
     pub fn close(ctx: Context<Close>) -> Result<()> {
         ctx.accounts.handler()
     }
+
+    /// Update the beneficiary in a [PoolAccount](#pool-account).
+    pub fn update_beneficiary(ctx: Context<UpdateBeneficiary>) -> Result<()> {
+        ctx.accounts.handler()
+    }
 }

@@ -8,7 +8,7 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD)                                          |
 | Accounts        | [`2`](#accounts)                                                                                                                    |
-| Instructions    | [`4`](#instructions)                                                                                                                |
+| Instructions    | [`5`](#instructions)                                                                                                                |
 | Types           | [`1`](#types)                                                                                                                       |
 | Errors          | [`5`](#errors)                                                                                                                      |
 | Domain          | `nosana-pools.sol`                                                                                                                  |
@@ -16,7 +16,7 @@
 
 ## Instructions
 
-A number of 4 instruction are defined in the Nosana Pools program.
+A number of 5 instruction are defined in the Nosana Pools program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -228,6 +228,52 @@ let tx = await program.methods
   .accounts({
     vault,             // ✓ writable, 𐄂 signer
     user,              // ✓ writable, 𐄂 signer
+    pool,              // ✓ writable, 𐄂 signer
+    authority,         // ✓ writable, ✓ signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
+### Update Beneficiary
+
+Update the beneficiary in a [PoolAccount](#pool-account).
+
+#### Account Info
+
+The following 5 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `beneficiary`          | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The token account that will receive the emissions from the Pool.                                  |
+| `newBeneficiary`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | n/a                                                                                               |
+| `pool`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [PoolAccount](#pool-account) address.                                                         |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Update Beneficiary Instruction
+is **`7e7adb46bc7ef37e`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[126,122,219,70,188,126,243,126]
+```
+
+#### Example with Anchor
+
+To invoke the Update Beneficiary Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .updateBeneficiary()
+  .accounts({
+    beneficiary,       // 𐄂 writable, 𐄂 signer
+    newBeneficiary,    // 𐄂 writable, 𐄂 signer
     pool,              // ✓ writable, 𐄂 signer
     authority,         // ✓ writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer

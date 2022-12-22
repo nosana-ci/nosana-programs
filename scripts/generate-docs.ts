@@ -91,6 +91,8 @@ const descriptions = (name) => {
       return 'The bump for the [VaultAccount](#vault-account).';
     case 'beneficiary':
       return 'The token account that will receive the emissions from the Pool.';
+    case 'newBeneficiary':
+      return 'The token account that will become the new beneficiary.';
     case 'user':
       return 'The user token account that will debit/credit the tokens.';
     case 'tokenAccount':
