@@ -32,6 +32,7 @@ impl<'info> Finish<'info> {
             ipfs_result,
             self.authority.key(),
             Clock::get()?.unix_timestamp,
+            self.run.time,
         );
         // reimburse node
         transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), self.job.price)
