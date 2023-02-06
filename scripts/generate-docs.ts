@@ -64,6 +64,13 @@ const sizes = {
   'Vec<publicKey>': 100 * 32,
 };
 
+const addresses = {
+  nosana_jobs: 'nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM',
+  nosana_staking: 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE',
+  nosana_rewards: 'nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp',
+  nosana_pools: 'nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD',
+};
+
 const descriptions = (name) => {
   switch (name) {
     // programs
@@ -232,6 +239,7 @@ class MarkdownTable {
 function main() {
   for (const idl of [NosanaPools, NosanaJobs, NosanaRewards, NosanaStaking]) {
     console.log(`Generating docs for ${title(idl.name)}`);
+    const address = addresses[idl.name];
 
     // we're going to load all documentatation into this data array
     const data = [];
@@ -247,16 +255,13 @@ function main() {
       pt.sep(),
       pt.row(['Type', `[Solana Program](https://docs.solana.com/developing/intro/programs#on-chain-programs)`]),
       pt.row(['Source Code', `[GitHub](https://github.com/nosana-ci/nosana-programs)`]),
-      pt.row(['Build Status', `[Anchor Verified](https://www.apr.dev/program/${idl.metadata.address})`]),
+      pt.row(['Build Status', `[Anchor Verified](https://www.apr.dev/program/${address})`]),
       pt.row(['Accounts', `[\`${idl.accounts.length + 1}\`](#accounts)`]),
       pt.row(['Instructions', `[\`${idl.instructions.length}\`](#instructions)`]),
       pt.row(['Types', `[\`${'types' in idl ? idl.types.length : 0}\`](#types)`]),
       pt.row(['Errors', `[\`${'errors' in idl ? idl.errors.length : 0}\`](#errors)`]),
       pt.row(['Domain', `\`nosana-${idl.name.split('_')[1]}.sol\``]),
-      pt.row([
-        ' Address',
-        `[\`${idl.metadata.address}\`](https://explorer.solana.com/address/${idl.metadata.address})`,
-      ]),
+      pt.row([' Address', `[\`${address}\`](https://explorer.solana.com/address/${address})`]),
       ''
     );
 
@@ -273,7 +278,7 @@ function main() {
       'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).',
       '',
       '```typescript',
-      `const programId = new PublicKey('${idl.metadata.address}');`,
+      `const programId = new PublicKey('${address}');`,
       'const idl = await Program.fetchIdl(programId.toString());',
       'const program = new Program(idl, programId);',
       '```',

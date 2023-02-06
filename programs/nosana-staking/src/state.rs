@@ -76,12 +76,14 @@ impl StakeAccount {
     }
 
     pub fn withdraw(&self, balance: u64, now: i64) -> u64 {
-        std::cmp::min(
-            (u64::try_from(now - self.time_unstake).unwrap()) * StakeAccount::NOS_PRECISION / self.duration,
-            StakeAccount::NOS_PRECISION,
-        ) * self.amount  // number of tokens that may be withdrawn from total amount
-            / StakeAccount::NOS_PRECISION // precision
-            - (self.amount - balance) // minus the number of tokens that have been withdrawn already
+        let elapsed: u64 = u64::try_from(now - self.time_unstake).unwrap();
+        if elapsed >= self.duration {
+            balance
+        } else {
+            elapsed * StakeAccount::NOS_PRECISION / self.duration * self.amount
+                / StakeAccount::NOS_PRECISION
+                - (self.amount - balance)
+        }
     }
 
     pub fn topup(&mut self, amount: u64) {

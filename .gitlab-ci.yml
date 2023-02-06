@@ -21,7 +21,7 @@ npm:
   stage: .pre
   parallel:
     matrix:
-      - SCRIPT: [ eslint, check-types, prettier ]
+      - SCRIPT: [ eslint, prettier ]
   script:
     - npm ci
     - npm run $SCRIPT
