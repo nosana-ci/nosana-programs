@@ -52,17 +52,13 @@ impl<'info> List<'info> {
         // update the market
         match QueueType::from(self.market.queue_type) {
             QueueType::Job | QueueType::Empty => self.market.add_to_queue(self.job.key(), true),
-            QueueType::Node => {
-                self.job
-                    .claim(self.market.pop_from_queue(), Clock::get()?.unix_timestamp);
-                RunAccount::initialize(
-                    self.payer.to_account_info(),
-                    self.run.to_account_info(),
-                    self.system_program.to_account_info(),
-                    self.job.key(),
-                    self.job.node,
-                )
-            }
+            QueueType::Node => RunAccount::initialize(
+                self.payer.to_account_info(),
+                self.run.to_account_info(),
+                self.system_program.to_account_info(),
+                self.job.key(),
+                self.market.pop_from_queue(),
+            ),
         }
     }
 }

@@ -38,7 +38,6 @@ pub struct Claim<'info> {
 
 impl<'info> Claim<'info> {
     pub fn handler(&mut self) -> Result<()> {
-        self.job.claim(self.authority.key(), self.run.time);
         self.run.create(
             self.job.key(),
             self.authority.key(),

@@ -188,12 +188,6 @@ impl JobAccount {
         self.state = JobState::Queued as u8;
     }
 
-    pub fn claim(&mut self, node: Pubkey, time_start: i64) {
-        self.node = node;
-        self.state = JobState::Running as u8;
-        self.time_start = time_start;
-    }
-
     pub fn quit(&mut self) -> Result<()> {
         self.state = JobState::Stopped as u8;
         Ok(())

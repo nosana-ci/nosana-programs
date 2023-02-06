@@ -24,7 +24,6 @@ impl From<u8> for QueueType {
 #[repr(u8)]
 pub enum JobState {
     Queued = 0,
-    Running = 1,
     Done = 2,
     Stopped = 3,
 }
