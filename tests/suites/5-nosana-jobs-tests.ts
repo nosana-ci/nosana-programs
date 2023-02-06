@@ -153,37 +153,6 @@ export default function suite() {
   });
 
   describe('list()', async function () {
-    /*
-    it('can not list job for creation with system seed', async function () {
-      let msg = '';
-      const runKey = setRunAccountAndGetKey(this, true);
-      const jobKey = getNewJobKey(this);
-      await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
-        .accounts(this.accounts)
-        .signers([jobKey, runKey])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.RunConstraintNotSatisfied);
-    });
-
-    it('can not list a job account with a used seed', async function () {
-      let msg = '';
-      const jobKey = getNewJobKey(this);
-      await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
-        .accounts({
-          ...this.accounts,
-          run: this.market.usedKey.publicKey,
-        })
-        .signers([jobKey, this.market.usedKey])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.RunConstraintNotSatisfied);
-    });
-
-     */
-
     it('can create a job account with a new seed', async function () {
       const runKey = getRunKey(this);
       const jobKey = getNewJobKey(this);
@@ -204,10 +173,10 @@ export default function suite() {
 
     it('can fetch a running job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      expect(job.state).to.equal(this.constants.jobState.running);
-      expect(job.node.toString()).to.equal(this.accounts.authority.toString());
+      expect(job.state).to.equal(this.constants.jobState.queued);
+      expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
       expect(job.project.toString()).to.equal(this.accounts.authority.toString());
-      expect(job.timeStart.toNumber()).to.be.closeTo(now(), 100);
+      expect(job.timeStart.toNumber()).to.equal(0);
       expect(job.timeEnd.toNumber()).to.equal(0);
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
@@ -468,11 +437,11 @@ export default function suite() {
       const runs = await this.jobsProgram.account.runAccount.all([
         { memcmp: { offset: 8 + 32, bytes: user.publicKey.toBase58() } },
       ]);
-      expect(runs.length).to.equal(1);
+      expect(runs.length).to.equal(1, 'number of runs');
 
       const job = await this.jobsProgram.account.jobAccount.fetch(runs[0].account.job);
-      expect(job.state).to.equal(this.constants.jobState.running);
-      expect(job.node.toString()).to.equal(user.publicKey.toString());
+      expect(job.state).to.equal(this.constants.jobState.stopped);
+      expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
 
       this.accounts.run = runs[0].publicKey;
       this.accounts.job = runs[0].account.job;

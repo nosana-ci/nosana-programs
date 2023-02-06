@@ -57,7 +57,7 @@ impl<'info> List<'info> {
                 self.run.to_account_info(),
                 self.system_program.to_account_info(),
                 self.job.key(),
-                self.job.node,
+                self.market.pop_from_queue(),
             ),
         }
     }
