@@ -77,7 +77,10 @@ impl StakeAccount {
 
     pub fn withdraw(&self, balance: u64, now: i64) -> u64 {
         std::cmp::min(
-            (u64::try_from(now - self.time_unstake).unwrap()) * StakeAccount::NOS_PRECISION / self.duration,
+            std::cmp::min(
+                u64::try_from(now - self.time_unstake).unwrap(),
+                self.duration
+            ) * StakeAccount::NOS_PRECISION / self.duration,
             StakeAccount::NOS_PRECISION,
         ) * self.amount  // number of tokens that may be withdrawn from total amount
             / StakeAccount::NOS_PRECISION // precision
