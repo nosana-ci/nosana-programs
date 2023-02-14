@@ -79,7 +79,7 @@ impl StakeAccount {
         if elapsed >= self.duration {
             balance
         } else {
-            let precision: u64 = u64::MAX / self.amount;
+            let precision: u64 = u64::MAX / std::cmp::max(self.amount, elapsed);
             elapsed * precision / self.duration * self.amount / precision - (self.amount - balance)
         }
     }
