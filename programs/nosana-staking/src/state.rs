@@ -41,7 +41,7 @@ impl StakeAccount {
     pub const SECONDS_PER_DAY: u128 = 24 * 60 * 60;
     pub const DURATION_MIN: u128 = 14 * StakeAccount::SECONDS_PER_DAY; // 2 weeks
     pub const DURATION_MAX: u128 = 365 * StakeAccount::SECONDS_PER_DAY; // 1 year
-    pub const NOS_PRECISION: u64 = u64::pow(10, 10); // 1e10
+    pub const WITHDRAW_PRECISION: u64 = 184_467; // x 1e14 == u64 MAX (maximum stake possible)
     pub const XNOS_PRECISION: u128 = u128::pow(10, 15); // 1e15
     pub const XNOS_DIV: u128 = 4 * StakeAccount::DURATION_MAX / 12; // 0.25 growth per month
 
@@ -80,8 +80,8 @@ impl StakeAccount {
         if elapsed >= self.duration {
             balance
         } else {
-            elapsed * StakeAccount::NOS_PRECISION / self.duration * self.amount
-                / StakeAccount::NOS_PRECISION
+            elapsed * StakeAccount::WITHDRAW_PRECISION / self.duration * self.amount
+                / StakeAccount::WITHDRAW_PRECISION
                 - (self.amount - balance)
         }
     }
