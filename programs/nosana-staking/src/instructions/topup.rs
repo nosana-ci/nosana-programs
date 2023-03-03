@@ -21,7 +21,7 @@ pub struct Topup<'info> {
 impl<'info> Topup<'info> {
     pub fn handler(&mut self, amount: u64) -> Result<()> {
         // test amount
-        require!(amount > 0, NosanaStakingError::AmountNotEnough);
+        require_gt!(amount, 0, NosanaStakingError::AmountNotEnough);
 
         // get stake account and topup stake
         self.stake.topup(amount);
