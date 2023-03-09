@@ -27,7 +27,7 @@ impl<'info> ClaimTransfer<'info> {
 
         // TODO: the below is not a requirement anymore, can be removed?
         // the pool must have enough funds for an emission
-        require_gte!(amount, self.pool.emission, NosanaPoolsError::Underfunded);
+        require!(amount >= self.pool.emission, NosanaPoolsError::Underfunded);
 
         // transfer tokens from the vault back to the user
         transfer_tokens_from_vault!(self, beneficiary, seeds!(self.pool), amount)

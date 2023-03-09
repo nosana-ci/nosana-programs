@@ -22,9 +22,8 @@ pub struct Slash<'info> {
 impl<'info> Slash<'info> {
     pub fn handler(&mut self, amount: u64) -> Result<()> {
         // test amount
-        require_gte!(
-            self.stake.amount,
-            amount,
+        require!(
+            amount <= self.stake.amount,
             NosanaStakingError::AmountNotEnough
         );
 

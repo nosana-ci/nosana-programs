@@ -34,19 +34,16 @@ pub struct Stake<'info> {
 impl<'info> Stake<'info> {
     pub fn handler(&mut self, amount: u64, duration: u128, vault_bump: u8) -> Result<()> {
         // test duration and amount
-        require_gte!(
-            duration,
-            StakeAccount::DURATION_MIN,
+        require!(
+            duration >= StakeAccount::DURATION_MIN,
             NosanaStakingError::DurationTooShort
         );
-        require_gte!(
-            StakeAccount::DURATION_MAX,
-            duration,
+        require!(
+            duration <= StakeAccount::DURATION_MAX,
             NosanaStakingError::DurationTooLong
         );
-        require_gte!(
-            amount,
-            StakeAccount::STAKE_MINIMUM,
+        require!(
+            amount >= StakeAccount::STAKE_MINIMUM,
             NosanaStakingError::AmountNotEnough
         );
 

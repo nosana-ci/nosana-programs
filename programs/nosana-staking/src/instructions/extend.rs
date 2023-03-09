@@ -14,12 +14,11 @@ pub struct Extend<'info> {
 impl<'info> Extend<'info> {
     pub fn handler(&mut self, duration: u64) -> Result<()> {
         // test duration
-        require_gt!(duration, 0, NosanaStakingError::DurationTooShort);
+        require!(duration > 0, NosanaStakingError::DurationTooShort);
 
         // test new duration
-        require_gte!(
-            StakeAccount::DURATION_MAX,
-            u128::from(self.stake.duration + duration),
+        require!(
+            self.stake.duration + duration <= StakeAccount::DURATION_MAX.try_into().unwrap(),
             NosanaStakingError::DurationTooLong
         );
 
