@@ -10,7 +10,7 @@
 | Accounts        | [`4`](#accounts)                                                                                                                    |
 | Instructions    | [`11`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`11`](#errors)                                                                                                                     |
+| Errors          | [`12`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
@@ -721,13 +721,12 @@ A number of 3 variants are defined in this `enum`:
 
 The `JobState` describes the status of a job.
 
-A number of 4 variants are defined in this `enum`:
+A number of 3 variants are defined in this `enum`:
 | Name                                  | Number                                |
 |---------------------------------------|---------------------------------------|
 | `Queued`                              | `0`                                   |
-| `Running`                             | `1`                                   |
-| `Done`                                | `2`                                   |
-| `Stopped`                             | `3`                                   |
+| `Done`                                | `1`                                   |
+| `Stopped`                             | `2`                                   |
 
 ### Job Type
 
@@ -746,7 +745,7 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 11 errors are defined in the Nosana Jobs Program.
+A number of 12 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
@@ -764,30 +763,34 @@ This job does not have the right status.
 
 The job has not yet expired.
 
-### `6004` - Node Queue Does Not Match
+### `6004` - Job Result Null
+
+The job result can not be null.
+
+### `6005` - Node Queue Does Not Match
 
 This node queue does not match.
 
-### `6005` - Node Stake Unauthorized
+### `6006` - Node Stake Unauthorized
 
 This node is not authorizing this stake.
 
-### `6006` - Node Not Enough Stake
+### `6007` - Node Not Enough Stake
 
 This node has not staked enough tokens.
 
-### `6007` - Node Already Queued
+### `6008` - Node Already Queued
 
 This node is already present in the queue.
 
-### `6008` - Node Nft Wrong Metadata
+### `6009` - Node Nft Wrong Metadata
 
 This metadata does not have the correct address.
 
-### `6009` - Node Nft Wrong Owner
+### `6010` - Node Nft Wrong Owner
 
 This NFT is not owned by this node.
 
-### `6010` - Node Key Invalid Collection
+### `6011` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.
