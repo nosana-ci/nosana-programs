@@ -197,6 +197,16 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
+    it('can not finish a job with null result', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .finish(this.constants.ipfsNull)
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.JobResultNull);
+    });
+
     it('can finish a job as a node', async function () {
       await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
       this.balances.user += this.constants.jobPrice;

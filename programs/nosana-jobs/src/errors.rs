@@ -17,6 +17,8 @@ pub enum NosanaJobsError {
     JobInWrongState,
     #[msg("The job has not yet expired.")]
     JobNotExpired,
+    #[msg("The job result can not be null.")]
+    JobResultNull,
 
     // node errors
     #[msg("This node queue does not match.")]

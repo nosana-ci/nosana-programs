@@ -28,6 +28,11 @@ pub struct Finish<'info> {
 
 impl<'info> Finish<'info> {
     pub fn handler(&mut self, ipfs_result: [u8; 32]) -> Result<()> {
+        require!(
+            ipfs_result != JobAccount::NULL_RESULT,
+            NosanaJobsError::JobResultNull
+        );
+
         self.job.finish(
             ipfs_result,
             self.authority.key(),

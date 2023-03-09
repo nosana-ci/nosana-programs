@@ -62,6 +62,7 @@ const constants = {
   discriminator: 8,
 
   ipfsData: [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')],
+  ipfsNull: Array(32).fill(0),
 
   errors: {
     // generic errors
@@ -92,6 +93,7 @@ const constants = {
     JobInWrongState: 'This job does not have the right status.',
     JobNotExpired: 'The job has not yet expired.',
     JobSeedAddressViolation: 'This JobAccount seed is not allowed.',
+    JobResultNull: 'The job result can not be null.',
     RunConstraintNotSatisfied: 'This RunAccount constraint is not satisfied. Use a new or dummy account only.',
 
     // node errors
