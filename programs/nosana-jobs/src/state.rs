@@ -127,9 +127,7 @@ impl MarketAccount {
         mint: &Pubkey,
         node_access_key: Pubkey,
     ) -> bool {
-        if node_access_key == id::SYSTEM_PROGRAM {
-            true
-        } else {
+        node_access_key == id::SYSTEM_PROGRAM || {
             let metadata: Metadata = Metadata::from_account_info(metadata_info).unwrap();
             let collection: Collection = metadata.collection.unwrap();
             metadata_info.key() == find_metadata_account(mint).0
