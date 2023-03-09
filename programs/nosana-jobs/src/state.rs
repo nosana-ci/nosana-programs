@@ -171,6 +171,7 @@ pub struct JobAccount {
 
 impl JobAccount {
     pub const SIZE: usize = 8 + size_of::<JobAccount>();
+    pub const NULL_RESULT: [u8; 32] = [0; 32];
 
     pub fn create(
         &mut self,
