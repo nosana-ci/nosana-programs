@@ -1,4 +1,4 @@
-import { AnchorProvider, Program, setProvider, Wallet, Idl } from '@project-serum/anchor';
+import { AnchorProvider, Program, setProvider, Wallet, Idl } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 // @ts-ignore
 import { NosanaJobs } from '../target/types/nosana_jobs';

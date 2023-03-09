@@ -1,4 +1,4 @@
-import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { pda } from '../tests/utils';
 

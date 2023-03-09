@@ -1,6 +1,6 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
-import { Program } from '@project-serum/anchor';
+import { Program } from '@coral-xyz/anchor';
 // @ts-ignore
 import { NosanaStaking } from '../../target/types/nosana_staking';
 // @ts-ignore

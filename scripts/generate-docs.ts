@@ -10,7 +10,7 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 import commandLineArgs from 'command-line-args';
 import { snakeCase } from 'snake-case';
 import { sha256 } from 'js-sha256';
-import { BorshAccountsCoder } from '@project-serum/anchor';
+import { BorshAccountsCoder } from '@coral-xyz/anchor';
 
 const options = commandLineArgs([
   { name: 'enhance', alias: 'e', type: Boolean },

@@ -1,5 +1,5 @@
-import { AnchorProvider, Program, setProvider, web3, Idl } from '@project-serum/anchor';
-import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { AnchorProvider, Program, setProvider, web3, Idl } from '@coral-xyz/anchor';
+import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { pda } from '../tests/utils';

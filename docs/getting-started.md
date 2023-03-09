@@ -7,7 +7,7 @@ This doc should set you up with a local development environment.
 
 ## Anchor
 
-The [Anchor](https://github.com/project-serum/anchor) framework is used to develop and build the Solana programs.
+The [Anchor](https://github.com/coral-xyz/anchor) framework is used to develop and build the Solana programs.
 To get started, see the [guide](https://book.anchor-lang.com/getting_started/getting_started.html).
 
 ### Wallet

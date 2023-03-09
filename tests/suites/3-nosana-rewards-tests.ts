@@ -1,6 +1,6 @@
-import * as anchor from '@project-serum/anchor';
+import * as anchor from '@coral-xyz/anchor';
 import { expect } from 'chai';
-import { BN } from '@project-serum/anchor';
+import { BN } from '@coral-xyz/anchor';
 import { getTokenBalance, updateRewards } from '../utils';
 
 export default function suite() {

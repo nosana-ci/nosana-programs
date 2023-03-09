@@ -1,5 +1,5 @@
-import { web3, BN } from '@project-serum/anchor';
-import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { web3, BN } from '@coral-xyz/anchor';
+import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import {
   getAssociatedTokenAddress,

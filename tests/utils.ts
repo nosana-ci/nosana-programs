@@ -1,7 +1,7 @@
-import * as anchor from '@project-serum/anchor';
-import { AnchorProvider, BN, Idl, Program, setProvider, Wallet } from '@project-serum/anchor';
+import * as anchor from '@coral-xyz/anchor';
+import { AnchorProvider, BN, Idl, Program, setProvider, Wallet } from '@coral-xyz/anchor';
 import { createAssociatedTokenAccount, createMint, mintTo } from '@solana/spl-token';
-import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { Context } from 'mocha';
 import { expect } from 'chai';

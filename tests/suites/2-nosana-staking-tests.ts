@@ -1,4 +1,4 @@
-import * as anchor from '@project-serum/anchor';
+import * as anchor from '@coral-xyz/anchor';
 import { expect } from 'chai';
 import { calculateXnos, getTokenBalance, sleep } from '../utils';
 import { beforeEach } from 'mocha';

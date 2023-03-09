@@ -1,8 +1,8 @@
 {
   "license": "MIT",
   "devDependencies": {
+    "@coral-xyz/anchor": "0.27.0",
     "@metaplex-foundation/js": "0.18.3",
-    "@project-serum/anchor": "0.26.0",
     "@solana/spl-token": "0.3.7",
     "@types/bn.js": "5.1.1",
     "@types/chai": "4.3.4",

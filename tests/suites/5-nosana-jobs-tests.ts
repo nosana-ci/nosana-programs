@@ -1,7 +1,7 @@
-import * as anchor from '@project-serum/anchor';
+import * as anchor from '@coral-xyz/anchor';
 import { expect } from 'chai';
-import { buf2hex, getTimestamp, getTokenBalance, now, pda, sleep } from '../utils';
-import { BN } from '@project-serum/anchor';
+import { buf2hex, getTimestamp, getTokenBalance, pda, sleep } from '../utils';
+import { BN } from '@coral-xyz/anchor';
 import { Context, describe } from 'mocha';
 
 /**

@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { AnchorProvider, Idl, Program, setProvider, BN } from '@project-serum/anchor';
+import { AnchorProvider, Idl, Program, setProvider, BN } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 // @ts-ignore
 import { NosanaStaking } from '../target/types/nosana_staking';
