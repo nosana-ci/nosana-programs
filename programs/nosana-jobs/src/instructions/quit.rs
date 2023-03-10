@@ -13,6 +13,7 @@ pub struct Quit<'info> {
     )]
     pub run: Account<'info, RunAccount>,
     /// CHECK: this account is verified as the original payer for the run account
+    #[account(mut)]
     pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
