@@ -5,11 +5,11 @@ nosana:
 global:  
   image: nosana/solana:v1.0.6
   environment:
-    SOLANA_URL: devnet # testnet / devnet / mainnet / <your-custom-sol-rpc>
+    SOLANA_URL: devnet # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
-    SQUADS_AUTHORITY_PUBKEY: 9HgALjiPNoh7TbCP7h5FRUFggD1q3UjLfiU9AbTGmSGc
-    SQUADS_MULTISIG_PUBKEY: 3TsTokHbDvRqsymuC5LZrK2NkUQG2LHxAShydPY2A1Cj
-    SQUADS_PROGRAM_PUBKEY: GmpDbY3M5KXM9TPooZziM7SC5rT9YZZ1sf3AfTcyZwAs
+    SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
+    SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2l
+    SQUADS_PROGRAM_PUBKEY: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
 
   # Trigger pipeline on these branches:
   trigger:
@@ -124,4 +124,4 @@ jobs:
           --index       "$(cat solana/squads-deploy.json | tail -n 1 | jq '.upgradeIndex')"
     resources:
       - name: solana
-        path: ./        
+        path: ./
