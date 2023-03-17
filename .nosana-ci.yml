@@ -1,18 +1,19 @@
 # .nosana-ci.yml
 nosana:
     description: Build and Test Nosana Contracts
-    backend: IPFS
 
 global:
-    image: registry.hub.docker.com/projectserum/build:v0.25.0
+    image: projectserum/build:v0.25.0
+    environment:
+      SOLANA_URL: devnet # testnet / devnet / mainnet / <your-custom-sol-rpc>
+      PROGRAM_ID: Avrqn8UZa2EeGMHt9N7sDsxGcHTcWGYuWu8EXcyN3tv1
 
     # Trigger pipeline on these branches:
     trigger:
         branch:
-            - main
+            - nosana-ci
 
 jobs:
-
     - name: install
       commands:
         - npm ci
