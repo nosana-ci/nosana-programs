@@ -5,17 +5,16 @@ nosana:
 global:  
   image: nosana/solana:v1.0.6
   environment:
-    SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / <your-custom-sol-rpc>
+    SOLANA_URL: devnet # testnet / devnet / mainnet / <your-custom-sol-rpc>
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
-    SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
-    SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2l
-    SQUADS_PROGRAM_PUBKEY: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
+    SQUADS_AUTHORITY_PUBKEY: 9HgALjiPNoh7TbCP7h5FRUFggD1q3UjLfiU9AbTGmSGc
+    SQUADS_MULTISIG_PUBKEY: 3TsTokHbDvRqsymuC5LZrK2NkUQG2LHxAShydPY2A1Cj
+    SQUADS_PROGRAM_PUBKEY: GmpDbY3M5KXM9TPooZziM7SC5rT9YZZ1sf3AfTcyZwAs
 
   # Trigger pipeline on these branches:
   trigger:
     branch:
       - main
-      - nosana-ci
 
 jobs:
 #  - name: install
@@ -69,9 +68,12 @@ jobs:
   - name: verify hash
     image: nosana/solana-verifiable-build
     commands:
-      - /root/bin/solana-verify get-program-hash $PROGRAM_ID > program_hash.txt
-      - /root/bin/solana-verify get-executable-hash /target/deploy/nosana_jobs.so > executable_hash.txt
-      - test $(cat program_hash.txt) != $(cat executable_hash.txt) && echo 'Hashes are different, continue deploying..' || (echo 'Hashes already the same' && exit 1)
+     - PROGRAM_HASH="$(solana-verify get-program-hash $PROGRAM_ID)"
+     - echo "${PROGRAM_HASH}"
+     - EXECUTABLE_HASH="$(solana-verify get-executable-hash /target/deploy/nosana_jobs.so)"
+     - echo "${EXECUTABLE_HASH}"
+     - test $PROGRAM_HASH != $EXECUTABLE_HASH && echo 'Hashes are different, continue deploying..' || (echo 'Hashes already the same' && exit 1)
+      
     resources:
       - name: config
         path: /
