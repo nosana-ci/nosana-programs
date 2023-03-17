@@ -28,7 +28,8 @@ jobs:
       - npm run prettier
       - npm run check-types
     resources:
-      - node_modules
+      - name: node_modules
+        path: ./
 
   - name: build
     commands:
@@ -42,8 +43,10 @@ jobs:
       - solana-keygen new --no-bip39-passphrase
       - anchor test --skip-build
     resources:
-      - node_modules
-      - anchor_target
+      - name: node_modules
+        path: ./
+      - name: anchor_target
+        path: ./
 
   - name: rust lint
     commands:
@@ -51,4 +54,5 @@ jobs:
       - cargo test --release
       - cargo clippy --release
     resources:
-      - anchor_target
+      - name: anchor_target
+        path: ./
