@@ -24,7 +24,7 @@ jobs:
     commands:
       - anchor build
     artifacts:
-      - name: anchor_target
+      - name: programs
         path: target
 
 #  - name: anchor test
@@ -61,11 +61,10 @@ jobs:
      - EXECUTABLE_HASH="$(solana-verify get-executable-hash target/deploy/nosana_jobs.so)"
      - echo "${EXECUTABLE_HASH}"
      - test $PROGRAM_HASH != $EXECUTABLE_HASH && echo 'Hashes are different, continue deploying..' || (echo 'Hashes already the same' && exit 1)
-
     resources:
       - name: config
         path: /
-      - name: anchor_target
+      - name: programs
         path: .
 
   - name: write buffer
@@ -79,29 +78,26 @@ jobs:
       - solana program write-buffer target/deploy/nosana_jobs.so | tee solana/buffer.txt
       - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority $AUTHORITY_PUBKEY
     resources:
-      - name: program
-        path: /
+      - name: programs
+        path: .
     artifacts:
       - name: solana
-        path: solana
+        path: .
 
   - name: squads deploy
     commands:
       - |
         nosana-cli create-program-upgrade                        \
           --name        upgradeTest                              \
-          --private-key /solana/private-key.json                 \
-          --buffer      "$(cut -d ' ' -f2 < /solana/buffer.txt)" \
-          --spill       "$(cat /solana/spill.txt)"               \
+          --private-key  solana/private-key.json                 \
+          --buffer      "$(cut -d ' ' -f2 < solana/buffer.txt)"  \
+          --spill       "$(cat solana/spill.txt)"                \
           --multisig    "${SQUADS_MULTISIG_PUBKEY}"              \
           --program     "${SQUADS_PROGRAM_PUBKEY}"               \
-          --authority   "${SQUADS_AUTHORITY_PUBKEY}" | tee /solana/squads-deploy.json
+          --authority   "${SQUADS_AUTHORITY_PUBKEY}" | tee solana/squads-deploy.json
     resources:
       - name: solana
-        path: /
-    artifacts:
-      - name: solana
-        path: /solana
+        path: .
 
   - name: wait for deploy
     commands:
@@ -112,4 +108,4 @@ jobs:
           --index       "$(cat solana/squads-deploy.json | tail -n 1 | jq .upgradeIndex)"
     resources:
       - name: solana
-        path: ./
+        path: .
