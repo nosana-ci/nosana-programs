@@ -5,7 +5,7 @@ nosana:
 global:
   image: nosana/solana:v1.0.6
   environment:
-    SOLANA_URL: devnet # testnet / devnet / mainnet / your-custom-sol-rpc
+    SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
     SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
     SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2l
