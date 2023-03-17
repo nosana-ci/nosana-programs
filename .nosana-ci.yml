@@ -16,6 +16,7 @@ global:
   trigger:
     branch:
       - main
+      - nosana-ci
 
 jobs:
 #  - name: install
