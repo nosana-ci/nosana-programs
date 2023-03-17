@@ -76,7 +76,7 @@ jobs:
       - solana config set --keypair solana/private-key.json
       - solana address > solana/spill.txt
       - solana program write-buffer target/deploy/nosana_jobs.so | tee solana/buffer.txt
-      - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority $AUTHORITY_PUBKEY
+      - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority $SQUADS_AUTHORITY_PUBKEY
     resources:
       - name: programs
         path: .
