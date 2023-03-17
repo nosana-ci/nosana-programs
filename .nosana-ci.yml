@@ -36,7 +36,19 @@ jobs:
         - name: anchor_target
           path: ./target/
 
-    - name: anchor test
+    - name: anchor test all
+      environment:
+        - TEST_SCENARIO: all
+      commands:
+          - solana-keygen new --no-bip39-passphrase
+          - anchor test --skip-build
+      resources:
+        - node_modules
+        - anchor_target
+      
+    - name: anchor test claim
+      environment:
+        - TEST_SCENARIO: claim-transfer
       commands:
           - solana-keygen new --no-bip39-passphrase
           - anchor test --skip-build
