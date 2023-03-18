@@ -3,7 +3,7 @@ nosana:
   description: Build and Test Nosana Contracts
 
 global:
-  image: nosana/solana:v1.0.6
+  image: nosana/solana:v1.0.9
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
@@ -106,6 +106,7 @@ jobs:
           --private-key  solana/private-key.json                 \
           --buffer       "5A78hK3dQGZ6qiNE25sngin1pWnHjqtXTXTRFrhJCoku"  \
           --spill       "$(cat solana/spill.txt)"                \
+          --network     "${SOLANA_URL}"
           --multisig    "${SQUADS_MULTISIG_PUBKEY}"              \
           --program     "${SQUADS_PROGRAM_PUBKEY}"               \
           --authority   "${SQUADS_AUTHORITY_PUBKEY}" | tee solana/squads-deploy.json
