@@ -88,6 +88,7 @@ jobs:
     commands:
       - mkdir solana
       - echo $SOLANA_WALLET > solana/private-key.json
+      - solana config set --keypair solana/private-key.json
       - solana address > solana/spill.txt
       - |
         nosana-cli create-program-upgrade                        \
