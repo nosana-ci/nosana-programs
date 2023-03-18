@@ -85,6 +85,8 @@ jobs:
   #       path: .
 
   - name: squads deploy
+    secrets:
+      - SOLANA_WALLET
     commands:
       - mkdir solana
       - echo $SOLANA_WALLET > solana/private-key.json
