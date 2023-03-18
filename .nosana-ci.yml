@@ -96,6 +96,10 @@ jobs:
       - solana config set --keypair solana/private-key.json
       - solana address > solana/spill.txt
       - solana address
+      - echo "$(cat solana/spill.txt)"
+      - echo "${SQUADS_MULTISIG_PUBKEY}"
+      - echo "${SQUADS_PROGRAM_PUBKEY}"
+      - echo "${SQUADS_AUTHORITY_PUBKEY}"
       - |
         nosana-cli create-program-upgrade                        \
           --name        upgradeTest                              \
