@@ -87,28 +87,32 @@ jobs:
   - name: squads deploy
     secrets:
       - SOLANA_WALLET
+    resources:
+      - name: config
+        path: /
     commands:
       - mkdir solana
       - echo $SOLANA_WALLET > solana/private-key.json
       - solana config set --keypair solana/private-key.json
       - solana address > solana/spill.txt
+      - solana address
       - |
         nosana-cli create-program-upgrade                        \
           --name        upgradeTest                              \
           --private-key  solana/private-key.json                 \
-          --buffer       5A78hK3dQGZ6qiNE25sngin1pWnHjqtXTXTRFrhJCoku  \
+          --buffer       "5A78hK3dQGZ6qiNE25sngin1pWnHjqtXTXTRFrhJCoku"  \
           --spill       "$(cat solana/spill.txt)"                \
           --multisig    "${SQUADS_MULTISIG_PUBKEY}"              \
           --program     "${SQUADS_PROGRAM_PUBKEY}"               \
           --authority   "${SQUADS_AUTHORITY_PUBKEY}" | tee solana/squads-deploy.json
 
-  - name: wait for deploy
-    commands:
-      - |
-        nosana-cli await-upgrade                                 \
-          --private-key solana/private-key.json                  \
-          --program     "${SQUADS_PROGRAM_PUBKEY}"               \
-          --index       "$(cat solana/squads-deploy.json | tail -n 1 | jq .upgradeIndex)"
-    resources:
-      - name: solana
-        path: .
+  # - name: wait for deploy
+  #   commands:
+  #     - |
+  #       nosana-cli await-upgrade                                 \
+  #         --private-key solana/private-key.json                  \
+  #         --program     "${SQUADS_PROGRAM_PUBKEY}"               \
+  #         --index       "$(cat solana/squads-deploy.json | tail -n 1 | jq .upgradeIndex)"
+  #   resources:
+  #     - name: solana
+        # path: .
