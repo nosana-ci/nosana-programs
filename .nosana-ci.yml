@@ -24,6 +24,7 @@ jobs:
   - name: build
     image: projectserum/build:v0.27.0
     commands:
+      - scripts/prepare.sh
       - anchor build
     artifacts:
       - name: programs
@@ -51,7 +52,6 @@ jobs:
   - name: verify hash
     image: nosana/solana-verifiable-build
     commands:
-      - solana config set --url "${SOLANA_URL}"
       - PROGRAM_HASH="$(solana-verify get-program-hash ${PROGRAM_ID})"
       - echo "${PROGRAM_HASH}"
       - EXECUTABLE_HASH="$(solana-verify get-executable-hash target/deploy/${PROGRAM_NAME}.so)"
@@ -67,6 +67,7 @@ jobs:
     commands:
       - mkdir solana
       - echo "${SOLANA_WALLET}" > solana/private-key.json
+      - solana config set --url "${SOLANA_URL}"
       - solana config set --keypair solana/private-key.json
       - solana address | tee solana/spill.txt
       - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee solana/buffer.txt
