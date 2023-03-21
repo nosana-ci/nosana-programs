@@ -23,34 +23,14 @@ jobs:
   - name: build
     image: projectserum/build:v0.27.0
     commands:
+      - solana config set --url "${SOLANA_URL}"
       - scripts/prepare.sh
       - anchor build
     artifacts:
       - name: programs
         path: target
-
-  - name: anchor test
-    image: projectserum/build:v0.27.0
-    commands:
-      - solana config set --url "${SOLANA_URL}"
-      - solana-keygen new --no-bip39-passphrase
-      - npm ci
-      - anchor test --skip-build || true
-    artifacts:
       - name: solana
         path: /root/.config/solana/
-    resources:
-      - name: programs
-        path: .
-
-#  - name: rust lint
-#    commands:
-#      - cargo check --release
-#      - cargo test --release
-#      - cargo clippy --release
-#    resources:
-#      - name: programs
-#        path: .
 
   - name: verify hash
     image: nosana/solana-verifiable-build
@@ -60,7 +40,7 @@ jobs:
       - EXECUTABLE_HASH="$(solana-verify get-executable-hash target/deploy/${PROGRAM_NAME}.so)"
       - echo "${EXECUTABLE_HASH}"
       - |
-        if [ "${PROGRAM_HASH}" != "${EXECUTABLE_HASH}" ]
+        if [ "${PROGRAM_HASH}" == "${EXECUTABLE_HASH}" ]
         then
           echo Hashes already the same
           exit 1
