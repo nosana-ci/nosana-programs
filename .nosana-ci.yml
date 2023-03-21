@@ -6,7 +6,9 @@ global:
   image: nosana/solana:v1.0.9
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
+    SOLANA_DIR: /root/.config/solana/
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
+    PROGRAM_NAME: nosana_jobs
     SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
     SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2
     SQUADS_PROGRAM_PUBKEY: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
@@ -19,23 +21,23 @@ global:
 
 jobs:
 
-  # - name: build
-  #   image: projectserum/build:v0.27.0
-  #   commands:
-  #     - anchor build
-  #   artifacts:
-  #     - name: programs
-  #       path: target
+  - name: build
+    image: projectserum/build:v0.27.0
+    commands:
+      - anchor build
+    artifacts:
+      - name: programs
+        path: target
 
-#  - name: anchor test
-#    commands:
-#      - solana-keygen new --no-bip39-passphrase
-#      - anchor test --skip-build
-#    resources:
-#      - name: node_modules
-#        path: ./
-#      - name: anchor_target
-#        path: ./
+  - name: anchor test
+    image: projectserum/build:v0.27.0
+    commands:
+      - solana-keygen new --no-bip39-passphrase
+      - npm ci
+      - anchor test --skip-build || true
+    resources:
+      - name: programs
+        path: .
 
 #  - name: rust lint
 #    commands:
@@ -43,73 +45,45 @@ jobs:
 #      - cargo test --release
 #      - cargo clippy --release
 #    resources:
-#      - name: anchor_target
-#        path: ./
+#      - name: programs
+#        path: .
 
-  - name: solana config
+  - name: verify hash
+    image: nosana/solana-verifiable-build
     commands:
       - solana config set --url "${SOLANA_URL}"
-    artifacts:
-      - name: config
-        path: /root/.config
+      - PROGRAM_HASH="$(solana-verify get-program-hash ${PROGRAM_ID})"
+      - echo "${PROGRAM_HASH}"
+      - EXECUTABLE_HASH="$(solana-verify get-executable-hash target/deploy/${PROGRAM_NAME}.so)"
+      - echo "${EXECUTABLE_HASH}"
+      - test $PROGRAM_HASH != $EXECUTABLE_HASH && echo 'Hashes are different, continue deploying..' || (echo 'Hashes already the same' && exit 1)
+    resources:
+      - name: programs
+        path: .
 
-  # - name: verify hash
-  #   image: nosana/solana-verifiable-build
-  #   commands:
-  #    - PROGRAM_HASH="$(solana-verify get-program-hash $PROGRAM_ID)"
-  #    - echo "${PROGRAM_HASH}"
-  #    - EXECUTABLE_HASH="$(solana-verify get-executable-hash target/deploy/nosana_jobs.so)"
-  #    - echo "${EXECUTABLE_HASH}"
-  #    - test $PROGRAM_HASH != $EXECUTABLE_HASH && echo 'Hashes are different, continue deploying..' || (echo 'Hashes already the same' && exit 1)
-  #   resources:
-  #     - name: config
-  #       path: /
-  #     - name: programs
-  #       path: .
-
-  # - name: write buffer
-  #   secrets:
-  #     - SOLANA_WALLET
-  #   commands:
-  #     - mkdir solana
-  #     - echo $SOLANA_WALLET > solana/private-key.json
-  #     - solana config set --keypair solana/private-key.json
-  #     - solana address > solana/spill.txt
-  #     - solana program write-buffer target/deploy/nosana_jobs.so | tee solana/buffer.txt
-  #     - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority $SQUADS_AUTHORITY_PUBKEY
-  #   resources:
-  #     - name: programs
-  #       path: .
-  #   artifacts:
-  #     - name: solana
-  #       path: .
-
-  - name: squads deploy
+  - name: write buffer
     secrets:
       - SOLANA_WALLET
-    resources:
-      - name: config
-        path: /
     commands:
       - mkdir solana
-      - echo $SOLANA_WALLET > solana/private-key.json
+      - echo "${SOLANA_WALLET}" > solana/private-key.json
       - solana config set --keypair solana/private-key.json
-      - solana address > solana/spill.txt
-      - solana address
-      - echo "$(cat solana/spill.txt)"
-      - echo "${SQUADS_MULTISIG_PUBKEY}"
-      - echo "${SQUADS_PROGRAM_PUBKEY}"
-      - echo "${SQUADS_AUTHORITY_PUBKEY}"
+      - solana address | tee solana/spill.txt
+      - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee solana/buffer.txt
+      - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
       - |
         nosana-cli create-program-upgrade                        \
           --name        upgradeTest                              \
-          --private-key  solana/private-key.json                 \
-          --buffer       "5A78hK3dQGZ6qiNE25sngin1pWnHjqtXTXTRFrhJCoku"  \
+          --private-key solana/private-key.json                  \
+          --buffer      "$(cut -d ' ' -f2 < /solana/buffer.txt)" \
           --spill       "$(cat solana/spill.txt)"                \
           --network     "${SOLANA_URL}"                          \
           --multisig    "${SQUADS_MULTISIG_PUBKEY}"              \
           --program     "${SQUADS_PROGRAM_PUBKEY}"               \
           --authority   "${SQUADS_AUTHORITY_PUBKEY}" | tee solana/squads-deploy.json
+    resources:
+      - name: programs
+        path: .
 
   # - name: wait for deploy
   #   commands:
