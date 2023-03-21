@@ -44,8 +44,6 @@ jobs:
         then
           echo Hashes already the same
           exit 1
-        else
-          echo Hashes are different, continue deploying..
         fi
     resources:
       - name: programs
