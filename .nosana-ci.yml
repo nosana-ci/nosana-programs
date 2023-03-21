@@ -6,7 +6,6 @@ global:
   image: nosana/solana:v1.0.9
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
-    SOLANA_DIR: /root/.config/solana/
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
     PROGRAM_NAME: nosana_jobs
     SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
@@ -33,12 +32,15 @@ jobs:
   - name: anchor test
     image: projectserum/build:v0.27.0
     commands:
+      - solana config set --url "${SOLANA_URL}"
       - solana-keygen new --no-bip39-passphrase
       - npm ci
       - anchor test --skip-build || true
     resources:
       - name: programs
         path: .
+      - name: solana
+        path: /root/.config/solana/
 
 #  - name: rust lint
 #    commands:
@@ -60,6 +62,8 @@ jobs:
     resources:
       - name: programs
         path: .
+      - name: solana
+        path: /
 
   - name: write buffer
     secrets:
@@ -67,7 +71,6 @@ jobs:
     commands:
       - mkdir solana
       - echo "${SOLANA_WALLET}" > solana/private-key.json
-      - solana config set --url "${SOLANA_URL}"
       - solana config set --keypair solana/private-key.json
       - solana address | tee solana/spill.txt
       - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee solana/buffer.txt
@@ -85,6 +88,8 @@ jobs:
     resources:
       - name: programs
         path: .
+      - name: solana
+        path: /
 
   # - name: wait for deploy
   #   commands:
