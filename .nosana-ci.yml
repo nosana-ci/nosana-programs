@@ -36,11 +36,12 @@ jobs:
       - solana-keygen new --no-bip39-passphrase
       - npm ci
       - anchor test --skip-build || true
+    artifacts:
+      - name: solana
+        path: /root/.config/solana/
     resources:
       - name: programs
         path: .
-      - name: solana
-        path: /root/.config/solana/
 
 #  - name: rust lint
 #    commands:
@@ -58,7 +59,14 @@ jobs:
       - echo "${PROGRAM_HASH}"
       - EXECUTABLE_HASH="$(solana-verify get-executable-hash target/deploy/${PROGRAM_NAME}.so)"
       - echo "${EXECUTABLE_HASH}"
-      - test $PROGRAM_HASH != $EXECUTABLE_HASH && echo 'Hashes are different, continue deploying..' || (echo 'Hashes already the same' && exit 1)
+      - |
+        if [ "${PROGRAM_HASH}" != "${EXECUTABLE_HASH}" ]
+        then
+          echo Hashes already the same
+          exit 1
+        else
+          echo Hashes are different, continue deploying..
+        fi
     resources:
       - name: programs
         path: .
@@ -70,8 +78,7 @@ jobs:
       - SOLANA_WALLET
     commands:
       - mkdir solana
-      - echo "${SOLANA_WALLET}" > solana/private-key.json
-      - solana config set --keypair solana/private-key.json
+      - echo "${SOLANA_WALLET}" > /root/.config/solana/id.json
       - solana address | tee solana/spill.txt
       - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee solana/buffer.txt
       - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
