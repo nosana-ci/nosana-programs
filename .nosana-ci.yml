@@ -63,14 +63,14 @@ jobs:
       - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee solana/buffer.txt
       - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
       - |
-        nosana-cli create-program-upgrade                        \
-          --name        upgradeTest                              \
-          --private-key solana/private-key.json                  \
-          --buffer      "$(cut -d ' ' -f2 < /solana/buffer.txt)" \
-          --spill       "$(cat solana/spill.txt)"                \
-          --network     "${SOLANA_URL}"                          \
-          --multisig    "${SQUADS_MULTISIG_PUBKEY}"              \
-          --program     "${SQUADS_PROGRAM_PUBKEY}"               \
+        nosana-cli create-program-upgrade                       \
+          --name        nosanaJobs                              \
+          --private-key /root/.config/solana/id.json            \
+          --buffer      "$(cut -d ' ' -f2 < solana/buffer.txt)" \
+          --spill       "$(cat solana/spill.txt)"               \
+          --network     "${SOLANA_URL}"                         \
+          --multisig    "${SQUADS_MULTISIG_PUBKEY}"             \
+          --program     "${SQUADS_PROGRAM_PUBKEY}"              \
           --authority   "${SQUADS_AUTHORITY_PUBKEY}" | tee solana/squads-deploy.json
     resources:
       - name: programs
