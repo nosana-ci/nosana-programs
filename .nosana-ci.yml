@@ -38,7 +38,7 @@ jobs:
       - echo "On chain hash is ${REMOTE_HASH}"
       - LOCAL_HASH="$(solana-verify get-executable-hash "target/deploy/${PROGRAM_NAME}.so")"
       - echo "Compiled hash is ${LOCAL_HASH}"
-      - if [ "$REMOTE_HASH" == "$LOCAL_HASH" ]; then exit 0; fi
+      - test ${REMOTE_HASH} == ${LOCAL_HASH} && (echo Programs are equal, deployment cancelled && exit 0) || true
       - echo "${SOLANA_WALLET}" > /root/.config/solana/id.json
       - solana address | tee /tmp/spill.txt
       - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee /tmp/buffer.txt
