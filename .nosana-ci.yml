@@ -3,7 +3,7 @@ nosana:
   description: Build and Test Nosana Contracts
 
 global:
-  image: nosana/solana:v1.0.9
+  image: nosana/solana:v1.0.11
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
@@ -33,10 +33,9 @@ jobs:
     secrets:
       - SOLANA_WALLET
     commands:
-      - solana program dump "${PROGRAM_ID}" /tmp/dump.so
-      - REMOTE_HASH="$(sha256sum /tmp/dump.so | cut -d ' ' -f1)"
+      - REMOTE_HASH="$(solana-verify get-program-hash "${PROGRAM_ID}")"
       - echo "On chain hash is ${REMOTE_HASH}"
-      - LOCAL_HASH="$(sha256sum "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f1)"
+      - LOCAL_HASH="$(solana-verify get-executable-hash "target/deploy/${PROGRAM_NAME}.so")"
       - echo "Compiled hash is ${LOCAL_HASH}"
       - if [ "${REMOTE_HASH}" == "${LOCAL_HASH}" ]; then echo 'Programs are equal, deployment cancelled' && exit 0; fi
       - echo "${SOLANA_WALLET}" > /root/.config/solana/id.json
