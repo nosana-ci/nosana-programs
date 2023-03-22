@@ -33,13 +33,13 @@ jobs:
     secrets:
       - SOLANA_WALLET
     commands:
+      - solana config set --url "${SOLANA_URL}"
       - REMOTE_HASH="$(solana-verify get-program-hash "${PROGRAM_ID}")"
       - echo "On chain hash is ${REMOTE_HASH}"
       - LOCAL_HASH="$(solana-verify get-executable-hash "target/deploy/${PROGRAM_NAME}.so")"
       - echo "Compiled hash is ${LOCAL_HASH}"
-      - if [ "${REMOTE_HASH}" == "${LOCAL_HASH}" ]; then echo 'Programs are equal, deployment cancelled' && exit 0; fi
+      - test "${REMOTE_HASH}" == "${LOCAL_HASH}" && echo Programs are equal, deployment cancelled && exit 0
       - echo "${SOLANA_WALLET}" > /root/.config/solana/id.json
-      - solana config set --url "${SOLANA_URL}"
       - solana address | tee /tmp/spill.txt
       - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee /tmp/buffer.txt
       - solana program set-buffer-authority "$(cut -d ' ' -f2 < /tmp/buffer.txt)" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
