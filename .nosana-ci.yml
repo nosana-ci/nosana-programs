@@ -23,66 +23,37 @@ jobs:
   - name: build
     image: projectserum/build:v0.27.0
     commands:
-      - solana config set --url "${SOLANA_URL}"
       - scripts/prepare.sh
       - anchor build
     artifacts:
       - name: programs
         path: target
-      - name: solana
-        path: /root/.config/solana/
-
-  - name: verify hash
-    image: nosana/solana-verifiable-build
-    commands:
-      - PROGRAM_HASH="$(solana-verify get-program-hash ${PROGRAM_ID})"
-      - echo "${PROGRAM_HASH}"
-      - EXECUTABLE_HASH="$(solana-verify get-executable-hash target/deploy/${PROGRAM_NAME}.so)"
-      - echo "${EXECUTABLE_HASH}"
-      - |
-        if [ "${PROGRAM_HASH}" == "${EXECUTABLE_HASH}" ]
-        then
-          echo Hashes already the same
-          exit 1
-        fi
-    resources:
-      - name: programs
-        path: .
-      - name: solana
-        path: /
 
   - name: write buffer
     secrets:
       - SOLANA_WALLET
     commands:
-      - mkdir solana
+      - solana program dump "${PROGRAM_ID}" /tmp/dump.so
+      - REMOTE_HASH="$(sha256sum /tmp/dump.so | cut -d ' ' -f1)"
+      - echo "On chain hash is ${REMOTE_HASH}"
+      - LOCAL_HASH="$(sha256sum "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f1)"
+      - echo "Compiled hash is ${LOCAL_HASH}"
+      - test "${REMOTE_HASH}" == "${LOCAL_HASH}" && (echo 'Hashes already the same, deployment cancelled' && exit 0)
       - echo "${SOLANA_WALLET}" > /root/.config/solana/id.json
-      - solana address | tee solana/spill.txt
-      - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee solana/buffer.txt
-      - solana program set-buffer-authority "$(cut -d ' ' -f2 < solana/buffer.txt)" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
+      - solana config set --url "${SOLANA_URL}"
+      - solana address | tee /tmp/spill.txt
+      - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee /tmp/buffer.txt
+      - solana program set-buffer-authority "$(cut -d ' ' -f2 < /tmp/buffer.txt)" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
       - |
         nosana-cli create-program-upgrade                       \
           --name        nosanaJobs                              \
           --private-key /root/.config/solana/id.json            \
-          --buffer      "$(cut -d ' ' -f2 < solana/buffer.txt)" \
-          --spill       "$(cat solana/spill.txt)"               \
+          --buffer      "$(cut -d ' ' -f2 < /tmp/buffer.txt)"   \
+          --spill       "$(cat /tmp/spill.txt)"                 \
           --network     "${SOLANA_URL}"                         \
           --multisig    "${SQUADS_MULTISIG_PUBKEY}"             \
           --program     "${SQUADS_PROGRAM_PUBKEY}"              \
-          --authority   "${SQUADS_AUTHORITY_PUBKEY}" | tee solana/squads-deploy.json
+          --authority   "${SQUADS_AUTHORITY_PUBKEY}"
     resources:
       - name: programs
         path: .
-      - name: solana
-        path: /
-
-  # - name: wait for deploy
-  #   commands:
-  #     - |
-  #       nosana-cli await-upgrade                                 \
-  #         --private-key solana/private-key.json                  \
-  #         --program     "${SQUADS_PROGRAM_PUBKEY}"               \
-  #         --index       "$(cat solana/squads-deploy.json | tail -n 1 | jq .upgradeIndex)"
-  #   resources:
-  #     - name: solana
-        # path: .
