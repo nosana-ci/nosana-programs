@@ -3,7 +3,7 @@ nosana:
   description: Build and Test Nosana Contracts
 
 global:
-  image: nosana/solana:v1.0.11
+  image: nosana/solana:v1.0.13
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
@@ -60,6 +60,11 @@ jobs:
           --multisig    "${SQUADS_MULTISIG_PUBKEY}"             \
           --program     "${SQUADS_PROGRAM_PUBKEY}"              \
           --authority   "${SQUADS_AUTHORITY_PUBKEY}"
+      - |
+        nosana-cli approve-transaction                          \
+          --private-key /root/.config/solana/id.json            \
+          --transaction "$(cat transaction.txt)"                \
+          --network     "${SOLANA_URL}"                         \                  
     resources:
       - name: programs
         path: .
