@@ -38,7 +38,7 @@ jobs:
       - echo "On chain hash is ${REMOTE_HASH}"
       - LOCAL_HASH="$(sha256sum "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f1)"
       - echo "Compiled hash is ${LOCAL_HASH}"
-      - test "${REMOTE_HASH}" == "${LOCAL_HASH}" && (echo 'Hashes already the same, deployment cancelled' && exit 0)
+      - if [ "${REMOTE_HASH}" == "${LOCAL_HASH}" ]; then echo 'Programs are equal, deployment cancelled' && exit 0; fi
       - echo "${SOLANA_WALLET}" > /root/.config/solana/id.json
       - solana config set --url "${SOLANA_URL}"
       - solana address | tee /tmp/spill.txt
