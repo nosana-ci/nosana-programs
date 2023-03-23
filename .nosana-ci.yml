@@ -29,6 +29,14 @@ jobs:
       - name: programs
         path: target
 
+  - name: test
+    image: projectserum/build:v0.27.0
+    commands:
+      - anchor test | true
+    resources:
+      - name: programs
+        path: .
+
   - name: deliver
     secrets:
       - SOLANA_WALLET
@@ -64,7 +72,7 @@ jobs:
         nosana-cli approve-transaction                          \
           --private-key /root/.config/solana/id.json            \
           --transaction "$(cat transaction.txt)"                \
-          --network     "${SOLANA_URL}"                         \                  
+          --network     "${SOLANA_URL}"
     resources:
       - name: programs
         path: .
