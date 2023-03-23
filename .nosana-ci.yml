@@ -35,7 +35,7 @@ jobs:
     commands:
       - solana-keygen new --no-bip39-passphrase
       - npm ci
-      - anchor test | true
+      - anchor test
     resources:
       - name: programs
         path: .
