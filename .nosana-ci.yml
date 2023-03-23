@@ -51,14 +51,14 @@ jobs:
       - echo "On chain hash is ${REMOTE_HASH}"
       - LOCAL_HASH="$(solana-verify get-executable-hash "target/deploy/${PROGRAM_NAME}.so")"
       - echo "Compiled hash is ${LOCAL_HASH}"
-      - |
-        if [ "${REMOTE_HASH}" = "${LOCAL_HASH}" ]
-        then
-          echo Programs are equal, deployment cancelled
-          exit 0
-        else
-          echo Continue deployment
-        fi
+#      - |
+#        if [ "${REMOTE_HASH}" = "${LOCAL_HASH}" ]
+#        then
+#          echo Programs are equal, deployment cancelled
+#          exit 0
+#        else
+#          echo Continue deployment
+#        fi
       - echo "${SQUADS_KEY}" > "${PRIVATE_KEY_PATH}"
       - BUFFER_ACCOUNT="$(solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f2)"
       - echo "Buffer account is ${BUFFER_ACCOUNT}"
