@@ -3,7 +3,7 @@ nosana:
   description: Build and Test Nosana Contracts
 
 global:
-  image: nosana/solana:v1.0.13
+  image: nosana/solana:v1.0.14
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
@@ -64,20 +64,17 @@ jobs:
       - echo "Buffer account is ${BUFFER_ACCOUNT}"
       - solana program set-buffer-authority "${BUFFER_ACCOUNT}" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
       - |
-        nosana-cli create-program-upgrade           \
-          --name        nosanaJobs                  \
-          --private-key "${PRIVATE_KEY_PATH}"       \
-          --buffer      "${BUFFER_ACCOUNT}"         \
-          --spill       "$(solana address)"         \
-          --network     "${SOLANA_URL}"             \
-          --multisig    "${SQUADS_MULTISIG_PUBKEY}" \
-          --program     "${SQUADS_PROGRAM_PUBKEY}"  \
-          --authority   "${SQUADS_AUTHORITY_PUBKEY}"
-      - |
-        nosana-cli approve-transaction           \
-          --private-key "${PRIVATE_KEY_PATH}"    \
-          --transaction "$(cat transaction.txt)" \
-          --network     "${SOLANA_URL}"
+        nosana-cli create-program-upgrade            \
+          --name        nosanaJobs                   \
+          --private-key "${PRIVATE_KEY_PATH}"        \
+          --buffer      "${BUFFER_ACCOUNT}"          \
+          --spill       "$(solana address)"          \
+          --network     "${SOLANA_URL}"              \
+          --multisig    "${SQUADS_MULTISIG_PUBKEY}"  \
+          --program     "${SQUADS_PROGRAM_PUBKEY}"   \
+          --authority   "${SQUADS_AUTHORITY_PUBKEY}" \
+          --approve
+
     resources:
       - name: programs
         path: .
