@@ -8,6 +8,7 @@ global:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
     PROGRAM_NAME: nosana_jobs
+    PRIVATE_KEY_PATH: /root/.config/solana/id.json
     SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
     SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2
     SQUADS_PROGRAM_PUBKEY: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
@@ -32,6 +33,8 @@ jobs:
   - name: test
     image: projectserum/build:v0.27.0
     commands:
+      - solana-keygen new --no-bip39-passphrase
+      - npm ci
       - anchor test | true
     resources:
       - name: programs
@@ -54,24 +57,24 @@ jobs:
         else
           echo Continue deployment
         fi
-      - echo "${SOLANA_WALLET}" > /root/.config/solana/id.json
-      - solana address | tee /tmp/spill.txt
-      - solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | tee /tmp/buffer.txt
-      - solana program set-buffer-authority "$(cut -d ' ' -f2 < /tmp/buffer.txt)" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
+      - echo "${SOLANA_WALLET}" > "${PRIVATE_KEY_PATH}"
+      - BUFFER_ACCOUNT="$(solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f2)"
+      - echo "Buffer account is ${BUFFER_ACCOUNT}"
+      - solana program set-buffer-authority "${BUFFER_ACCOUNT}" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
       - |
-        nosana-cli create-program-upgrade                       \
-          --name        nosanaJobs                              \
-          --private-key /root/.config/solana/id.json            \
-          --buffer      "$(cut -d ' ' -f2 < /tmp/buffer.txt)"   \
-          --spill       "$(cat /tmp/spill.txt)"                 \
-          --network     "${SOLANA_URL}"                         \
-          --multisig    "${SQUADS_MULTISIG_PUBKEY}"             \
-          --program     "${SQUADS_PROGRAM_PUBKEY}"              \
+        nosana-cli create-program-upgrade           \
+          --name        nosanaJobs                  \
+          --private-key "${PRIVATE_KEY_PATH}"       \
+          --buffer      "${BUFFER_ACCOUNT}"         \
+          --spill       "$(solana address)"         \
+          --network     "${SOLANA_URL}"             \
+          --multisig    "${SQUADS_MULTISIG_PUBKEY}" \
+          --program     "${SQUADS_PROGRAM_PUBKEY}"  \
           --authority   "${SQUADS_AUTHORITY_PUBKEY}"
       - |
-        nosana-cli approve-transaction                          \
-          --private-key /root/.config/solana/id.json            \
-          --transaction "$(cat transaction.txt)"                \
+        nosana-cli approve-transaction           \
+          --private-key "${PRIVATE_KEY_PATH}"    \
+          --transaction "$(cat transaction.txt)" \
           --network     "${SOLANA_URL}"
     resources:
       - name: programs
