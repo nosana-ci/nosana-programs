@@ -61,7 +61,7 @@ jobs:
 #        fi
       - echo "${SQUADS_KEY}" > "${PRIVATE_KEY_PATH}"
       - BUFFER_ACCOUNT="$(solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f2)"
-      - echo "Buffer account is ${BUFFER_ACCOUNT}"
+      - if [ -z "${BUFFER_ACCOUNT}" ]; then exit 1; else echo "Buffer account is ${BUFFER_ACCOUNT}"; fi
       - solana program set-buffer-authority "${BUFFER_ACCOUNT}" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
       - |
         nosana-cli create-program-upgrade            \
