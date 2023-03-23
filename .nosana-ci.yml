@@ -31,9 +31,11 @@ jobs:
         path: target
 
   - name: test
+    secrets:
+      - TEST_KEY
     image: projectserum/build:v0.27.0
     commands:
-      - solana-keygen new --no-bip39-passphrase
+      - echo "${TEST_KEY}" > "${PRIVATE_KEY_PATH}"
       - npm ci
       - anchor test
     resources:
@@ -42,7 +44,7 @@ jobs:
 
   - name: deliver
     secrets:
-      - SOLANA_WALLET
+      - SQUADS_KEY
     commands:
       - solana config set --url "${SOLANA_URL}"
       - REMOTE_HASH="$(solana-verify get-program-hash "${PROGRAM_ID}")"
@@ -57,7 +59,7 @@ jobs:
         else
           echo Continue deployment
         fi
-      - echo "${SOLANA_WALLET}" > "${PRIVATE_KEY_PATH}"
+      - echo "${SQUADS_KEY}" > "${PRIVATE_KEY_PATH}"
       - BUFFER_ACCOUNT="$(solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f2)"
       - echo "Buffer account is ${BUFFER_ACCOUNT}"
       - solana program set-buffer-authority "${BUFFER_ACCOUNT}" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
