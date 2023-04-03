@@ -3,7 +3,7 @@ nosana:
   description: Build and Test Nosana Contracts
 
 global:
-  image: nosana/solana:v1.0.16
+  image: projectserum/build:v0.27.0
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
@@ -22,7 +22,6 @@ global:
 jobs:
 
   - name: build
-    image: projectserum/build:v0.27.0
     commands:
       - scripts/prepare.sh
       - anchor build
@@ -33,7 +32,6 @@ jobs:
   - name: test
     secrets:
       - TEST_KEY
-    image: projectserum/build:v0.27.0
     commands:
       - echo "${TEST_KEY}" > "${PRIVATE_KEY_PATH}"
       - npm ci
@@ -43,6 +41,7 @@ jobs:
         path: .
 
   - name: deliver
+    image: nosana/solana:v1.0.16
     secrets:
       - SQUADS_KEY
     commands:
