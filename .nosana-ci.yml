@@ -3,7 +3,7 @@ nosana:
   description: Build and Test Nosana Contracts
 
 global:
-  image: nosana/solana:v1.0.14
+  image: nosana/solana:v1.0.16
   environment:
     SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
     PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
