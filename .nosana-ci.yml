@@ -15,9 +15,11 @@ global:
 
   # Trigger pipeline on these branches:
   trigger:
-    branch:
-      - main
-      - nosana-ci
+    push:
+      branches:
+        - nosana-ci
+      tags:
+        - 'v*'
 
 jobs:
 
