@@ -542,7 +542,7 @@ The following 4 account addresses should be provided when invoking this instruct
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
 | `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [RunAccount](#run-account) address.                                                           |
-| `payer`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The paying identy for the rent.                                                                   |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 
@@ -567,7 +567,7 @@ let tx = await program.methods
   .accounts({
     job,               // ✓ writable, 𐄂 signer
     run,               // ✓ writable, 𐄂 signer
-    payer,             // 𐄂 writable, 𐄂 signer
+    payer,             // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
   .signers([authorityKey])
