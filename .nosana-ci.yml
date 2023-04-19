@@ -1,53 +1,81 @@
 # .nosana-ci.yml
 nosana:
-    description: Build and Test Nosana Contracts
-    backend: IPFS
+  description: Build and Test Nosana Contracts
 
 global:
-    image: registry.hub.docker.com/projectserum/build:v0.25.0
+  image: projectserum/build:v0.27.0
+  environment:
+    SOLANA_URL: mainnet-beta # testnet / devnet / mainnet / your-custom-sol-rpc
+    PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
+    PROGRAM_NAME: nosana_jobs
+    PRIVATE_KEY_PATH: /root/.config/solana/id.json
+    SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
+    SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2
+    SQUADS_PROGRAM_PUBKEY: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
 
-    # Trigger pipeline on these branches:
-    trigger:
-        branch:
-            - main
+  # Trigger pipeline on these branches:
+  trigger:
+    push:
+      branches:
+        - nosana-ci
+      tags:
+        - 'v*'
 
 jobs:
 
-    - name: install
-      commands:
-        - npm ci
+  - name: build
+    commands:
+      - scripts/prepare.sh
+      - anchor build
+    artifacts:
+      - name: programs
+        path: target
 
-      artifacts:
-        - name: node_modules
-          path: ./node_modules/
+  - name: test
+    secrets:
+      - TEST_KEY
+    commands:
+      - echo "${TEST_KEY}" > "${PRIVATE_KEY_PATH}"
+      - npm ci
+      - anchor test
+    resources:
+      - name: programs
+        path: .
 
-    - name: npm lint
-      commands:
-          - npm run eslint
-          - npm run prettier
-          - npm run check-types
-      resources:
-        - node_modules
+  - name: deliver
+    image: nosana/solana:v1.0.18
+    secrets:
+      - SQUADS_KEY
+    commands:
+      - solana config set --url "${SOLANA_URL}"
+      - REMOTE_HASH="$(solana-verify get-program-hash "${PROGRAM_ID}")"
+      - echo "On chain hash is ${REMOTE_HASH}"
+      - LOCAL_HASH="$(solana-verify get-executable-hash "target/deploy/${PROGRAM_NAME}.so")"
+      - echo "Compiled hash is ${LOCAL_HASH}"
+      - |
+        if [ "${REMOTE_HASH}" = "${LOCAL_HASH}" ]
+        then
+          echo Programs are equal, deployment cancelled
+          exit 0
+        else
+          echo Continue deployment
+        fi
+      - echo "${SQUADS_KEY}" > "${PRIVATE_KEY_PATH}"
+      - BUFFER_ACCOUNT="$(solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f2)"
+      - if [ -z "${BUFFER_ACCOUNT}" ]; then exit 1; else echo "Buffer account is ${BUFFER_ACCOUNT}"; fi
+      - solana program set-buffer-authority "${BUFFER_ACCOUNT}" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY}"
+      - |
+        nosana-cli create-program-upgrade            \
+          --name        nosanaJobs                   \
+          --private-key "${PRIVATE_KEY_PATH}"        \
+          --buffer      "${BUFFER_ACCOUNT}"          \
+          --spill       "$(solana address)"          \
+          --network     "${SOLANA_URL}"              \
+          --multisig    "${SQUADS_MULTISIG_PUBKEY}"  \
+          --program     "${SQUADS_PROGRAM_PUBKEY}"   \
+          --authority   "${SQUADS_AUTHORITY_PUBKEY}" \
+          --approve
 
-    - name: build
-      commands:
-        - anchor build
-      artifacts:
-        - name: anchor_target
-          path: ./target/
-
-    - name: anchor test
-      commands:
-          - solana-keygen new --no-bip39-passphrase
-          - anchor test --skip-build
-      resources:
-        - node_modules
-        - anchor_target
-
-    - name: rust lint
-      commands:
-          - cargo check --release
-          - cargo test --release
-          - cargo clippy --release
-      resources:
-          - anchor_target
+    resources:
+      - name: programs
+        path: .
