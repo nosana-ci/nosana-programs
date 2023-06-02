@@ -13,16 +13,13 @@ global:
     SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2
     SQUADS_PROGRAM_PUBKEY: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
     SOLANA_URL_DEV: devnet # testnet / devnet / mainnet / your-custom-sol-rpc
-    SQUADS_AUTHORITY_PUBKEY_DEV: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
-    SQUADS_MULTISIG_PUBKEY_DEV: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2
-    SQUADS_PROGRAM_PUBKEY_DEV: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
+    PROGRAM_ID_DEV: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
 
   # Trigger pipeline on these branches:
   trigger:
     push:
       branches:
         - main
-        - jobs-dev
       tags:
         - 'v*'
 
@@ -52,39 +49,14 @@ jobs:
       push:
         branches:
           - main
-          - jobs-dev
-    image: nosana/solana:v1.0.18
     secrets:
-      - SQUADS_KEY_DEV
+      - ANCHOR_TOKEN_DEV
     commands:
-      - solana config set --url "${SOLANA_URL_DEV}"
-      - REMOTE_HASH="$(solana-verify get-program-hash "${PROGRAM_ID}")"
-      - echo "On chain hash is ${REMOTE_HASH}"
-      - LOCAL_HASH="$(solana-verify get-executable-hash "target/deploy/${PROGRAM_NAME}.so")"
-      - echo "Compiled hash is ${LOCAL_HASH}"
-      - |
-        if [ "${REMOTE_HASH}" = "${LOCAL_HASH}" ]
-        then
-          echo Programs are equal, deployment cancelled
-          exit 0
-        else
-          echo Continue deployment
-        fi
-      - echo "${SQUADS_KEY_DEV}" > "${PRIVATE_KEY_PATH}"
-      - BUFFER_ACCOUNT="$(solana program write-buffer "target/deploy/${PROGRAM_NAME}.so" | cut -d ' ' -f2)"
-      - if [ -z "${BUFFER_ACCOUNT}" ]; then exit 1; else echo "Buffer account is ${BUFFER_ACCOUNT}"; fi
-      - solana program set-buffer-authority "${BUFFER_ACCOUNT}" --new-buffer-authority "${SQUADS_AUTHORITY_PUBKEY_DEV}"
-      - |
-        nosana-cli create-program-upgrade                \
-          --name        nosanaJobs                       \
-          --private-key "${PRIVATE_KEY_PATH}"            \
-          --buffer      "${BUFFER_ACCOUNT}"              \
-          --spill       "$(solana address)"              \
-          --network     "${SOLANA_URL_DEV}"              \
-          --multisig    "${SQUADS_MULTISIG_PUBKEY_DEV}"  \
-          --program     "${SQUADS_PROGRAM_PUBKEY_DEV}"   \
-          --authority   "${SQUADS_AUTHORITY_PUBKEY_DEV}" \
-          --approve
+      - echo upgrading $PROGRAM_ID_DEV in $SOLANA_URL_DEV with target/deploy/$PROGRAM_NAME.so and target/idl/$PROGRAM_NAME.json
+      - anchor login $ANCHOR_TOKEN_DEV
+      - anchor upgrade --provider.cluster $SOLANA_URL_DEV --program-id $PROGRAM_ID target/deploy/$PROGRAM_NAME.so
+      - jq 'del(.. | .docs?)'  > idl.json
+      - anchor idl upgrade -f idl.json --provider.cluster $SOLANA_URL_DEV $PROGRAM_ID_DEV
 
     resources:
       - name: programs
