@@ -35,15 +35,18 @@ nosana_jobs = "nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR"
 nosana_pools = "nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD"
 nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
 nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
+nosana_nodes = "nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD"
 
 [programs.devnet]
 nosana_jobs = "nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR"
 nosana_pools = "nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD"
 nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
 nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
+nosana_nodes = "nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD"
 
 [programs.mainnet]
 nosana_jobs = "nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM"
 nosana_pools = "nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD"
 nosana_rewards = "nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp"
 nosana_staking = "nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE"
+nosana_nodes = "nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD"

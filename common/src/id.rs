@@ -37,6 +37,12 @@ mod pools_program {
     declare_id!("nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD");
 }
 
+pub use nodes_program::ID as NODES_PROGRAM;
+mod nodes_program {
+    use super::*;
+    declare_id!("nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD");
+}
+
 pub use nos_token::ID as NOS_TOKEN;
 mod nos_token {
     use super::*;

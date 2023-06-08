@@ -1,15 +1,27 @@
-use anchor_lang::prelude::*;
+mod errors;
+mod instructions;
+mod security;
+mod state;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+use anchor_lang::prelude::*;
+use errors::*;
+use instructions::*;
+use nosana_common::*;
+use state::*;
+
+declare_id!(id::NODES_PROGRAM);
 
 #[program]
 pub mod nosana_nodes {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        Ok(())
+    /// Register a node to the Nosana Network
+    pub fn register(ctx: Context<Register>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
+    /// Update a node to the Nosana Network
+    pub fn update(ctx: Context<Update>) -> Result<()> {
+        ctx.accounts.handler()
     }
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}
