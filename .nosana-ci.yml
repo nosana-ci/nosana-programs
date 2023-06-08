@@ -50,10 +50,10 @@ jobs:
         branches:
           - main
     secrets:
-      - ANCHOR_TOKEN_DEV
+      - PRIVATE_KEY_DEV
     commands:
       - echo upgrading $PROGRAM_ID_DEV in $SOLANA_URL_DEV with target/deploy/$PROGRAM_NAME.so and target/idl/$PROGRAM_NAME.json
-      - anchor login $ANCHOR_TOKEN_DEV
+      - echo "${PRIVATE_KEY_DEV}" > "${PRIVATE_KEY_PATH}"
       - anchor upgrade --provider.cluster $SOLANA_URL_DEV --program-id $PROGRAM_ID target/deploy/$PROGRAM_NAME.so
       - jq 'del(.. | .docs?)'  > idl.json
       - anchor idl upgrade -f idl.json --provider.cluster $SOLANA_URL_DEV $PROGRAM_ID_DEV
