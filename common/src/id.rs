@@ -13,7 +13,10 @@ mod system_program {
 pub use jobs_program::ID as JOBS_PROGRAM;
 mod jobs_program {
     use super::*;
+    #[cfg(feature = "mainnet")]
     declare_id!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
+    #[cfg(not(feature = "mainnet"))]
+    declare_id!("nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR");
 }
 
 pub use rewards_program::ID as REWARDS_PROGRAM;
