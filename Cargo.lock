@@ -1215,6 +1215,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "nosana-nodes"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+]
+
+[[package]]
 name = "nosana-pools"
 version = "0.1.0"
 dependencies = [
