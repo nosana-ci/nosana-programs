@@ -4,7 +4,7 @@ use crate::*;
 pub struct Register<'info> {
     #[account(init, payer = authority, space = NodeAccount::SIZE)]
     pub node: Account<'info, NodeAccount>,
-    /// CHECK: used
+    /// CHECK: nft address for external icon usage
     pub icon: AccountInfo<'info>,
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -40,9 +40,10 @@ impl<'info> Register<'info> {
         require_gt!(iops, 0, NosanaNodesError::IopsInvalid);
         require_gt!(storage, 0, NosanaNodesError::StorageInvalid);
 
-        self.node.register(
-            self.authority.key(),
+        self.node.register(self.authority.key())?;
+        self.node.update(
             architecture_type,
+            country_code,
             cpu,
             gpu,
             memory,

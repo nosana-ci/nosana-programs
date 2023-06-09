@@ -38,7 +38,7 @@ impl From<u8> for ArchitectureType {
 }
 
 /// The `CountryCode` represent the ISO code for a country
-#[repr(u8)]
+#[repr(u16)]
 pub enum CountryCode {
     // https://www.iban.com/country-codes
     AF = 0,   // Afghanistan

@@ -44,7 +44,28 @@ pub mod nosana_nodes {
     }
 
     /// Update a node to the Nosana Network
-    pub fn update(ctx: Context<Update>) -> Result<()> {
-        ctx.accounts.handler()
+    pub fn update(
+        ctx: Context<Update>,
+        architecture_type: u8,
+        country_code: u8,
+        cpu: u16,
+        gpu: u16,
+        memory: u16,
+        iops: u16,
+        storage: u16,
+        endpoint: String,
+        version: String,
+    ) -> Result<()> {
+        ctx.accounts.handler(
+            architecture_type,
+            country_code,
+            cpu,
+            gpu,
+            memory,
+            iops,
+            storage,
+            endpoint,
+            version,
+        )
     }
 }
