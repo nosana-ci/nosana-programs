@@ -11,13 +11,13 @@ pub enum NosanaNodesError {
     #[msg("This country does not exist.")]
     CountryCodeUnknown,
     #[msg("CPU value must be greater than zero")]
-    CpuNull,
+    CpuInvalid,
     #[msg("GPU value must be greater than zero")]
-    GpuNull,
+    GpuInvalid,
     #[msg("Memory value must be greater than zero")]
-    MemoryNull,
+    MemoryInvalid,
     #[msg("IOPS value must be greater than zero")]
-    IopsNull,
+    IopsInvalid,
     #[msg("Storage value must be greater than zero")]
-    StorageNull,
+    StorageInvalid,
 }

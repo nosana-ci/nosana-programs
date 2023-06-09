@@ -34,11 +34,11 @@ impl<'info> Register<'info> {
             CountryCode::Unknown as u8,
             NosanaNodesError::CountryCodeUnknown
         );
-        require_gt!(cpu, 0, NosanaNodesError::CpuNull);
-        require_gt!(gpu, 0, NosanaNodesError::GpuNull);
-        require_gt!(memory, 0, NosanaNodesError::MemoryNull);
-        require_gt!(iops, 0, NosanaNodesError::IopsNull);
-        require_gt!(storage, 0, NosanaNodesError::StorageNull);
+        require_gt!(cpu, 0, NosanaNodesError::CpuInvalid);
+        require_gt!(gpu, 0, NosanaNodesError::GpuInvalid);
+        require_gt!(memory, 0, NosanaNodesError::MemoryInvalid);
+        require_gt!(iops, 0, NosanaNodesError::IopsInvalid);
+        require_gt!(storage, 0, NosanaNodesError::StorageInvalid);
 
         self.node.register(
             self.authority.key(),
