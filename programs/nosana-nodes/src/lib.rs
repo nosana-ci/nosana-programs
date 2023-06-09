@@ -18,8 +18,31 @@ pub mod nosana_nodes {
     use super::*;
 
     /// Register a node to the Nosana Network
-    pub fn register(ctx: Context<Register>, architecture_type: u8) -> Result<()> {
-        ctx.accounts.handler(architecture_type)
+    pub fn register(
+        ctx: Context<Register>,
+        architecture_type: u8,
+        country_code: u8,
+        cpu: u16,
+        gpu: u16,
+        memory: u16,
+        iops: u16,
+        storage: u16,
+        endpoint: String,
+        location: String,
+        version: String,
+    ) -> Result<()> {
+        ctx.accounts.handler(
+            architecture_type,
+            country_code,
+            cpu,
+            gpu,
+            memory,
+            iops,
+            storage,
+            endpoint,
+            location,
+            version,
+        )
     }
 
     /// Update a node to the Nosana Network

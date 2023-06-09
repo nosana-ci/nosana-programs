@@ -7,5 +7,5 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum NosanaNodesError {
     #[msg("This architecture does not exist.")]
-    ArchitectureError,
+    ArchitectureUnknown,
 }
