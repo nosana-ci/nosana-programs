@@ -35,7 +35,6 @@ impl NodeAccount {
         storage: u16,
         icon: Pubkey,
         endpoint: String,
-        location: String,
         version: String,
     ) -> Result<()> {
         self.authority = authority;
@@ -47,7 +46,6 @@ impl NodeAccount {
         self.storage = storage;
         self.icon = icon;
         self.endpoint = endpoint;
-        self.location = location;
         self.version = version;
         Ok(())
     }

@@ -22,13 +22,23 @@ impl<'info> Register<'info> {
         iops: u16,
         storage: u16,
         endpoint: String,
-        location: String,
         version: String,
     ) -> Result<()> {
-        require!(
-            ArchitectureType::from(architecture_type) as u8 != ArchitectureType::Unknown as u8,
+        require_neq!(
+            ArchitectureType::from(architecture_type) as u8,
+            ArchitectureType::Unknown as u8,
             NosanaNodesError::ArchitectureUnknown
         );
+        require_neq!(
+            CountryCode::from(country_code) as u8,
+            CountryCode::Unknown as u8,
+            NosanaNodesError::CountryCodeUnknown
+        );
+        require_gt!(cpu, 0, NosanaNodesError::CpuNull);
+        require_gt!(gpu, 0, NosanaNodesError::GpuNull);
+        require_gt!(memory, 0, NosanaNodesError::MemoryNull);
+        require_gt!(iops, 0, NosanaNodesError::IopsNull);
+        require_gt!(storage, 0, NosanaNodesError::StorageNull);
 
         self.node.register(
             self.authority.key(),
@@ -40,7 +50,6 @@ impl<'info> Register<'info> {
             storage,
             self.icon.key(),
             endpoint,
-            location,
             version,
         )
     }

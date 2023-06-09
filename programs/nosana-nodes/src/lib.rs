@@ -28,7 +28,6 @@ pub mod nosana_nodes {
         iops: u16,
         storage: u16,
         endpoint: String,
-        location: String,
         version: String,
     ) -> Result<()> {
         ctx.accounts.handler(
@@ -40,7 +39,6 @@ pub mod nosana_nodes {
             iops,
             storage,
             endpoint,
-            location,
             version,
         )
     }
