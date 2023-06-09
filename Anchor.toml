@@ -7,6 +7,7 @@ members = [
     "programs/nosana-pools",
     "programs/nosana-rewards",
     "programs/nosana-staking",
+    "programs/nosana-nodes",
 ]
 
 [features]
