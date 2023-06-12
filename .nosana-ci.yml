@@ -12,12 +12,14 @@ global:
     SQUADS_AUTHORITY_PUBKEY: BnSjXUGSyLMA2x2xAexp3BnmCvk4xnhUkeygozpYiNeD
     SQUADS_MULTISIG_PUBKEY: Hj7BpiinztTHA9vnTFdVuKRjfw7UybdRgdQEvYNquzY2
     SQUADS_PROGRAM_PUBKEY: 9VYJe4S85ue8hMoM9UUKQPREHRWWJRUPSQYGpknJ6Xe7
+    SOLANA_URL_DEV: devnet # testnet / devnet / mainnet / your-custom-sol-rpc
+    PROGRAM_ID_DEV: nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR
 
   # Trigger pipeline on these branches:
   trigger:
     push:
       branches:
-        - nosana-ci
+        - main
       tags:
         - 'v*'
 
@@ -42,7 +44,29 @@ jobs:
       - name: programs
         path: .
 
-  - name: deliver
+  - name: deliver devnet
+    trigger:
+      push:
+        branches:
+          - main
+    secrets:
+      - PRIVATE_KEY_DEV
+    commands:
+      - echo upgrading $PROGRAM_ID_DEV in $SOLANA_URL_DEV with target/deploy/$PROGRAM_NAME.so and target/idl/$PROGRAM_NAME.json
+      - echo "${PRIVATE_KEY_DEV}" > "${PRIVATE_KEY_PATH}"
+      - anchor upgrade --provider.cluster $SOLANA_URL_DEV --program-id $PROGRAM_ID target/deploy/$PROGRAM_NAME.so
+      - jq 'del(.. | .docs?)'  > idl.json
+      - anchor idl upgrade -f idl.json --provider.cluster $SOLANA_URL_DEV $PROGRAM_ID_DEV
+
+    resources:
+      - name: programs
+        path: .
+
+
+  - name: deliver mainnet
+    trigger:
+      tags:
+        - 'v*'
     image: nosana/solana:v1.0.18
     secrets:
       - SQUADS_KEY
