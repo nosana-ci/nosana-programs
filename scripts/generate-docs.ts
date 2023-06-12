@@ -58,6 +58,7 @@ const typeToString = (field) =>
 const sizes = {
   u8: 1,
   bool: 1,
+  u16: 2,
   u64: 8,
   i64: 16,
   u128: 16,
@@ -200,6 +201,28 @@ const descriptions = (name) => {
       return 'The queue of order in the market.';
     case 'queueType':
       return 'The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.';
+
+    // nodes arguments
+    case 'architectureType':
+      return 'The [ArchitectureType](#architecture-type) of the node.';
+    case 'countryCode':
+      return 'The [CountryCode](#country-code) of the node.';
+    case 'location':
+      return 'The [CountryCode](#country-code) of the node.';
+    case 'cpu':
+      return 'The number of vCPU cores a node has.';
+    case 'gpu':
+      return 'The number of GPU cores a node has.';
+    case 'memory':
+      return 'Memory capacity of a node in GB.';
+    case 'iops':
+      return 'Input/output operations per second of a node.';
+    case 'storage':
+      return 'Storage capacity of a node in GB.';
+    case 'endpoint':
+      return 'HTTP endpoint for log streaming and results.';
+    case 'version':
+      return 'The version of the nosana node software they are running.';
 
     // default
     default:

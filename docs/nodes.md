@@ -47,15 +47,15 @@ The following 9 arguments should also be provided when invoking this instruction
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
-| `architectureType`     | `u8`              | `1`     | `0`     | n/a                                                       |
-| `countryCode`          | `u8`              | `1`     | `1`     | n/a                                                       |
-| `cpu`                  | `u16`             | `undefined`| `2`     | n/a                                                       |
-| `gpu`                  | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `memory`               | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `iops`                 | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `storage`              | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `endpoint`             | `string`          | `undefined`| `NaN`   | n/a                                                       |
-| `version`              | `string`          | `undefined`| `NaN`   | n/a                                                       |
+| `architectureType`     | `u8`              | `1`     | `0`     | The [ArchitectureType](#architecture-type) of the node.   |
+| `countryCode`          | `u8`              | `1`     | `1`     | The [CountryCode](#country-code) of the node.             |
+| `cpu`                  | `u16`             | `2`     | `2`     | The number of vCPU cores a node has.                      |
+| `gpu`                  | `u16`             | `2`     | `4`     | The number of GPU cores a node has.                       |
+| `memory`               | `u16`             | `2`     | `6`     | Memory capacity of a node in GB.                          |
+| `iops`                 | `u16`             | `2`     | `8`     | Input/output operations per second of a node.             |
+| `storage`              | `u16`             | `2`     | `10`    | Storage capacity of a node in GB.                         |
+| `endpoint`             | `string`          | `undefined`| `12`    | HTTP endpoint for log streaming and results.              |
+| `version`              | `string`          | `undefined`| `NaN`   | The version of the nosana node software they are running. |
 
 
 #### Solana Dispatch ID
@@ -116,15 +116,15 @@ The following 9 arguments should also be provided when invoking this instruction
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
-| `architectureType`     | `u8`              | `1`     | `0`     | n/a                                                       |
-| `countryCode`          | `u8`              | `1`     | `1`     | n/a                                                       |
-| `cpu`                  | `u16`             | `undefined`| `2`     | n/a                                                       |
-| `gpu`                  | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `memory`               | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `iops`                 | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `storage`              | `u16`             | `undefined`| `NaN`   | n/a                                                       |
-| `endpoint`             | `string`          | `undefined`| `NaN`   | n/a                                                       |
-| `version`              | `string`          | `undefined`| `NaN`   | n/a                                                       |
+| `architectureType`     | `u8`              | `1`     | `0`     | The [ArchitectureType](#architecture-type) of the node.   |
+| `countryCode`          | `u8`              | `1`     | `1`     | The [CountryCode](#country-code) of the node.             |
+| `cpu`                  | `u16`             | `2`     | `2`     | The number of vCPU cores a node has.                      |
+| `gpu`                  | `u16`             | `2`     | `4`     | The number of GPU cores a node has.                       |
+| `memory`               | `u16`             | `2`     | `6`     | Memory capacity of a node in GB.                          |
+| `iops`                 | `u16`             | `2`     | `8`     | Input/output operations per second of a node.             |
+| `storage`              | `u16`             | `2`     | `10`    | Storage capacity of a node in GB.                         |
+| `endpoint`             | `string`          | `undefined`| `12`    | HTTP endpoint for log streaming and results.              |
+| `version`              | `string`          | `undefined`| `NaN`   | The version of the nosana node software they are running. |
 
 
 #### Solana Dispatch ID
@@ -179,15 +179,15 @@ The total size of this account is `NaN` bytes.
 | `audited`                   | `bool`                      | `1`     | `40`    | n/a                                                                                               |
 | `architecture`              | `u8`                        | `1`     | `41`    | n/a                                                                                               |
 | `country`                   | `u8`                        | `1`     | `42`    | n/a                                                                                               |
-| `cpu`                       | `u16`                       | `undefined`| `43`    | n/a                                                                                               |
-| `gpu`                       | `u16`                       | `undefined`| `NaN`   | n/a                                                                                               |
-| `memory`                    | `u16`                       | `undefined`| `NaN`   | n/a                                                                                               |
-| `iops`                      | `u16`                       | `undefined`| `NaN`   | n/a                                                                                               |
-| `storage`                   | `u16`                       | `undefined`| `NaN`   | n/a                                                                                               |
-| `icon`                      | `publicKey`                 | `32`    | `NaN`   | n/a                                                                                               |
-| `endpoint`                  | `string`                    | `undefined`| `NaN`   | n/a                                                                                               |
-| `location`                  | `string`                    | `undefined`| `NaN`   | n/a                                                                                               |
-| `version`                   | `string`                    | `undefined`| `NaN`   | n/a                                                                                               |
+| `cpu`                       | `u16`                       | `2`     | `43`    | The number of vCPU cores a node has.                                                              |
+| `gpu`                       | `u16`                       | `2`     | `45`    | The number of GPU cores a node has.                                                               |
+| `memory`                    | `u16`                       | `2`     | `47`    | Memory capacity of a node in GB.                                                                  |
+| `iops`                      | `u16`                       | `2`     | `49`    | Input/output operations per second of a node.                                                     |
+| `storage`                   | `u16`                       | `2`     | `51`    | Storage capacity of a node in GB.                                                                 |
+| `icon`                      | `publicKey`                 | `32`    | `53`    | n/a                                                                                               |
+| `endpoint`                  | `string`                    | `undefined`| `85`    | HTTP endpoint for log streaming and results.                                                      |
+| `location`                  | `string`                    | `undefined`| `NaN`   | The [CountryCode](#country-code) of the node.                                                     |
+| `version`                   | `string`                    | `undefined`| `NaN`   | The version of the nosana node software they are running.                                         |
 
 #### Anchor Account Discriminator
 
