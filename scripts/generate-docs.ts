@@ -6,6 +6,8 @@ import NosanaPools from '../target/idl/nosana_pools.json';
 import NosanaRewards from '../target/idl/nosana_rewards.json';
 // @ts-ignore
 import NosanaStaking from '../target/idl/nosana_staking.json';
+// @ts-ignore
+import NosanaNodes from '../target/idl/nosana_nodes.json';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import commandLineArgs from 'command-line-args';
 import { snakeCase } from 'snake-case';
@@ -69,6 +71,7 @@ const addresses = {
   nosana_staking: 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE',
   nosana_rewards: 'nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp',
   nosana_pools: 'nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD',
+  nosana_nodes: 'nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD',
 };
 
 const descriptions = (name) => {
@@ -237,7 +240,7 @@ class MarkdownTable {
  *
  */
 function main() {
-  for (const idl of [NosanaPools, NosanaJobs, NosanaRewards, NosanaStaking]) {
+  for (const idl of [NosanaPools, NosanaJobs, NosanaRewards, NosanaStaking, NosanaNodes]) {
     console.log(`Generating docs for ${title(idl.name)}`);
     const address = addresses[idl.name];
 
