@@ -17,6 +17,7 @@ import rewardTests from './suites/3-nosana-rewards-tests';
 import rewardInitTests from './suites/3-nosana-rewards-init-tests';
 import poolTests from './suites/4-nosana-pools-tests';
 import jobTests from './suites/5-nosana-jobs-tests';
+import nodesTests from './suites/6-nosana-nodes-tests';
 
 // local test scenarios
 import rewardScenario from './suites/scenario/rewards-tests';
@@ -42,6 +43,7 @@ describe('nosana programs', async function () {
     this.poolsProgram = anchor.workspace.NosanaPools;
     this.stakingProgram = anchor.workspace.NosanaStaking;
     this.rewardsProgram = anchor.workspace.NosanaRewards;
+    this.nodesProgram = anchor.workspace.NosanaNodes;
     this.metaplex = Metaplex.make(this.connection).use(walletAdapterIdentity(this.wallet));
 
     // constant values
@@ -116,6 +118,7 @@ describe('nosana programs', async function () {
       describe('rewards', rewardTests);
       describe('pools', poolTests);
       describe('jobs', jobTests);
+      describe('nodes', nodesTests);
       break;
     case 'claim-transfer':
       describe('initialization', initTests);
@@ -136,6 +139,10 @@ describe('nosana programs', async function () {
     case 'rewards':
       describe('initialization', initTests);
       describe('rewards-scenario', rewardScenario);
+      break;
+    case 'nodes':
+      describe('initialization', initTests);
+      describe('nodes', nodesTests);
       break;
     case 'staking':
       describe('initialization', initTests);

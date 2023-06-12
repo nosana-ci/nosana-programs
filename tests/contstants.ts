@@ -29,6 +29,7 @@ const constants = {
   rewardsProgramAddress: new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'),
   poolsProgramAddress: new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD'),
   jobsProgramAddress: new PublicKey('nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR'),
+  nodesProgramAddress: new PublicKey('nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD'),
 
   // status options for jobs
   jobState: {

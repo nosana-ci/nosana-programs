@@ -9,11 +9,14 @@ import { NosanaPools } from '../../target/types/nosana_pools';
 import { NosanaJobs } from '../../target/types/nosana_jobs';
 // @ts-ignore
 import { NosanaRewards } from '../../target/types/nosana_rewards';
+// @ts-ignore
+import { NosanaNodes } from '../../target/types/nosana_nodes';
 
 type JobsProgram = Program<NosanaJobs>;
 type StakingProgram = Program<NosanaStaking>;
 type RewardsProgram = Program<NosanaRewards>;
 type PoolsProgram = Program<NosanaPools>;
+type NodesProgram = Program<NosanaNodes>;
 
 type NosanaTotals = {
   xnos: BN;
@@ -62,6 +65,7 @@ type NosanaAccounts = {
   tokenProgram: PublicKey;
   stakingProgram: PublicKey;
   rewardsProgram: PublicKey;
+  nodesProgram: PublicKey;
 
   // sys vars
   rent: PublicKey;
