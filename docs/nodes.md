@@ -32,13 +32,14 @@ Register a node to the Nosana Network
 
 #### Account Info
 
-The following 4 account addresses should be provided when invoking this instruction.
+The following 5 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `node`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The node that runs this job.                                                                      |
+| `node`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The node that runs this job.                                                                      |
 | `icon`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | n/a                                                                                               |
-| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The paying identy for the rent.                                                                   |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
 
 #### Arguments
@@ -87,12 +88,13 @@ let tx = await program.methods
     version,           // type: string
   )
   .accounts({
-    node,              // ✓ writable, ✓ signer
+    node,              // ✓ writable, 𐄂 signer
     icon,              // 𐄂 writable, 𐄂 signer
-    authority,         // ✓ writable, ✓ signer
+    payer,             // ✓ writable, ✓ signer
+    authority,         // 𐄂 writable, ✓ signer
     systemProgram,     // 𐄂 writable, 𐄂 signer
   })
-  .signers([nodeKey, authorityKey])
+  .signers([payerKey, authorityKey])
   .rpc();
 ```
 
@@ -186,7 +188,6 @@ The total size of this account is `NaN` bytes.
 | `storage`                   | `u16`                       | `2`     | `51`    | Storage capacity of a node in GB.                                                                 |
 | `icon`                      | `publicKey`                 | `32`    | `53`    | n/a                                                                                               |
 | `endpoint`                  | `string`                    | `undefined`| `85`    | HTTP endpoint for log streaming and results.                                                      |
-| `location`                  | `string`                    | `undefined`| `NaN`   | The [CountryCode](#country-code) of the node.                                                     |
 | `version`                   | `string`                    | `undefined`| `NaN`   | The version of the nosana node software they are running.                                         |
 
 #### Anchor Account Discriminator
