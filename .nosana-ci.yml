@@ -30,7 +30,7 @@ jobs:
       push:
         branches:
           - main
-        tags: false
+        tags: []
     commands:
       - anchor build
     artifacts:
@@ -40,7 +40,7 @@ jobs:
   - name: build mainnet
     trigger:
       push:
-        branches: false
+        branches: []
         tags:
           - 'v*'  
     commands:
@@ -68,7 +68,7 @@ jobs:
       push:
         branches:
           - main
-        tags: false         
+        tags: []         
     secrets:
       - PRIVATE_KEY_DEV
     commands:
@@ -86,7 +86,7 @@ jobs:
   - name: deliver mainnet
     trigger:
       push:
-        branches: false
+        branches: []
         tags:
           - 'v*'
     image: nosana/solana:v1.0.18
