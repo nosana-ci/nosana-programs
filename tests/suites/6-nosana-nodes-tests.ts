@@ -47,14 +47,14 @@ export default function suite() {
           this.nodeSpec.iops,
           this.nodeSpec.storage,
           this.nodeSpec.endpoint,
-          "v1.0.1"
+          'v1.0.1'
         )
         .accounts(this.accounts)
         .rpc();
     });
     it('should match updated on-chain data', async function () {
       const node = await this.nodesProgram.account.nodeAccount.fetch(this.accounts.node);
-      expect(node.version).to.equal("v1.0.1", 'version');
+      expect(node.version).to.equal('v1.0.1', 'version');
     });
   });
 }
