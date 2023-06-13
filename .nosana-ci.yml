@@ -38,8 +38,9 @@ jobs:
 
   - name: build mainnet
     trigger:
-      tags:
-        - 'v*'  
+      push:
+        tags:
+          - 'v*'  
     commands:
       - scripts/prepare.sh
       - anchor build
@@ -81,8 +82,9 @@ jobs:
 
   - name: deliver mainnet
     trigger:
-      tags:
-        - 'v*'
+      push:
+        tags:
+          - 'v*'
     image: nosana/solana:v1.0.18
     secrets:
       - SQUADS_KEY
