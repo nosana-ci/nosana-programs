@@ -34,4 +34,27 @@ export default function suite() {
       expect(node.version).to.equal(this.nodeSpec.version, 'version');
     });
   });
+
+  describe('update()', async function () {
+    it('can update a node', async function () {
+      await this.nodesProgram.methods
+        .update(
+          this.nodeSpec.architectureType,
+          this.nodeSpec.countryCode,
+          this.nodeSpec.cpu,
+          this.nodeSpec.gpu,
+          this.nodeSpec.memory,
+          this.nodeSpec.iops,
+          this.nodeSpec.storage,
+          this.nodeSpec.endpoint,
+          "v1.0.1"
+        )
+        .accounts(this.accounts)
+        .rpc();
+    });
+    it('should match updated on-chain data', async function () {
+      const node = await this.nodesProgram.account.nodeAccount.fetch(this.accounts.node);
+      expect(node.version).to.equal("v1.0.1", 'version');
+    });
+  });
 }
