@@ -67,7 +67,7 @@ const constants = {
 
   nodeSpecification: {
     architectureType: 0,
-    countryCode: 45,
+    countryCode: 528,
     cpu: 8,
     gpu: 0,
     memory: 16,

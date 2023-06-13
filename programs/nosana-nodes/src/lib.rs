@@ -21,7 +21,7 @@ pub mod nosana_nodes {
     pub fn register(
         ctx: Context<Register>,
         architecture_type: u8,
-        country_code: u8,
+        country_code: u16,
         cpu: u16,
         gpu: u16,
         memory: u16,
@@ -47,7 +47,7 @@ pub mod nosana_nodes {
     pub fn update(
         ctx: Context<Update>,
         architecture_type: u8,
-        country_code: u8,
+        country_code: u16,
         cpu: u16,
         gpu: u16,
         memory: u16,

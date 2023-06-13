@@ -14,7 +14,7 @@ impl<'info> Update<'info> {
     pub fn handler(
         &mut self,
         architecture_type: u8,
-        country_code: u8,
+        country_code: u16,
         cpu: u16,
         gpu: u16,
         memory: u16,

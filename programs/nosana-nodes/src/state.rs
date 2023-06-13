@@ -12,7 +12,7 @@ pub struct NodeAccount {
     pub authority: Pubkey,
     pub audited: bool,
     pub architecture: u8,
-    pub country: u8,
+    pub country: u16,
     pub cpu: u16,
     pub gpu: u16,
     pub memory: u16,
@@ -34,7 +34,7 @@ impl NodeAccount {
     pub fn update(
         &mut self,
         architecture: u8,
-        country: u8,
+        country: u16,
         cpu: u16,
         gpu: u16,
         memory: u16,
