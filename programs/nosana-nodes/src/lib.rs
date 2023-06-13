@@ -43,6 +43,10 @@ pub mod nosana_nodes {
         )
     }
 
+    pub fn audit(ctx: Context<Audit>, audited: bool) -> Result<()> {
+        ctx.accounts.handler(audited)
+    }
+
     /// Update a node to the Nosana Network
     pub fn update(
         ctx: Context<Update>,

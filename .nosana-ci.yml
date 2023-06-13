@@ -69,7 +69,7 @@ jobs:
       push:
         branches:
           - main
-        tags: []         
+        tags: []
     secrets:
       - PRIVATE_KEY_DEV
     commands:

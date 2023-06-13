@@ -31,6 +31,11 @@ impl NodeAccount {
         Ok(())
     }
 
+    pub fn audit(&mut self, audited: bool) -> Result<()> {
+        self.audited = audited;
+        Ok(())
+    }
+
     pub fn update(
         &mut self,
         architecture: u8,

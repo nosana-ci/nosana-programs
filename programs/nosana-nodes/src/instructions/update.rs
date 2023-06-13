@@ -6,7 +6,6 @@ pub struct Update<'info> {
     pub node: Account<'info, NodeAccount>,
     /// CHECK: nft address for external icon usage
     pub icon: AccountInfo<'info>,
-    #[account(mut)]
     pub authority: Signer<'info>,
 }
 

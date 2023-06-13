@@ -23,6 +23,7 @@ export default function suite() {
       const node = await this.nodesProgram.account.nodeAccount.fetch(this.accounts.node);
       expect(node.authority.toString()).to.equal(this.publicKey.toString());
       expect(node.architecture).to.equal(this.nodeSpec.architectureType, 'arch');
+      expect(node.audited).to.equal(false, 'audited');
       expect(node.country).to.equal(this.nodeSpec.countryCode, 'country');
       expect(node.cpu).to.equal(this.nodeSpec.cpu, 'cpu');
       expect(node.gpu).to.equal(this.nodeSpec.gpu, 'gpu');
@@ -55,6 +56,16 @@ export default function suite() {
     it('should match updated on-chain data', async function () {
       const node = await this.nodesProgram.account.nodeAccount.fetch(this.accounts.node);
       expect(node.version).to.equal('v1.0.1', 'version');
+    });
+  });
+
+  describe('audit()', async function () {
+    it('can audit a node', async function () {
+      await this.nodesProgram.methods.audit(true).accounts(this.accounts).rpc();
+    });
+    it('should match audited on-chain data', async function () {
+      const node = await this.nodesProgram.account.nodeAccount.fetch(this.accounts.node);
+      expect(node.audited).to.equal(true, 'audit');
     });
   });
 }
