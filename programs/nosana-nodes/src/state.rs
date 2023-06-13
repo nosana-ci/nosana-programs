@@ -20,7 +20,6 @@ pub struct NodeAccount {
     pub storage: u16,
     pub icon: Pubkey,
     pub endpoint: String,
-    pub location: String,
     pub version: String,
 }
 
@@ -56,7 +55,7 @@ impl NodeAccount {
             NosanaNodesError::CountryCodeUnknown
         );
         require_gt!(cpu, 0, NosanaNodesError::CpuInvalid);
-        require_gt!(gpu, 0, NosanaNodesError::GpuInvalid);
+        require_gte!(gpu, 0, NosanaNodesError::GpuInvalid);
         require_gt!(memory, 0, NosanaNodesError::MemoryInvalid);
         require_gt!(iops, 0, NosanaNodesError::IopsInvalid);
         require_gt!(storage, 0, NosanaNodesError::StorageInvalid);

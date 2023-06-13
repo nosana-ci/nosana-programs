@@ -65,6 +65,18 @@ const constants = {
   ipfsData: [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')],
   ipfsNull: Array(32).fill(0),
 
+  nodeSpecification: {
+    architectureType: 0,
+    countryCode: 45,
+    cpu: new BN(8),
+    gpu: new BN(0),
+    memory: new BN(16),
+    iops: new BN(1000),
+    storage: new BN(100),
+    endpoint: 'https://nosana.io',
+    version: 'v1.0.0',
+  },
+
   errors: {
     // generic errors
     Unauthorized: 'This account is not authorized to perform this action.',

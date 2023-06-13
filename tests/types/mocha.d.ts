@@ -5,6 +5,7 @@ import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
 import { constants } from '../contstants';
 import {
   JobsProgram,
+  NodesProgram,
   NosanaAccounts,
   NosanaBalances,
   NosanaExists,
@@ -35,6 +36,7 @@ declare module 'mocha' {
     stakingProgram: StakingProgram;
     rewardsProgram: RewardsProgram;
     poolsProgram: PoolsProgram;
+    nodesProgram: NodesProgram;
 
     // metaplex
     metaplex: Metaplex;

@@ -60,6 +60,18 @@ type NosanaMarket = {
   queueLength: number;
 };
 
+type NosanaNodeSpecification = {
+  architectureType: number;
+  countryCode: number;
+  cpu: number;
+  gpu: number;
+  memory: number;
+  iops: number;
+  storage: number;
+  endpoint: string;
+  version: string;
+};
+
 type NosanaAccounts = {
   systemProgram: PublicKey;
   tokenProgram: PublicKey;
@@ -104,4 +116,8 @@ type NosanaAccounts = {
   nft: PublicKey;
   metadata: PublicKey;
   accessKey: PublicKey;
+
+  // nodes specific
+  node: PublicKey;
+  icon: PublicKey;
 };

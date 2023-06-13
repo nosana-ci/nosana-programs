@@ -31,7 +31,7 @@ jobs:
       - anchor build
     artifacts:
       - name: programs
-        path: target          
+        path: target
 
   - name: build mainnet
     trigger:

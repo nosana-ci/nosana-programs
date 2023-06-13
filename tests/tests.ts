@@ -24,7 +24,7 @@ import rewardScenario from './suites/scenario/rewards-tests';
 import claimTransferScenario from './suites/scenario/claim-transfer-tests';
 
 // types
-import { NosanaAccounts, NosanaExists, NosanaMarket, NosanaVaults } from './types/nosana';
+import { NosanaAccounts, NosanaExists, NosanaMarket, NosanaNodeSpecification, NosanaVaults } from './types/nosana';
 
 // run
 describe('nosana programs', async function () {
@@ -86,12 +86,15 @@ describe('nosana programs', async function () {
     this.market.queueType = this.constants.queueType.unknown;
     this.market.queueLength = 0;
 
+    this.nodeSpec = this.constants.nodeSpecification as NosanaNodeSpecification;
+
     // public keys to be used in the instructions
     this.accounts = {} as NosanaAccounts;
     this.accounts.systemProgram = anchor.web3.SystemProgram.programId;
     this.accounts.tokenProgram = TOKEN_PROGRAM_ID;
     this.accounts.stakingProgram = this.stakingProgram.programId;
     this.accounts.rewardsProgram = this.rewardsProgram.programId;
+    this.accounts.nodesProgram = this.nodesProgram.programId;
     this.accounts.rent = anchor.web3.SYSVAR_RENT_PUBKEY;
     this.accounts.authority = this.publicKey;
     this.accounts.payer = this.publicKey;
@@ -104,6 +107,8 @@ describe('nosana programs', async function () {
     this.accounts.tokenAccount = this.accounts.user;
     this.accounts.rewardsVault = this.vaults.rewards;
     this.accounts.rewardsReflection = this.accounts.reflection;
+    this.accounts.node = await pda([utf8.encode('node'), this.publicKey.toBuffer()], this.nodesProgram.programId);
+    this.accounts.icon = this.mint;
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId
@@ -130,6 +135,10 @@ describe('nosana programs', async function () {
       describe('rewards', rewardInitTests);
       describe('jobs', jobTests);
       break;
+    case 'nodes':
+      describe('initialization', initTests);
+      describe('nodes', nodesTests);
+      break;
     case 'pools':
       describe('initialization', initTests);
       describe('staking', stakingTests);
@@ -139,10 +148,6 @@ describe('nosana programs', async function () {
     case 'rewards':
       describe('initialization', initTests);
       describe('rewards-scenario', rewardScenario);
-      break;
-    case 'nodes':
-      describe('initialization', initTests);
-      describe('nodes', nodesTests);
       break;
     case 'staking':
       describe('initialization', initTests);
