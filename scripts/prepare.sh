@@ -18,10 +18,16 @@ log_std() { echo -e "${CYAN}==> ${WHITE}${1}${RESET}"; }
 log_err() { echo -e "${RED}==> ${WHITE}${1}${RESET}"; }
 
 # variables
-tag=$(git tag  | grep -E '^v[0-9]' | sort -V | tail -1)
+git fetch --tags -q
+commit=$(git log -1 --format="%H")
+tag=$(git tag --contains "$commit" --list "v*" --sort=v:refname)
+if [[ -z "${tag}" ]]; then
+  log_err "No ${GREEN}tag${WHITE} found.."
+  exit 1
+fi
 
 # prepare cargo for mainnet
-log_std "Setup for mainnet"
+log_std "Setup commit ${GREEN}${commit}${WHITE} for mainnet"
 sed -i "s/#default/default/" common/Cargo.toml
 
 log_std "Set version to ${GREEN}${tag}"
