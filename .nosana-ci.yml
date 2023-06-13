@@ -25,13 +25,29 @@ global:
 
 jobs:
 
-  - name: build
+  - name: build devnet
+    trigger:
+      push:
+        branches:
+          - main
+    commands:
+      - anchor build
+    artifacts:
+      - name: programs
+        path: target          
+
+  - name: build mainnet
+    trigger:
+      tags:
+        - 'v*'  
     commands:
       - scripts/prepare.sh
       - anchor build
     artifacts:
       - name: programs
         path: target
+
+
 
   - name: test
     secrets:
