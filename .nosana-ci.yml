@@ -53,6 +53,11 @@ jobs:
 
 
   - name: test
+    trigger:
+      push:
+        branches:
+          - main
+        tags: []  
     secrets:
       - TEST_KEY
     commands:
