@@ -53,7 +53,7 @@ jobs:
       push:
         branches:
           - main
-        tags: []  
+        tags: []
     secrets:
       - TEST_KEY
     commands:
