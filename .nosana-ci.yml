@@ -21,7 +21,7 @@ global:
       branches:
         - main
       tags:
-        - 'v*'
+        - 'job-v*'
 
 jobs:
 
@@ -42,7 +42,7 @@ jobs:
       push:
         branches: []
         tags:
-          - 'v*'  
+          - 'job-v*'  
     commands:
       - scripts/prepare.sh
       - anchor build
@@ -93,7 +93,7 @@ jobs:
       push:
         branches: []
         tags:
-          - 'v*'
+          - 'job-v*'
     image: nosana/solana:v1.0.18
     secrets:
       - SQUADS_KEY
