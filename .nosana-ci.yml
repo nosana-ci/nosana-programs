@@ -1,7 +1,3 @@
-# .nosana-ci.yml
-nosana:
-  description: Build and Test Nosana Contracts
-
 global:
   image: projectserum/build:v0.27.0
   environment:
