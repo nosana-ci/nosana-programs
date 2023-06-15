@@ -8,7 +8,7 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD)                                          |
 | Accounts        | [`2`](#accounts)                                                                                                                    |
-| Instructions    | [`2`](#instructions)                                                                                                                |
+| Instructions    | [`3`](#instructions)                                                                                                                |
 | Types           | [`2`](#types)                                                                                                                       |
 | Errors          | [`7`](#errors)                                                                                                                      |
 | Domain          | `nosana-nodes.sol`                                                                                                                  |
@@ -16,7 +16,7 @@
 
 ## Instructions
 
-A number of 2 instruction are defined in the Nosana Nodes program.
+A number of 3 instruction are defined in the Nosana Nodes program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -49,13 +49,13 @@ The following 9 arguments should also be provided when invoking this instruction
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `architectureType`     | `u8`              | `1`     | `0`     | The [ArchitectureType](#architecture-type) of the node.   |
-| `countryCode`          | `u8`              | `1`     | `1`     | The [CountryCode](#country-code) of the node.             |
-| `cpu`                  | `u16`             | `2`     | `2`     | The number of vCPU cores a node has.                      |
-| `gpu`                  | `u16`             | `2`     | `4`     | The number of GPU cores a node has.                       |
-| `memory`               | `u16`             | `2`     | `6`     | Memory capacity of a node in GB.                          |
-| `iops`                 | `u16`             | `2`     | `8`     | Input/output operations per second of a node.             |
-| `storage`              | `u16`             | `2`     | `10`    | Storage capacity of a node in GB.                         |
-| `endpoint`             | `string`          | `undefined`| `12`    | HTTP endpoint for log streaming and results.              |
+| `countryCode`          | `u16`             | `2`     | `1`     | The [CountryCode](#country-code) of the node.             |
+| `cpu`                  | `u16`             | `2`     | `3`     | The number of vCPU cores a node has.                      |
+| `gpu`                  | `u16`             | `2`     | `5`     | The number of GPU cores a node has.                       |
+| `memory`               | `u16`             | `2`     | `7`     | Memory capacity of a node in GB.                          |
+| `iops`                 | `u16`             | `2`     | `9`     | Input/output operations per second of a node.             |
+| `storage`              | `u16`             | `2`     | `11`    | Storage capacity of a node in GB.                         |
+| `endpoint`             | `string`          | `undefined`| `13`    | HTTP endpoint for log streaming and results.              |
 | `version`              | `string`          | `undefined`| `NaN`   | The version of the nosana node software they are running. |
 
 
@@ -78,7 +78,7 @@ with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 let tx = await program.methods
   .register(
     architectureType,  // type: u8
-    countryCode,       // type: u8
+    countryCode,       // type: u16
     cpu,               // type: u16
     gpu,               // type: u16
     memory,            // type: u16
@@ -98,6 +98,54 @@ let tx = await program.methods
   .rpc();
 ```
 
+### Audit
+
+#### Account Info
+
+The following 2 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `node`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The node that runs this job.                                                                      |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+
+#### Arguments
+
+The following 1 arguments should also be provided when invoking this instruction.
+
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `audited`              | `bool`            | `1`     | `0`     | n/a                                                       |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Audit Instruction
+is **`73eb2601733ada51`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[115,235,38,1,115,58,218,81]
+```
+
+#### Example with Anchor
+
+To invoke the Audit Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .audit(
+    audited,           // type: bool
+  )
+  .accounts({
+    node,              // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
 ### Update
 
 Update a node to the Nosana Network
@@ -110,7 +158,7 @@ The following 3 account addresses should be provided when invoking this instruct
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `node`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The node that runs this job.                                                                      |
 | `icon`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | n/a                                                                                               |
-| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 #### Arguments
 
@@ -119,13 +167,13 @@ The following 9 arguments should also be provided when invoking this instruction
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `architectureType`     | `u8`              | `1`     | `0`     | The [ArchitectureType](#architecture-type) of the node.   |
-| `countryCode`          | `u8`              | `1`     | `1`     | The [CountryCode](#country-code) of the node.             |
-| `cpu`                  | `u16`             | `2`     | `2`     | The number of vCPU cores a node has.                      |
-| `gpu`                  | `u16`             | `2`     | `4`     | The number of GPU cores a node has.                       |
-| `memory`               | `u16`             | `2`     | `6`     | Memory capacity of a node in GB.                          |
-| `iops`                 | `u16`             | `2`     | `8`     | Input/output operations per second of a node.             |
-| `storage`              | `u16`             | `2`     | `10`    | Storage capacity of a node in GB.                         |
-| `endpoint`             | `string`          | `undefined`| `12`    | HTTP endpoint for log streaming and results.              |
+| `countryCode`          | `u16`             | `2`     | `1`     | The [CountryCode](#country-code) of the node.             |
+| `cpu`                  | `u16`             | `2`     | `3`     | The number of vCPU cores a node has.                      |
+| `gpu`                  | `u16`             | `2`     | `5`     | The number of GPU cores a node has.                       |
+| `memory`               | `u16`             | `2`     | `7`     | Memory capacity of a node in GB.                          |
+| `iops`                 | `u16`             | `2`     | `9`     | Input/output operations per second of a node.             |
+| `storage`              | `u16`             | `2`     | `11`    | Storage capacity of a node in GB.                         |
+| `endpoint`             | `string`          | `undefined`| `13`    | HTTP endpoint for log streaming and results.              |
 | `version`              | `string`          | `undefined`| `NaN`   | The version of the nosana node software they are running. |
 
 
@@ -148,7 +196,7 @@ with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 let tx = await program.methods
   .update(
     architectureType,  // type: u8
-    countryCode,       // type: u8
+    countryCode,       // type: u16
     cpu,               // type: u16
     gpu,               // type: u16
     memory,            // type: u16
@@ -160,7 +208,7 @@ let tx = await program.methods
   .accounts({
     node,              // ✓ writable, 𐄂 signer
     icon,              // 𐄂 writable, 𐄂 signer
-    authority,         // ✓ writable, ✓ signer
+    authority,         // 𐄂 writable, ✓ signer
   })
   .signers([authorityKey])
   .rpc();
@@ -180,14 +228,14 @@ The total size of this account is `NaN` bytes.
 | `authority`                 | `publicKey`                 | `32`    | `8`     | The signing authority of the program invocation.                                                  |
 | `audited`                   | `bool`                      | `1`     | `40`    | n/a                                                                                               |
 | `architecture`              | `u8`                        | `1`     | `41`    | n/a                                                                                               |
-| `country`                   | `u8`                        | `1`     | `42`    | n/a                                                                                               |
-| `cpu`                       | `u16`                       | `2`     | `43`    | The number of vCPU cores a node has.                                                              |
-| `gpu`                       | `u16`                       | `2`     | `45`    | The number of GPU cores a node has.                                                               |
-| `memory`                    | `u16`                       | `2`     | `47`    | Memory capacity of a node in GB.                                                                  |
-| `iops`                      | `u16`                       | `2`     | `49`    | Input/output operations per second of a node.                                                     |
-| `storage`                   | `u16`                       | `2`     | `51`    | Storage capacity of a node in GB.                                                                 |
-| `icon`                      | `publicKey`                 | `32`    | `53`    | n/a                                                                                               |
-| `endpoint`                  | `string`                    | `undefined`| `85`    | HTTP endpoint for log streaming and results.                                                      |
+| `country`                   | `u16`                       | `2`     | `42`    | n/a                                                                                               |
+| `cpu`                       | `u16`                       | `2`     | `44`    | The number of vCPU cores a node has.                                                              |
+| `gpu`                       | `u16`                       | `2`     | `46`    | The number of GPU cores a node has.                                                               |
+| `memory`                    | `u16`                       | `2`     | `48`    | Memory capacity of a node in GB.                                                                  |
+| `iops`                      | `u16`                       | `2`     | `50`    | Input/output operations per second of a node.                                                     |
+| `storage`                   | `u16`                       | `2`     | `52`    | Storage capacity of a node in GB.                                                                 |
+| `icon`                      | `publicKey`                 | `32`    | `54`    | n/a                                                                                               |
+| `endpoint`                  | `string`                    | `undefined`| `86`    | HTTP endpoint for log streaming and results.                                                      |
 | `version`                   | `string`                    | `undefined`| `NaN`   | The version of the nosana node software they are running.                                         |
 
 #### Anchor Account Discriminator
@@ -232,259 +280,258 @@ A number of 11 variants are defined in this `enum`:
 
 The `CountryCode` represent the ISO code for a country
 
-A number of 251 variants are defined in this `enum`:
+A number of 250 variants are defined in this `enum`:
 | Name                                  | Number                                |
 |---------------------------------------|---------------------------------------|
-| `AF`                                  | `0`                                   |
-| `AL`                                  | `1`                                   |
-| `DZ`                                  | `2`                                   |
-| `AS`                                  | `3`                                   |
-| `AD`                                  | `4`                                   |
-| `AO`                                  | `5`                                   |
-| `AI`                                  | `6`                                   |
-| `AQ`                                  | `7`                                   |
-| `AG`                                  | `8`                                   |
+| `AD`                                  | `0`                                   |
+| `AE`                                  | `1`                                   |
+| `AF`                                  | `2`                                   |
+| `AG`                                  | `3`                                   |
+| `AI`                                  | `4`                                   |
+| `AL`                                  | `5`                                   |
+| `AM`                                  | `6`                                   |
+| `AO`                                  | `7`                                   |
+| `AQ`                                  | `8`                                   |
 | `AR`                                  | `9`                                   |
-| `AM`                                  | `10`                                  |
-| `AW`                                  | `11`                                  |
+| `AS`                                  | `10`                                  |
+| `AT`                                  | `11`                                  |
 | `AU`                                  | `12`                                  |
-| `AT`                                  | `13`                                  |
-| `AZ`                                  | `14`                                  |
-| `BS`                                  | `15`                                  |
-| `BH`                                  | `16`                                  |
-| `BD`                                  | `17`                                  |
-| `BB`                                  | `18`                                  |
-| `BY`                                  | `19`                                  |
-| `BE`                                  | `20`                                  |
-| `BZ`                                  | `21`                                  |
-| `BJ`                                  | `22`                                  |
-| `BM`                                  | `23`                                  |
-| `BT`                                  | `24`                                  |
-| `BO`                                  | `25`                                  |
-| `BQ`                                  | `26`                                  |
-| `BA`                                  | `27`                                  |
-| `BW`                                  | `28`                                  |
-| `BV`                                  | `29`                                  |
+| `AW`                                  | `13`                                  |
+| `AX`                                  | `14`                                  |
+| `AZ`                                  | `15`                                  |
+| `BA`                                  | `16`                                  |
+| `BB`                                  | `17`                                  |
+| `BD`                                  | `18`                                  |
+| `BE`                                  | `19`                                  |
+| `BF`                                  | `20`                                  |
+| `BG`                                  | `21`                                  |
+| `BH`                                  | `22`                                  |
+| `BI`                                  | `23`                                  |
+| `BJ`                                  | `24`                                  |
+| `BL`                                  | `25`                                  |
+| `BM`                                  | `26`                                  |
+| `BN`                                  | `27`                                  |
+| `BO`                                  | `28`                                  |
+| `BQ`                                  | `29`                                  |
 | `BR`                                  | `30`                                  |
-| `IO`                                  | `31`                                  |
-| `BN`                                  | `32`                                  |
-| `BG`                                  | `33`                                  |
-| `BF`                                  | `34`                                  |
-| `BI`                                  | `35`                                  |
-| `CV`                                  | `36`                                  |
-| `KH`                                  | `37`                                  |
-| `CM`                                  | `38`                                  |
-| `CA`                                  | `39`                                  |
-| `KY`                                  | `40`                                  |
-| `CF`                                  | `41`                                  |
-| `TD`                                  | `42`                                  |
-| `CL`                                  | `43`                                  |
-| `CN`                                  | `44`                                  |
-| `CX`                                  | `45`                                  |
-| `CC`                                  | `46`                                  |
-| `CO`                                  | `47`                                  |
-| `KM`                                  | `48`                                  |
-| `CD`                                  | `49`                                  |
-| `CG`                                  | `50`                                  |
-| `CK`                                  | `51`                                  |
-| `CR`                                  | `52`                                  |
-| `HR`                                  | `53`                                  |
-| `CU`                                  | `54`                                  |
-| `CW`                                  | `55`                                  |
-| `CY`                                  | `56`                                  |
-| `CZ`                                  | `57`                                  |
-| `CI`                                  | `58`                                  |
-| `DK`                                  | `59`                                  |
-| `DJ`                                  | `60`                                  |
-| `DM`                                  | `61`                                  |
-| `DO`                                  | `62`                                  |
-| `EC`                                  | `63`                                  |
+| `BS`                                  | `31`                                  |
+| `BT`                                  | `32`                                  |
+| `BV`                                  | `33`                                  |
+| `BW`                                  | `34`                                  |
+| `BY`                                  | `35`                                  |
+| `BZ`                                  | `36`                                  |
+| `CA`                                  | `37`                                  |
+| `CC`                                  | `38`                                  |
+| `CD`                                  | `39`                                  |
+| `CF`                                  | `40`                                  |
+| `CG`                                  | `41`                                  |
+| `CH`                                  | `42`                                  |
+| `CI`                                  | `43`                                  |
+| `CK`                                  | `44`                                  |
+| `CL`                                  | `45`                                  |
+| `CM`                                  | `46`                                  |
+| `CN`                                  | `47`                                  |
+| `CO`                                  | `48`                                  |
+| `CR`                                  | `49`                                  |
+| `CU`                                  | `50`                                  |
+| `CV`                                  | `51`                                  |
+| `CW`                                  | `52`                                  |
+| `CX`                                  | `53`                                  |
+| `CY`                                  | `54`                                  |
+| `CZ`                                  | `55`                                  |
+| `DE`                                  | `56`                                  |
+| `DJ`                                  | `57`                                  |
+| `DK`                                  | `58`                                  |
+| `DM`                                  | `59`                                  |
+| `DO`                                  | `60`                                  |
+| `DZ`                                  | `61`                                  |
+| `EC`                                  | `62`                                  |
+| `EE`                                  | `63`                                  |
 | `EG`                                  | `64`                                  |
-| `SV`                                  | `65`                                  |
-| `GQ`                                  | `66`                                  |
-| `ER`                                  | `67`                                  |
-| `EE`                                  | `68`                                  |
-| `SZ`                                  | `69`                                  |
-| `ET`                                  | `70`                                  |
+| `EH`                                  | `65`                                  |
+| `ER`                                  | `66`                                  |
+| `ES`                                  | `67`                                  |
+| `ET`                                  | `68`                                  |
+| `FI`                                  | `69`                                  |
+| `FJ`                                  | `70`                                  |
 | `FK`                                  | `71`                                  |
-| `FO`                                  | `72`                                  |
-| `FJ`                                  | `73`                                  |
-| `FI`                                  | `74`                                  |
-| `FR`                                  | `75`                                  |
-| `GF`                                  | `76`                                  |
-| `PF`                                  | `77`                                  |
-| `TF`                                  | `78`                                  |
-| `GA`                                  | `79`                                  |
-| `GM`                                  | `80`                                  |
-| `GE`                                  | `81`                                  |
-| `DE`                                  | `82`                                  |
-| `GH`                                  | `83`                                  |
-| `GI`                                  | `84`                                  |
-| `GR`                                  | `85`                                  |
-| `GL`                                  | `86`                                  |
-| `GD`                                  | `87`                                  |
-| `GP`                                  | `88`                                  |
-| `GU`                                  | `89`                                  |
+| `FM`                                  | `72`                                  |
+| `FO`                                  | `73`                                  |
+| `FR`                                  | `74`                                  |
+| `GA`                                  | `75`                                  |
+| `GB`                                  | `76`                                  |
+| `GD`                                  | `77`                                  |
+| `GE`                                  | `78`                                  |
+| `GF`                                  | `79`                                  |
+| `GG`                                  | `80`                                  |
+| `GH`                                  | `81`                                  |
+| `GI`                                  | `82`                                  |
+| `GL`                                  | `83`                                  |
+| `GM`                                  | `84`                                  |
+| `GN`                                  | `85`                                  |
+| `GP`                                  | `86`                                  |
+| `GQ`                                  | `87`                                  |
+| `GR`                                  | `88`                                  |
+| `GS`                                  | `89`                                  |
 | `GT`                                  | `90`                                  |
-| `GG`                                  | `91`                                  |
-| `GN`                                  | `92`                                  |
-| `GW`                                  | `93`                                  |
-| `GY`                                  | `94`                                  |
-| `HT`                                  | `95`                                  |
-| `HM`                                  | `96`                                  |
-| `VA`                                  | `97`                                  |
-| `HN`                                  | `98`                                  |
-| `HK`                                  | `99`                                  |
-| `HU`                                  | `100`                                 |
-| `IS`                                  | `101`                                 |
-| `IN`                                  | `102`                                 |
-| `ID`                                  | `103`                                 |
-| `IR`                                  | `104`                                 |
-| `IQ`                                  | `105`                                 |
-| `IE`                                  | `106`                                 |
-| `IM`                                  | `107`                                 |
-| `IL`                                  | `108`                                 |
+| `GU`                                  | `91`                                  |
+| `GW`                                  | `92`                                  |
+| `GY`                                  | `93`                                  |
+| `HK`                                  | `94`                                  |
+| `HM`                                  | `95`                                  |
+| `HN`                                  | `96`                                  |
+| `HR`                                  | `97`                                  |
+| `HT`                                  | `98`                                  |
+| `HU`                                  | `99`                                  |
+| `ID`                                  | `100`                                 |
+| `IE`                                  | `101`                                 |
+| `IL`                                  | `102`                                 |
+| `IM`                                  | `103`                                 |
+| `IN`                                  | `104`                                 |
+| `IO`                                  | `105`                                 |
+| `IQ`                                  | `106`                                 |
+| `IR`                                  | `107`                                 |
+| `IS`                                  | `108`                                 |
 | `IT`                                  | `109`                                 |
-| `JM`                                  | `110`                                 |
-| `JP`                                  | `111`                                 |
-| `JE`                                  | `112`                                 |
-| `JO`                                  | `113`                                 |
-| `KZ`                                  | `114`                                 |
-| `KE`                                  | `115`                                 |
-| `KI`                                  | `116`                                 |
-| `KP`                                  | `117`                                 |
-| `KR`                                  | `118`                                 |
-| `KW`                                  | `119`                                 |
-| `KG`                                  | `120`                                 |
-| `LA`                                  | `121`                                 |
-| `LV`                                  | `122`                                 |
-| `LB`                                  | `123`                                 |
-| `LS`                                  | `124`                                 |
-| `LR`                                  | `125`                                 |
-| `LY`                                  | `126`                                 |
-| `LI`                                  | `127`                                 |
-| `LT`                                  | `128`                                 |
-| `LU`                                  | `129`                                 |
-| `MO`                                  | `130`                                 |
-| `MG`                                  | `131`                                 |
-| `MW`                                  | `132`                                 |
-| `MY`                                  | `133`                                 |
-| `MV`                                  | `134`                                 |
-| `ML`                                  | `135`                                 |
-| `MT`                                  | `136`                                 |
-| `MH`                                  | `137`                                 |
-| `MQ`                                  | `138`                                 |
-| `MR`                                  | `139`                                 |
-| `MU`                                  | `140`                                 |
-| `YT`                                  | `141`                                 |
-| `MX`                                  | `142`                                 |
-| `FM`                                  | `143`                                 |
-| `MD`                                  | `144`                                 |
-| `MC`                                  | `145`                                 |
+| `JE`                                  | `110`                                 |
+| `JM`                                  | `111`                                 |
+| `JO`                                  | `112`                                 |
+| `JP`                                  | `113`                                 |
+| `KE`                                  | `114`                                 |
+| `KG`                                  | `115`                                 |
+| `KH`                                  | `116`                                 |
+| `KI`                                  | `117`                                 |
+| `KM`                                  | `118`                                 |
+| `KN`                                  | `119`                                 |
+| `KP`                                  | `120`                                 |
+| `KR`                                  | `121`                                 |
+| `KW`                                  | `122`                                 |
+| `KY`                                  | `123`                                 |
+| `KZ`                                  | `124`                                 |
+| `LA`                                  | `125`                                 |
+| `LB`                                  | `126`                                 |
+| `LC`                                  | `127`                                 |
+| `LI`                                  | `128`                                 |
+| `LK`                                  | `129`                                 |
+| `LR`                                  | `130`                                 |
+| `LS`                                  | `131`                                 |
+| `LT`                                  | `132`                                 |
+| `LU`                                  | `133`                                 |
+| `LV`                                  | `134`                                 |
+| `LY`                                  | `135`                                 |
+| `MA`                                  | `136`                                 |
+| `MC`                                  | `137`                                 |
+| `MD`                                  | `138`                                 |
+| `ME`                                  | `139`                                 |
+| `MF`                                  | `140`                                 |
+| `MG`                                  | `141`                                 |
+| `MH`                                  | `142`                                 |
+| `MK`                                  | `143`                                 |
+| `ML`                                  | `144`                                 |
+| `MM`                                  | `145`                                 |
 | `MN`                                  | `146`                                 |
-| `ME`                                  | `147`                                 |
-| `MS`                                  | `148`                                 |
-| `MA`                                  | `149`                                 |
-| `MZ`                                  | `150`                                 |
-| `MM`                                  | `151`                                 |
-| `NA`                                  | `152`                                 |
-| `NR`                                  | `153`                                 |
-| `NP`                                  | `154`                                 |
-| `NL`                                  | `155`                                 |
-| `NC`                                  | `156`                                 |
-| `NZ`                                  | `157`                                 |
-| `NI`                                  | `158`                                 |
-| `NE`                                  | `159`                                 |
-| `NG`                                  | `160`                                 |
-| `NU`                                  | `161`                                 |
+| `MO`                                  | `147`                                 |
+| `MP`                                  | `148`                                 |
+| `MQ`                                  | `149`                                 |
+| `MR`                                  | `150`                                 |
+| `MS`                                  | `151`                                 |
+| `MT`                                  | `152`                                 |
+| `MU`                                  | `153`                                 |
+| `MV`                                  | `154`                                 |
+| `MW`                                  | `155`                                 |
+| `MX`                                  | `156`                                 |
+| `MY`                                  | `157`                                 |
+| `MZ`                                  | `158`                                 |
+| `NA`                                  | `159`                                 |
+| `NC`                                  | `160`                                 |
+| `NE`                                  | `161`                                 |
 | `NF`                                  | `162`                                 |
-| `MP`                                  | `163`                                 |
-| `NO`                                  | `164`                                 |
-| `OM`                                  | `165`                                 |
-| `PK`                                  | `166`                                 |
-| `PW`                                  | `167`                                 |
-| `PS`                                  | `168`                                 |
-| `PA`                                  | `169`                                 |
-| `PG`                                  | `170`                                 |
-| `PY`                                  | `171`                                 |
-| `PE`                                  | `172`                                 |
-| `PH`                                  | `173`                                 |
-| `PN`                                  | `174`                                 |
-| `PL`                                  | `175`                                 |
-| `PT`                                  | `176`                                 |
-| `PR`                                  | `177`                                 |
-| `QA`                                  | `178`                                 |
-| `MK`                                  | `179`                                 |
-| `RO`                                  | `180`                                 |
-| `RU`                                  | `181`                                 |
-| `RW`                                  | `182`                                 |
-| `RE`                                  | `183`                                 |
-| `BL`                                  | `184`                                 |
-| `SH`                                  | `185`                                 |
-| `KN`                                  | `186`                                 |
-| `LC`                                  | `187`                                 |
-| `MF`                                  | `188`                                 |
-| `PM`                                  | `189`                                 |
-| `VC`                                  | `190`                                 |
-| `WS`                                  | `191`                                 |
-| `SM`                                  | `192`                                 |
-| `ST`                                  | `193`                                 |
-| `SA`                                  | `194`                                 |
-| `SN`                                  | `195`                                 |
-| `RS`                                  | `196`                                 |
-| `SC`                                  | `197`                                 |
-| `SL`                                  | `198`                                 |
-| `SG`                                  | `199`                                 |
-| `SX`                                  | `200`                                 |
+| `NG`                                  | `163`                                 |
+| `NI`                                  | `164`                                 |
+| `NL`                                  | `165`                                 |
+| `NO`                                  | `166`                                 |
+| `NP`                                  | `167`                                 |
+| `NR`                                  | `168`                                 |
+| `NU`                                  | `169`                                 |
+| `NZ`                                  | `170`                                 |
+| `OM`                                  | `171`                                 |
+| `PA`                                  | `172`                                 |
+| `PE`                                  | `173`                                 |
+| `PF`                                  | `174`                                 |
+| `PG`                                  | `175`                                 |
+| `PH`                                  | `176`                                 |
+| `PK`                                  | `177`                                 |
+| `PL`                                  | `178`                                 |
+| `PM`                                  | `179`                                 |
+| `PN`                                  | `180`                                 |
+| `PR`                                  | `181`                                 |
+| `PS`                                  | `182`                                 |
+| `PT`                                  | `183`                                 |
+| `PW`                                  | `184`                                 |
+| `PY`                                  | `185`                                 |
+| `QA`                                  | `186`                                 |
+| `RE`                                  | `187`                                 |
+| `RO`                                  | `188`                                 |
+| `RS`                                  | `189`                                 |
+| `RU`                                  | `190`                                 |
+| `RW`                                  | `191`                                 |
+| `SA`                                  | `192`                                 |
+| `SB`                                  | `193`                                 |
+| `SC`                                  | `194`                                 |
+| `SD`                                  | `195`                                 |
+| `SE`                                  | `196`                                 |
+| `SG`                                  | `197`                                 |
+| `SH`                                  | `198`                                 |
+| `SI`                                  | `199`                                 |
+| `SJ`                                  | `200`                                 |
 | `SK`                                  | `201`                                 |
-| `SI`                                  | `202`                                 |
-| `SB`                                  | `203`                                 |
-| `SO`                                  | `204`                                 |
-| `ZA`                                  | `205`                                 |
-| `GS`                                  | `206`                                 |
+| `SL`                                  | `202`                                 |
+| `SM`                                  | `203`                                 |
+| `SN`                                  | `204`                                 |
+| `SO`                                  | `205`                                 |
+| `SR`                                  | `206`                                 |
 | `SS`                                  | `207`                                 |
-| `ES`                                  | `208`                                 |
-| `LK`                                  | `209`                                 |
-| `SD`                                  | `210`                                 |
-| `SR`                                  | `211`                                 |
-| `SJ`                                  | `212`                                 |
-| `SE`                                  | `213`                                 |
-| `CH`                                  | `214`                                 |
-| `SY`                                  | `215`                                 |
-| `TW`                                  | `216`                                 |
-| `TJ`                                  | `217`                                 |
-| `TZ`                                  | `218`                                 |
-| `TH`                                  | `219`                                 |
+| `ST`                                  | `208`                                 |
+| `SV`                                  | `209`                                 |
+| `SX`                                  | `210`                                 |
+| `SY`                                  | `211`                                 |
+| `SZ`                                  | `212`                                 |
+| `TC`                                  | `213`                                 |
+| `TD`                                  | `214`                                 |
+| `TF`                                  | `215`                                 |
+| `TG`                                  | `216`                                 |
+| `TH`                                  | `217`                                 |
+| `TJ`                                  | `218`                                 |
+| `TK`                                  | `219`                                 |
 | `TL`                                  | `220`                                 |
-| `TG`                                  | `221`                                 |
-| `TK`                                  | `222`                                 |
+| `TM`                                  | `221`                                 |
+| `TN`                                  | `222`                                 |
 | `TO`                                  | `223`                                 |
-| `TT`                                  | `224`                                 |
-| `TN`                                  | `225`                                 |
-| `TR`                                  | `226`                                 |
-| `TM`                                  | `227`                                 |
-| `TC`                                  | `228`                                 |
-| `TV`                                  | `229`                                 |
+| `TR`                                  | `224`                                 |
+| `TT`                                  | `225`                                 |
+| `TV`                                  | `226`                                 |
+| `TW`                                  | `227`                                 |
+| `TZ`                                  | `228`                                 |
+| `UA`                                  | `229`                                 |
 | `UG`                                  | `230`                                 |
-| `UA`                                  | `231`                                 |
-| `AE`                                  | `232`                                 |
-| `GB`                                  | `233`                                 |
-| `UM`                                  | `234`                                 |
-| `US`                                  | `235`                                 |
-| `UY`                                  | `236`                                 |
-| `UZ`                                  | `237`                                 |
-| `VU`                                  | `238`                                 |
-| `VE`                                  | `239`                                 |
+| `UM`                                  | `231`                                 |
+| `US`                                  | `232`                                 |
+| `UY`                                  | `233`                                 |
+| `UZ`                                  | `234`                                 |
+| `VA`                                  | `235`                                 |
+| `VC`                                  | `236`                                 |
+| `VE`                                  | `237`                                 |
+| `VG`                                  | `238`                                 |
+| `VI`                                  | `239`                                 |
 | `VN`                                  | `240`                                 |
-| `VG`                                  | `241`                                 |
-| `VI`                                  | `242`                                 |
-| `WF`                                  | `243`                                 |
-| `EH`                                  | `244`                                 |
-| `YE`                                  | `245`                                 |
-| `ZM`                                  | `246`                                 |
-| `ZW`                                  | `247`                                 |
-| `AX`                                  | `248`                                 |
-| `Known`                               | `249`                                 |
+| `VU`                                  | `241`                                 |
+| `WF`                                  | `242`                                 |
+| `WS`                                  | `243`                                 |
+| `YE`                                  | `244`                                 |
+| `YT`                                  | `245`                                 |
+| `ZA`                                  | `246`                                 |
+| `ZM`                                  | `247`                                 |
+| `ZW`                                  | `248`                                 |
 | `Unknown`                             | `255`                                 |
 
 ## Errors
