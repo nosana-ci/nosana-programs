@@ -20,7 +20,7 @@ log_err() { echo -e "${RED}==> ${WHITE}${1}${RESET}"; }
 # variables
 git fetch --tags -q
 commit=$(git log -1 --format="%H")
-tag=$(git tag --contains "$commit" --list "v*" --sort=v:refname)
+tag=$(git tag --contains "$commit" --list "*v*" --sort=v:refname)
 if [[ -z "${tag}" ]]; then
   log_err "No ${GREEN}tag${WHITE} found.."
   exit 1
