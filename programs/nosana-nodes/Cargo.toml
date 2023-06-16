@@ -1,23 +1,24 @@
 [package]
-name = "nosana-pools"
+name = "nosana-nodes"
 version = "0.1.0"
 description = "Nosana Pools."
 edition = "2021"
 homepage = "https://nosana.io/"
 authors = ["nosana"]
 license = "MIT"
-keywords = ["solana", "nosana", "cicd", "vesting", "anchor"]
+keywords = ["solana", "nosana", "cicd", "nodes", "anchor"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "nosana_pools"
+name = "nosana_nodes"
 
 [features]
 no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
 cpi = ["no-entrypoint"]
+default = []
 
 [dependencies]
 anchor-lang = "0.28.0"
-anchor-spl = "0.28.0"
 nosana-common = { path = "../../common" }
-nosana-rewards = { path = "../nosana-rewards", features = ["cpi"] }

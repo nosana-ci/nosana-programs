@@ -6,6 +6,8 @@ import NosanaPools from '../target/idl/nosana_pools.json';
 import NosanaRewards from '../target/idl/nosana_rewards.json';
 // @ts-ignore
 import NosanaStaking from '../target/idl/nosana_staking.json';
+// @ts-ignore
+import NosanaNodes from '../target/idl/nosana_nodes.json';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import commandLineArgs from 'command-line-args';
 import { snakeCase } from 'snake-case';
@@ -56,6 +58,7 @@ const typeToString = (field) =>
 const sizes = {
   u8: 1,
   bool: 1,
+  u16: 2,
   u64: 8,
   i64: 16,
   u128: 16,
@@ -69,6 +72,7 @@ const addresses = {
   nosana_staking: 'nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE',
   nosana_rewards: 'nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp',
   nosana_pools: 'nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD',
+  nosana_nodes: 'nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD',
 };
 
 const descriptions = (name) => {
@@ -198,6 +202,28 @@ const descriptions = (name) => {
     case 'queueType':
       return 'The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.';
 
+    // nodes arguments
+    case 'architectureType':
+      return 'The [ArchitectureType](#architecture-type) of the node.';
+    case 'countryCode':
+      return 'The [CountryCode](#country-code) of the node.';
+    case 'location':
+      return 'The [CountryCode](#country-code) of the node.';
+    case 'cpu':
+      return 'The number of vCPU cores a node has.';
+    case 'gpu':
+      return 'The number of GPU cores a node has.';
+    case 'memory':
+      return 'Memory capacity of a node in GB.';
+    case 'iops':
+      return 'Input/output operations per second of a node.';
+    case 'storage':
+      return 'Storage capacity of a node in GB.';
+    case 'endpoint':
+      return 'HTTP endpoint for log streaming and results.';
+    case 'version':
+      return 'The version of the nosana node software they are running.';
+
     // default
     default:
       return 'n/a';
@@ -237,7 +263,7 @@ class MarkdownTable {
  *
  */
 function main() {
-  for (const idl of [NosanaPools, NosanaJobs, NosanaRewards, NosanaStaking]) {
+  for (const idl of [NosanaPools, NosanaJobs, NosanaRewards, NosanaStaking, NosanaNodes]) {
     console.log(`Generating docs for ${title(idl.name)}`);
     const address = addresses[idl.name];
 

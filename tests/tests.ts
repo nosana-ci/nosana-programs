@@ -17,13 +17,14 @@ import rewardTests from './suites/3-nosana-rewards-tests';
 import rewardInitTests from './suites/3-nosana-rewards-init-tests';
 import poolTests from './suites/4-nosana-pools-tests';
 import jobTests from './suites/5-nosana-jobs-tests';
+import nodesTests from './suites/6-nosana-nodes-tests';
 
 // local test scenarios
 import rewardScenario from './suites/scenario/rewards-tests';
 import claimTransferScenario from './suites/scenario/claim-transfer-tests';
 
 // types
-import { NosanaAccounts, NosanaExists, NosanaMarket, NosanaVaults } from './types/nosana';
+import { NosanaAccounts, NosanaExists, NosanaMarket, NosanaNodeSpecification, NosanaVaults } from './types/nosana';
 
 // run
 describe('nosana programs', async function () {
@@ -42,6 +43,7 @@ describe('nosana programs', async function () {
     this.poolsProgram = anchor.workspace.NosanaPools;
     this.stakingProgram = anchor.workspace.NosanaStaking;
     this.rewardsProgram = anchor.workspace.NosanaRewards;
+    this.nodesProgram = anchor.workspace.NosanaNodes;
     this.metaplex = Metaplex.make(this.connection).use(walletAdapterIdentity(this.wallet));
 
     // constant values
@@ -84,12 +86,15 @@ describe('nosana programs', async function () {
     this.market.queueType = this.constants.queueType.unknown;
     this.market.queueLength = 0;
 
+    this.nodeSpec = this.constants.nodeSpecification as NosanaNodeSpecification;
+
     // public keys to be used in the instructions
     this.accounts = {} as NosanaAccounts;
     this.accounts.systemProgram = anchor.web3.SystemProgram.programId;
     this.accounts.tokenProgram = TOKEN_PROGRAM_ID;
     this.accounts.stakingProgram = this.stakingProgram.programId;
     this.accounts.rewardsProgram = this.rewardsProgram.programId;
+    this.accounts.nodesProgram = this.nodesProgram.programId;
     this.accounts.rent = anchor.web3.SYSVAR_RENT_PUBKEY;
     this.accounts.authority = this.publicKey;
     this.accounts.payer = this.publicKey;
@@ -102,6 +107,8 @@ describe('nosana programs', async function () {
     this.accounts.tokenAccount = this.accounts.user;
     this.accounts.rewardsVault = this.vaults.rewards;
     this.accounts.rewardsReflection = this.accounts.reflection;
+    this.accounts.node = await pda([utf8.encode('node'), this.publicKey.toBuffer()], this.nodesProgram.programId);
+    this.accounts.icon = this.mint;
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId
@@ -116,6 +123,7 @@ describe('nosana programs', async function () {
       describe('rewards', rewardTests);
       describe('pools', poolTests);
       describe('jobs', jobTests);
+      describe('nodes', nodesTests);
       break;
     case 'claim-transfer':
       describe('initialization', initTests);
@@ -126,6 +134,10 @@ describe('nosana programs', async function () {
       describe('staking', stakingInitTests);
       describe('rewards', rewardInitTests);
       describe('jobs', jobTests);
+      break;
+    case 'nodes':
+      describe('initialization', initTests);
+      describe('nodes', nodesTests);
       break;
     case 'pools':
       describe('initialization', initTests);

@@ -17,3 +17,4 @@ pub const PREFIX_REFLECTION: &str = "reflection";
 pub const PREFIX_STAKE: &str = "stake";
 pub const PREFIX_STATS: &str = "stats";
 pub const PREFIX_VAULT: &str = "vault";
+pub const PREFIX_NODE: &str = "node";

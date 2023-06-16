@@ -16,6 +16,8 @@ variables:
         PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
       - PROGRAM_NAME: nosana_pools
         PROGRAM_ID: nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD
+      - PROGRAM_NAME: nosana_nodes
+        PROGRAM_ID: nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD
 #      - PROGRAM_NAME: nosana_jobs
 #        PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
 
@@ -35,7 +37,7 @@ scenario:
   stage: test
   parallel:
     matrix:
-      - TEST_SCENARIO: [ all, claim-transfer, jobs, pools, rewards, staking ]
+      - TEST_SCENARIO: [ all, claim-transfer, jobs, pools, rewards, staking, nodes ]
   script:
     - npm ci
     - anchor test --skip-build

@@ -29,6 +29,7 @@ const constants = {
   rewardsProgramAddress: new PublicKey('nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp'),
   poolsProgramAddress: new PublicKey('nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD'),
   jobsProgramAddress: new PublicKey('nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR'),
+  nodesProgramAddress: new PublicKey('nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD'),
 
   // status options for jobs
   jobState: {
@@ -63,6 +64,18 @@ const constants = {
 
   ipfsData: [...Buffer.from('7d5a99f603f231d53a4f39d1521f98d2e8bb279cf29bebfd0687dc98458e7f89', 'hex')],
   ipfsNull: Array(32).fill(0),
+
+  nodeSpecification: {
+    architectureType: 0,
+    countryCode: 528,
+    cpu: 8,
+    gpu: 0,
+    memory: 16,
+    iops: 1000,
+    storage: 100,
+    endpoint: 'https://nosana.io',
+    version: 'v1.0.0',
+  },
 
   errors: {
     // generic errors

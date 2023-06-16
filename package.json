@@ -1,14 +1,14 @@
 {
   "license": "MIT",
   "devDependencies": {
-    "@coral-xyz/anchor": "0.27.0",
+    "@coral-xyz/anchor": "0.28.0",
     "@metaplex-foundation/js": "0.19.4",
     "@solana/spl-token": "0.3.8",
     "@types/bn.js": "5.1.1",
     "@types/chai": "4.3.5",
     "@types/mocha": "10.0.1",
-    "@typescript-eslint/eslint-plugin": "5.59.8",
-    "@typescript-eslint/parser": "5.59.8",
+    "@typescript-eslint/eslint-plugin": "5.59.11",
+    "@typescript-eslint/parser": "5.59.11",
     "chai": "4.3.7",
     "command-line-args": "5.2.1",
     "csv-parse": "5.4.0",

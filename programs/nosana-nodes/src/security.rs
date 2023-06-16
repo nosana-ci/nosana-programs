@@ -6,7 +6,7 @@ use nosana_common::security_txt;
 
 #[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
-    name: "Nosana Pools",
+    name: "Nosana Nodes",
     project_url: "https://nosana.io",
     contacts: "email:security@nosana.io",
     policy: "https://github.com/nosana-ci/nosana-programs/blob/main/SECURITY.md",
