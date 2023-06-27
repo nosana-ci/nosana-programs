@@ -119,5 +119,4 @@ type NosanaAccounts = {
 
   // nodes specific
   node: PublicKey;
-  icon: PublicKey;
 };

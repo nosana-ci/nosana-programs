@@ -108,7 +108,6 @@ describe('nosana programs', async function () {
     this.accounts.rewardsVault = this.vaults.rewards;
     this.accounts.rewardsReflection = this.accounts.reflection;
     this.accounts.node = await pda([utf8.encode('node'), this.publicKey.toBuffer()], this.nodesProgram.programId);
-    this.accounts.icon = this.mint;
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId

@@ -10,8 +10,6 @@ pub struct Register<'info> {
         bump,
     )]
     pub node: Account<'info, NodeAccount>,
-    /// CHECK: nft address for external icon usage
-    pub icon: AccountInfo<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
     pub authority: Signer<'info>,
@@ -29,6 +27,7 @@ impl<'info> Register<'info> {
         iops: u16,
         storage: u16,
         endpoint: String,
+        icon: String,
         version: String,
     ) -> Result<()> {
         self.node.register(self.authority.key())?;
@@ -40,8 +39,8 @@ impl<'info> Register<'info> {
             memory,
             iops,
             storage,
-            self.icon.key(),
             endpoint,
+            icon,
             version,
         )
     }

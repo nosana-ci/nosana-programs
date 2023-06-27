@@ -14,6 +14,7 @@ export default function suite() {
           this.nodeSpec.iops,
           this.nodeSpec.storage,
           this.nodeSpec.endpoint,
+          this.nodeSpec.endpoint,
           this.nodeSpec.version
         )
         .accounts(this.accounts)
@@ -30,8 +31,8 @@ export default function suite() {
       expect(node.memory).to.equal(this.nodeSpec.memory, 'memory');
       expect(node.iops).to.equal(this.nodeSpec.iops, 'iops');
       expect(node.storage).to.equal(this.nodeSpec.storage, 'storage');
-      expect(node.icon.toString()).to.equal(this.accounts.icon.toString(), 'storage');
       expect(node.endpoint).to.equal(this.nodeSpec.endpoint, 'endpoint');
+      expect(node.icon.toString()).to.equal(this.nodeSpec.endpoint, 'icon');
       expect(node.version).to.equal(this.nodeSpec.version, 'version');
     });
   });
@@ -47,6 +48,7 @@ export default function suite() {
           this.nodeSpec.memory,
           this.nodeSpec.iops,
           this.nodeSpec.storage,
+          this.nodeSpec.endpoint,
           this.nodeSpec.endpoint,
           'v1.0.1'
         )
