@@ -4,8 +4,6 @@ use crate::*;
 pub struct Update<'info> {
     #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
     pub node: Account<'info, NodeAccount>,
-    /// CHECK: nft address for external icon usage
-    pub icon: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 
@@ -20,6 +18,7 @@ impl<'info> Update<'info> {
         iops: u16,
         storage: u16,
         endpoint: String,
+        icon: String,
         version: String,
     ) -> Result<()> {
         self.node.update(
@@ -30,8 +29,8 @@ impl<'info> Update<'info> {
             memory,
             iops,
             storage,
-            self.icon.key(),
             endpoint,
+            icon,
             version,
         )
     }

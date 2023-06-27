@@ -18,8 +18,8 @@ pub struct NodeAccount {
     pub memory: u16,
     pub iops: u16,
     pub storage: u16,
-    pub icon: Pubkey,
     pub endpoint: String,
+    pub icon: String,
     pub version: String,
 }
 
@@ -45,8 +45,8 @@ impl NodeAccount {
         memory: u16,
         iops: u16,
         storage: u16,
-        icon: Pubkey,
         endpoint: String,
+        icon: String,
         version: String,
     ) -> Result<()> {
         require_neq!(
@@ -72,8 +72,8 @@ impl NodeAccount {
         self.memory = memory;
         self.iops = iops;
         self.storage = storage;
-        self.icon = icon;
         self.endpoint = endpoint;
+        self.icon = icon;
         self.version = version;
         Ok(())
     }
