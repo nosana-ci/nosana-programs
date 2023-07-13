@@ -74,7 +74,7 @@ async function createNosMint(connection: Connection, payer: Signer, authority: P
     authority,
     null,
     6,
-    anchor.web3.Keypair.fromSecretKey(new Uint8Array(MintKey))
+    anchor.web3.Keypair.fromSecretKey(new Uint8Array(MintKey)),
   );
 }
 
@@ -182,7 +182,7 @@ async function updateRewards(
   mochaContext: Context,
   stakePubkey: PublicKey,
   fee = new anchor.BN(0),
-  reflection = new anchor.BN(0)
+  reflection = new anchor.BN(0),
 ) {
   const stake = await mochaContext.stakingProgram.account.stakeAccount.fetch(stakePubkey);
   const stats = await mochaContext.rewardsProgram.account.reflectionAccount.fetch(mochaContext.accounts.reflection);
@@ -225,14 +225,14 @@ async function setupSolanaUser(mochaContext: Context) {
 
   // fund SOL
   await mochaContext.connection.confirmTransaction(
-    await mochaContext.connection.requestAirdrop(publicKey, anchor.web3.LAMPORTS_PER_SOL)
+    await mochaContext.connection.requestAirdrop(publicKey, anchor.web3.LAMPORTS_PER_SOL),
   );
   // fund NOS
   const ata = await createAssociatedTokenAccount(
     mochaContext.connection,
     mochaContext.payer,
     mochaContext.mint,
-    publicKey
+    publicKey,
   );
   // fund user
   await mintNosTo(mochaContext, ata, mochaContext.constants.userSupply);
@@ -249,12 +249,12 @@ async function setupSolanaUser(mochaContext: Context) {
     project: await pda([utf8.encode('project'), publicKey.toBuffer()], mochaContext.jobsProgram.programId),
     stake: await pda(
       [utf8.encode('stake'), mochaContext.mint.toBuffer(), publicKey.toBuffer()],
-      mochaContext.stakingProgram.programId
+      mochaContext.stakingProgram.programId,
     ),
     reward: await pda([utf8.encode('reward'), publicKey.toBuffer()], mochaContext.rewardsProgram.programId),
     vault: await pda(
       [utf8.encode('vault'), mochaContext.mint.toBuffer(), publicKey.toBuffer()],
-      mochaContext.stakingProgram.programId
+      mochaContext.stakingProgram.programId,
     ),
     // undefined
     job: undefined,
@@ -267,7 +267,7 @@ async function getUsers(mochaContext: Context, amount: number) {
   return await Promise.all(
     _.map(new Array(amount), async () => {
       return await setupSolanaUser(mochaContext);
-    })
+    }),
   );
 }
 

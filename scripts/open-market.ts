@@ -22,7 +22,7 @@ async function main() {
       new BN(MarketConfig.jobPrice),
       new BN(MarketConfig.jobType),
       MarketConfig.jobType,
-      new BN(MarketConfig.nodeMinimumStake)
+      new BN(MarketConfig.nodeMinimumStake),
     )
     .accounts({
       mint,

@@ -288,7 +288,7 @@ function main() {
       pt.row(['Errors', `[\`${'errors' in idl ? idl.errors.length : 0}\`](#errors)`]),
       pt.row(['Domain', `\`nosana-${idl.name.split('_')[1]}.sol\``]),
       pt.row([' Address', `[\`${address}\`](https://explorer.solana.com/address/${address})`]),
-      ''
+      '',
     );
 
     /**
@@ -298,7 +298,7 @@ function main() {
       '## Instructions',
       '',
       `A number of ${idl.instructions.length} instruction are defined in the ${title(idl.name)} program.`,
-      ''
+      '',
     );
     data.push(
       'To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).',
@@ -308,7 +308,7 @@ function main() {
       'const idl = await Program.fetchIdl(programId.toString());',
       'const program = new Program(idl, programId);',
       '```',
-      ''
+      '',
     );
 
     if (options.enhance) data.push(':::: tabs');
@@ -328,7 +328,7 @@ function main() {
         `The following ${instruction.accounts.length} account addresses should be provided when invoking this instruction.`,
         '',
         at.row(['Name', 'Type', 'Description']),
-        at.sep()
+        at.sep(),
       );
       const signers = [];
       for (const account of instruction.accounts) {
@@ -338,7 +338,7 @@ function main() {
             `<FontIcon icon="pencil" color="${account.isMut ? '#3EAF7C' : 'lightgrey'}" />` +
               `<FontIcon icon="key" color="${account.isSigner ? '#3EAF7C' : 'lightgrey'}" />`,
             `${descriptions(account.name)}`,
-          ])
+          ]),
         );
         // add signer
         if (account.isSigner) signers.push(`${account.name}Key`);
@@ -356,7 +356,7 @@ function main() {
           `The following ${instruction.args.length} arguments should also be provided when invoking this instruction.`,
           '',
           ft.row(['Name', 'Type', 'Size', 'Offset', 'Description']),
-          ft.sep()
+          ft.sep(),
         );
         let offset = 0;
         for (const arg of instruction.args) {
@@ -368,7 +368,7 @@ function main() {
               `\`${size}\``,
               `\`${offset}\``,
               `${descriptions(arg.name)}`,
-            ])
+            ]),
           );
           offset += size;
         }
@@ -388,7 +388,7 @@ function main() {
         '```json',
         `${'[' + [...dispatch] + ']'}`,
         '```',
-        ''
+        '',
       );
       if (options.enhance) data.push(':::');
 
@@ -397,7 +397,7 @@ function main() {
         '',
         `To invoke the ${title(instruction.name)} Instruction`,
         'with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).',
-        ''
+        '',
       );
 
       // code list
@@ -421,7 +421,7 @@ function main() {
       for (const account of instruction.accounts) {
         code.push(
           `    ${account.name},`.padEnd(commentPadding) +
-            `// ${(account.isMut ? '✓' : '𐄂') + ' writable, ' + (account.isSigner ? '✓' : '𐄂') + ' signer'}`
+            `// ${(account.isMut ? '✓' : '𐄂') + ' writable, ' + (account.isSigner ? '✓' : '𐄂') + ' signer'}`,
         );
       }
       code.push('  })');
@@ -454,7 +454,7 @@ function main() {
       '## Accounts',
       '',
       `A number of ${idl.accounts.length + 1} accounts make up for the ${title(idl.name)} Program's state.`,
-      options.enhance ? '\n:::: tabs\n' : ''
+      options.enhance ? '\n:::: tabs\n' : '',
     );
 
     for (const account of idl.accounts) {
@@ -481,7 +481,7 @@ function main() {
             `\`${size}\``,
             `\`${offset}\``,
             `${descriptions(field.name)}`,
-          ])
+          ]),
         );
         offset += size;
       }
@@ -496,7 +496,7 @@ function main() {
         '```json',
         `${'[' + [...discriminator] + ']'}`,
         '```',
-        ''
+        '',
       );
     }
     if (options.enhance) data.push(':::', '');
@@ -514,7 +514,7 @@ function main() {
         '## Types',
         '',
         `A number of ${idl.types.length} type variants are defined in the ${title(idl.name)} Program's state.`,
-        ''
+        '',
       );
 
       if (options.enhance) data.push('::: tabs');
@@ -532,7 +532,7 @@ function main() {
           data.push(tt.row(['Name', 'Number']), tt.sep());
           for (const field of t.type.variants) {
             data.push(
-              tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``])
+              tt.row([`\`${field.name}\``, `\`${field.name === 'Unknown' ? 255 : t.type.variants.indexOf(field)}\``]),
             );
           }
         } else {
@@ -553,7 +553,7 @@ function main() {
         '## Errors',
         '',
         `A number of ${idl.errors.length} errors are defined in the ${title(idl.name)} Program.`,
-        options.enhance ? '\n:::: tabs\n' : ''
+        options.enhance ? '\n:::: tabs\n' : '',
       );
 
       for (const error of idl.errors) {

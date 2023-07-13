@@ -144,7 +144,7 @@ async function claimAndCheckIds(mochaContext: Context, step: number) {
 async function printReflections(mochaContext: Context, user) {
   const reward = await mochaContext.rewardsProgram.account.rewardAccount.fetch(user.user.reward);
   const reflection = await mochaContext.rewardsProgram.account.reflectionAccount.fetch(
-    mochaContext.accounts.reflection
+    mochaContext.accounts.reflection,
   );
 
   console.log('reflection: ', reward.reflection.toString(), ' xnos: ', reward.xnos.toString());

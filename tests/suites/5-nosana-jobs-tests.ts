@@ -50,7 +50,7 @@ export default function suite() {
       this.market.address = this.accounts.market;
       this.accounts.vault = await pda(
         [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
-        this.jobsProgram.programId
+        this.jobsProgram.programId,
       );
       this.vaults.jobs = this.accounts.vault;
       this.exists.market = true;
@@ -61,7 +61,7 @@ export default function suite() {
           new BN(this.market.jobPrice),
           new BN(this.market.jobTimeout),
           this.market.jobType,
-          new BN(this.market.nodeStakeMinimum)
+          new BN(this.market.nodeStakeMinimum),
         )
         .accounts(this.accounts)
         .signers([marketKey])
@@ -493,7 +493,7 @@ export default function suite() {
           new BN(this.market.jobPrice),
           new BN(this.market.jobTimeout),
           this.market.jobType,
-          new BN(this.market.nodeStakeMinimum)
+          new BN(this.market.nodeStakeMinimum),
         )
         .accounts({
           ...this.accounts,

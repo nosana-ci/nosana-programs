@@ -132,7 +132,7 @@ function drawWinners(seed, tickets) {
 
 solana-tokens distribute-tokens --from <KEYPAIR>` +
       ` --input-csv ${winnersFile} --fee-payer <KEYPAIR>
-`
+`,
   );
 }
 

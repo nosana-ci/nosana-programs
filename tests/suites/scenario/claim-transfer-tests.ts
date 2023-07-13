@@ -18,7 +18,7 @@ async function fundPool(mochaContext: Context, amount: number) {
     mochaContext.accounts.user,
     mochaContext.vaults.pools,
     mochaContext.payer,
-    amount
+    amount,
   );
   mochaContext.balances.user -= amount;
   mochaContext.balances.vaultPool += amount;
@@ -41,7 +41,7 @@ export default function suite() {
       expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user, 'user');
       expect(await getTokenBalance(this.provider, this.accounts.beneficiary)).to.equal(
         this.balances.beneficiary,
-        'beneficiary'
+        'beneficiary',
       );
       if (!this.poolClosed)
         expect(await getTokenBalance(this.provider, this.vaults.pools)).to.equal(this.balances.vaultPool, 'vaultPool');

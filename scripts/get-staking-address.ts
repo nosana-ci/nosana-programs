@@ -9,7 +9,7 @@ async function main() {
       new PublicKey('nosXBVoaCTtYdLvKY6Csb4AC8JCdQKKAaWYtx2ZMoo7').toBuffer(),
       new PublicKey(process.argv.slice(2)[0]).toBuffer(),
     ],
-    new PublicKey('nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE')
+    new PublicKey('nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE'),
   );
   console.log(`https://explorer.solana.com/address/${pk}`);
 }

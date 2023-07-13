@@ -72,7 +72,7 @@ describe('nosana programs', async function () {
     this.vaults.rewards = await pda([this.mint.toBuffer()], this.rewardsProgram.programId);
     this.vaults.staking = await pda(
       [utf8.encode('vault'), this.mint.toBuffer(), this.publicKey.toBuffer()],
-      this.stakingProgram.programId
+      this.stakingProgram.programId,
     );
 
     // nosana market
@@ -110,7 +110,7 @@ describe('nosana programs', async function () {
     this.accounts.node = await pda([utf8.encode('node'), this.publicKey.toBuffer()], this.nodesProgram.programId);
     this.accounts.stake = await pda(
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
-      this.stakingProgram.programId
+      this.stakingProgram.programId,
     );
   });
 

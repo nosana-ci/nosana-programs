@@ -41,7 +41,7 @@ async function main() {
         throw error;
       }
       rows = result;
-    }
+    },
   );
 
   type SyncAccounts = {

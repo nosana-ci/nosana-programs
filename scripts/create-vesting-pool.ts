@@ -61,7 +61,7 @@ async function main() {
           await getAssociatedTokenAddress(mint, provider.wallet.publicKey),
           vault,
           wallet.payer,
-          poolConfig.amount * constants.decimals
+          poolConfig.amount * constants.decimals,
         );
         console.log(`Done!\n${solanaExplorer(tx)}`);
       }

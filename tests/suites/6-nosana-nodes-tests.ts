@@ -15,7 +15,7 @@ export default function suite() {
           this.nodeSpec.storage,
           this.nodeSpec.endpoint,
           this.nodeSpec.endpoint,
-          this.nodeSpec.version
+          this.nodeSpec.version,
         )
         .accounts(this.accounts)
         .rpc();
@@ -50,7 +50,7 @@ export default function suite() {
           this.nodeSpec.storage,
           this.nodeSpec.endpoint,
           this.nodeSpec.endpoint,
-          'v1.0.1'
+          'v1.0.1',
         )
         .accounts(this.accounts)
         .rpc();

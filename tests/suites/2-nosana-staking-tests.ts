@@ -75,7 +75,7 @@ export default function suite() {
       expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin, 'duration');
       expect(stake.xnos.toNumber()).to.equal(
         calculateXnos(this.constants.stakeDurationMin, this.constants.stakeMinimum),
-        'xnos'
+        'xnos',
       );
     });
 
@@ -184,7 +184,7 @@ export default function suite() {
       expect(stake.amount.toNumber()).to.equal(this.constants.stakeMinimum);
       expect(stake.xnos.toNumber()).to.equal(
         calculateXnos(this.constants.stakeDurationMin * 2 + 7, this.constants.stakeMinimum),
-        'xnos'
+        'xnos',
       );
     });
   });
@@ -262,9 +262,9 @@ export default function suite() {
       expect(stake.xnos.toNumber()).to.equal(
         calculateXnos(
           this.constants.stakeDurationMin * 2 + 7,
-          this.constants.stakeMinimum + this.constants.stakeAmount
+          this.constants.stakeMinimum + this.constants.stakeAmount,
         ),
-        'xnos'
+        'xnos',
       );
     });
   });

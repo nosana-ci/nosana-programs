@@ -6,14 +6,14 @@ export default function suite() {
   describe('mints and users', function () {
     it('can create mint', async function () {
       expect((await createNosMint(this.connection, this.payer, this.publicKey)).toString()).to.equal(
-        this.mint.toString()
+        this.mint.toString(),
       );
     });
 
     it('can create main user and fund mint', async function () {
       // ata
       expect(
-        (await createAssociatedTokenAccount(this.connection, this.payer, this.mint, this.publicKey)).toString()
+        (await createAssociatedTokenAccount(this.connection, this.payer, this.mint, this.publicKey)).toString(),
       ).to.equal(this.accounts.user.toString());
 
       // fund user
@@ -67,7 +67,7 @@ export default function suite() {
           mochaContext.connection,
           mochaContext.payer,
           mintAddress,
-          node.publicKey
+          node.publicKey,
         );
         await transfer(
           mochaContext.connection,
@@ -75,14 +75,14 @@ export default function suite() {
           await getAssociatedTokenAddress(mintAddress, mochaContext.publicKey),
           node.ataNft,
           mochaContext.payer,
-          1
+          1,
         );
 
         expect(await getTokenBalance(mochaContext.provider, node.ataNft)).to.equal(1);
         expect(nft.name).to.equal(mochaContext.nftConfig.name, 'NFT name');
         expect(nft.collection.address.toString()).to.equal(
           mochaContext.nftConfig.collection.toString(),
-          'Collection pk'
+          'Collection pk',
         );
       });
     });

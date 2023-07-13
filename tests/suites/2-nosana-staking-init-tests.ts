@@ -31,7 +31,7 @@ export default function suite() {
       expect(stake.duration.toNumber()).to.equal(this.constants.stakeDurationMin, 'duration');
       expect(stake.xnos.toNumber()).to.equal(
         calculateXnos(this.constants.stakeDurationMin, this.constants.minimumNodeStake),
-        'xnos'
+        'xnos',
       );
     });
 
