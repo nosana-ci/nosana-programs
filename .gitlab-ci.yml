@@ -2,7 +2,7 @@ include:
   - project: nosana-ci/tools/cicd/gitlab-ci
     file: anchor.yml
 
-image: projectserum/build:v0.27.0
+image: backpackapp/build:v0.28.0
 
 variables:
   PREPARE_SCRIPT: scripts/prepare.sh
