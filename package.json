@@ -39,6 +39,7 @@
     "script:init-rewards": "ts-node scripts/init-rewards",
     "script:open-market": "ts-node scripts/open-market",
     "script:sync-rewards": "ts-node scripts/sync-rewards",
-    "script:update-market": "ts-node scripts/update-market"
+    "script:update-market": "ts-node scripts/update-market",
+    "script:register-nodes": "ts-node scripts/register-nodes"
   }
 }
