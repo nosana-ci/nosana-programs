@@ -1,9 +1,7 @@
-import { AnchorProvider, Program, setProvider, web3, BN, Idl } from '@coral-xyz/anchor';
+import { AnchorProvider, Program, setProvider, web3, Idl } from '@coral-xyz/anchor';
 import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
-import { Keypair, PublicKey } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
 import { pda } from '../tests/utils';
-import poolConfig = require('../tests/data/pool.json');
 // @ts-ignore
 import { NosanaNodes } from '../target/types/nosana_nodes';
 
@@ -12,13 +10,8 @@ async function main() {
   const provider = AnchorProvider.env();
   setProvider(provider);
 
-  // pool config
-  const keyPair = Keypair.generate();
-
   // public keys
-  const mint = new PublicKey(poolConfig.mint);
   const nodesId = new PublicKey('nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD');
-  const nodeAddr = new PublicKey('nodCMAdrGT3oLduvsLMFUp7SMovyaDVJ4kVumz65j7M');
 
   // program
   const idl = (await Program.fetchIdl(nodesId.toString())) as Idl;
@@ -30,7 +23,7 @@ async function main() {
     node: nodePda,
     payer: provider.wallet.publicKey,
     authority: provider.wallet.publicKey,
-    systemProgram: web3.SystemProgram.programId
+    systemProgram: web3.SystemProgram.programId,
   };
 
   const nodeSpec = {
@@ -57,7 +50,7 @@ async function main() {
       nodeSpec.endpoint,
       // 'https://arweave.net/gA2S3TKamHnTD7vb704bYZc7-PheFUkx1igrIrnBUvo',
       '',
-      nodeSpec.version
+      nodeSpec.version,
     )
     .accounts(accounts)
     .rpc();
