@@ -19,7 +19,7 @@ cpi = ["no-entrypoint"]
 [dependencies]
 anchor-spl = { version = "0.28.0" }
 anchor-lang = { version = "0.28.0" }
-mpl-token-metadata = { version = "1.12.0", features = [ "no-entrypoint" ] }
+mpl-token-metadata = { version = "1.13.2", features = [ "no-entrypoint" ] }
 nosana-staking = { path = "../nosana-staking", features = ["cpi"] }
 nosana-rewards = { path = "../nosana-rewards", features = ["cpi"] }
 nosana-common = { path = "../../common" }
