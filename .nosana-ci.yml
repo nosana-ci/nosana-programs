@@ -35,10 +35,10 @@ jobs:
 
   - name: build mainnet
     trigger:
-      push:
+      push:iImpliM
         branches: []
         tags:
-          - 'job-v*'  
+          - 'job-v*'
     commands:
       - scripts/prepare.sh
       - anchor build

@@ -19,6 +19,8 @@ pub enum NosanaJobsError {
     JobNotExpired,
     #[msg("The job result can not be null.")]
     JobResultNull,
+    #[msg("The job has a different project owner.")]
+    JobInvalidProject,
 
     // node errors
     #[msg("This node queue does not match.")]

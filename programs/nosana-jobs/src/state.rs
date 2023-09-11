@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use mpl_token_metadata::pda::find_metadata_account;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
 use nosana_common::{cpi, id, writer::BpfWriter};
-use std::mem::size_of;
+use std::{cmp::min, mem::size_of};
 
 /***
  * Accounts
@@ -60,14 +60,12 @@ impl MarketAccount {
         &mut self,
         job_expiration: i64,
         job_price: u64,
-        job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
         node_stake_minimum: u128,
     ) -> Result<()> {
         self.job_expiration = job_expiration;
         self.job_price = job_price;
-        self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.node_access_key = node_access_key;
         self.node_xnos_minimum = node_stake_minimum;
@@ -105,6 +103,10 @@ impl MarketAccount {
             self.set_queue_type(QueueType::Empty);
         }
         self.queue.remove(0)
+    }
+
+    pub fn get_deposit(&self) -> u64 {
+        self.job_price * u64::try_from(self.job_timeout).unwrap()
     }
 
     pub fn find_in_queue(&mut self, pubkey: &Pubkey) -> Option<usize> {
@@ -170,6 +172,14 @@ pub struct JobAccount {
 impl JobAccount {
     pub const SIZE: usize = 8 + size_of::<JobAccount>();
     pub const NULL_RESULT: [u8; 32] = [0; 32];
+
+    pub fn get_deposit(&self, timeout: i64) -> u64 {
+        self.price * u64::try_from(timeout).unwrap()
+    }
+
+    pub fn get_reimbursement(&self, timeout: i64) -> u64 {
+        self.price * u64::try_from(min(self.time_end - self.time_start, timeout)).unwrap()
+    }
 
     pub fn create(
         &mut self,

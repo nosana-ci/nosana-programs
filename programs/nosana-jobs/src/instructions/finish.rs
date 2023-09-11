@@ -1,9 +1,16 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::{
+    associated_token,
+    token::{Token, TokenAccount},
+};
 
 #[derive(Accounts)]
 pub struct Finish<'info> {
-    #[account(mut, has_one = market @ NosanaJobsError::InvalidMarketAccount)]
+    #[account(
+        mut,
+        has_one = market @ NosanaJobsError::InvalidMarketAccount,
+        has_one = project @ NosanaJobsError::JobInvalidProject,
+    )]
     pub job: Account<'info, JobAccount>,
     #[account(
         mut,
@@ -19,9 +26,14 @@ pub struct Finish<'info> {
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub deposit: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
     #[account(mut)]
     pub payer: AccountInfo<'info>,
+    /// CHECK: this account is verified as the original project for the job account
+    #[account(mut)]
+    pub project: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
@@ -32,6 +44,11 @@ impl<'info> Finish<'info> {
             ipfs_result != JobAccount::NULL_RESULT,
             NosanaJobsError::JobResultNull
         );
+        require_keys_eq!(
+            self.deposit.key(),
+            associated_token::get_associated_token_address(self.project.key, &id::NOS_TOKEN),
+            NosanaError::InvalidATA
+        );
 
         self.job.finish(
             ipfs_result,
@@ -39,7 +56,15 @@ impl<'info> Finish<'info> {
             Clock::get()?.unix_timestamp,
             self.run.time,
         );
-        // reimburse node
-        transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), self.job.price)
+
+        // reimburse node, and refund surplus
+        let amount: u64 = self.job.get_reimbursement(self.market.job_timeout);
+        transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
+        transfer_tokens_from_vault!(
+            self,
+            deposit,
+            seeds!(self.market, self.vault),
+            self.job.get_deposit(self.market.job_timeout) - amount
+        )
     }
 }
