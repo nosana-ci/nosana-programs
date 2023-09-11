@@ -32,19 +32,18 @@ Register a node to the Nosana Network
 
 #### Account Info
 
-The following 5 account addresses should be provided when invoking this instruction.
+The following 4 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `node`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The node that runs this job.                                                                      |
-| `icon`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | n/a                                                                                               |
 | `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The paying identy for the rent.                                                                   |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 | `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
 
 #### Arguments
 
-The following 9 arguments should also be provided when invoking this instruction.
+The following 10 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -56,6 +55,7 @@ The following 9 arguments should also be provided when invoking this instruction
 | `iops`                 | `u16`             | `2`     | `9`     | Input/output operations per second of a node.             |
 | `storage`              | `u16`             | `2`     | `11`    | Storage capacity of a node in GB.                         |
 | `endpoint`             | `string`          | `undefined`| `13`    | HTTP endpoint for log streaming and results.              |
+| `icon`                 | `string`          | `undefined`| `NaN`   | n/a                                                       |
 | `version`              | `string`          | `undefined`| `NaN`   | The version of the nosana node software they are running. |
 
 
@@ -85,11 +85,11 @@ let tx = await program.methods
     iops,              // type: u16
     storage,           // type: u16
     endpoint,          // type: string
+    icon,              // type: string
     version,           // type: string
   )
   .accounts({
     node,              // ✓ writable, 𐄂 signer
-    icon,              // 𐄂 writable, 𐄂 signer
     payer,             // ✓ writable, ✓ signer
     authority,         // 𐄂 writable, ✓ signer
     systemProgram,     // 𐄂 writable, 𐄂 signer
@@ -152,17 +152,16 @@ Update a node to the Nosana Network
 
 #### Account Info
 
-The following 3 account addresses should be provided when invoking this instruction.
+The following 2 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `node`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The node that runs this job.                                                                      |
-| `icon`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | n/a                                                                                               |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 #### Arguments
 
-The following 9 arguments should also be provided when invoking this instruction.
+The following 10 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -174,6 +173,7 @@ The following 9 arguments should also be provided when invoking this instruction
 | `iops`                 | `u16`             | `2`     | `9`     | Input/output operations per second of a node.             |
 | `storage`              | `u16`             | `2`     | `11`    | Storage capacity of a node in GB.                         |
 | `endpoint`             | `string`          | `undefined`| `13`    | HTTP endpoint for log streaming and results.              |
+| `icon`                 | `string`          | `undefined`| `NaN`   | n/a                                                       |
 | `version`              | `string`          | `undefined`| `NaN`   | The version of the nosana node software they are running. |
 
 
@@ -203,11 +203,11 @@ let tx = await program.methods
     iops,              // type: u16
     storage,           // type: u16
     endpoint,          // type: string
+    icon,              // type: string
     version,           // type: string
   )
   .accounts({
     node,              // ✓ writable, 𐄂 signer
-    icon,              // 𐄂 writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
   .signers([authorityKey])
@@ -234,8 +234,8 @@ The total size of this account is `NaN` bytes.
 | `memory`                    | `u16`                       | `2`     | `48`    | Memory capacity of a node in GB.                                                                  |
 | `iops`                      | `u16`                       | `2`     | `50`    | Input/output operations per second of a node.                                                     |
 | `storage`                   | `u16`                       | `2`     | `52`    | Storage capacity of a node in GB.                                                                 |
-| `icon`                      | `publicKey`                 | `32`    | `54`    | n/a                                                                                               |
-| `endpoint`                  | `string`                    | `undefined`| `86`    | HTTP endpoint for log streaming and results.                                                      |
+| `endpoint`                  | `string`                    | `undefined`| `54`    | HTTP endpoint for log streaming and results.                                                      |
+| `icon`                      | `string`                    | `undefined`| `NaN`   | n/a                                                                                               |
 | `version`                   | `string`                    | `undefined`| `NaN`   | The version of the nosana node software they are running.                                         |
 
 #### Anchor Account Discriminator
