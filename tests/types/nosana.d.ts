@@ -85,6 +85,7 @@ type NosanaAccounts = {
   // main user
   authority: PublicKey;
   payer: PublicKey;
+  project: PublicKey;
 
   // token
   mint: PublicKey;
@@ -93,6 +94,7 @@ type NosanaAccounts = {
   vault: PublicKey;
   tokenAccount: PublicKey;
   user: PublicKey;
+  deposit: PublicKey;
 
   // staking specific
   settings: PublicKey;

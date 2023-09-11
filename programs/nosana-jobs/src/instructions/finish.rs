@@ -11,7 +11,7 @@ pub struct Finish<'info> {
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
         has_one = project @ NosanaJobsError::JobInvalidProject,
     )]
-    pub job: Account<'info, JobAccount>,
+    pub job: Box<Account<'info, JobAccount>>,
     #[account(
         mut,
         close = payer,
@@ -19,7 +19,7 @@ pub struct Finish<'info> {
         has_one = job @ NosanaJobsError::InvalidJobAccount,
         constraint = run.node == authority.key() @ NosanaError::Unauthorized,
     )]
-    pub run: Account<'info, RunAccount>,
+    pub run: Box<Account<'info, RunAccount>>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
     #[account(mut)]
