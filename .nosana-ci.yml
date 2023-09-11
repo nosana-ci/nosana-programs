@@ -35,7 +35,7 @@ jobs:
 
   - name: build mainnet
     trigger:
-      push:iImpliM
+      push:
         branches: []
         tags:
           - 'job-v*'
