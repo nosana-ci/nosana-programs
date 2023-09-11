@@ -523,8 +523,8 @@ export default function suite() {
 
     it('can recover a stopped job', async function () {
       await this.jobsProgram.methods.recover().accounts(this.accounts).rpc();
-      this.balances.user += this.constants.jobPrice;
-      this.balances.vaultJob -= this.constants.jobPrice;
+      this.balances.user += this.balances.vaultJob;
+      this.balances.vaultJob = 0;
     });
   });
 

@@ -26,6 +26,6 @@ pub struct Recover<'info> {
 
 impl<'info> Recover<'info> {
     pub fn handler(&self) -> Result<()> {
-        transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), self.job.price)
+        transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), self.vault.amount)
     }
 }
