@@ -26,3 +26,14 @@ pub fn nosana_staking(authority: &Pubkey) -> Pubkey {
         &id::STAKING_PROGRAM,
     )
 }
+
+pub fn metaplex_metadata(mint: &Pubkey) -> Pubkey {
+    get_address(
+        &[
+            constants::METAPLEX_METADATA.as_ref(),
+            id::METAPLEX_METADATA.as_ref(),
+            mint.as_ref(),
+        ],
+        &id::METAPLEX_METADATA,
+    )
+}

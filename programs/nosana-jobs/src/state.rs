@@ -1,8 +1,7 @@
 use crate::{JobState, JobType, QueueType};
 use anchor_lang::prelude::*;
-use mpl_token_metadata::pda::find_metadata_account;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
-use nosana_common::{cpi, id, writer::BpfWriter};
+use nosana_common::{cpi, id, pda, writer::BpfWriter};
 use std::{cmp::min, mem::size_of};
 
 /***
@@ -132,7 +131,7 @@ impl MarketAccount {
         node_access_key == id::SYSTEM_PROGRAM || {
             let metadata: Metadata = Metadata::from_account_info(metadata_info).unwrap();
             let collection: Collection = metadata.collection.unwrap();
-            metadata_info.key() == find_metadata_account(mint).0
+            metadata_info.key() == pda::metaplex_metadata(mint)
                 && collection.verified
                 && collection.key == node_access_key
         }
