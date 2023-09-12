@@ -28,8 +28,8 @@ function getNewJobKey(mochaContext: Context) {
 export default function suite() {
   afterEach(async function () {
     if (!this.exists.market) return;
-    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
-    expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob);
+    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user, 'userBalance');
+    expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob, 'vaultBalance');
 
     const market = await this.jobsProgram.account.marketAccount.fetch(this.market.address);
     expect(market.queueType).to.equal(this.market.queueType, 'queueType');
@@ -80,9 +80,10 @@ export default function suite() {
         .rpc();
 
       // update balances
-      this.balances.user -= this.constants.jobPrice;
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
       this.balances.user -= this.constants.feePrice;
-      this.balances.vaultJob += this.constants.jobPrice;
+      this.balances.vaultJob += deposit;
 
       // update market
       this.market.queueType = this.constants.queueType.job;
@@ -166,9 +167,10 @@ export default function suite() {
       this.market.queueType = this.constants.queueType.unknown;
       this.market.queueLength -= 1;
 
-      this.balances.user -= this.constants.jobPrice;
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
       this.balances.user -= this.constants.feePrice;
-      this.balances.vaultJob += this.constants.jobPrice;
+      this.balances.vaultJob += deposit;
     });
 
     it('can fetch a running job', async function () {
@@ -209,8 +211,9 @@ export default function suite() {
 
     it('can finish a job as a node', async function () {
       await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
-      this.balances.user += this.constants.jobPrice;
-      this.balances.vaultJob -= this.constants.jobPrice;
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
     });
 
     it('can not finish job that is already finished', async function () {
@@ -329,9 +332,10 @@ export default function suite() {
         .signers([jobKey, runKey])
         .rpc();
 
-      this.balances.user -= this.constants.jobPrice;
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
       this.balances.user -= this.constants.feePrice;
-      this.balances.vaultJob += this.constants.jobPrice;
+      this.balances.vaultJob += deposit;
 
       // update market
       this.market.queueType = this.constants.queueType.job;
@@ -491,7 +495,6 @@ export default function suite() {
         .update(
           new BN(this.market.jobExpiration),
           new BN(this.market.jobPrice),
-          new BN(this.market.jobTimeout),
           this.market.jobType,
           new BN(this.market.nodeStakeMinimum),
         )
@@ -520,8 +523,9 @@ export default function suite() {
 
     it('can recover a stopped job', async function () {
       await this.jobsProgram.methods.recover().accounts(this.accounts).rpc();
-      this.balances.user += this.constants.jobPrice;
-      this.balances.vaultJob -= this.constants.jobPrice;
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
     });
   });
 
@@ -567,8 +571,9 @@ export default function suite() {
 
     it('can finish the last job in the market', async function () {
       await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
-      this.balances.user += this.constants.jobPrice;
-      this.balances.vaultJob -= this.constants.jobPrice;
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
     });
 
     it('can see no more running jobs in this market', async function () {

@@ -1,9 +1,8 @@
 use crate::{JobState, JobType, QueueType};
 use anchor_lang::prelude::*;
-use mpl_token_metadata::pda::find_metadata_account;
 use mpl_token_metadata::state::{Collection, Metadata, TokenMetadataAccount};
-use nosana_common::{cpi, id, writer::BpfWriter};
-use std::mem::size_of;
+use nosana_common::{cpi, id, pda, writer::BpfWriter};
+use std::{cmp::min, mem::size_of};
 
 /***
  * Accounts
@@ -60,14 +59,12 @@ impl MarketAccount {
         &mut self,
         job_expiration: i64,
         job_price: u64,
-        job_timeout: i64,
         job_type: u8,
         node_access_key: Pubkey,
         node_stake_minimum: u128,
     ) -> Result<()> {
         self.job_expiration = job_expiration;
         self.job_price = job_price;
-        self.job_timeout = job_timeout;
         self.job_type = job_type;
         self.node_access_key = node_access_key;
         self.node_xnos_minimum = node_stake_minimum;
@@ -107,6 +104,10 @@ impl MarketAccount {
         self.queue.remove(0)
     }
 
+    pub fn get_deposit(&self) -> u64 {
+        self.job_price * u64::try_from(self.job_timeout).unwrap()
+    }
+
     pub fn find_in_queue(&mut self, pubkey: &Pubkey) -> Option<usize> {
         MarketAccount::find_in_queue_static(&self.queue, pubkey)
     }
@@ -130,7 +131,7 @@ impl MarketAccount {
         node_access_key == id::SYSTEM_PROGRAM || {
             let metadata: Metadata = Metadata::from_account_info(metadata_info).unwrap();
             let collection: Collection = metadata.collection.unwrap();
-            metadata_info.key() == find_metadata_account(mint).0
+            metadata_info.key() == pda::metaplex_metadata(mint)
                 && collection.verified
                 && collection.key == node_access_key
         }
@@ -198,6 +199,14 @@ impl JobAccount {
         self.state = JobState::Done as u8;
         self.time_end = time_end;
         self.time_start = time_start;
+    }
+
+    pub fn get_deposit(&self, timeout: i64) -> u64 {
+        self.price * u64::try_from(timeout).unwrap()
+    }
+
+    pub fn get_reimbursement(&self, timeout: i64) -> u64 {
+        self.get_deposit(min(self.time_end - self.time_start, timeout))
     }
 }
 

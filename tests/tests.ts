@@ -98,8 +98,10 @@ describe('nosana programs', async function () {
     this.accounts.rent = anchor.web3.SYSVAR_RENT_PUBKEY;
     this.accounts.authority = this.publicKey;
     this.accounts.payer = this.publicKey;
+    this.accounts.project = this.publicKey;
     this.accounts.mint = this.mint;
     this.accounts.user = await getAssociatedTokenAddress(this.mint, this.publicKey);
+    this.accounts.deposit = this.accounts.user;
     this.accounts.reflection = await pda([utf8.encode('reflection')], this.rewardsProgram.programId);
     this.accounts.reward = await pda([utf8.encode('reward'), this.publicKey.toBuffer()], this.rewardsProgram.programId);
     this.accounts.settings = await pda([utf8.encode('settings')], this.stakingProgram.programId);

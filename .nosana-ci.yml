@@ -38,7 +38,7 @@ jobs:
       push:
         branches: []
         tags:
-          - 'job-v*'  
+          - 'job-v*'
     commands:
       - scripts/prepare.sh
       - anchor build

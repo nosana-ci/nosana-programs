@@ -29,4 +29,6 @@ pub enum NosanaError {
     VaultEmpty,
     #[msg("This vault is not empty.")]
     VaultNotEmpty,
+    #[msg("This Associated Token Account is not valid.")]
+    InvalidATA,
 }

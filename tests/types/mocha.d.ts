@@ -27,6 +27,8 @@ declare module 'mocha' {
     wallet: Wallet;
     payer: Signer;
     publicKey: PublicKey;
+    deposit: PublicKey;
+    project: PublicKey;
 
     // mint
     mint: PublicKey;

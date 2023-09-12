@@ -75,3 +75,9 @@ mod nft_collection {
     use super::*;
     declare_id!("nftNgYSG5pbwL7kHeJ5NeDrX8c4KrG1CzWhEXT8RMJ3");
 }
+
+pub use metaplex_metadata::ID as METAPLEX_METADATA;
+mod metaplex_metadata {
+    use super::*;
+    declare_id!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+}
