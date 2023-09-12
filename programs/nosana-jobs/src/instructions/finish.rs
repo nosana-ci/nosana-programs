@@ -26,7 +26,10 @@ pub struct Finish<'info> {
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = job.price == 0 || deposit.key() == associated_token::get_associated_token_address(project.key, &id::NOS_TOKEN) @ NosanaError::InvalidATA,
+    )]
     pub deposit: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
     #[account(mut)]
@@ -44,11 +47,6 @@ impl<'info> Finish<'info> {
             ipfs_result != JobAccount::NULL_RESULT,
             NosanaJobsError::JobResultNull
         );
-        require_keys_eq!(
-            self.deposit.key(),
-            associated_token::get_associated_token_address(self.project.key, &id::NOS_TOKEN),
-            NosanaError::InvalidATA
-        );
 
         self.job.finish(
             ipfs_result,
@@ -59,12 +57,16 @@ impl<'info> Finish<'info> {
 
         // reimburse node, and refund surplus
         let amount: u64 = self.job.get_reimbursement(self.market.job_timeout);
-        transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
-        transfer_tokens_from_vault!(
-            self,
-            deposit,
-            seeds!(self.market, self.vault),
-            self.job.get_deposit(self.market.job_timeout) - amount
-        )
+        if amount > 0 {
+            transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
+            transfer_tokens_from_vault!(
+                self,
+                deposit,
+                seeds!(self.market, self.vault),
+                self.job.get_deposit(self.market.job_timeout) - amount
+            )
+        } else {
+            Ok(())
+        }
     }
 }
