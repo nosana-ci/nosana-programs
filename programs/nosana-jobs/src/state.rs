@@ -173,14 +173,6 @@ impl JobAccount {
     pub const SIZE: usize = 8 + size_of::<JobAccount>();
     pub const NULL_RESULT: [u8; 32] = [0; 32];
 
-    pub fn get_deposit(&self, timeout: i64) -> u64 {
-        self.price * u64::try_from(timeout).unwrap()
-    }
-
-    pub fn get_reimbursement(&self, timeout: i64) -> u64 {
-        self.price * u64::try_from(min(self.time_end - self.time_start, timeout)).unwrap()
-    }
-
     pub fn create(
         &mut self,
         ipfs_job: [u8; 32],
@@ -208,6 +200,14 @@ impl JobAccount {
         self.state = JobState::Done as u8;
         self.time_end = time_end;
         self.time_start = time_start;
+    }
+
+    pub fn get_deposit(&self, timeout: i64) -> u64 {
+        self.price * u64::try_from(timeout).unwrap()
+    }
+
+    pub fn get_reimbursement(&self, timeout: i64) -> u64 {
+        self.get_deposit(min(self.time_end - self.time_start, timeout))
     }
 }
 

@@ -28,8 +28,8 @@ function getNewJobKey(mochaContext: Context) {
 export default function suite() {
   afterEach(async function () {
     if (!this.exists.market) return;
-    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
-    expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob);
+    expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user, 'userBalance');
+    expect(await getTokenBalance(this.provider, this.vaults.jobs)).to.equal(this.balances.vaultJob, 'vaultBalance');
 
     const market = await this.jobsProgram.account.marketAccount.fetch(this.market.address);
     expect(market.queueType).to.equal(this.market.queueType, 'queueType');
@@ -523,8 +523,9 @@ export default function suite() {
 
     it('can recover a stopped job', async function () {
       await this.jobsProgram.methods.recover().accounts(this.accounts).rpc();
-      this.balances.user += this.balances.vaultJob;
-      this.balances.vaultJob = 0;
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
     });
   });
 
