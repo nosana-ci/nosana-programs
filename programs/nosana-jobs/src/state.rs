@@ -93,6 +93,10 @@ impl MarketAccount {
     pub fn remove_from_queue(&mut self, node: &Pubkey) -> Result<()> {
         let index: usize = self.find_in_queue(node).unwrap();
         self.queue.remove(index);
+        // we check if there are none left
+        if self.queue.is_empty() {
+            self.set_queue_type(QueueType::Empty);
+        }
         Ok(())
     }
 
