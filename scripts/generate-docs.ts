@@ -47,10 +47,10 @@ const typeToString = (field) =>
   typeof field.type === 'string'
     ? field.type
     : 'vec' in field.type
-    ? `Vec<${field.type.vec}>`
-    : 'array' in field.type
-    ? `${JSON.stringify(field.type.array)}`
-    : field.toString();
+      ? `Vec<${field.type.vec}>`
+      : 'array' in field.type
+        ? `${JSON.stringify(field.type.array)}`
+        : field.toString();
 
 /**
  *
