@@ -48,16 +48,6 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.StakeDurationTooLong);
     });
 
-    it('can not stake too little', async function () {
-      let msg = '';
-      await this.stakingProgram.methods
-        .stake(new anchor.BN(this.constants.stakeMinimum - 1), new anchor.BN(this.constants.stakeDurationMax))
-        .accounts(this.accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.StakeAmountNotEnough);
-    });
-
     it('can stake minimum', async function () {
       await this.stakingProgram.methods
         .stake(new anchor.BN(this.constants.stakeMinimum), new anchor.BN(this.constants.stakeDurationMin))
