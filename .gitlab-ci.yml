@@ -19,8 +19,8 @@ variables:
         PROGRAM_ID: nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD
       - PROGRAM_NAME: nosana_nodes
         PROGRAM_ID: nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD
-#      - PROGRAM_NAME: nosana_jobs
-#        PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
+      - PROGRAM_NAME: nosana_jobs
+        PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
 
 npm:
   stage: .pre
