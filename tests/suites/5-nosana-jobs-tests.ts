@@ -594,29 +594,28 @@ export default function suite() {
       this.accounts.market = marketKey.publicKey;
       this.market.address = this.accounts.market;
       this.accounts.vault = await pda(
-          [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
-          this.jobsProgram.programId,
+        [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
+        this.jobsProgram.programId,
       );
       this.vaults.jobs = this.accounts.vault;
       this.exists.market = true;
       this.accounts.accessKey = this.accounts.systemProgram;
 
       await this.jobsProgram.methods
-          .open(
-              new BN(this.market.jobExpiration),
-              new BN(this.market.jobPrice),
-              new BN(this.market.jobTimeout),
-              this.market.jobType,
-              new BN(this.market.nodeStakeMinimum),
-          )
-          .accounts(this.accounts)
-          .signers([marketKey])
-          .rpc();
+        .open(
+          new BN(this.market.jobExpiration),
+          new BN(this.market.jobPrice),
+          new BN(this.market.jobTimeout),
+          this.market.jobType,
+          new BN(this.market.nodeStakeMinimum),
+        )
+        .accounts(this.accounts)
+        .signers([marketKey])
+        .rpc();
     });
     it('can close the market as admin', async function () {
       await this.jobsProgram.methods.closeAdmin().accounts(this.accounts).rpc();
       this.exists.market = false;
     });
   });
-
 }
