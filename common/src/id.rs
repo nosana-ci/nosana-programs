@@ -61,6 +61,15 @@ mod authority {
     declare_id!("XXXxddiNnmoD2h2LbQYaL76Swi21MaQbtBbRynAdQL8");
 }
 
+pub use market_admin::ID as MARKET_ADMIN;
+mod market_admin {
+    use super::*;
+    #[cfg(feature = "mainnet")]
+    declare_id!("AdmMVMMU3po5BP3bVWsF9GgN6NNEfpfxpTDGTzjgb72S");
+    #[cfg(not(feature = "mainnet"))]
+    declare_id!("XXXxddiNnmoD2h2LbQYaL76Swi21MaQbtBbRynAdQL8");
+}
+
 pub use token_account::ID as TOKEN_ACCOUNT;
 mod token_account {
     use super::*;

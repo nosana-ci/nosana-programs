@@ -8,7 +8,7 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`4`](#accounts)                                                                                                                    |
-| Instructions    | [`11`](#instructions)                                                                                                               |
+| Instructions    | [`12`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
 | Errors          | [`13`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
@@ -16,7 +16,7 @@
 
 ## Instructions
 
-A number of 11 instruction are defined in the Nosana Jobs program.
+A number of 12 instruction are defined in the Nosana Jobs program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -189,6 +189,52 @@ with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 ```typescript
 let tx = await program.methods
   .close()
+  .accounts({
+    market,            // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
+### Close Admin
+
+Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
+
+#### Account Info
+
+The following 5 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Close Admin Instruction
+is **`cab6b98ed0a191bd`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[202,182,185,142,208,161,145,189]
+```
+
+#### Example with Anchor
+
+To invoke the Close Admin Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .closeAdmin()
   .accounts({
     market,            // ✓ writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
