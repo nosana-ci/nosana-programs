@@ -582,6 +582,21 @@ export default function suite() {
       expect(runs.length).to.equal(0);
     });
 
+    it('can not close market with different authority', async function () {
+      let msg = '';
+      const user = this.users.node1;
+      await this.jobsProgram.methods
+        .closeAdmin()
+        .accounts({
+          ...this.accounts,
+          authority: user.publicKey,
+        })
+        .signers([user.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
     it('can close the market', async function () {
       await this.jobsProgram.methods.close().accounts(this.accounts).rpc();
       this.exists.market = false;
@@ -613,6 +628,22 @@ export default function suite() {
         .signers([marketKey])
         .rpc();
     });
+
+    it('can not close market without the admin key', async function () {
+      let msg = '';
+      const user = this.users.node1;
+      await this.jobsProgram.methods
+        .closeAdmin()
+        .accounts({
+          ...this.accounts,
+          authority: user.publicKey,
+        })
+        .signers([user.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
     it('can close the market as admin', async function () {
       await this.jobsProgram.methods.closeAdmin().accounts(this.accounts).rpc();
       this.exists.market = false;
