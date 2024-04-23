@@ -58,6 +58,11 @@ pub mod nosana_jobs {
         ctx.accounts.handler()
     }
 
+    /// Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
+    pub fn close_admin(ctx: Context<CloseAdmin>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
     /***
      Project Instructions
     */

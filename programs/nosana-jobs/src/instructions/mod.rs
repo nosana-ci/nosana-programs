@@ -3,6 +3,7 @@
 pub mod claim;
 pub mod clean;
 pub mod close;
+pub mod close_admin;
 pub mod finish;
 pub mod list;
 pub mod open;
@@ -15,6 +16,7 @@ pub mod work;
 pub use claim::*;
 pub use clean::*;
 pub use close::*;
+pub use close_admin::*;
 pub use finish::*;
 pub use list::*;
 pub use open::*;
