@@ -670,7 +670,7 @@ A number of 4 accounts make up for the Nosana Jobs Program's state.
 ### Market Account
 
 The `MarketAccount` struct holds all the information about jobs and the nodes queue.
-The total size of this account is `3,363` bytes.
+The total size of this account is `10,211` bytes.
 
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
@@ -684,7 +684,7 @@ The total size of this account is `3,363` bytes.
 | `nodeAccessKey`             | `publicKey`                 | `32`    | `114`   | The NFT collection address of an NFT that the node holds, in order to access this market.         |
 | `nodeXnosMinimum`           | `u128`                      | `16`    | `146`   | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.                   |
 | `queueType`                 | `u8`                        | `1`     | `162`   | The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.                                  |
-| `queue`                     | `Vec<publicKey>`            | `3200`  | `163`   | The queue of order in the market.                                                                 |
+| `queue`                     | `Vec<publicKey>`            | `10048` | `163`   | The queue of order in the market.                                                                 |
 
 #### Anchor Account Discriminator
 

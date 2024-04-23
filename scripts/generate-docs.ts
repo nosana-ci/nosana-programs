@@ -64,7 +64,7 @@ const sizes = {
   u128: 16,
   publicKey: 32,
   '["u8",32]': 32,
-  'Vec<publicKey>': 100 * 32,
+  'Vec<publicKey>': 314 * 32,
 };
 
 const addresses = {
