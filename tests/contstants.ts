@@ -117,7 +117,7 @@ const constants = {
     NodeAlreadyQueued: 'This node is already present in the queue.',
     NodeNftWrongMetadata: 'This metadata does not have the correct address.',
     NodeNftWrongOwner: 'This NFT is not owned by this node.',
-    NodeNftInvalidAmount: 'Access keys have an invalid amount.',
+    NodeNftInvalidAmount: 'Access NFT amount cannot be 0.',
     NodeKeyInvalidCollection: 'This access key does not belong to a verified collection.',
 
     // pool errors
