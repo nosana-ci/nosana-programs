@@ -29,7 +29,8 @@ pub struct Work<'info> {
     #[account(
         constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.owner == authority.key()
             @ NosanaJobsError::NodeNftWrongOwner,
-        constraint = nft.amount >= 1 @ NosanaJobsError::NodeNftInvalidAmount
+        constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.amount >= 1 
+            @ NosanaJobsError::NodeNftInvalidAmount
     )]
     pub nft: Account<'info, TokenAccount>,
     /// CHECK: Metaplex metadata is verified against NFT and Collection node access key
