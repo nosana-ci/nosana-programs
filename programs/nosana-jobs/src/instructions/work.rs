@@ -29,7 +29,7 @@ pub struct Work<'info> {
     #[account(
         constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.owner == authority.key()
             @ NosanaJobsError::NodeNftWrongOwner,
-        constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.amount >= 1 
+        constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.amount >= 1
             @ NosanaJobsError::NodeNftInvalidAmount
     )]
     pub nft: Account<'info, TokenAccount>,
