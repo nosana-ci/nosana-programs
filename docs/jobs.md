@@ -10,7 +10,7 @@
 | Accounts        | [`4`](#accounts)                                                                                                                    |
 | Instructions    | [`12`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`13`](#errors)                                                                                                                     |
+| Errors          | [`14`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
@@ -793,7 +793,7 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 13 errors are defined in the Nosana Jobs Program.
+A number of 14 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
@@ -843,6 +843,10 @@ This metadata does not have the correct address.
 
 This NFT is not owned by this node.
 
-### `6012` - Node Key Invalid Collection
+### `6012` - Node Nft Invalid Amount
+
+Access keys have an invalid amount.
+
+### `6013` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.

@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { buf2hex, getTimestamp, getTokenBalance, pda, sleep } from '../utils';
 import { BN } from '@coral-xyz/anchor';
 import { Context, describe } from 'mocha';
+import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 
 /**
  * Helper to set the job accounts and seeds
@@ -126,7 +127,34 @@ export default function suite() {
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
     });
 
+    it('can not work and enter the market queue without access key', async function () {
+      // temp send NFT to second node
+      const ata = await createAssociatedTokenAccount(
+        this.connection,
+        this.payer,
+        this.accounts.nftMint,
+        this.users.node2.publicKey,
+      );
+      await transfer(this.connection, this.payer, this.accounts.nft, ata, this.payer, 1);
+
+      // work
+      let msg = '';
+      const key = getRunKey(this);
+      await this.jobsProgram.methods
+        .work()
+        .accounts(this.accounts)
+        .signers([key])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.NodeNftInvalidAmount);
+    });
+
     it('can work and enter the market queue as a node', async function () {
+      // send back NFT from second node
+      const ata = await getAssociatedTokenAddress(this.accounts.nftMint, this.users.node2.publicKey);
+      await transfer(this.connection, this.payer, ata, this.accounts.nft, this.users.node2.user, 1);
+
+      // work
       const key = getRunKey(this);
       await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
 

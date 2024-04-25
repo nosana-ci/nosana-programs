@@ -35,7 +35,7 @@ pub enum NosanaJobsError {
     NodeNftWrongMetadata,
     #[msg("This NFT is not owned by this node.")]
     NodeNftWrongOwner,
-    #[msg("Not enough access keys.")]
+    #[msg("Access keys have an invalid amount.")]
     NodeNftInvalidAmount,
     #[msg("This access key does not belong to a verified collection.")]
     NodeKeyInvalidCollection,
