@@ -129,13 +129,13 @@ export default function suite() {
 
     it('can not work and enter the market queue without access key', async function () {
       // temp send NFT to second node
-      const ata = await createAssociatedTokenAccount(
+      const node2ata = await createAssociatedTokenAccount(
         this.connection,
         this.payer,
         this.accounts.nftMint,
         this.users.node2.publicKey,
       );
-      await transfer(this.connection, this.payer, this.accounts.nft, ata, this.payer, 1);
+      await transfer(this.connection, this.payer, this.accounts.nft, node2ata, this.payer, 1);
 
       // work
       let msg = '';
@@ -151,8 +151,8 @@ export default function suite() {
 
     it('can work and enter the market queue as a node', async function () {
       // send back NFT from second node
-      const ata = await getAssociatedTokenAddress(this.accounts.nftMint, this.users.node2.publicKey);
-      await transfer(this.connection, this.payer, ata, this.accounts.nft, this.users.node2.user, 1);
+      const node2ata = await getAssociatedTokenAddress(this.accounts.nftMint, this.users.node2.publicKey);
+      await transfer(this.connection, this.payer, node2ata, this.accounts.nft, this.users.node2.user, 1);
 
       // work
       const key = getRunKey(this);
