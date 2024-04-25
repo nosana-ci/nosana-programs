@@ -845,7 +845,7 @@ This NFT is not owned by this node.
 
 ### `6012` - Node Nft Invalid Amount
 
-Access keys have an invalid amount.
+Access NFT amount cannot be 0.
 
 ### `6013` - Node Key Invalid Collection
 
