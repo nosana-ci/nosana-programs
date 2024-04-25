@@ -116,6 +116,7 @@ type NosanaAccounts = {
   run: PublicKey;
   market: PublicKey;
   nft: PublicKey;
+  nftMint: PublicKey;
   metadata: PublicKey;
   accessKey: PublicKey;
 

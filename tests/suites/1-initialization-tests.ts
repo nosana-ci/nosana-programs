@@ -48,6 +48,7 @@ export default function suite() {
         collectionMintAddress: this.nftConfig.collection,
       });
       this.accounts.nft = await getAssociatedTokenAddress(mintAddress, this.publicKey);
+      this.accounts.nftMint = mintAddress;
       expect(await getTokenBalance(this.provider, this.accounts.nft)).to.equal(1);
 
       // set metadata

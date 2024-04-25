@@ -10,7 +10,7 @@
 | Accounts        | [`4`](#accounts)                                                                                                                    |
 | Instructions    | [`12`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`13`](#errors)                                                                                                                     |
+| Errors          | [`14`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
@@ -670,7 +670,7 @@ A number of 4 accounts make up for the Nosana Jobs Program's state.
 ### Market Account
 
 The `MarketAccount` struct holds all the information about jobs and the nodes queue.
-The total size of this account is `3,363` bytes.
+The total size of this account is `10,211` bytes.
 
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
@@ -684,7 +684,7 @@ The total size of this account is `3,363` bytes.
 | `nodeAccessKey`             | `publicKey`                 | `32`    | `114`   | The NFT collection address of an NFT that the node holds, in order to access this market.         |
 | `nodeXnosMinimum`           | `u128`                      | `16`    | `146`   | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.                   |
 | `queueType`                 | `u8`                        | `1`     | `162`   | The [QueueType](#queue-type) of the queue. Either Nodes or Jobs.                                  |
-| `queue`                     | `Vec<publicKey>`            | `3200`  | `163`   | The queue of order in the market.                                                                 |
+| `queue`                     | `Vec<publicKey>`            | `10048` | `163`   | The queue of order in the market.                                                                 |
 
 #### Anchor Account Discriminator
 
@@ -793,7 +793,7 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 13 errors are defined in the Nosana Jobs Program.
+A number of 14 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
@@ -843,6 +843,10 @@ This metadata does not have the correct address.
 
 This NFT is not owned by this node.
 
-### `6012` - Node Key Invalid Collection
+### `6012` - Node Nft Invalid Amount
+
+Access NFT amount cannot be 0.
+
+### `6013` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.
