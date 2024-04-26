@@ -8,7 +8,7 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`4`](#accounts)                                                                                                                    |
-| Instructions    | [`12`](#instructions)                                                                                                               |
+| Instructions    | [`14`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
 | Errors          | [`14`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
@@ -16,7 +16,7 @@
 
 ## Instructions
 
-A number of 12 instruction are defined in the Nosana Jobs program.
+A number of 14 instruction are defined in the Nosana Jobs program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -622,6 +622,48 @@ let tx = await program.methods
   .rpc();
 ```
 
+### Quit Admin
+
+Quit a [JobAccount](#job-account) that you have started.
+
+#### Account Info
+
+The following 3 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [RunAccount](#run-account) address.                                                           |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Quit Admin Instruction
+is **`67ee6e08b61438c4`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[103,238,110,8,182,20,56,196]
+```
+
+#### Example with Anchor
+
+To invoke the Quit Admin Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .quitAdmin()
+  .accounts({
+    run,               // ✓ writable, 𐄂 signer
+    payer,             // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
 ### Clean
 
 Close an [JobAccount](#job-account).
@@ -660,6 +702,48 @@ let tx = await program.methods
     market,            // 𐄂 writable, 𐄂 signer
     payer,             // 𐄂 writable, 𐄂 signer
   })
+  .rpc();
+```
+
+### Clean Admin
+
+Close an [JobAccount](#job-account) as an admin.
+
+#### Account Info
+
+The following 3 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `payer`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The paying identy for the rent.                                                                   |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Clean Admin Instruction
+is **`f55abc44fdebab69`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[245,90,188,68,253,235,171,105]
+```
+
+#### Example with Anchor
+
+To invoke the Clean Admin Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .cleanAdmin()
+  .accounts({
+    job,               // ✓ writable, 𐄂 signer
+    payer,             // 𐄂 writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+  })
+  .signers([authorityKey])
   .rpc();
 ```
 
