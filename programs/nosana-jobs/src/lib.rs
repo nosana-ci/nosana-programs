@@ -106,12 +106,22 @@ pub mod nosana_jobs {
         ctx.accounts.handler()
     }
 
+    /// Quit a [JobAccount](#job-account) that you have started.
+    pub fn quit_admin(ctx: Context<QuitAdmin>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
     /***
      Other Instructions
     */
 
     /// Close an [JobAccount](#job-account).
     pub fn clean(ctx: Context<Clean>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
+    /// Close an [JobAccount](#job-account) as an admin.
+    pub fn clean_admin(ctx: Context<CleanAdmin>) -> Result<()> {
         ctx.accounts.handler()
     }
 }
