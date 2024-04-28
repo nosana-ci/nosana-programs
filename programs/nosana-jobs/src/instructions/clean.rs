@@ -13,6 +13,7 @@ pub struct Clean<'info> {
     pub job: Account<'info, JobAccount>,
     pub market: Account<'info, MarketAccount>,
     /// CHECK: this account is verified as the original payer for the job
+    #[account(mut)]
     pub payer: AccountInfo<'info>,
 }
 
