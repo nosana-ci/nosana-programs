@@ -19,6 +19,7 @@ pub struct Recover<'info> {
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the job
+    #[account(mut)]
     pub payer: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
