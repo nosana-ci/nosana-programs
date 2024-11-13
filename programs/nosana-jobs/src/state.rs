@@ -1,7 +1,7 @@
 use crate::{JobState, JobType, QueueType};
 use anchor_lang::prelude::*;
-use mpl_token_metadata::types::{Collection};
-use mpl_token_metadata::accounts::{Metadata};
+use mpl_token_metadata::accounts::Metadata;
+use mpl_token_metadata::types::Collection;
 use nosana_common::{cpi, id, pda, writer::BpfWriter};
 use std::{cmp::min, mem::size_of};
 
