@@ -50,8 +50,13 @@ pub mod nosana_jobs {
         node_stake_minimum: u128,
         job_timeout: i64,
     ) -> Result<()> {
-        ctx.accounts
-            .handler(job_expiration, job_price, job_type, node_stake_minimum, job_timeout)
+        ctx.accounts.handler(
+            job_expiration,
+            job_price,
+            job_type,
+            node_stake_minimum,
+            job_timeout,
+        )
     }
 
     /// Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
