@@ -98,7 +98,7 @@ export default function suite() {
   });
 
   describe('extend()', async function () {
-    it('can extend a job timeout with 10', async function () {
+    it('can extend and topup job timeout', async function () {
       try {
         await this.jobsProgram.methods
           .extend(new BN(this.constants.jobTimeout + this.constants.jobExtendTimeout))

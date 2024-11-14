@@ -10,7 +10,7 @@ pub struct Extend<'info> {
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
         constraint = job.state == JobState::Queued as u8 @ NosanaJobsError::JobInWrongState,
     )]
-    pub job: Account<'info, JobAccount>,
+    pub job: Box<Account<'info, JobAccount>>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
     #[account(mut)]
