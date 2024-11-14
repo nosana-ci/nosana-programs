@@ -99,14 +99,11 @@ export default function suite() {
 
   describe('extend()', async function () {
     it('can extend and topup job timeout', async function () {
-      try {
-        await this.jobsProgram.methods
-          .extend(new BN(this.constants.jobTimeout + this.constants.jobExtendTimeout))
-          .accounts(this.accounts)
-          .rpc();
-      } catch (e) {
-        console.log(e);
-      }
+      await this.jobsProgram.methods
+        .extend(new BN(this.constants.jobTimeout + this.constants.jobExtendTimeout))
+        .accounts(this.accounts)
+        .rpc();
+
       // update balances
       const topup = this.constants.jobPrice * this.constants.jobExtendTimeout;
       this.balances.user -= topup;
