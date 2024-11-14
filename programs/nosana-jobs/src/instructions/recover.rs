@@ -31,7 +31,7 @@ impl<'info> Recover<'info> {
             self,
             user,
             seeds!(self.market, self.vault),
-            self.job.get_deposit(self.market.job_timeout)
+            self.job.get_deposit(self.job.timeout)
         )
     }
 }

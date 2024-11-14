@@ -75,7 +75,7 @@ export default function suite() {
       const jobKey = getNewJobKey(this);
       const runKey = getRunKey(this);
       await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
         .accounts(this.accounts)
         .signers([jobKey, runKey])
         .rpc();
@@ -83,7 +83,7 @@ export default function suite() {
       // update balances
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= this.constants.feePrice;
+      this.balances.user -= deposit / this.constants.feePercentage;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -186,7 +186,7 @@ export default function suite() {
       const runKey = getRunKey(this);
       const jobKey = getNewJobKey(this);
       await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
         .accounts(this.accounts)
         .signers([jobKey, runKey])
         .rpc();
@@ -197,7 +197,7 @@ export default function suite() {
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= this.constants.feePrice;
+      this.balances.user -= deposit / this.constants.feePercentage;
       this.balances.vaultJob += deposit;
     });
 
@@ -355,14 +355,14 @@ export default function suite() {
       const runKey = getRunKey(this);
       const jobKey = getNewJobKey(this);
       await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
         .accounts(this.accounts)
         .signers([jobKey, runKey])
         .rpc();
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= this.constants.feePrice;
+      this.balances.user -= deposit / this.constants.feePercentage;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -518,6 +518,7 @@ export default function suite() {
       this.market.nodeStakeMinimum = 1_000_000 * this.constants.decimals;
       this.market.jobType = this.constants.jobType.gpu;
       this.market.nodeAccessKey = this.accounts.systemProgram;
+      this.market.jobTimeout = 2 * this.market.jobTimeout;
 
       await this.jobsProgram.methods
         .update(
@@ -525,6 +526,7 @@ export default function suite() {
           new BN(this.market.jobPrice),
           this.market.jobType,
           new BN(this.market.nodeStakeMinimum),
+          new BN(this.market.jobTimeout),
         )
         .accounts({
           ...this.accounts,
