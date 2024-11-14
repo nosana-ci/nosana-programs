@@ -47,7 +47,7 @@ impl<'info> List<'info> {
             self.payer.key(),
             self.market.job_price,
             self.authority.key(),
-            timeout
+            timeout,
         );
 
         // update the market
