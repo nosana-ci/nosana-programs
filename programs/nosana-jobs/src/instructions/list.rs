@@ -33,11 +33,11 @@ pub struct List<'info> {
 }
 
 impl<'info> List<'info> {
-    pub fn handler(&mut self, ipfs_job: [u8; 32]) -> Result<()> {
+    pub fn handler(&mut self, ipfs_job: [u8; 32], timeout: i64) -> Result<()> {
         // pay job and network fee, when it's not a free market
         if self.market.job_price != 0 {
-            transfer_tokens_to_vault!(self, self.market.get_deposit())?;
-            transfer_fee!(self, user, authority, &[], self.market.job_fee())?;
+            transfer_tokens_to_vault!(self, self.market.get_deposit(timeout))?;
+            transfer_fee!(self, user, authority, &[], self.market.job_fee(timeout))?;
         }
 
         // create the job
@@ -47,6 +47,7 @@ impl<'info> List<'info> {
             self.payer.key(),
             self.market.job_price,
             self.authority.key(),
+            timeout
         );
 
         // update the market

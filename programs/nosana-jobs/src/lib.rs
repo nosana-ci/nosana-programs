@@ -48,9 +48,10 @@ pub mod nosana_jobs {
         job_price: u64,
         job_type: u8,
         node_stake_minimum: u128,
+        job_timeout: i64,
     ) -> Result<()> {
         ctx.accounts
-            .handler(job_expiration, job_price, job_type, node_stake_minimum)
+            .handler(job_expiration, job_price, job_type, node_stake_minimum, job_timeout)
     }
 
     /// Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
@@ -68,8 +69,8 @@ pub mod nosana_jobs {
     */
 
     /// Create a [JobAccount](#job-account) and optional [RunAccount](#run-account).
-    pub fn list(ctx: Context<List>, ipfs_job: [u8; 32]) -> Result<()> {
-        ctx.accounts.handler(ipfs_job)
+    pub fn list(ctx: Context<List>, ipfs_job: [u8; 32], timeout: i64) -> Result<()> {
+        ctx.accounts.handler(ipfs_job, timeout)
     }
 
     /// Recover funds from a [JobAccount](#job-account) that has been [quit](#quit).

@@ -63,17 +63,19 @@ impl MarketAccount {
         job_type: u8,
         node_access_key: Pubkey,
         node_stake_minimum: u128,
+        job_timeout: i64,
     ) -> Result<()> {
         self.job_expiration = job_expiration;
         self.job_price = job_price;
         self.job_type = job_type;
         self.node_access_key = node_access_key;
         self.node_xnos_minimum = node_stake_minimum;
+        self.job_timeout = job_timeout;
         Ok(())
     }
 
-    pub fn job_fee(&self) -> u64 {
-        self.job_price / MarketAccount::JOB_FEE_FRACTION
+    pub fn job_fee(&self, timeout: i64) -> u64 {
+        (self.job_price * u64::try_from(timeout).unwrap()) / MarketAccount::JOB_FEE_FRACTION
     }
 
     pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) -> Result<()> {
@@ -109,8 +111,8 @@ impl MarketAccount {
         self.queue.remove(0)
     }
 
-    pub fn get_deposit(&self) -> u64 {
-        self.job_price * u64::try_from(self.job_timeout).unwrap()
+    pub fn get_deposit(&self, timeout: i64) -> u64 {
+        self.job_price * u64::try_from(timeout).unwrap()
     }
 
     pub fn find_in_queue(&mut self, pubkey: &Pubkey) -> Option<usize> {
@@ -171,6 +173,7 @@ pub struct JobAccount {
     pub state: u8,
     pub time_end: i64,
     pub time_start: i64,
+    pub timeout: i64,
 }
 
 impl JobAccount {
@@ -184,6 +187,7 @@ impl JobAccount {
         payer: Pubkey,
         price: u64,
         project: Pubkey,
+        timeout: i64,
     ) {
         self.ipfs_job = ipfs_job;
         self.market = market;
@@ -191,6 +195,7 @@ impl JobAccount {
         self.price = price;
         self.project = project;
         self.state = JobState::Queued as u8;
+        self.timeout = timeout;
     }
 
     pub fn quit(&mut self) -> Result<()> {
@@ -210,8 +215,8 @@ impl JobAccount {
         self.price * u64::try_from(timeout).unwrap()
     }
 
-    pub fn get_reimbursement(&self, timeout: i64) -> u64 {
-        self.get_deposit(min(self.time_end - self.time_start, timeout))
+    pub fn get_reimbursement(&self) -> u64 {
+        self.get_deposit(min(self.time_end - self.time_start, self.timeout))
     }
 }
 

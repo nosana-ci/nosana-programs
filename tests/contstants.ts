@@ -15,7 +15,7 @@ const constants = {
   mintSupply: 1e7 * decimals,
   userSupply: 1e5 * decimals,
   jobPrice: decimals,
-  feePrice: decimals / 10,
+  feePercentage: 10,
   stakeAmount: 1e4 * decimals,
   stakeMinimum: 0,
   slashAmount: 1e3 * decimals,

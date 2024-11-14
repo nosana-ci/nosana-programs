@@ -56,9 +56,9 @@ impl<'info> Finish<'info> {
         );
 
         // reimburse node, and refund surplus
-        let deposit: u64 = self.job.get_deposit(self.market.job_timeout);
+        let deposit: u64 = self.job.get_deposit(self.job.timeout);
         if deposit > 0 {
-            let amount: u64 = self.job.get_reimbursement(self.market.job_timeout);
+            let amount: u64 = self.job.get_reimbursement();
             let refund: u64 = deposit - amount;
             transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
             transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
