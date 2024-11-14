@@ -83,6 +83,11 @@ pub mod nosana_jobs {
         ctx.accounts.handler()
     }
 
+    /// Extend a job timeout
+    pub fn extend(ctx: Context<Extend>, timeout: i64) -> Result<()> {
+        ctx.accounts.handler(timeout)
+    }
+
     /***
      Node Instructions
     */

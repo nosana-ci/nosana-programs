@@ -97,6 +97,21 @@ export default function suite() {
     });
   });
 
+  describe('extend()', async function () {
+    it('can extend a job timeout with 10', async function () {
+      await this.jobsProgram.methods
+        .extend(new BN(this.constants.jobTimeout + this.constants.jobExtendTimeout))
+        .accounts(this.accounts)
+        .rpc();
+
+      // update balances
+      const topup = this.constants.jobPrice * this.constants.jobExtendTimeout;
+      this.balances.user -= topup;
+      this.balances.user -= topup / this.constants.feePercentage;
+      this.balances.vaultJob += topup;
+    });
+  });
+
   describe('work()', async function () {
     it('can work on job, with a new run key', async function () {
       const key = getRunKey(this);
@@ -601,7 +616,7 @@ export default function suite() {
 
     it('can finish the last job in the market', async function () {
       await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
-      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      const deposit = this.constants.jobPrice * (this.constants.jobTimeout + this.constants.jobExtendTimeout);
       this.balances.user += deposit;
       this.balances.vaultJob -= deposit;
     });

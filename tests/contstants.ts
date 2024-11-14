@@ -22,6 +22,7 @@ const constants = {
   minimumNodeStake: 1e4 * decimals,
   feeAmount: 1e5 * decimals,
   jobTimeout: 5,
+  jobExtendTimeout: 10,
   jobExpiration: 5,
   initialRate,
 
