@@ -35,7 +35,13 @@ impl<'info> Extend<'info> {
         // If job price > 0, we need to topup
         if self.job.price > 0 {
             transfer_tokens_to_vault!(self, self.job.get_deposit(timeout - self.job.timeout))?;
-            transfer_fee!(self, user, authority, &[], self.job.job_fee(timeout - self.job.timeout))?;
+            transfer_fee!(
+                self,
+                user,
+                authority,
+                &[],
+                self.job.job_fee(timeout - self.job.timeout)
+            )?;
         }
         self.job.timeout = timeout;
         Ok(())
