@@ -45,6 +45,10 @@ pub struct Cancel<'info> {
 
 impl<'info> Cancel<'info> {
     pub fn handler(&mut self) -> Result<()> {
+        msg!("Job state: {}", self.job.state);
+
+        // TODO: DO NOT USE QUEUED AS STATE DOES NOT GO TO RUNNING, CHECK IF RUN ACCOUNT EXISTS
+
         if self.job.state == JobState::Queued as u8 {
             self.job.cancel(0, 0);
 
@@ -58,7 +62,7 @@ impl<'info> Cancel<'info> {
                 )?;
             }
 
-            self.market.remove_from_queue(self.authority.key)
+            self.market.remove_from_queue(&self.job.key())
         } else {
             let run = self.run.as_ref().unwrap();
             let user = self.user.as_ref().unwrap();
