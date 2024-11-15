@@ -88,8 +88,8 @@ pub mod nosana_jobs {
         ctx.accounts.handler(timeout)
     }
 
-     /// Cancel a [JobAccount](#job-account) that has been listed
-     pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
+    /// Cancel a [JobAccount](#job-account) that has been listed
+    pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
         ctx.accounts.handler()
     }
 

@@ -21,7 +21,7 @@ pub struct Cancel<'info> {
 
     // Run Account
     pub run: Option<Account<'info, RunAccount>>,
-    
+
     // Token Accounts
     #[account(
         mut,
@@ -40,18 +40,22 @@ pub struct Cancel<'info> {
     /// CHECK: this account is verified as the original project for the job account
     #[account(mut)]
     pub project: AccountInfo<'info>,
-    pub authority: Signer<'info>
+    pub authority: Signer<'info>,
 }
 
 impl<'info> Cancel<'info> {
-
     pub fn handler(&mut self) -> Result<()> {
         if self.job.state == JobState::Queued as u8 {
             self.job.cancel(0, 0);
 
             let deposit: u64 = self.job.get_deposit(self.job.timeout);
             if deposit > 0 {
-                transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), deposit)?;
+                transfer_tokens_from_vault!(
+                    self,
+                    deposit,
+                    seeds!(self.market, self.vault),
+                    deposit
+                )?;
             }
 
             self.market.remove_from_queue(self.authority.key)
@@ -70,6 +74,5 @@ impl<'info> Cancel<'info> {
                 Ok(())
             }
         }
-
     }
 }
