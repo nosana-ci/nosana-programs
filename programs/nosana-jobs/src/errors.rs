@@ -21,6 +21,8 @@ pub enum NosanaJobsError {
     JobResultNull,
     #[msg("The job has a different project owner.")]
     JobInvalidProject,
+    #[msg("The run account does not match the job.")]
+    JobInvalidRunAccount,
 
     // node errors
     #[msg("This node queue does not match.")]

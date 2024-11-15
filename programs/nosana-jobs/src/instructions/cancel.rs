@@ -20,6 +20,9 @@ pub struct Cancel<'info> {
     pub market: Account<'info, MarketAccount>,
 
     // Run Account
+    #[account(
+        constraint = run.job == job.key() @ NosanaJobsError::JobInvalidRunAccount
+    )]
     pub run: Option<Account<'info, RunAccount>>,
 
     // Token Accounts
@@ -31,6 +34,7 @@ pub struct Cancel<'info> {
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
 
+    // TODO: Add validation to payer?
     pub user: Option<Account<'info, TokenAccount>>,
 
     // Token Program
@@ -45,47 +49,50 @@ pub struct Cancel<'info> {
 
 impl<'info> Cancel<'info> {
     pub fn handler(&mut self) -> Result<()> {
-        msg!("Job state: {}", self.job.state);
+        if self.run.is_none() {
+            self.handle_queued_jobs()
+        } else {
+            self.handle_running_job()
+        }
+    }
 
-        // TODO: DO NOT USE QUEUED AS STATE DOES NOT GO TO RUNNING, CHECK IF RUN ACCOUNT EXISTS
+    pub fn handle_running_job(&mut self) -> Result<()> {
+        let run = self.run.as_ref().unwrap();
+        let user = self.user.as_ref().unwrap();
 
-        if self.job.state == JobState::Queued as u8 {
-            self.job.cancel(0, 0);
+        self.job.cancel(run.time, Clock::get()?.unix_timestamp);
 
-            let deposit: u64 = self.job.get_deposit(self.job.timeout);
-            if deposit > 0 {
-                transfer_tokens_from_vault!(
-                    self,
-                    deposit,
-                    seeds!(self.market, self.vault),
-                    deposit
-                )?;
-            }
+        // reimburse node. and refund surplus
+        let deposit: u64 = self.job.get_deposit(self.job.timeout);
+        if deposit > 0 {
+            let amount: u64 = self.job.get_reimbursement();
+            let refund: u64 = deposit - amount;
+            cpi::transfer_tokens(
+                self.token_program.to_account_info(),
+                self.vault.to_account_info(),
+                user.to_account_info(),
+                self.vault.to_account_info(),
+                seeds!(self.market, self.vault),
+                amount,
+            )?;
+            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
+        } else {
+            Ok(())
+        }
+    }
 
+    pub fn handle_queued_jobs(&mut self) -> Result<()> {
+        self.job.cancel(0, 0);
+
+        let deposit: u64 = self.job.get_deposit(self.job.timeout);
+        if deposit > 0 {
+            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), deposit)?;
+        }
+
+        if self.market.queue_type == QueueType::Job as u8 {
             self.market.remove_from_queue(&self.job.key())
         } else {
-            let run = self.run.as_ref().unwrap();
-            let user = self.user.as_ref().unwrap();
-
-            self.job.cancel(run.time, Clock::get()?.unix_timestamp);
-
-            // reimburse node. and refund surplus
-            let deposit: u64 = self.job.get_deposit(self.job.timeout);
-            if deposit > 0 {
-                let amount: u64 = self.job.get_reimbursement();
-                let refund: u64 = deposit - amount;
-                cpi::transfer_tokens(
-                    self.token_program.to_account_info(),
-                    self.vault.to_account_info(),
-                    user.to_account_info(),
-                    self.vault.to_account_info(),
-                    seeds!(self.market, self.vault),
-                    amount,
-                )?;
-                transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
-            } else {
-                Ok(())
-            }
+            Ok(())
         }
     }
 }
