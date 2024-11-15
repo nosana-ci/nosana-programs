@@ -208,7 +208,7 @@ impl JobAccount {
     }
 
     pub fn cancel(&mut self, time_start: i64, time_end: i64) {
-        self.state = JobState::Stopped as u8;
+        self.state = JobState::Done as u8;
         self.time_start = time_start;
         self.time_end = time_end;
     }

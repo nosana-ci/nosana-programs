@@ -48,8 +48,7 @@ impl<'info> Finish<'info> {
             NosanaJobsError::JobResultNull
         );
 
-        if self.job.state == JobState::Stopped as u8 {
-            // UNSURE IF POSSIBLE AS THE JOB ACCOUNT BECOMES CLOSED DURING CANCEL()
+        if self.job.state == JobState::Done as u8 {
             self.job.publish_results(ipfs_result, self.authority.key())
         } else {
             self.job.finish(

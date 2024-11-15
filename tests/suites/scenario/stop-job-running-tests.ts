@@ -140,7 +140,7 @@ export default function suite() {
       this.balances.vaultJob -= deposit;
 
       // Job stat should update
-      expect(job.state).eq(3);
+      expect(job.state).eq(2);
       expect(job.timeEnd.toNumber()).gt(0);
     });
   });
