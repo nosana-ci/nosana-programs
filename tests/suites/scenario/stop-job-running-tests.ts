@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Context, describe } from 'mocha';
 import { BN } from '@coral-xyz/anchor';
 
-import { getTokenBalance, pda } from '../../utils';
+import { buf2hex, getTokenBalance, pda } from '../../utils';
 /**
  * Helper to set the job accounts and seeds
  * @param mochaContext
@@ -142,6 +142,17 @@ export default function suite() {
       // Job stat should update
       expect(job.state).eq(3);
       expect(job.timeEnd.toNumber()).gt(0);
+    });
+  });
+
+  describe('finish()', async function () {
+    it('can finish a job as a node', async function () {
+      await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
+    });
+
+    it('can fetch a finished job', async function () {
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      expect(buf2hex(job.ipfsResult)).to.equal(buf2hex(this.constants.ipfsData));
     });
   });
 }
