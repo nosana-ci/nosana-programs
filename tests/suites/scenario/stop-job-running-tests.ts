@@ -142,7 +142,7 @@ export default function suite() {
 
       // Job stat should update
       expect(job.state).eq(3);
-      expect(job.timeEnd.toNumber()).eq(0);
+      expect(job.timeEnd.toNumber()).gt(0);
     });
   });
 }
