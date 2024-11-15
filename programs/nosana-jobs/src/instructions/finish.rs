@@ -48,22 +48,27 @@ impl<'info> Finish<'info> {
             NosanaJobsError::JobResultNull
         );
 
-        self.job.finish(
-            ipfs_result,
-            self.authority.key(),
-            Clock::get()?.unix_timestamp,
-            self.run.time,
-        );
-
-        // reimburse node, and refund surplus
-        let deposit: u64 = self.job.get_deposit(self.job.timeout);
-        if deposit > 0 {
-            let amount: u64 = self.job.get_reimbursement();
-            let refund: u64 = deposit - amount;
-            transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
-            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
+        if self.job.state == JobState::Stopped as u8 {
+            // UNSURE IF POSSIBLE AS THE JOB ACCOUNT BECOMES CLOSED DURING CANCEL()
+            self.job.publish_results(ipfs_result, self.authority.key())
         } else {
-            Ok(())
+            self.job.finish(
+                ipfs_result,
+                self.authority.key(),
+                Clock::get()?.unix_timestamp,
+                self.run.time,
+            );
+
+            // reimburse node, and refund surplus
+            let deposit: u64 = self.job.get_deposit(self.job.timeout);
+            if deposit > 0 {
+                let amount: u64 = self.job.get_reimbursement();
+                let refund: u64 = deposit - amount;
+                transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
+                transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
+            } else {
+                Ok(())
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ import nodesTests from './suites/6-nosana-nodes-tests';
 
 // local test scenarios
 import rewardScenario from './suites/scenario/rewards-tests';
+import stopJobScenario from './suites/scenario/stop-job-tests';
 import claimTransferScenario from './suites/scenario/claim-transfer-tests';
 
 // types
@@ -153,6 +154,12 @@ describe('nosana programs', async function () {
     case 'staking':
       describe('initialization', initTests);
       describe('staking', stakingTests);
+      break;
+    case 'job-stop':
+      describe('initialization', initTests);
+      describe('staking', stakingInitTests);
+      describe('rewards', rewardInitTests);
+      describe('job-stop-scenario', stopJobScenario);
       break;
   }
 });

@@ -203,12 +203,24 @@ impl JobAccount {
         Ok(())
     }
 
+    pub fn cancel(&mut self, time_start: i64, time_end: i64) {
+        self.state = JobState::Stopped as u8;
+        self.time_start = time_start;
+        self.time_end = time_end;
+    }
+
     pub fn finish(&mut self, ipfs_result: [u8; 32], node: Pubkey, time_end: i64, time_start: i64) {
         self.ipfs_result = ipfs_result;
         self.node = node;
         self.state = JobState::Done as u8;
         self.time_end = time_end;
         self.time_start = time_start;
+    }
+
+    pub fn publish_results(&mut self, ipfs_result: [u8; 32], node: Pubkey) -> Result<()> {
+        self.ipfs_result = ipfs_result;
+        self.node = node;
+        Ok(())
     }
 
     pub fn get_deposit(&self, timeout: i64) -> u64 {
