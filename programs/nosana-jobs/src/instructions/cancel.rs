@@ -30,8 +30,8 @@ pub struct Cancel<'info> {
     pub deposit: Account<'info, TokenAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub user: Account<'info, TokenAccount>,
+    
+    pub user: Option<Account<'info, TokenAccount>>,
 
     // Token Program
     pub token_program: Program<'info, Token>,
@@ -61,6 +61,8 @@ impl<'info> Cancel<'info> {
             self.market.remove_from_queue(self.authority.key)
         } else {
             let run = self.run.as_ref().unwrap();
+            let user = self.user.as_ref().unwrap();
+
             self.job.cancel(run.time, Clock::get()?.unix_timestamp);
 
             // reimburse node. and refund surplus
@@ -68,7 +70,7 @@ impl<'info> Cancel<'info> {
             if deposit > 0 {
                 let amount: u64 = self.job.get_reimbursement();
                 let refund: u64 = deposit - amount;
-                transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
+                cpi::transfer_tokens(self.token_program.to_account_info(), self.vault.to_account_info(), user.to_account_info(), self.vault.to_account_info(), seeds!(self.market, self.vault), amount)?;
                 transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
             } else {
                 Ok(())

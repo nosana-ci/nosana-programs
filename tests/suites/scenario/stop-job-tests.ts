@@ -105,7 +105,19 @@ export default function suite() {
     });
 
     it('should show job as stopped and with a new endtime', async function () {
-      await this.jobsProgram.methods.cancel().accounts(this.accounts).rpc();
+      await this.jobsProgram.methods
+        .cancel()
+        .accounts({
+          job: this.accounts.job,
+          market: this.accounts.market,
+          deposit: this.accounts.deposit,
+          vault: this.accounts.vault,
+          project: this.accounts.project,
+          tokenProgram: this.accounts.tokenProgram,
+          run: null,
+          user: null,
+        })
+        .rpc();
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.state).eq(3);
       expect(job.timeEnd.toNumber()).gt(0);
