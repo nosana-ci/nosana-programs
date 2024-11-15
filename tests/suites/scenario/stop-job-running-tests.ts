@@ -109,7 +109,6 @@ export default function suite() {
   describe('cancel()', async function () {
     it('should match unstarted job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
 
       expect(job.state).eq(0);
       expect(job.timeEnd.toNumber()).eq(0);
