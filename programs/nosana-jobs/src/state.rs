@@ -222,6 +222,10 @@ impl JobAccount {
     pub fn get_reimbursement(&self) -> u64 {
         self.get_deposit(min(self.time_end - self.time_start, self.timeout))
     }
+
+    pub fn update_timeout(&mut self, timeout: i64) -> () {
+        self.timeout = timeout;
+    }
 }
 
 /// The `RunAccount` struct holds temporary information that matches nodes to jobs.

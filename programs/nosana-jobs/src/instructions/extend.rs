@@ -44,7 +44,7 @@ impl<'info> Extend<'info> {
                 self.job.get_job_fee(timeout - self.job.timeout)
             )?;
         }
-        self.job.timeout = timeout;
+        self.job.update_timeout(timeout);
         Ok(())
     }
 }
