@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  anchor:
+    image: projectserum/build:v0.27.0
+    command: anchor build
+    working_dir: /project
+    volumes:
+      - .:/project
