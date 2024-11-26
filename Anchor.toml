@@ -29,7 +29,7 @@ startup_wait = 100000
 
 [[test.genesis]]
 address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-program = "tests/programs/mpl_token_metadata_new.so"
+program = "tests/programs/mpl_token_metadata.so"
 
 [programs.localnet]
 nosana_jobs = "nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR"

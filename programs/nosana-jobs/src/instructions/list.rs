@@ -37,7 +37,7 @@ impl<'info> List<'info> {
         // pay job and network fee, when it's not a free market
         if self.market.job_price != 0 {
             transfer_tokens_to_vault!(self, self.market.get_deposit(timeout))?;
-            transfer_fee!(self, user, authority, &[], self.market.job_fee(timeout))?;
+            transfer_fee!(self, user, authority, &[], self.market.get_job_fee(timeout))?;
         }
 
         // create the job

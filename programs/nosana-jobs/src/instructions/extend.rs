@@ -41,7 +41,7 @@ impl<'info> Extend<'info> {
                 user,
                 authority,
                 &[],
-                self.job.job_fee(timeout - self.job.timeout)
+                self.job.get_job_fee(timeout - self.job.timeout)
             )?;
         }
         self.job.timeout = timeout;
