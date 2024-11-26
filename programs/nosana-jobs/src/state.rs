@@ -74,7 +74,7 @@ impl MarketAccount {
         Ok(())
     }
 
-    pub fn job_fee(&self, timeout: i64) -> u64 {
+    pub fn get_job_fee(&self, timeout: i64) -> u64 {
         (self.job_price * u64::try_from(timeout).unwrap()) / MarketAccount::JOB_FEE_FRACTION
     }
 
@@ -215,7 +215,7 @@ impl JobAccount {
         self.price * u64::try_from(timeout).unwrap()
     }
 
-    pub fn job_fee(&self, timeout: i64) -> u64 {
+    pub fn get_job_fee(&self, timeout: i64) -> u64 {
         (self.price * u64::try_from(timeout).unwrap()) / MarketAccount::JOB_FEE_FRACTION
     }
 
