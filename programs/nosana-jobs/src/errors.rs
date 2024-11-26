@@ -21,6 +21,8 @@ pub enum NosanaJobsError {
     JobResultNull,
     #[msg("The job has a different project owner.")]
     JobInvalidProject,
+    #[msg("The new job timeout should be larger than the current one.")]
+    JobTimeoutNotGreater,
 
     // node errors
     #[msg("This node queue does not match.")]
