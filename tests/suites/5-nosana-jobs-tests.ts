@@ -75,7 +75,7 @@ export default function suite() {
       const jobKey = getNewJobKey(this);
       const runKey = getRunKey(this);
       await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
         .accounts(this.accounts)
         .signers([jobKey, runKey])
         .rpc();
@@ -83,7 +83,7 @@ export default function suite() {
       // update balances
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= this.constants.feePrice;
+      this.balances.user -= deposit / this.constants.feePercentage;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -94,6 +94,31 @@ export default function suite() {
     it('can read a job order in the market', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
       expect(market.queue[0].toString()).to.equal(this.accounts.job.toString());
+    });
+  });
+
+  describe('extend()', async function () {
+    it('can extend and topup job timeout', async function () {
+      await this.jobsProgram.methods
+        .extend(new BN(this.constants.jobTimeout + this.constants.jobExtendTimeout))
+        .accounts(this.accounts)
+        .rpc();
+
+      // update balances
+      const topup = this.constants.jobPrice * this.constants.jobExtendTimeout;
+      this.balances.user -= topup;
+      this.balances.user -= topup / this.constants.feePercentage;
+      this.balances.vaultJob += topup;
+    });
+    it('cannot extend with a smaller timeout', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .extend(new BN(this.constants.jobTimeout - this.constants.jobExtendTimeout))
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+
+      expect(msg).to.equal(this.constants.errors.JobTimeoutNotGreater);
     });
   });
 
@@ -186,7 +211,7 @@ export default function suite() {
       const runKey = getRunKey(this);
       const jobKey = getNewJobKey(this);
       await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
         .accounts(this.accounts)
         .signers([jobKey, runKey])
         .rpc();
@@ -197,7 +222,7 @@ export default function suite() {
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= this.constants.feePrice;
+      this.balances.user -= deposit / this.constants.feePercentage;
       this.balances.vaultJob += deposit;
     });
 
@@ -355,14 +380,14 @@ export default function suite() {
       const runKey = getRunKey(this);
       const jobKey = getNewJobKey(this);
       await this.jobsProgram.methods
-        .list(this.constants.ipfsData)
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
         .accounts(this.accounts)
         .signers([jobKey, runKey])
         .rpc();
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= this.constants.feePrice;
+      this.balances.user -= deposit / this.constants.feePercentage;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -518,6 +543,7 @@ export default function suite() {
       this.market.nodeStakeMinimum = 1_000_000 * this.constants.decimals;
       this.market.jobType = this.constants.jobType.gpu;
       this.market.nodeAccessKey = this.accounts.systemProgram;
+      this.market.jobTimeout = 2 * this.market.jobTimeout;
 
       await this.jobsProgram.methods
         .update(
@@ -525,6 +551,7 @@ export default function suite() {
           new BN(this.market.jobPrice),
           this.market.jobType,
           new BN(this.market.nodeStakeMinimum),
+          new BN(this.market.jobTimeout),
         )
         .accounts({
           ...this.accounts,
@@ -599,7 +626,7 @@ export default function suite() {
 
     it('can finish the last job in the market', async function () {
       await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
-      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      const deposit = this.constants.jobPrice * (this.constants.jobTimeout + this.constants.jobExtendTimeout);
       this.balances.user += deposit;
       this.balances.vaultJob -= deposit;
     });

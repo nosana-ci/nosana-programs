@@ -15,13 +15,14 @@ const constants = {
   mintSupply: 1e7 * decimals,
   userSupply: 1e5 * decimals,
   jobPrice: decimals,
-  feePrice: decimals / 10,
+  feePercentage: 10,
   stakeAmount: 1e4 * decimals,
   stakeMinimum: 0,
   slashAmount: 1e3 * decimals,
   minimumNodeStake: 1e4 * decimals,
   feeAmount: 1e5 * decimals,
   jobTimeout: 5,
+  jobExtendTimeout: 10,
   jobExpiration: 5,
   initialRate,
 
@@ -107,6 +108,7 @@ const constants = {
     JobNotExpired: 'The job has not yet expired.',
     JobSeedAddressViolation: 'This JobAccount seed is not allowed.',
     JobResultNull: 'The job result can not be null.',
+    JobTimeoutNotGreater: 'The new job timeout should be larger than the current one.',
     RunConstraintNotSatisfied: 'This RunAccount constraint is not satisfied. Use a new or dummy account only.',
 
     // node errors
