@@ -180,6 +180,8 @@ const descriptions = (name) => {
       return 'The unix time this job has finished running.';
     case 'jobTimeout':
       return 'The timeout time in seconds for jobs.';
+    case 'timeout':
+      return 'The timeout time in seconds for a job.';
     case 'jobType':
       return 'The [JobType](#job-type) number.';
     case 'jobPrice':
