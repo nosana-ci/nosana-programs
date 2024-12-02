@@ -78,6 +78,11 @@ pub mod nosana_jobs {
         ctx.accounts.handler(ipfs_job, timeout)
     }
 
+    /// Remove a [JobAccount](#job-account) from market job queue.
+    pub fn delist(ctx: Context<Delist>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
     /// Recover funds from a [JobAccount](#job-account) that has been [quit](#quit).
     pub fn recover(ctx: Context<Recover>) -> Result<()> {
         ctx.accounts.handler()
@@ -88,8 +93,8 @@ pub mod nosana_jobs {
         ctx.accounts.handler(timeout)
     }
 
-    /// Cancel a [JobAccount](#job-account) that has been listed
-    pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
+    /// End a running [JobAccount](#job-account) and close [RunAccount](#run-account).
+    pub fn end(ctx: Context<End>) -> Result<()> {
         ctx.accounts.handler()
     }
 
