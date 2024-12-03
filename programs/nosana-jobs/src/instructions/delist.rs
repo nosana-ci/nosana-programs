@@ -29,7 +29,6 @@ pub struct Delist<'info> {
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
-    /// CHECK: this account is verified as the original project for the job account
     #[account(mut)]
     pub authority: Signer<'info>,
 }
@@ -37,7 +36,6 @@ pub struct Delist<'info> {
 impl<'info> Delist<'info> {
     pub fn handler(&mut self) -> Result<()> {
         self.market.remove_from_queue(&self.job.key())?;
-    
 
         // refund deposit
         let refund: u64 = self.job.get_deposit(self.job.timeout);
