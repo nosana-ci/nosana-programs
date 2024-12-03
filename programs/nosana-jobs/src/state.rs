@@ -207,14 +207,11 @@ impl JobAccount {
         Ok(())
     }
 
-    pub fn stop(&mut self, time_start: i64, time_end: i64, node: Option<Pubkey>) {
+    pub fn end(&mut self, time_start: i64, time_end: i64, node: Pubkey) {
         self.state = JobState::Done as u8;
         self.time_start = time_start;
         self.time_end = time_end;
-
-        if node.is_some() {
-            self.node = node.unwrap();
-        }
+        self.node = node;
     }
 
     pub fn finish(&mut self, ipfs_result: [u8; 32], node: Pubkey, time_end: i64, time_start: i64) {
