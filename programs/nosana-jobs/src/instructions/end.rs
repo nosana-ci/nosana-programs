@@ -24,7 +24,7 @@ pub struct End<'info> {
     pub run: Account<'info, RunAccount>,
     #[account(
         mut,
-        constraint = deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
+        constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
@@ -34,7 +34,7 @@ pub struct End<'info> {
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
-        constraint = user.key() == associated_token::get_associated_token_address(&run.node, &id::NOS_TOKEN) @ NosanaError::InvalidATA
+        constraint = job.price == 0 || user.key() == associated_token::get_associated_token_address(&run.node, &id::NOS_TOKEN) @ NosanaError::InvalidATA
     )]
     pub user: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
@@ -52,9 +52,9 @@ impl<'info> End<'info> {
         }
         
         // reimburse node, and refund surplus
-        let deposit: u64 = self.job.get_deposit(self.job.timeout);
+        let total: u64 = self.job.get_deposit(self.job.timeout);
         let amount: u64 = self.job.get_reimbursement();
-        let refund: u64 = deposit - amount;
+        let refund: u64 = total - amount;
         transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
         transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
     }

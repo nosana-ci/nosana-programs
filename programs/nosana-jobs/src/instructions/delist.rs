@@ -20,7 +20,7 @@ pub struct Delist<'info> {
     pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
-        constraint = deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
+        constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the job account
@@ -42,7 +42,7 @@ impl<'info> Delist<'info> {
         }
 
         // refund deposit
-        let refund: u64 = self.job.get_deposit(self.job.timeout);
-        transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
+        let total: u64 = self.job.get_deposit(self.job.timeout);
+        transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), total)
     }
 }
