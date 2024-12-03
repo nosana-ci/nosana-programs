@@ -119,8 +119,8 @@ export default function suite() {
 
       try {
         await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      } catch (err: any) {
-        expect(err.message).contain('Account does not exist or has no data');
+      } catch (err: unknown) {
+        expect((err as Error).message).contain('Account does not exist or has no data');
       }
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
