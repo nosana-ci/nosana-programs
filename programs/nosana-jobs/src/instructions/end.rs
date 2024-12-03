@@ -40,11 +40,8 @@ pub struct End<'info> {
 
 impl<'info> End<'info> {
     pub fn handler(&mut self) -> Result<()> {
-        self.job.end(
-            self.run.time,
-            Clock::get()?.unix_timestamp,
-            self.run.node,
-        );
+        self.job
+            .end(self.run.time, Clock::get()?.unix_timestamp, self.run.node);
 
         let deposit: u64 = self.job.get_deposit(self.job.timeout);
 
