@@ -37,16 +37,12 @@ impl<'info> Delist<'info> {
     pub fn handler(&mut self) -> Result<()> {
         self.market.remove_from_queue(&self.job.key())?;
 
-        if job.price == 0 {
-            Ok(())
+        if self.job.price == 0 {
+            return Ok(())
         }
 
         // refund deposit
         let refund: u64 = self.job.get_deposit(self.job.timeout);
-        if refund > 0 {
-            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
-        } else {
-            Ok(())
-        }
+        transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
     }
 }

@@ -48,18 +48,15 @@ impl<'info> End<'info> {
             .end(self.run.time, Clock::get()?.unix_timestamp, self.run.node);
 
         // reimburse node, and refund surplus
-        if job.price == 0 {
-            Ok(())
+        if self.job.price == 0 {
+            return Ok(())
         }
-        
+
         let deposit: u64 = self.job.get_deposit(self.job.timeout);
-        if deposit > 0 {
-            let amount: u64 = self.job.get_reimbursement();
-            let refund: u64 = deposit - amount;
-            transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
-            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
-        } else {
-            Ok(())
-        }
+        let amount: u64 = self.job.get_reimbursement();
+        let refund: u64 = deposit - amount;
+        transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
+        transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
+        
     }
 }
