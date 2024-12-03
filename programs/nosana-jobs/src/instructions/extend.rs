@@ -40,7 +40,7 @@ impl<'info> Extend<'info> {
             return Ok(());
         }
 
-        // Topup accounts
+        // perform top-up and fee transfer
         let duration: i64 = timeout - self.job.timeout;
         transfer_tokens_to_vault!(self, self.job.get_deposit(duration))?;
         transfer_fee!(self, user, authority, &[], self.job.get_job_fee(duration))

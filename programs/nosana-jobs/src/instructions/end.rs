@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::{
-    associated_token,
+    associated_token::get_associated_token_address,
     token::{Token, TokenAccount},
 };
 
@@ -29,7 +29,9 @@ pub struct End<'info> {
     pub deposit: Account<'info, TokenAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 || user.key() == associated_token::get_associated_token_address(&run.node, &id::NOS_TOKEN) @ NosanaError::InvalidATA
+        constraint = job.price == 0 ||
+            user.key() == get_associated_token_address(&run.node, &id::NOS_TOKEN)
+            @ NosanaError::InvalidATA
     )]
     pub user: Account<'info, TokenAccount>,
     #[account(mut)]
