@@ -33,12 +33,16 @@ impl<'info> Extend<'info> {
             self.job.timeout,
             NosanaJobsError::JobTimeoutNotGreater
         );
+        
         // If job price > 0, we need to topup
-        if self.job.price > 0 {
-            let duration: i64 = timeout - self.job.timeout;
-            transfer_tokens_to_vault!(self, self.job.get_deposit(duration))?;
-            transfer_fee!(self, user, authority, &[],self.job.get_job_fee(duration))?;
+        self.job.update_timeout(timeout);
+
+        if self.job.price == 0 {
+            return Ok(())
         }
-        self.job.update_timeout(timeout)
+
+        let duration: i64 = timeout - self.job.timeout;
+        transfer_tokens_to_vault!(self, self.job.get_deposit(duration))?;
+        transfer_fee!(self, user, authority, &[],self.job.get_job_fee(duration))
     }
 }

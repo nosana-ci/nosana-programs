@@ -240,9 +240,8 @@ impl JobAccount {
         self.get_deposit(min(self.time_end - self.time_start, self.timeout))
     }
 
-    pub fn update_timeout(&mut self, timeout: i64) -> Result<()> {
+    pub fn update_timeout(&mut self, timeout: i64) -> () {
         self.timeout = timeout;
-        Ok(())
     }
 }
 
