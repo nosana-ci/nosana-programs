@@ -57,6 +57,5 @@ impl<'info> End<'info> {
         let refund: u64 = deposit - amount;
         transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
         transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
-        
     }
 }
