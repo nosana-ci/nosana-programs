@@ -10,9 +10,13 @@ pub struct Delist<'info> {
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
         constraint = job.state == JobState::Queued as u8 @NosanaJobsError::JobInWrongState
-  )]
+    )]
     pub job: Account<'info, JobAccount>,
-    #[account(has_one = vault @ NosanaError::InvalidVault)]
+    #[account(
+        mut,
+        has_one = vault @ NosanaError::InvalidVault,
+        constraint = market.queue_type == QueueType::Job as u8 @NosanaJobsError::MarketInWrongState
+    )]
     pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
@@ -32,9 +36,8 @@ pub struct Delist<'info> {
 
 impl<'info> Delist<'info> {
     pub fn handler(&mut self) -> Result<()> {
-        if self.market.queue_type == QueueType::Job as u8 {
-            self.market.remove_from_queue(&self.job.key())?;
-        }
+        self.market.remove_from_queue(&self.job.key())?;
+    
 
         // refund deposit
         let refund: u64 = self.job.get_deposit(self.job.timeout);

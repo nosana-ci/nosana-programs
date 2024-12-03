@@ -9,6 +9,8 @@ pub enum NosanaJobsError {
     // market errors
     #[msg("This market account is not valid.")]
     InvalidMarketAccount,
+    #[msg("This market does not have the right status.")]
+    MarketInWrongState,
 
     // job errors
     #[msg("This job account is not valid.")]
