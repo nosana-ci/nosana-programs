@@ -67,4 +67,3 @@ impl<'info> Finish<'info> {
         }
     }
 }
-
