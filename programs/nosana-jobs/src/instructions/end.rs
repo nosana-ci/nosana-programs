@@ -9,7 +9,6 @@ pub struct End<'info> {
     #[account(
         mut,
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
-        has_one = project @ NosanaJobsError::JobInvalidProject,
         constraint = job.project == authority.key() @ NosanaError::Unauthorized
     )]
     pub job: Box<Account<'info, JobAccount>>,
@@ -17,8 +16,9 @@ pub struct End<'info> {
     pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
-        close = authority,
+        close = payer,
         has_one = job @ NosanaJobsError::InvalidJobAccount,
+        constraint = run.node == user.key() @NosanaJobsError::
         constraint = run.job == job.key() @ NosanaJobsError::JobInvalidRunAccount
     )]
     pub run: Account<'info, RunAccount>,
@@ -28,13 +28,14 @@ pub struct End<'info> {
     )]
     pub deposit: Account<'info, TokenAccount>,
     #[account(mut)]
+    pub payer: AccountInfo<'info>,
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     // TODO: Add validation to job.node == user.key()?
     pub user: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
     /// CHECK: this account is verified as the original project for the job account
     #[account(mut)]
-    pub project: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 

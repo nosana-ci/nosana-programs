@@ -8,9 +8,8 @@ use anchor_spl::{
 pub struct Delist<'info> {
     #[account(
         mut,
-        close = authority,
+        close = payer,
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
-        has_one = project @ NosanaJobsError::JobInvalidProject,
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
         constraint = job.state == JobState::Queued as u8 @NosanaJobsError::JobInWrongState
   )]
@@ -23,11 +22,12 @@ pub struct Delist<'info> {
     )]
     pub deposit: Account<'info, TokenAccount>,
     #[account(mut)]
+    pub payer: AccountInfo<'info>,
+    #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
     /// CHECK: this account is verified as the original project for the job account
     #[account(mut)]
-    pub project: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 
