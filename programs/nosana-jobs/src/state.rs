@@ -233,7 +233,12 @@ impl JobAccount {
     }
 
     pub fn get_job_fee(&self, timeout: i64) -> u64 {
-        (self.price * u64::try_from(timeout).unwrap()) / MarketAccount::JOB_FEE_FRACTION
+        self.get_deposit(timeout) / MarketAccount::JOB_FEE_FRACTION
+    }
+
+    pub fn get_deposit_and_fee(&self, timeout: i64) -> (u64, u64) {
+        let deposit = self.get_deposit(timeout);
+        (deposit, deposit / MarketAccount::JOB_FEE_FRACTION)
     }
 
     pub fn get_reimbursement(&self) -> u64 {

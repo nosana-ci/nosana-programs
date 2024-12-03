@@ -34,15 +34,16 @@ impl<'info> Extend<'info> {
             NosanaJobsError::JobTimeoutNotGreater
         );
 
+        let duration = timeout - self.job.timeout;
         self.job.update_timeout(timeout);
 
         if self.job.price == 0 {
             return Ok(());
         }
 
-        // perform top-up and fee transfer
-        let duration: i64 = timeout - self.job.timeout;
-        transfer_tokens_to_vault!(self, self.job.get_deposit(duration))?;
-        transfer_fee!(self, user, authority, &[], self.job.get_job_fee(duration))
+        // deposit job payment and transfer network fee
+        let (deposit, fee) = self.job.get_deposit_and_fee(duration);
+        transfer_tokens_to_vault!(self, deposit)?;
+        transfer_fee!(self, user, authority, &[], fee)
     }
 }
