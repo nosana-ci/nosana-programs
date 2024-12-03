@@ -1,5 +1,8 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::{
+    associated_token,
+    token::{Token, TokenAccount},
+};
 
 #[derive(Accounts)]
 pub struct End<'info> {
@@ -31,7 +34,7 @@ pub struct End<'info> {
     pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 || user.key() == associated_token::get_associated_token_address(project.key, &id::NOS_TOKEN) @ NosanaError::InvalidATA
+        constraint = job.price == 0 || user.key() == associated_token::get_associated_token_address(run.node, &id::NOS_TOKEN) @ NosanaError::InvalidATA
     )]
     pub user: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
