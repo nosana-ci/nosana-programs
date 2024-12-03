@@ -110,10 +110,9 @@ export default function suite() {
     it('should match unstarted job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
 
-      console.log(job.node);
-
       expect(job.state).eq(0);
       expect(job.timeEnd.toNumber()).eq(0);
+      expect(job.node.toString()).eq('11111111111111111111111111111111');
     });
 
     it('should show job as stopped and with a new endtime', async function () {
@@ -144,7 +143,6 @@ export default function suite() {
       // Job stat should update
       expect(job.state).eq(2);
       expect(job.timeEnd.toNumber()).gt(0);
-      // TODO: Get actual node address from the work() program
       expect(job.node.toString()).not.eq('11111111111111111111111111111111');
     });
   });
