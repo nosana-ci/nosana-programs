@@ -27,19 +27,19 @@ pub struct End<'info> {
         constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
-    /// CHECK: this account is verified as the original payer for the run account
-    #[account(mut)]
-    pub payer: AccountInfo<'info>,
-    #[account(mut)]
-    pub vault: Account<'info, TokenAccount>,
     #[account(
         mut,
         constraint = job.price == 0 || user.key() == associated_token::get_associated_token_address(&run.node, &id::NOS_TOKEN) @ NosanaError::InvalidATA
     )]
     pub user: Account<'info, TokenAccount>,
-    pub token_program: Program<'info, Token>,
+    #[account(mut)]
+    pub vault: Account<'info, TokenAccount>,
+    /// CHECK: this account is verified as the original payer for the run account
+    #[account(mut)]
+    pub payer: AccountInfo<'info>,
     #[account(mut)]
     pub authority: Signer<'info>,
+    pub token_program: Program<'info, Token>,
 }
 
 impl<'info> End<'info> {

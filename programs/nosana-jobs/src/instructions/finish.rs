@@ -24,13 +24,16 @@ pub struct Finish<'info> {
     pub market: Account<'info, MarketAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub user: Account<'info, TokenAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 || deposit.key() == associated_token::get_associated_token_address(project.key, &id::NOS_TOKEN) @ NosanaError::InvalidATA,
+        constraint = job.price == 0 || deposit.key() == associated_token::get_associated_token_address(project.key, &id::NOS_TOKEN) @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        constraint = job.price == 0 || user.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
+    )]
+    pub user: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
     #[account(mut)]
     pub payer: AccountInfo<'info>,
