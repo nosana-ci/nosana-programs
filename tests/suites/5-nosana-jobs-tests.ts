@@ -110,6 +110,16 @@ export default function suite() {
       this.balances.user -= topup / this.constants.feePercentage;
       this.balances.vaultJob += topup;
     });
+    it('cannot extend with a smaller timeout', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .extend(new BN(this.constants.jobTimeout - this.constants.jobExtendTimeout))
+        .accounts(this.accounts)
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+
+      expect(msg).to.equal(this.constants.errors.JobTimeoutNotGreater);
+    });
   });
 
   describe('work()', async function () {

@@ -22,6 +22,9 @@ variables:
       - PROGRAM_NAME: nosana_jobs
         PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
         SKIP_DEV: "yes"
+      - PROGRAM_NAME: nosana_jobs
+        PROGRAM_ID: nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR
+        SKIP_MAIN: "yes"
 
 npm:
   stage: .pre

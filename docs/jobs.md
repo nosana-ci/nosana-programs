@@ -8,15 +8,15 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`4`](#accounts)                                                                                                                    |
-| Instructions    | [`14`](#instructions)                                                                                                               |
+| Instructions    | [`15`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`14`](#errors)                                                                                                                     |
+| Errors          | [`15`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
 ## Instructions
 
-A number of 14 instruction are defined in the Nosana Jobs program.
+A number of 15 instruction are defined in the Nosana Jobs program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -112,7 +112,7 @@ The following 3 account addresses should be provided when invoking this instruct
 
 #### Arguments
 
-The following 4 arguments should also be provided when invoking this instruction.
+The following 5 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
@@ -120,6 +120,7 @@ The following 4 arguments should also be provided when invoking this instruction
 | `jobPrice`             | `u64`             | `8`     | `16`    | The price for jobs in this market.                        |
 | `jobType`              | `u8`              | `1`     | `24`    | The [JobType](#job-type) number.                          |
 | `nodeStakeMinimum`     | `u128`            | `16`    | `25`    | The amount of [`xNOS`](/programs/staking) a node needs to qualify for a market.|
+| `jobTimeout`           | `i64`             | `16`    | `41`    | The timeout time in seconds for jobs.                     |
 
 
 #### Solana Dispatch ID
@@ -144,6 +145,7 @@ let tx = await program.methods
     jobPrice,          // type: u64
     jobType,           // type: u8
     nodeStakeMinimum,  // type: u128
+    jobTimeout,        // type: i64
   )
   .accounts({
     market,            // ✓ writable, 𐄂 signer
@@ -271,11 +273,12 @@ The following 12 account addresses should be provided when invoking this instruc
 
 #### Arguments
 
-The following 1 arguments should also be provided when invoking this instruction.
+The following 2 arguments should also be provided when invoking this instruction.
 
 | Name                   | Type              | Size    | Offset  | Description                                               |
 |------------------------|-------------------|---------|---------|-----------------------------------------------------------|
 | `ipfsJob`              | `["u8",32]`       | `32`    | `0`     | The byte array representing the IPFS hash to the job.     |
+| `timeout`              | `i64`             | `16`    | `32`    | The timeout time in seconds for a job.                    |
 
 
 #### Solana Dispatch ID
@@ -297,6 +300,7 @@ with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
 let tx = await program.methods
   .list(
     ipfsJob,           // type: ["u8",32]
+    timeout,           // type: i64
   )
   .accounts({
     job,               // ✓ writable, ✓ signer
@@ -360,6 +364,70 @@ let tx = await program.methods
     user,              // ✓ writable, 𐄂 signer
     payer,             // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
+### Extend
+
+Extend a job timeout
+
+#### Account Info
+
+The following 9 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `rewardsReflection`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [ReflectionAccount](/programs/rewards#reflection-account) address.   |
+| `rewardsVault`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [VaultAccount](/programs/rewards#vault-account) address.             |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `rewardsProgram`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [Nosana Rewards](/programs/rewards) Program address.                                          |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+
+#### Arguments
+
+The following 1 arguments should also be provided when invoking this instruction.
+
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `timeout`              | `i64`             | `16`    | `0`     | The timeout time in seconds for a job.                    |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Extend Instruction
+is **`e47f0001e39a36a8`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[228,127,0,1,227,154,54,168]
+```
+
+#### Example with Anchor
+
+To invoke the Extend Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .extend(
+    timeout,           // type: i64
+  )
+  .accounts({
+    job,               // ✓ writable, 𐄂 signer
+    market,            // 𐄂 writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    rewardsReflection, // ✓ writable, 𐄂 signer
+    rewardsVault,      // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+    rewardsProgram,    // 𐄂 writable, 𐄂 signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
   .signers([authorityKey])
@@ -782,7 +850,7 @@ are **`c94ebbe1f0c6c9fb`**, which can also be expressed in byte array:
 ### Job Account
 
 The `JobAccount` struct holds all the information about any individual jobs.
-The total size of this account is `241` bytes.
+The total size of this account is `257` bytes.
 
 | Name                        | Type                        | Size    | Offset  | Description                                                                                       |
 |-----------------------------|-----------------------------|---------|---------|---------------------------------------------------------------------------------------------------|
@@ -796,6 +864,7 @@ The total size of this account is `241` bytes.
 | `state`                     | `u8`                        | `1`     | `208`   | n/a                                                                                               |
 | `timeEnd`                   | `i64`                       | `16`    | `209`   | The unix time this job has finished running.                                                      |
 | `timeStart`                 | `i64`                       | `16`    | `225`   | The unix time this job has started running.                                                       |
+| `timeout`                   | `i64`                       | `16`    | `241`   | The timeout time in seconds for a job.                                                            |
 
 #### Anchor Account Discriminator
 
@@ -877,7 +946,7 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 14 errors are defined in the Nosana Jobs Program.
+A number of 15 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
@@ -903,34 +972,38 @@ The job result can not be null.
 
 The job has a different project owner.
 
-### `6006` - Node Queue Does Not Match
+### `6006` - Job Timeout Not Greater
+
+The new job timeout should be larger than the current one.
+
+### `6007` - Node Queue Does Not Match
 
 This node queue does not match.
 
-### `6007` - Node Stake Unauthorized
+### `6008` - Node Stake Unauthorized
 
 This node is not authorizing this stake.
 
-### `6008` - Node Not Enough Stake
+### `6009` - Node Not Enough Stake
 
 This node has not staked enough tokens.
 
-### `6009` - Node Already Queued
+### `6010` - Node Already Queued
 
 This node is already present in the queue.
 
-### `6010` - Node Nft Wrong Metadata
+### `6011` - Node Nft Wrong Metadata
 
 This metadata does not have the correct address.
 
-### `6011` - Node Nft Wrong Owner
+### `6012` - Node Nft Wrong Owner
 
 This NFT is not owned by this node.
 
-### `6012` - Node Nft Invalid Amount
+### `6013` - Node Nft Invalid Amount
 
 Access NFT amount cannot be 0.
 
-### `6013` - Node Key Invalid Collection
+### `6014` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.

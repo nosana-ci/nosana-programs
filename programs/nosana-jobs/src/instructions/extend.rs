@@ -28,10 +28,11 @@ pub struct Extend<'info> {
 
 impl<'info> Extend<'info> {
     pub fn handler(&mut self, timeout: i64) -> Result<()> {
-        // New timeout should be larger than old timeout
-        if timeout <= self.job.timeout {
-            return Ok(());
-        }
+        require_gt!(
+            timeout,
+            self.job.timeout,
+            NosanaJobsError::JobTimeoutNotGreater
+        );
         // If job price > 0, we need to topup
         if self.job.price > 0 {
             transfer_tokens_to_vault!(self, self.job.get_deposit(timeout - self.job.timeout))?;
@@ -40,10 +41,10 @@ impl<'info> Extend<'info> {
                 user,
                 authority,
                 &[],
-                self.job.job_fee(timeout - self.job.timeout)
+                self.job.get_job_fee(timeout - self.job.timeout)
             )?;
         }
-        self.job.timeout = timeout;
+        self.job.update_timeout(timeout);
         Ok(())
     }
 }
