@@ -104,7 +104,7 @@ export default function suite() {
       expect(market.queue[0].toString()).eq(this.accounts.job.toString());
     });
 
-    it('should show job as stopped and with a new endtime', async function () {
+    it('should close job account and refund tokens', async function () {
       await this.jobsProgram.methods
         .delist()
         .accounts({
@@ -117,18 +117,18 @@ export default function suite() {
         })
         .rpc();
 
-      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      try {
+        await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      } catch (err: any) {
+        expect(err.message).contain('Account does not exist or has no data');
+      }
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user += deposit;
       this.balances.vaultJob -= deposit;
-
-      // Job stat should update
-      expect(job.state).eq(2);
-      expect(job.timeEnd.toNumber()).eq(0);
     });
 
-    it.skip('should have removed the job from the market', async function () {
+    it('should have removed the job from the market', async function () {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
 
       // Should remove job from job queue
