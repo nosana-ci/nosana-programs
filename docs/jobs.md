@@ -10,7 +10,7 @@
 | Accounts        | [`4`](#accounts)                                                                                                                    |
 | Instructions    | [`17`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`16`](#errors)                                                                                                                     |
+| Errors          | [`17`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
@@ -331,12 +331,12 @@ The following 7 account addresses should be provided when invoking this instruct
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
-| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
 | `deposit`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | n/a                                                                                               |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
-| `project`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The project that listed this job.                                                                 |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
 
 
 #### Solana Dispatch ID
@@ -359,12 +359,12 @@ let tx = await program.methods
   .delist()
   .accounts({
     job,               // ✓ writable, 𐄂 signer
-    market,            // 𐄂 writable, 𐄂 signer
+    market,            // ✓ writable, 𐄂 signer
     deposit,           // ✓ writable, 𐄂 signer
+    payer,             // ✓ writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
-    project,           // ✓ writable, 𐄂 signer
-    authority,         // 𐄂 writable, ✓ signer
+    authority,         // ✓ writable, ✓ signer
   })
   .signers([authorityKey])
   .rpc();
@@ -498,11 +498,11 @@ The following 9 account addresses should be provided when invoking this instruct
 | `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
 | `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [RunAccount](#run-account) address.                                                           |
 | `deposit`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | n/a                                                                                               |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
-| `user`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The user token account that will debit/credit the tokens.                                         |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
 | `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
-| `project`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The project that listed this job.                                                                 |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
 
 
 #### Solana Dispatch ID
@@ -528,11 +528,11 @@ let tx = await program.methods
     market,            // 𐄂 writable, 𐄂 signer
     run,               // ✓ writable, 𐄂 signer
     deposit,           // ✓ writable, 𐄂 signer
+    payer,             // ✓ writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
-    user,              // 𐄂 writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
-    project,           // ✓ writable, 𐄂 signer
-    authority,         // 𐄂 writable, ✓ signer
+    authority,         // ✓ writable, ✓ signer
   })
   .signers([authorityKey])
   .rpc();
@@ -1050,68 +1050,72 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 16 errors are defined in the Nosana Jobs Program.
+A number of 17 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
 This market account is not valid.
 
-### `6001` - Invalid Job Account
+### `6001` - Market In Wrong State
+
+This market does not have the right status.
+
+### `6002` - Invalid Job Account
 
 This job account is not valid.
 
-### `6002` - Job In Wrong State
+### `6003` - Job In Wrong State
 
 This job does not have the right status.
 
-### `6003` - Job Not Expired
+### `6004` - Job Not Expired
 
 The job has not yet expired.
 
-### `6004` - Job Result Null
+### `6005` - Job Result Null
 
 The job result can not be null.
 
-### `6005` - Job Invalid Project
+### `6006` - Job Invalid Project
 
 The job has a different project owner.
 
-### `6006` - Job Timeout Not Greater
+### `6007` - Job Timeout Not Greater
 
 The new job timeout should be larger than the current one.
 
-### `6007` - Job Invalid Run Account
+### `6008` - Job Invalid Run Account
 
 The run account does not match the job.
 
-### `6008` - Node Queue Does Not Match
+### `6009` - Node Queue Does Not Match
 
 This node queue does not match.
 
-### `6009` - Node Stake Unauthorized
+### `6010` - Node Stake Unauthorized
 
 This node is not authorizing this stake.
 
-### `6010` - Node Not Enough Stake
+### `6011` - Node Not Enough Stake
 
 This node has not staked enough tokens.
 
-### `6011` - Node Already Queued
+### `6012` - Node Already Queued
 
 This node is already present in the queue.
 
-### `6012` - Node Nft Wrong Metadata
+### `6013` - Node Nft Wrong Metadata
 
 This metadata does not have the correct address.
 
-### `6013` - Node Nft Wrong Owner
+### `6014` - Node Nft Wrong Owner
 
 This NFT is not owned by this node.
 
-### `6014` - Node Nft Invalid Amount
+### `6015` - Node Nft Invalid Amount
 
 Access NFT amount cannot be 0.
 
-### `6015` - Node Key Invalid Collection
+### `6016` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.
