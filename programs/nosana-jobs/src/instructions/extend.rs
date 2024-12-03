@@ -37,7 +37,7 @@ impl<'info> Extend<'info> {
         if self.job.price > 0 {
             let duration: i64 = timeout - self.job.timeout;
             transfer_tokens_to_vault!(self, self.job.get_deposit(duration))?;
-            transfer_fee!(self, user, authority, &[],self.job.get_job_fee(duration))
+            transfer_fee!(self, user, authority, &[],self.job.get_job_fee(duration))?;
         }
         self.job.update_timeout(timeout)
     }
