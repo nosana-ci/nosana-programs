@@ -1,8 +1,5 @@
 use crate::*;
-use anchor_spl::{
-    associated_token,
-    token::{Token, TokenAccount},
-};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Delist<'info> {
@@ -13,12 +10,12 @@ pub struct Delist<'info> {
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
         constraint = job.state == JobState::Queued as u8 @NosanaJobsError::JobInWrongState
   )]
-    pub job: Box<Account<'info, JobAccount>>,
+    pub job: Account<'info, JobAccount>,
     #[account(has_one = vault @ NosanaError::InvalidVault)]
     pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 ||  deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
+        constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
     #[account(mut)]
