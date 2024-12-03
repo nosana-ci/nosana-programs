@@ -14,6 +14,7 @@ pub struct End<'info> {
     #[account(
         mut,
         close = payer,
+        has_one = payer @ NosanaError::InvalidPayer,
         has_one = job @ NosanaJobsError::InvalidJobAccount,
         constraint = run.node == user.key() @NosanaJobsError::JobInvalidRunAccount,
         constraint = run.job == job.key() @ NosanaJobsError::JobInvalidRunAccount
@@ -24,6 +25,7 @@ pub struct End<'info> {
         constraint = job.price == 0 || user.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
+    /// CHECK: this account is verified as the original payer for the run account
     #[account(mut)]
     pub payer: AccountInfo<'info>,
     #[account(mut)]

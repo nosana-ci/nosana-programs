@@ -6,6 +6,7 @@ pub struct Delist<'info> {
     #[account(
         mut,
         close = payer,
+        has_one = payer @ NosanaError::InvalidPayer,
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
         constraint = job.project == authority.key() @ NosanaError::Unauthorized,
         constraint = job.state == JobState::Queued as u8 @NosanaJobsError::JobInWrongState
@@ -18,6 +19,7 @@ pub struct Delist<'info> {
         constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
+    /// CHECK: this account is verified as the original payer for the job account
     #[account(mut)]
     pub payer: AccountInfo<'info>,
     #[account(mut)]
