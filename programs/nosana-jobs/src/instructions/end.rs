@@ -31,7 +31,6 @@ pub struct End<'info> {
     pub payer: AccountInfo<'info>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
-    // TODO: Add validation to job.node == user.key()?
     pub user: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
     /// CHECK: this account is verified as the original project for the job account
@@ -44,8 +43,8 @@ impl<'info> End<'info> {
         self.job
             .end(self.run.time, Clock::get()?.unix_timestamp, self.run.node);
 
+        // reimburse node, and refund surplus
         let deposit: u64 = self.job.get_deposit(self.job.timeout);
-
         if deposit > 0 {
             let amount: u64 = self.job.get_reimbursement();
             let refund: u64 = deposit - amount;

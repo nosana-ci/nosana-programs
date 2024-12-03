@@ -18,7 +18,7 @@ pub struct Delist<'info> {
     pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 || deposit.key() == associated_token::get_associated_token_address(project.key, &id::NOS_TOKEN) @ NosanaError::InvalidATA
+        constraint = job.price == 0 ||  deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -37,10 +37,10 @@ impl<'info> Delist<'info> {
             self.market.remove_from_queue(&self.job.key())?;
         }
 
-        let deposit: u64 = self.job.get_deposit(self.job.timeout);
-
-        if deposit > 0 {
-            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), deposit)
+        // refund deposit
+        let refund: u64 = self.job.get_deposit(self.job.timeout);
+        if refund > 0 {
+            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
         } else {
             Ok(())
         }

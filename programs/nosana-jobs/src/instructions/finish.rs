@@ -48,26 +48,23 @@ impl<'info> Finish<'info> {
             NosanaJobsError::JobResultNull
         );
 
-        if self.job.state == JobState::Done as u8 {
-            self.job.publish_results(ipfs_result, self.authority.key())
-        } else {
-            self.job.finish(
-                ipfs_result,
-                self.authority.key(),
-                Clock::get()?.unix_timestamp,
-                self.run.time,
-            );
+        self.job.finish(
+            ipfs_result,
+            self.authority.key(),
+            Clock::get()?.unix_timestamp,
+            self.run.time,
+        );
 
-            // reimburse node, and refund surplus
-            let deposit: u64 = self.job.get_deposit(self.job.timeout);
-            if deposit > 0 {
-                let amount: u64 = self.job.get_reimbursement();
-                let refund: u64 = deposit - amount;
-                transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
-                transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
-            } else {
-                Ok(())
-            }
+        // reimburse node, and refund surplus
+        let deposit: u64 = self.job.get_deposit(self.job.timeout);
+        if deposit > 0 {
+            let amount: u64 = self.job.get_reimbursement();
+            let refund: u64 = deposit - amount;
+            transfer_tokens_from_vault!(self, user, seeds!(self.market, self.vault), amount)?;
+            transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), refund)
+        } else {
+            Ok(())
         }
     }
 }
+
