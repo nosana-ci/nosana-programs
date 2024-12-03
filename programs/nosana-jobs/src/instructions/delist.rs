@@ -38,7 +38,7 @@ impl<'info> Delist<'info> {
         self.market.remove_from_queue(&self.job.key())?;
 
         if self.job.price == 0 {
-            return Ok(())
+            return Ok(());
         }
 
         // refund deposit

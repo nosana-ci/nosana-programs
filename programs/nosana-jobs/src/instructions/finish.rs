@@ -56,7 +56,7 @@ impl<'info> Finish<'info> {
         );
 
         if self.job.price == 0 {
-            return Ok(())
+            return Ok(());
         }
 
         // reimburse node, and refund surplus

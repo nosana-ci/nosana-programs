@@ -48,9 +48,9 @@ impl<'info> End<'info> {
             .end(self.run.time, Clock::get()?.unix_timestamp, self.run.node);
 
         if self.job.price == 0 {
-            return Ok(())
+            return Ok(());
         }
-        
+
         // reimburse node, and refund surplus
         let total: u64 = self.job.get_deposit(self.job.timeout);
         let amount: u64 = self.job.get_reimbursement();
