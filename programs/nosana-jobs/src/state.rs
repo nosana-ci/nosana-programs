@@ -93,13 +93,9 @@ impl MarketAccount {
         Ok(())
     }
 
-    pub fn remove_from_queue(&mut self, node: &Pubkey) -> Result<()> {
-        msg!("Removing job {}", node.to_string());
-        let index: usize = self.find_in_queue(node).unwrap();
-        msg!("Index: {}", index);
-        msg!("Queue len: {}", self.queue.len());
+    pub fn remove_from_queue(&mut self, pubkey: &Pubkey) -> Result<()> {
+        let index: usize = self.find_in_queue(pubkey).unwrap();
         self.queue.remove(index);
-        msg!("Queue len: {}", self.queue.len());
         // we check if there are none left
         if self.queue.is_empty() {
             self.set_queue_type(QueueType::Empty);

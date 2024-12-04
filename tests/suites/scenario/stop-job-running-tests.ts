@@ -122,12 +122,12 @@ export default function suite() {
           .accounts({
             job: this.accounts.job,
             market: this.accounts.market,
-            deposit: this.accounts.deposit,
-            vault: this.accounts.vault,
-            project: this.accounts.project,
-            tokenProgram: this.accounts.tokenProgram,
             run: this.accounts.run,
+            deposit: this.accounts.deposit,
             user: this.accounts.user,
+            vault: this.accounts.vault,
+            payer: this.accounts.payer,
+            tokenProgram: this.accounts.tokenProgram,
           })
           .rpc();
       } catch (err) {

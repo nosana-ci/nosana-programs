@@ -112,7 +112,7 @@ export default function suite() {
           market: this.accounts.market,
           deposit: this.accounts.deposit,
           vault: this.accounts.vault,
-          project: this.accounts.project,
+          payer: this.accounts.payer,
           tokenProgram: this.accounts.tokenProgram,
         })
         .rpc();
@@ -126,6 +126,10 @@ export default function suite() {
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user += deposit;
       this.balances.vaultJob -= deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
     });
 
     it('should have removed the job from the market', async function () {
