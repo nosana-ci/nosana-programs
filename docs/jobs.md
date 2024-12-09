@@ -10,7 +10,7 @@
 | Accounts        | [`4`](#accounts)                                                                                                                    |
 | Instructions    | [`17`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`17`](#errors)                                                                                                                     |
+| Errors          | [`18`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
@@ -1050,7 +1050,7 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 17 errors are defined in the Nosana Jobs Program.
+A number of 18 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
@@ -1060,62 +1060,66 @@ This market account is not valid.
 
 This market does not have the right status.
 
-### `6002` - Invalid Job Account
+### `6002` - Not In Market Queue
+
+Account cannot be find account in market queue.
+
+### `6003` - Invalid Job Account
 
 This job account is not valid.
 
-### `6003` - Job In Wrong State
+### `6004` - Job In Wrong State
 
 This job does not have the right status.
 
-### `6004` - Job Not Expired
+### `6005` - Job Not Expired
 
 The job has not yet expired.
 
-### `6005` - Job Result Null
+### `6006` - Job Result Null
 
 The job result can not be null.
 
-### `6006` - Job Invalid Project
+### `6007` - Job Invalid Project
 
 The job has a different project owner.
 
-### `6007` - Job Timeout Not Greater
+### `6008` - Job Timeout Not Greater
 
 The new job timeout should be larger than the current one.
 
-### `6008` - Job Invalid Run Account
+### `6009` - Job Invalid Run Account
 
 The run account does not match the job.
 
-### `6009` - Node Queue Does Not Match
+### `6010` - Node Queue Does Not Match
 
 This node queue does not match.
 
-### `6010` - Node Stake Unauthorized
+### `6011` - Node Stake Unauthorized
 
 This node is not authorizing this stake.
 
-### `6011` - Node Not Enough Stake
+### `6012` - Node Not Enough Stake
 
 This node has not staked enough tokens.
 
-### `6012` - Node Already Queued
+### `6013` - Node Already Queued
 
 This node is already present in the queue.
 
-### `6013` - Node Nft Wrong Metadata
+### `6014` - Node Nft Wrong Metadata
 
 This metadata does not have the correct address.
 
-### `6014` - Node Nft Wrong Owner
+### `6015` - Node Nft Wrong Owner
 
 This NFT is not owned by this node.
 
-### `6015` - Node Nft Invalid Amount
+### `6016` - Node Nft Invalid Amount
 
 Access NFT amount cannot be 0.
 
-### `6016` - Node Key Invalid Collection
+### `6017` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.
