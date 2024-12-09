@@ -5,60 +5,49 @@ use anchor_spl::{
 };
 
 #[derive(Accounts)]
-pub struct Finish<'info> {
+pub struct End<'info> {
     #[account(
         mut,
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
-        has_one = project @ NosanaJobsError::JobInvalidProject,
+        constraint = job.project == authority.key() @ NosanaError::Unauthorized
     )]
     pub job: Box<Account<'info, JobAccount>>,
+    #[account(has_one = vault @ NosanaError::InvalidVault)]
+    pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
         close = payer,
         has_one = payer @ NosanaError::InvalidPayer,
         has_one = job @ NosanaJobsError::InvalidJobAccount,
-        constraint = run.node == authority.key() @ NosanaError::Unauthorized,
+        constraint = run.job == job.key() @ NosanaJobsError::JobInvalidRunAccount
     )]
-    pub run: Box<Account<'info, RunAccount>>,
-    #[account(has_one = vault @ NosanaError::InvalidVault)]
-    pub market: Account<'info, MarketAccount>,
-    #[account(mut)]
-    pub vault: Account<'info, TokenAccount>,
+    pub run: Account<'info, RunAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 ||
-            deposit.key() == get_associated_token_address(project.key, &id::NOS_TOKEN)
-            @ NosanaError::InvalidATA
+        constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 || user.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
+        constraint = job.price == 0 ||
+            user.key() == get_associated_token_address(&run.node, &id::NOS_TOKEN)
+            @ NosanaError::InvalidATA
     )]
     pub user: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub vault: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
     #[account(mut)]
     pub payer: AccountInfo<'info>,
-    /// CHECK: this account is verified as the original project for the job account
     #[account(mut)]
-    pub project: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
-impl<'info> Finish<'info> {
-    pub fn handler(&mut self, ipfs_result: [u8; 32]) -> Result<()> {
-        require!(
-            ipfs_result != JobAccount::NULL_RESULT,
-            NosanaJobsError::JobResultNull
-        );
-
-        self.job.finish(
-            ipfs_result,
-            self.authority.key(),
-            Clock::get()?.unix_timestamp,
-            self.run.time,
-        );
+impl<'info> End<'info> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.job
+            .end(self.run.time, Clock::get()?.unix_timestamp, self.run.node);
 
         if self.job.price == 0 {
             return Ok(());

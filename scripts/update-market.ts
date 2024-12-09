@@ -20,10 +20,11 @@ async function main() {
   // open pool
   const tx = await program.methods
     .update(
+      new BN(MarketConfig.jobExpiration),
       new BN(MarketConfig.jobPrice),
-      new BN(MarketConfig.jobType),
       MarketConfig.jobType,
       new BN(MarketConfig.nodeMinimumStake),
+      new BN(MarketConfig.jobTimeout),
     )
     .accounts({
       market,

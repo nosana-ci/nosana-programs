@@ -78,6 +78,11 @@ pub mod nosana_jobs {
         ctx.accounts.handler(ipfs_job, timeout)
     }
 
+    /// Remove a [JobAccount](#job-account) from market job queue.
+    pub fn delist(ctx: Context<Delist>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
     /// Recover funds from a [JobAccount](#job-account) that has been [quit](#quit).
     pub fn recover(ctx: Context<Recover>) -> Result<()> {
         ctx.accounts.handler()
@@ -86,6 +91,11 @@ pub mod nosana_jobs {
     /// Extend a job timeout
     pub fn extend(ctx: Context<Extend>, timeout: i64) -> Result<()> {
         ctx.accounts.handler(timeout)
+    }
+
+    /// End a running [JobAccount](#job-account) and close [RunAccount](#run-account).
+    pub fn end(ctx: Context<End>) -> Result<()> {
+        ctx.accounts.handler()
     }
 
     /***

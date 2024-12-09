@@ -9,6 +9,10 @@ pub enum NosanaJobsError {
     // market errors
     #[msg("This market account is not valid.")]
     InvalidMarketAccount,
+    #[msg("This market does not have the right status.")]
+    MarketInWrongState,
+    #[msg("Account cannot be find account in market queue.")]
+    NotInMarketQueue,
 
     // job errors
     #[msg("This job account is not valid.")]
@@ -23,6 +27,8 @@ pub enum NosanaJobsError {
     JobInvalidProject,
     #[msg("The new job timeout should be larger than the current one.")]
     JobTimeoutNotGreater,
+    #[msg("The run account does not match the job.")]
+    JobInvalidRunAccount,
 
     // node errors
     #[msg("This node queue does not match.")]

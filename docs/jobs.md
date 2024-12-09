@@ -8,15 +8,15 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`4`](#accounts)                                                                                                                    |
-| Instructions    | [`15`](#instructions)                                                                                                               |
+| Instructions    | [`17`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`15`](#errors)                                                                                                                     |
+| Errors          | [`18`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
 ## Instructions
 
-A number of 15 instruction are defined in the Nosana Jobs program.
+A number of 17 instruction are defined in the Nosana Jobs program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -320,6 +320,56 @@ let tx = await program.methods
   .rpc();
 ```
 
+### Delist
+
+Remove a [JobAccount](#job-account) from market job queue.
+
+#### Account Info
+
+The following 7 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `deposit`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | n/a                                                                                               |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Delist Instruction
+is **`3788cd6b6bad041f`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[55,136,205,107,107,173,4,31]
+```
+
+#### Example with Anchor
+
+To invoke the Delist Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .delist()
+  .accounts({
+    job,               // ✓ writable, 𐄂 signer
+    market,            // ✓ writable, 𐄂 signer
+    deposit,           // ✓ writable, 𐄂 signer
+    payer,             // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+    authority,         // ✓ writable, ✓ signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
 ### Recover
 
 Recover funds from a [JobAccount](#job-account) that has been [quit](#quit).
@@ -428,6 +478,60 @@ let tx = await program.methods
     rewardsVault,      // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
     rewardsProgram,    // 𐄂 writable, 𐄂 signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+  })
+  .signers([authorityKey])
+  .rpc();
+```
+
+### End
+
+End a running [JobAccount](#job-account) and close [RunAccount](#run-account).
+
+#### Account Info
+
+The following 9 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
+| `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [RunAccount](#run-account) address.                                                           |
+| `deposit`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | n/a                                                                                               |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
+| `authority`            | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The signing authority of the program invocation.                                                  |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the End Instruction
+is **`b4a0f9d9c2794610`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[180,160,249,217,194,121,70,16]
+```
+
+#### Example with Anchor
+
+To invoke the End Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .end()
+  .accounts({
+    job,               // ✓ writable, 𐄂 signer
+    market,            // 𐄂 writable, 𐄂 signer
+    run,               // ✓ writable, 𐄂 signer
+    deposit,           // ✓ writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    payer,             // ✓ writable, 𐄂 signer
+    authority,         // ✓ writable, ✓ signer
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
   .signers([authorityKey])
@@ -594,8 +698,8 @@ The following 10 account addresses should be provided when invoking this instruc
 | `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [RunAccount](#run-account) address.                                                           |
 | `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
 | `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
-| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
 | `deposit`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | n/a                                                                                               |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
 | `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The paying identy for the rent.                                                                   |
 | `project`              | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The project that listed this job.                                                                 |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
@@ -635,8 +739,8 @@ let tx = await program.methods
     run,               // ✓ writable, 𐄂 signer
     market,            // 𐄂 writable, 𐄂 signer
     vault,             // ✓ writable, 𐄂 signer
-    user,              // ✓ writable, 𐄂 signer
     deposit,           // ✓ writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
     payer,             // ✓ writable, 𐄂 signer
     project,           // ✓ writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
@@ -946,64 +1050,76 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 15 errors are defined in the Nosana Jobs Program.
+A number of 18 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
 This market account is not valid.
 
-### `6001` - Invalid Job Account
+### `6001` - Market In Wrong State
+
+This market does not have the right status.
+
+### `6002` - Not In Market Queue
+
+Account cannot be find account in market queue.
+
+### `6003` - Invalid Job Account
 
 This job account is not valid.
 
-### `6002` - Job In Wrong State
+### `6004` - Job In Wrong State
 
 This job does not have the right status.
 
-### `6003` - Job Not Expired
+### `6005` - Job Not Expired
 
 The job has not yet expired.
 
-### `6004` - Job Result Null
+### `6006` - Job Result Null
 
 The job result can not be null.
 
-### `6005` - Job Invalid Project
+### `6007` - Job Invalid Project
 
 The job has a different project owner.
 
-### `6006` - Job Timeout Not Greater
+### `6008` - Job Timeout Not Greater
 
 The new job timeout should be larger than the current one.
 
-### `6007` - Node Queue Does Not Match
+### `6009` - Job Invalid Run Account
+
+The run account does not match the job.
+
+### `6010` - Node Queue Does Not Match
 
 This node queue does not match.
 
-### `6008` - Node Stake Unauthorized
+### `6011` - Node Stake Unauthorized
 
 This node is not authorizing this stake.
 
-### `6009` - Node Not Enough Stake
+### `6012` - Node Not Enough Stake
 
 This node has not staked enough tokens.
 
-### `6010` - Node Already Queued
+### `6013` - Node Already Queued
 
 This node is already present in the queue.
 
-### `6011` - Node Nft Wrong Metadata
+### `6014` - Node Nft Wrong Metadata
 
 This metadata does not have the correct address.
 
-### `6012` - Node Nft Wrong Owner
+### `6015` - Node Nft Wrong Owner
 
 This NFT is not owned by this node.
 
-### `6013` - Node Nft Invalid Amount
+### `6016` - Node Nft Invalid Amount
 
 Access NFT amount cannot be 0.
 
-### `6014` - Node Key Invalid Collection
+### `6017` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.

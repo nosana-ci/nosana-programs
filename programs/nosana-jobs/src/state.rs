@@ -1,4 +1,4 @@
-use crate::{JobState, JobType, QueueType};
+use crate::{JobState, JobType, NosanaJobsError, QueueType};
 use anchor_lang::prelude::*;
 use mpl_token_metadata::accounts::Metadata;
 use mpl_token_metadata::types::Collection;
@@ -93,14 +93,18 @@ impl MarketAccount {
         Ok(())
     }
 
-    pub fn remove_from_queue(&mut self, node: &Pubkey) -> Result<()> {
-        let index: usize = self.find_in_queue(node).unwrap();
-        self.queue.remove(index);
-        // we check if there are none left
-        if self.queue.is_empty() {
-            self.set_queue_type(QueueType::Empty);
+    pub fn remove_from_queue(&mut self, pubkey: &Pubkey) -> Result<()> {
+        match self.find_in_queue(pubkey) {
+            Some(index) => {
+                self.queue.remove(index);
+                // we check if there are none left
+                if self.queue.is_empty() {
+                    self.set_queue_type(QueueType::Empty);
+                }
+                Ok(())
+            }
+            None => Err(NosanaJobsError::NotInMarketQueue.into()),
         }
-        Ok(())
     }
 
     pub fn pop_from_queue(&mut self) -> Pubkey {
@@ -203,6 +207,13 @@ impl JobAccount {
         Ok(())
     }
 
+    pub fn end(&mut self, time_start: i64, time_end: i64, node: Pubkey) {
+        self.state = JobState::Done as u8;
+        self.time_start = time_start;
+        self.time_end = time_end;
+        self.node = node;
+    }
+
     pub fn finish(&mut self, ipfs_result: [u8; 32], node: Pubkey, time_end: i64, time_start: i64) {
         self.ipfs_result = ipfs_result;
         self.node = node;
@@ -211,12 +222,23 @@ impl JobAccount {
         self.time_start = time_start;
     }
 
+    pub fn publish_results(&mut self, ipfs_result: [u8; 32], node: Pubkey) -> Result<()> {
+        self.ipfs_result = ipfs_result;
+        self.node = node;
+        Ok(())
+    }
+
     pub fn get_deposit(&self, timeout: i64) -> u64 {
         self.price * u64::try_from(timeout).unwrap()
     }
 
     pub fn get_job_fee(&self, timeout: i64) -> u64 {
-        (self.price * u64::try_from(timeout).unwrap()) / MarketAccount::JOB_FEE_FRACTION
+        self.get_deposit(timeout) / MarketAccount::JOB_FEE_FRACTION
+    }
+
+    pub fn get_deposit_and_fee(&self, timeout: i64) -> (u64, u64) {
+        let deposit = self.get_deposit(timeout);
+        (deposit, deposit / MarketAccount::JOB_FEE_FRACTION)
     }
 
     pub fn get_reimbursement(&self) -> u64 {
