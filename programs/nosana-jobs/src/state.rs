@@ -103,7 +103,7 @@ impl MarketAccount {
                 }
                 Ok(())
             }
-            None => Err(NosanaJobsError::NotInMarketQueue.into())
+            None => Err(NosanaJobsError::NotInMarketQueue.into()),
         }
     }
 

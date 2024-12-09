@@ -40,12 +40,12 @@ impl<'info> Delist<'info> {
                 if self.job.price == 0 {
                     return Ok(());
                 }
-        
+
                 // refund deposit
                 let total: u64 = self.job.get_deposit(self.job.timeout);
                 transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), total)
-            },
-            Err(err) => Err(err)
-        }        
+            }
+            Err(err) => Err(err),
+        }
     }
 }
