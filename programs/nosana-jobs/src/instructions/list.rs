@@ -59,10 +59,7 @@ impl<'info> List<'info> {
         if self.job.price == 0 {
             return Ok(());
         }
-
-        msg!("Len: {}", self.market.queue.len());
-        msg!("Type: {}", self.market.queue_type);
-
+        
         // deposit job payment and transfer network fee
         let (deposit, fee) = self.job.get_deposit_and_fee(timeout);
         transfer_tokens_to_vault!(self, deposit)?;
