@@ -207,8 +207,6 @@ export default function suite() {
       // update market
       this.market.queueType = this.constants.queueType.unknown;
       this.market.queueLength -= 1;
-
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
     });
   });
 
