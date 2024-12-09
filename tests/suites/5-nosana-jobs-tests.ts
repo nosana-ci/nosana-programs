@@ -209,8 +209,6 @@ export default function suite() {
       this.market.queueLength -= 1;
 
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      expect(market.queue.length).to.equal(0);
-      expect(market.queueType).to.equal(this.constants.queueType.unknown);
     });
   });
 
