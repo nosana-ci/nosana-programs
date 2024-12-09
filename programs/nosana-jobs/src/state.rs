@@ -1,4 +1,4 @@
-use crate::{JobState, JobType, QueueType};
+use crate::{JobState, JobType, NosanaJobsError, QueueType};
 use anchor_lang::prelude::*;
 use mpl_token_metadata::accounts::Metadata;
 use mpl_token_metadata::types::Collection;
@@ -94,13 +94,17 @@ impl MarketAccount {
     }
 
     pub fn remove_from_queue(&mut self, pubkey: &Pubkey) -> Result<()> {
-        let index: usize = self.find_in_queue(pubkey).unwrap();
-        self.queue.remove(index);
-        // we check if there are none left
-        if self.queue.is_empty() {
-            self.set_queue_type(QueueType::Empty);
+        match self.find_in_queue(pubkey) {
+            Some(index) => {
+                self.queue.remove(index);
+                // we check if there are none left
+                if self.queue.is_empty() {
+                    self.set_queue_type(QueueType::Empty);
+                }
+                Ok(())
+            }
+            None => Err(NosanaJobsError::NotInMarketQueue.into())
         }
-        Ok(())
     }
 
     pub fn pop_from_queue(&mut self) -> Pubkey {

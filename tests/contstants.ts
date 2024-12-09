@@ -111,6 +111,10 @@ const constants = {
     JobTimeoutNotGreater: 'The new job timeout should be larger than the current one.',
     RunConstraintNotSatisfied: 'This RunAccount constraint is not satisfied. Use a new or dummy account only.',
 
+    // market errors
+    MarketInWrongState: 'This market does not have the right status.',
+    NotInMarketQueue: 'Account cannot be find account in market queue.',
+
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
     NodeQueueDoesNotMatch: 'This node queue does not match.',

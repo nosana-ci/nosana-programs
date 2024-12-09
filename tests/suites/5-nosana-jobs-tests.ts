@@ -97,6 +97,149 @@ export default function suite() {
     });
   });
 
+  describe('delist', function () {
+    const listedJobAccount = [];
+    let runKey: anchor.web3.Keypair;
+
+    it('should not be invoked with incorrect authority', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .delist()
+        .accounts({ ...this.accounts, authority: this.users.user2.publicKey })
+        .signers([this.users.user2.user])
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('should not delist a job when market queue is not a job queue', async function () {
+      let msg = '';
+      runKey = getRunKey(this);
+
+      // Pick up only job in queue to change market state to empty
+      await this.jobsProgram.methods.work().accounts(this.accounts).signers([runKey]).rpc();
+
+      await this.jobsProgram.methods
+        .delist()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      this.market.queueLength = 0;
+      this.market.queueType = this.constants.queueType.unknown;
+
+      expect(msg).to.equal(this.constants.errors.MarketInWrongState);
+    });
+
+    it('should not delist a job not in the market queue', async function () {
+      // remember current job accounts
+      listedJobAccount.push(this.accounts.job);
+
+      let msg;
+
+      // LIST NEW JOB TO ENSURE MARKET REMAINS JOB QUEUE
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc();
+
+      listedJobAccount.push(this.accounts.job);
+
+      await this.jobsProgram.methods
+        .delist()
+        .accounts({ ...this.accounts, job: listedJobAccount[0] })
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.equal(this.constants.errors.NotInMarketQueue);
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.vaultJob += deposit;
+
+      this.market.queueLength = 1;
+      this.market.queueType = this.constants.queueType.job;
+    });
+
+    it('should not delist a job without a queued state', async function () {
+      let msg;
+
+      // Complete job to change job state
+      await this.jobsProgram.methods
+        .finish(this.constants.ipfsData)
+        .accounts({ ...this.accounts, job: listedJobAccount[0], run: runKey.publicKey })
+        .rpc();
+
+      await this.jobsProgram.methods
+        .delist()
+        .accounts({ ...this.accounts, job: listedJobAccount[0] })
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.equal(this.constants.errors.JobInWrongState);
+
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
+    });
+
+    it('should close job account, refund payer and remove job from the market', async function () {
+      await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
+
+      try {
+        await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+      } catch (err: unknown) {
+        expect((err as Error).message).contain('Account does not exist or has no data');
+      }
+
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
+
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.queue.length).to.equal(0);
+      expect(market.queueType).to.equal(this.constants.queueType.unknown);
+    });
+  });
+
+  describe('list()', async function () {
+    it('can list a job when there are no nodes', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.vaultJob += deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
+    });
+
+    it('can read a job order in the market', async function () {
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.queue[0].toString()).to.equal(this.accounts.job.toString());
+    });
+  });
+
   describe('extend()', async function () {
     it('can extend and topup job timeout', async function () {
       await this.jobsProgram.methods
@@ -338,7 +481,7 @@ export default function suite() {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
       const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '3' } }]);
 
-      expect(jobs.length).to.equal(1);
+      expect(jobs.length).to.equal(2);
 
       const job = jobs[0];
 

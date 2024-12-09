@@ -35,14 +35,17 @@ pub struct Delist<'info> {
 
 impl<'info> Delist<'info> {
     pub fn handler(&mut self) -> Result<()> {
-        self.market.remove_from_queue(&self.job.key())?;
-
-        if self.job.price == 0 {
-            return Ok(());
-        }
-
-        // refund deposit
-        let total: u64 = self.job.get_deposit(self.job.timeout);
-        transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), total)
+        match self.market.remove_from_queue(&self.job.key()) {
+            Ok(_) => {
+                if self.job.price == 0 {
+                    return Ok(());
+                }
+        
+                // refund deposit
+                let total: u64 = self.job.get_deposit(self.job.timeout);
+                transfer_tokens_from_vault!(self, deposit, seeds!(self.market, self.vault), total)
+            },
+            Err(err) => Err(err)
+        }        
     }
 }

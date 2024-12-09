@@ -46,19 +46,28 @@ impl<'info> List<'info> {
 
         // update the market
         match QueueType::from(self.market.queue_type) {
-            QueueType::Job | QueueType::Empty => self.market.add_to_queue(self.job.key(), true),
-            QueueType::Node => RunAccount::initialize(
+            QueueType::Job | QueueType::Empty => {
+                msg!("JOB OR EMPTY");
+                self.market.add_to_queue(self.job.key(), true)
+            },
+            QueueType::Node => {
+                msg!("NODE");
+                RunAccount::initialize(
                 self.payer.to_account_info(),
                 self.run.to_account_info(),
                 self.system_program.to_account_info(),
                 self.job.key(),
                 self.market.pop_from_queue(),
-            ),
+                )
+            },
         }?;
 
         if self.job.price == 0 {
             return Ok(());
         }
+
+        msg!("Len: {}", self.market.queue.len());
+        msg!("Type: {}", self.market.queue_type);
 
         // deposit job payment and transfer network fee
         let (deposit, fee) = self.job.get_deposit_and_fee(timeout);
