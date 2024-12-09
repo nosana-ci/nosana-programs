@@ -193,11 +193,12 @@ export default function suite() {
     it('should close job account, refund payer and remove job from the market', async function () {
       await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
 
-      try {
-        await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      } catch (err: unknown) {
-        expect((err as Error).message).contain('Account does not exist or has no data');
-      }
+      let msg;
+      await this.jobsProgram.account.jobAccount
+        .fetch(this.accounts.job)
+        .catch((err: unknown) => (msg = (err as Error).message));
+
+      expect(msg).contain('Account does not exist or has no data');
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user += deposit;
@@ -210,6 +211,91 @@ export default function suite() {
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
       expect(market.queue.length).to.equal(0);
       expect(market.queueType).to.equal(this.constants.queueType.unknown);
+    });
+  });
+
+  describe('list()', async function () {
+    it('can list a job when there are no nodes', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.vaultJob += deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
+    });
+
+    it('can read a job order in the market', async function () {
+      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+      expect(market.queue[0].toString()).to.equal(this.accounts.job.toString());
+    });
+  });
+
+  describe('end()', async function () {
+    it('should not end a job without a run account', async function () {
+      let error;
+      await this.jobsProgram.methods
+        .end()
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => (error = err.error));
+
+      expect(error.errorMessage).to.equal(this.constants.errors.SolanaAccountNotInitialized);
+      expect(error.origin).to.equal('run');
+    });
+  });
+
+  describe('work()', async function () {
+    it('can work on job, with a new run key', async function () {
+      const key = getRunKey(this);
+
+      await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
+
+      this.market.queueLength -= 1;
+      this.market.queueType = this.constants.queueType.unknown;
+    });
+  });
+
+  describe('end()', async function () {
+    it('should not be invoked with incorrect authority', async function () {
+      let msg;
+      await this.jobsProgram.methods
+        .end()
+        .accounts({ ...this.accounts, authority: this.users.user2.publicKey })
+        .signers([this.users.user2.user])
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.eq(this.constants.errors.Unauthorized);
+    });
+
+    it('should end a running job', async function () {
+      await this.jobsProgram.methods.end().accounts(this.accounts).rpc();
+
+      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+
+      expect(job.state).eq(2);
+
+      let msg;
+      await this.jobsProgram.account.runAccount
+        .fetch(this.accounts.run)
+        .catch((err: unknown) => (msg = (err as Error).message));
+
+      expect(msg).contain('Account does not exist or has no data');
+
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
     });
   });
 
@@ -481,7 +567,7 @@ export default function suite() {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
       const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '3' } }]);
 
-      expect(jobs.length).to.equal(2);
+      expect(jobs.length).to.equal(3);
 
       const job = jobs[0];
 
