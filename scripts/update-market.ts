@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { AnchorProvider, Program, setProvider, BN, Idl } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 // @ts-ignore
@@ -20,10 +22,11 @@ async function main() {
   // open pool
   const tx = await program.methods
     .update(
+      new BN(MarketConfig.jobExpiration),
       new BN(MarketConfig.jobPrice),
       new BN(MarketConfig.jobType),
-      MarketConfig.jobType,
       new BN(MarketConfig.nodeMinimumStake),
+      new BN(MarketConfig.jobTimeout),
     )
     .accounts({
       market,

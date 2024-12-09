@@ -97,11 +97,11 @@ export default function suite() {
     });
   });
 
-  describe('delist', function () {
+  describe('delist()', function () {
     const listedJobAccount = [];
     let runKey: anchor.web3.Keypair;
 
-    it('should not be invoked with incorrect authority', async function () {
+    it('can not be invoked with incorrect authority', async function () {
       let msg = '';
       await this.jobsProgram.methods
         .delist()
@@ -113,7 +113,7 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
-    it('should not delist a job when market queue is not a job queue', async function () {
+    it('can not delist a job when market queue is not a job queue', async function () {
       let msg = '';
       runKey = getRunKey(this);
 
@@ -132,11 +132,11 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.MarketInWrongState);
     });
 
-    it('should not delist a job not in the market queue', async function () {
+    it('can not delist a job not in the market queue', async function () {
       // remember current job accounts
       listedJobAccount.push(this.accounts.job);
 
-      let msg;
+      let msg = '';
 
       // LIST NEW JOB TO ENSURE MARKET REMAINS JOB QUEUE
       const jobKey = getNewJobKey(this);
@@ -168,8 +168,8 @@ export default function suite() {
       this.market.queueType = this.constants.queueType.job;
     });
 
-    it('should not delist a job without a queued state', async function () {
-      let msg;
+    it('can not delist a job without a queued state', async function () {
+      let msg = '';
 
       // Complete job to change job state
       await this.jobsProgram.methods
@@ -190,10 +190,10 @@ export default function suite() {
       this.balances.vaultJob -= deposit;
     });
 
-    it('should close job account, refund payer and remove job from the market', async function () {
+    it('can close job account, refund payer and remove job from the market', async function () {
       await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
 
-      let msg;
+      let msg = '';
       await this.jobsProgram.account.jobAccount
         .fetch(this.accounts.job)
         .catch((err: unknown) => (msg = (err as Error).message));
@@ -242,7 +242,7 @@ export default function suite() {
   });
 
   describe('end()', async function () {
-    it('should not end a job without a run account', async function () {
+    it('can not end a job without a run account', async function () {
       let error;
       await this.jobsProgram.methods
         .end()
@@ -267,8 +267,8 @@ export default function suite() {
   });
 
   describe('end()', async function () {
-    it('should not be invoked with incorrect authority', async function () {
-      let msg;
+    it('can not be invoked with incorrect authority', async function () {
+      let msg = '';
       await this.jobsProgram.methods
         .end()
         .accounts({ ...this.accounts, authority: this.users.user2.publicKey })
@@ -279,14 +279,14 @@ export default function suite() {
       expect(msg).to.eq(this.constants.errors.Unauthorized);
     });
 
-    it('should end a running job', async function () {
+    it('can end a running job', async function () {
       await this.jobsProgram.methods.end().accounts(this.accounts).rpc();
 
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
 
       expect(job.state).eq(2);
 
-      let msg;
+      let msg = '';
       await this.jobsProgram.account.runAccount
         .fetch(this.accounts.run)
         .catch((err: unknown) => (msg = (err as Error).message));
@@ -574,7 +574,7 @@ export default function suite() {
       expect(job.account.node.toString()).to.equal(this.accounts.authority.toString());
       expect(job.account.state).to.equal(this.constants.jobState.done);
 
-      this.accounts.job = job.publicKey;
+      this.accounts.job = jobs[2].publicKey;
     });
 
     it('can not clean job too soon', async function () {
