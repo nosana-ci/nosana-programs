@@ -5,9 +5,12 @@
 ```mermaid
 flowchart TB
 
+    project -->| extend  | job
+    project ---| list    | market -->| list   | job
+                           market -->| list   | run
+    project ---| delist  | market -->| delist | job
     project -->| recover | job
-    project ---| list | market -->| list | job
-                        market -->| list | run
+    project ---| end     | run    -->| end    | job
     project -.- nos1 -.-> vault
     vault   -.- nos2 -.-> node
     project -.- nos3 -.-> fee
