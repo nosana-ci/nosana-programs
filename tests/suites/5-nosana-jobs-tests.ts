@@ -762,6 +762,56 @@ export default function suite() {
     });
   });
 
+  describe('stop()', async function () {
+    it('cannot stop working if market is not node queue', async function () {
+      let msg: string;
+
+      await this.jobsProgram.methods
+        .stop()
+        .accounts(this.accounts)
+        .rpc()
+        .catch(({ error: { errorMessage } }) => (msg = errorMessage));
+
+      expect(msg).eq(this.constants.errors.MarketInWrongState);
+    });
+  });
+
+  describe('work()', async function () {
+    it('can work on job, with a new run key', async function () {
+      const key = getRunKey(this);
+
+      await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
+
+      this.market.queueLength += 1;
+      this.market.queueType = this.constants.queueType.node;
+    });
+  });
+
+  describe('stop()', async function () {
+    it('cannot stop if you are not in the market node queue', async function () {
+      let msg: string;
+
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          ...this.accounts,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([this.users.node1.user])
+        .rpc()
+        .catch(({ error: { errorMessage } }) => (msg = errorMessage));
+
+      expect(msg).eq(this.constants.errors.NotInMarketQueue);
+    });
+
+    it('can stop working if market queue is node queue', async function () {
+      await this.jobsProgram.methods.stop().accounts(this.accounts).rpc();
+
+      this.market.queueLength -= 1;
+      this.market.queueType = this.constants.queueType.unknown;
+    });
+  });
+
   describe('update()', async function () {
     it('can update a market', async function () {
       this.market.jobPrice = 100_000 * this.constants.decimals;

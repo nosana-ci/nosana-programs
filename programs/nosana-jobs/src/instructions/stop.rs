@@ -4,7 +4,7 @@ use crate::*;
 pub struct Stop<'info> {
     #[account(
         mut,
-        constraint = market.queue_type == QueueType::Job as u8 @ NosanaJobsError::MarketInWrongState
+        constraint = market.queue_type == QueueType::Node as u8 @ NosanaJobsError::MarketInWrongState
     )]
     pub market: Account<'info, MarketAccount>,
     pub authority: Signer<'info>,
