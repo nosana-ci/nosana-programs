@@ -763,7 +763,7 @@ export default function suite() {
   });
 
   describe('stop()', async function () {
-    it('cannot stop working if market is not node queue', async function () {
+    it('cannot stop if market is in the wrong state', async function () {
       let msg: string;
 
       await this.jobsProgram.methods
@@ -788,7 +788,7 @@ export default function suite() {
   });
 
   describe('stop()', async function () {
-    it('cannot stop if you are not in the market node queue', async function () {
+    it('cannot stop if account is not within the markets node queue', async function () {
       let msg: string;
 
       await this.jobsProgram.methods
@@ -804,7 +804,7 @@ export default function suite() {
       expect(msg).eq(this.constants.errors.NotInMarketQueue);
     });
 
-    it('can stop working if market queue is node queue', async function () {
+    it('can stop working', async function () {
       await this.jobsProgram.methods.stop().accounts(this.accounts).rpc();
 
       this.market.queueLength -= 1;
