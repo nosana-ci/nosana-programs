@@ -768,7 +768,10 @@ export default function suite() {
 
       await this.jobsProgram.methods
         .stop()
-        .accounts(this.accounts)
+        .accounts({
+          ...this.accounts,
+          node: this.accounts.authority,
+        })
         .rpc()
         .catch(({ error: { errorMessage } }) => (msg = errorMessage));
 
@@ -795,6 +798,7 @@ export default function suite() {
         .stop()
         .accounts({
           ...this.accounts,
+          node: this.users.node1.publicKey,
           authority: this.users.node1.publicKey,
         })
         .signers([this.users.node1.user])
@@ -805,7 +809,13 @@ export default function suite() {
     });
 
     it('can stop working', async function () {
-      await this.jobsProgram.methods.stop().accounts(this.accounts).rpc();
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          ...this.accounts,
+          node: this.accounts.authority,
+        })
+        .rpc();
 
       this.market.queueLength -= 1;
       this.market.queueType = this.constants.queueType.unknown;
