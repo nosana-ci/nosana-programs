@@ -820,6 +820,55 @@ export default function suite() {
       this.market.queueLength -= 1;
       this.market.queueType = this.constants.queueType.unknown;
     });
+
+    it('can work and enter the market queue as a node 1', async function () {
+      const node = this.users.node1;
+      const key = getRunKey(this);
+
+      // work
+      await this.jobsProgram.methods
+        .work()
+        .accounts({
+          ...this.accounts,
+          stake: node.stake,
+          nft: node.ataNft,
+          metadata: node.metadata,
+          authority: node.publicKey,
+        })
+        .signers([key, node.user])
+        .rpc();
+
+      // update market
+      this.market.queueType = this.constants.queueType.node;
+      this.market.queueLength += 1;
+    });
+
+    it('can not remove node 1 from the queue, by another node', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          market: this.accounts.market,
+          node: this.users.node1.publicKey,
+          authority: this.users.node2.publicKey,
+        })
+        .signers([this.users.node2.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can remove node 1 from the queue, by the market authority', async function () {
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          ...this.accounts,
+          node: this.users.node1.publicKey,
+        })
+        .rpc();
+      this.market.queueLength -= 1;
+      this.market.queueType = this.constants.queueType.unknown;
+    });
   });
 
   describe('update()', async function () {
