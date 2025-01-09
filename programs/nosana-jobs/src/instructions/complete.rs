@@ -19,8 +19,6 @@ impl<'info> Complete<'info> {
             NosanaJobsError::JobResultNull
         );
 
-        self.job.complete(
-            ipfs_result,
-        )
+        self.job.complete(ipfs_result)
     }
 }
