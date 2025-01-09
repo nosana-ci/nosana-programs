@@ -262,6 +262,20 @@ export default function suite() {
     });
   });
 
+  describe('complete()', async function () {
+    it('cannot complete a running job', async function () {
+      let msg = '';
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.eq(this.constants.errors.JobInWrongState);
+    });
+  });
+
   describe('end()', async function () {
     it('can not be invoked with incorrect authority', async function () {
       let msg = '';
@@ -292,6 +306,36 @@ export default function suite() {
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user += deposit;
       this.balances.vaultJob -= deposit;
+    });
+  });
+
+  describe('complete()', async function () {
+    it('cannot complete a job without being the node', async function () {
+      let msg = '';
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts({ ...this.accounts, authority: this.users.user2.publicKey })
+        .signers([this.users.user2.user])
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.eq(this.constants.errors.Unauthorized);
+    });
+
+    it('can complete a job', async function () {
+      const jobBefore = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => console.error(err));
+
+      const jobAfter = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+
+      expect(jobBefore.ipfsResult).not.eq(this.constants.ipfsData);
+      expect(jobAfter.ipfsResult).not.eq(this.constants.ipfsData);
     });
   });
 
@@ -507,6 +551,20 @@ export default function suite() {
     it('can fetch a finished job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
+    });
+  });
+
+  describe('complete()', async function () {
+    it('cannot complete a finished job that contains results', async function () {
+      let msg = '';
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.eq(this.constants.errors.JobResultsAlreadySet);
     });
   });
 
