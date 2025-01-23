@@ -596,11 +596,12 @@ Exit the node queue from [MarketAccount](#market-account).
 
 #### Account Info
 
-The following 2 account addresses should be provided when invoking this instruction.
+The following 3 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `node`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The node that runs this job.                                                                      |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 
@@ -624,6 +625,7 @@ let tx = await program.methods
   .stop()
   .accounts({
     market,            // ✓ writable, 𐄂 signer
+    node,              // 𐄂 writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
   .signers([authorityKey])
