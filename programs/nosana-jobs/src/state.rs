@@ -214,18 +214,17 @@ impl JobAccount {
         self.node = node;
     }
 
+    pub fn complete(&mut self, ipfs_result: [u8; 32]) -> Result<()> {
+        self.ipfs_result = ipfs_result;
+        Ok(())
+    }
+
     pub fn finish(&mut self, ipfs_result: [u8; 32], node: Pubkey, time_end: i64, time_start: i64) {
         self.ipfs_result = ipfs_result;
         self.node = node;
         self.state = JobState::Done as u8;
         self.time_end = time_end;
         self.time_start = time_start;
-    }
-
-    pub fn publish_results(&mut self, ipfs_result: [u8; 32], node: Pubkey) -> Result<()> {
-        self.ipfs_result = ipfs_result;
-        self.node = node;
-        Ok(())
     }
 
     pub fn get_deposit(&self, timeout: i64) -> u64 {

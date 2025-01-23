@@ -29,6 +29,8 @@ pub enum NosanaJobsError {
     JobTimeoutNotGreater,
     #[msg("The run account does not match the job.")]
     JobInvalidRunAccount,
+    #[msg("The job results are already set.")]
+    JobResultsAlreadySet,
 
     // node errors
     #[msg("This node queue does not match.")]
