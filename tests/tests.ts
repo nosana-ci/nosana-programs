@@ -18,7 +18,6 @@ import rewardInitTests from './suites/3-nosana-rewards-init-tests';
 import poolTests from './suites/4-nosana-pools-tests';
 import jobTests from './suites/5-nosana-jobs-tests';
 import nodesTests from './suites/6-nosana-nodes-tests';
-import jobAssignTests from './suites/scenario/assign-jobs';
 
 // local test scenarios
 import rewardScenario from './suites/scenario/rewards-tests';
@@ -136,12 +135,6 @@ describe('nosana programs', async function () {
       describe('staking', stakingInitTests);
       describe('rewards', rewardInitTests);
       describe('jobs', jobTests);
-      break;
-    case 'job-assign':
-      describe('initialization', initTests);
-      describe('staking', stakingInitTests);
-      describe('rewards', rewardInitTests);
-      describe('jobs', jobAssignTests);
       break;
     case 'nodes':
       describe('initialization', initTests);
