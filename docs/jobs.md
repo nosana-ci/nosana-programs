@@ -8,15 +8,15 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`4`](#accounts)                                                                                                                    |
-| Instructions    | [`17`](#instructions)                                                                                                               |
+| Instructions    | [`18`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
-| Errors          | [`18`](#errors)                                                                                                                     |
+| Errors          | [`19`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
 |  Address        | [`nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM`](https://explorer.solana.com/address/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)    |
 
 ## Instructions
 
-A number of 17 instruction are defined in the Nosana Jobs program.
+A number of 18 instruction are defined in the Nosana Jobs program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -596,11 +596,12 @@ Exit the node queue from [MarketAccount](#market-account).
 
 #### Account Info
 
-The following 2 account addresses should be provided when invoking this instruction.
+The following 3 account addresses should be provided when invoking this instruction.
 
 | Name                   | Type                                                                                    | Description                                                                                       |
 |------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `node`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The node that runs this job.                                                                      |
 | `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
 
 
@@ -624,6 +625,7 @@ let tx = await program.methods
   .stop()
   .accounts({
     market,            // ✓ writable, 𐄂 signer
+    node,              // 𐄂 writable, 𐄂 signer
     authority,         // 𐄂 writable, ✓ signer
   })
   .signers([authorityKey])
@@ -681,6 +683,56 @@ let tx = await program.methods
     systemProgram,     // 𐄂 writable, 𐄂 signer
   })
   .signers([runKey, payerKey, authorityKey])
+  .rpc();
+```
+
+### Complete
+
+Complete a job that has been [stopped](#stop).
+
+#### Account Info
+
+The following 2 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+
+#### Arguments
+
+The following 1 arguments should also be provided when invoking this instruction.
+
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `ipfsResult`           | `["u8",32]`       | `32`    | `0`     | The byte array representing the IPFS hash to the results. |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Complete Instruction
+is **`004de0938819584c`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[0,77,224,147,136,25,88,76]
+```
+
+#### Example with Anchor
+
+To invoke the Complete Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .complete(
+    ipfsResult,        // type: ["u8",32]
+  )
+  .accounts({
+    job,               // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+  })
+  .signers([authorityKey])
   .rpc();
 ```
 
@@ -1050,7 +1102,7 @@ A number of 6 variants are defined in this `enum`:
 
 ## Errors
 
-A number of 18 errors are defined in the Nosana Jobs Program.
+A number of 19 errors are defined in the Nosana Jobs Program.
 
 ### `6000` - Invalid Market Account
 
@@ -1092,34 +1144,38 @@ The new job timeout should be larger than the current one.
 
 The run account does not match the job.
 
-### `6010` - Node Queue Does Not Match
+### `6010` - Job Results Already Set
+
+The job results are already set.
+
+### `6011` - Node Queue Does Not Match
 
 This node queue does not match.
 
-### `6011` - Node Stake Unauthorized
+### `6012` - Node Stake Unauthorized
 
 This node is not authorizing this stake.
 
-### `6012` - Node Not Enough Stake
+### `6013` - Node Not Enough Stake
 
 This node has not staked enough tokens.
 
-### `6013` - Node Already Queued
+### `6014` - Node Already Queued
 
 This node is already present in the queue.
 
-### `6014` - Node Nft Wrong Metadata
+### `6015` - Node Nft Wrong Metadata
 
 This metadata does not have the correct address.
 
-### `6015` - Node Nft Wrong Owner
+### `6016` - Node Nft Wrong Owner
 
 This NFT is not owned by this node.
 
-### `6016` - Node Nft Invalid Amount
+### `6017` - Node Nft Invalid Amount
 
 Access NFT amount cannot be 0.
 
-### `6017` - Node Key Invalid Collection
+### `6018` - Node Key Invalid Collection
 
 This access key does not belong to a verified collection.

@@ -122,6 +122,11 @@ pub mod nosana_jobs {
         ctx.accounts.handler()
     }
 
+    /// Complete a job that has been [stopped](#stop).
+    pub fn complete(ctx: Context<Complete>, ipfs_result: [u8; 32]) -> Result<()> {
+        ctx.accounts.handler(ipfs_result)
+    }
+
     /// Post the result for a  [JobAccount](#job-account) to finish it and get paid.
     pub fn finish(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
         ctx.accounts.handler(ipfs_result)

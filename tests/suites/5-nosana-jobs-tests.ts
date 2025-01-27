@@ -358,6 +358,20 @@ export default function suite() {
     });
   });
 
+  describe('complete()', async function () {
+    it('cannot complete a running job', async function () {
+      let msg = '';
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.eq(this.constants.errors.JobInWrongState);
+    });
+  });
+
   describe('end()', async function () {
     it('can not be invoked with incorrect authority', async function () {
       let msg = '';
@@ -388,6 +402,36 @@ export default function suite() {
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user += deposit;
       this.balances.vaultJob -= deposit;
+    });
+  });
+
+  describe('complete()', async function () {
+    it('cannot complete a job without being the node', async function () {
+      let msg = '';
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts({ ...this.accounts, authority: this.users.user2.publicKey })
+        .signers([this.users.user2.user])
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.eq(this.constants.errors.Unauthorized);
+    });
+
+    it('can complete a job', async function () {
+      const jobBefore = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => console.error(err));
+
+      const jobAfter = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+
+      expect(jobBefore.ipfsResult).not.eq(this.constants.ipfsData);
+      expect(jobAfter.ipfsResult).not.eq(this.constants.ipfsData);
     });
   });
 
@@ -603,6 +647,20 @@ export default function suite() {
     it('can fetch a finished job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(buf2hex(job.ipfsJob)).to.equal(buf2hex(this.constants.ipfsData));
+    });
+  });
+
+  describe('complete()', async function () {
+    it('cannot complete a finished job that contains results', async function () {
+      let msg = '';
+
+      await this.jobsProgram.methods
+        .complete(this.constants.ipfsData)
+        .accounts(this.accounts)
+        .rpc()
+        .catch((err) => (msg = err.error.errorMessage));
+
+      expect(msg).to.eq(this.constants.errors.JobResultsAlreadySet);
     });
   });
 
@@ -864,7 +922,10 @@ export default function suite() {
 
       await this.jobsProgram.methods
         .stop()
-        .accounts(this.accounts)
+        .accounts({
+          ...this.accounts,
+          node: this.accounts.authority,
+        })
         .rpc()
         .catch(({ error: { errorMessage } }) => (msg = errorMessage));
 
@@ -891,6 +952,7 @@ export default function suite() {
         .stop()
         .accounts({
           ...this.accounts,
+          node: this.users.node1.publicKey,
           authority: this.users.node1.publicKey,
         })
         .signers([this.users.node1.user])
@@ -901,8 +963,63 @@ export default function suite() {
     });
 
     it('can stop working', async function () {
-      await this.jobsProgram.methods.stop().accounts(this.accounts).rpc();
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          ...this.accounts,
+          node: this.accounts.authority,
+        })
+        .rpc();
 
+      this.market.queueLength -= 1;
+      this.market.queueType = this.constants.queueType.unknown;
+    });
+
+    it('can work and enter the market queue as a node 1', async function () {
+      const node = this.users.node1;
+      const key = getRunKey(this);
+
+      // work
+      await this.jobsProgram.methods
+        .work()
+        .accounts({
+          ...this.accounts,
+          stake: node.stake,
+          nft: node.ataNft,
+          metadata: node.metadata,
+          authority: node.publicKey,
+        })
+        .signers([key, node.user])
+        .rpc();
+
+      // update market
+      this.market.queueType = this.constants.queueType.node;
+      this.market.queueLength += 1;
+    });
+
+    it('can not remove node 1 from the queue, by another node', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          market: this.accounts.market,
+          node: this.users.node1.publicKey,
+          authority: this.users.node2.publicKey,
+        })
+        .signers([this.users.node2.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can remove node 1 from the queue, by the market authority', async function () {
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          ...this.accounts,
+          node: this.users.node1.publicKey,
+        })
+        .rpc();
       this.market.queueLength -= 1;
       this.market.queueType = this.constants.queueType.unknown;
     });

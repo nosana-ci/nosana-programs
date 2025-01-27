@@ -108,6 +108,7 @@ const constants = {
     JobNotExpired: 'The job has not yet expired.',
     JobSeedAddressViolation: 'This JobAccount seed is not allowed.',
     JobResultNull: 'The job result can not be null.',
+    JobResultsAlreadySet: 'The job results are already set.',
     JobTimeoutNotGreater: 'The new job timeout should be larger than the current one.',
     RunConstraintNotSatisfied: 'This RunAccount constraint is not satisfied. Use a new or dummy account only.',
 
