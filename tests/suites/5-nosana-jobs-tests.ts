@@ -155,6 +155,7 @@ export default function suite() {
         .stop()
         .accounts({
           ...this.accounts,
+          node: this.users.node1.publicKey,
           authority: this.users.node1.publicKey,
         })
         .signers([this.users.node1.user])
