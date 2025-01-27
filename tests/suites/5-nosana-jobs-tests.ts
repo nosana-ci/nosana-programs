@@ -70,6 +70,102 @@ export default function suite() {
     });
   });
 
+  describe('work()', async function () {
+    it('add node1 to market queue', async function () {
+      const key = getRunKey(this);
+
+      await this.jobsProgram.methods
+        .work()
+        .accounts({
+          ...this.accounts,
+          stake: this.users.node1.stake,
+          nft: this.users.node1.ataNft,
+          metadata: this.users.node1.metadata,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([key, this.users.node1.user])
+        .rpc();
+
+      this.market.queueLength += 1;
+      this.market.queueType = this.constants.queueType.node;
+    });
+  });
+
+  describe('assign()', async function () {
+    it('should not be able to assign jobs to nodes that are not in the market queue', async function () {
+      let msg = '';
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .assign(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+
+      expect(msg).to.equal(this.constants.errors.NotInMarketQueue);
+    });
+  });
+
+  describe('work()', async function () {
+    it('add a second node to the market queue', async function () {
+      const key = getRunKey(this);
+
+      await this.jobsProgram.methods.work().accounts(this.accounts).signers([key]).rpc();
+
+      this.market.queueLength += 1;
+      this.market.queueType = this.constants.queueType.node;
+    });
+  });
+
+  describe('assign()', async function () {
+    it('should create and assign a job directly to the node removing them from the market queue', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+
+      await this.jobsProgram.methods
+        .assign(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts({ ...this.accounts, node: this.accounts.authority })
+        .signers([jobKey, runKey])
+        .rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.vaultJob += deposit;
+
+      // update market;
+      this.market.queueLength -= 1;
+    });
+  });
+
+  describe('finish', async function () {
+    it('can finish the last job in the market', async function () {
+      await this.jobsProgram.methods.finish(this.constants.ipfsData).accounts(this.accounts).rpc();
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
+    });
+  });
+
+  describe('stop()', async function () {
+    it('remove node1 from market', async function () {
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({
+          ...this.accounts,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([this.users.node1.user])
+        .rpc();
+
+      // update market;
+      this.market.queueLength -= 1;
+      this.market.queueType = this.constants.queueType.unknown;
+    });
+  });
+
   describe('list()', async function () {
     it('can list a job when there are no nodes', async function () {
       const jobKey = getNewJobKey(this);
@@ -563,7 +659,7 @@ export default function suite() {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
       const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '3' } }]);
 
-      expect(jobs.length).to.equal(3);
+      expect(jobs.length).to.equal(4);
 
       const job = jobs[0];
 

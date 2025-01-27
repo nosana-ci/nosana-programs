@@ -20,7 +20,7 @@ pub struct Assign<'info> {
         constraint = run.lamports() == 0 @NosanaError::LamportsNonNull
     )]
     pub run: AccountInfo<'info>,
-    /// CHECK: I need to work out how to import the NodeAccount type from nosana-nodes
+    /// CHECK: this is the node to assign the job to
     pub node: AccountInfo<'info>,
     #[account(mut)]
     pub user: Account<'info, TokenAccount>,
@@ -40,27 +40,28 @@ pub struct Assign<'info> {
 
 impl<'info> Assign<'info> {
     pub fn handler(&mut self, ipfs_job: [u8; 32], timeout: i64) -> Result<()> {
-        // create the job
-        self.job.create(
-            ipfs_job,
-            self.market.key(),
-            self.payer.key(),
-            self.market.job_price,
-            self.authority.key(),
-            timeout,
-        );
-
-        // remove node from queue and assign job
+        // remove node from queue, create job and directly assign node to run account
         match self.market.remove_from_queue(&self.node.key()) {
-            Ok(_) => RunAccount::initialize(
+            Ok(_) => {
+                // create the job
+                self.job.create(
+                    ipfs_job,
+                    self.market.key(),
+                    self.payer.key(),
+                    self.market.job_price,
+                    self.authority.key(),
+                    timeout,
+                );
+                RunAccount::initialize(
                     self.payer.to_account_info(),
                     self.run.to_account_info(),
                     self.system_program.to_account_info(),
                     self.job.key(),
                     self.node.key(),
-                ),
-            Err(err) => Err(err),
-        }?;
+                )?;
+            }
+            Err(err) => Err(err)?,
+        }
 
         if self.job.price == 0 {
             return Ok(());
