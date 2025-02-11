@@ -12,14 +12,8 @@ pub struct Assign<'info> {
         constraint = market.queue_type == QueueType::Node as u8 @ NosanaJobsError::MarketInWrongState
     )]
     pub market: Box<Account<'info, MarketAccount>>,
-    /// CHECK: the run account is created optionally
-    #[account(
-    mut,
-        signer @ NosanaError::MissingSignature,
-        owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
-        constraint = run.lamports() == 0 @ NosanaError::LamportsNonNull
-    )]
-    pub run: AccountInfo<'info>,
+    #[account(init, payer = payer, space = RunAccount::SIZE)]
+    pub run: Account<'info, RunAccount>,
     /// CHECK: this is the node to assign the job to
     pub node: AccountInfo<'info>,
     #[account(mut)]
@@ -52,12 +46,11 @@ impl<'info> Assign<'info> {
                     self.authority.key(),
                     timeout,
                 );
-                RunAccount::initialize(
-                    self.payer.to_account_info(),
-                    self.run.to_account_info(),
-                    self.system_program.to_account_info(),
+                self.run.create(
                     self.job.key(),
                     self.node.key(),
+                    self.payer.key(),
+                    Clock::get()?.unix_timestamp,
                 )?;
             }
             Err(err) => Err(err)?,
