@@ -1,5 +1,6 @@
 //! Instructions for Nosana Jobs.
 
+pub mod assign;
 pub mod claim;
 pub mod clean;
 pub mod clean_admin;
@@ -19,6 +20,7 @@ pub mod stop;
 pub mod update;
 pub mod work;
 
+pub use assign::*;
 pub use claim::*;
 pub use clean::*;
 pub use clean_admin::*;

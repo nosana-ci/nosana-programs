@@ -73,6 +73,11 @@ pub mod nosana_jobs {
      Project Instructions
     */
 
+    /// Create a [JobAccount](#job-account) and optional [RunAccount](#run-account) with node assigned.
+    pub fn assign(ctx: Context<Assign>, ipfs_job: [u8; 32], timeout: i64) -> Result<()> {
+        ctx.accounts.handler(ipfs_job, timeout)
+    }
+
     /// Create a [JobAccount](#job-account) and optional [RunAccount](#run-account).
     pub fn list(ctx: Context<List>, ipfs_job: [u8; 32], timeout: i64) -> Result<()> {
         ctx.accounts.handler(ipfs_job, timeout)

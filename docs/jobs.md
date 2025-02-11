@@ -8,7 +8,7 @@
 | Source Code     | [GitHub](https://github.com/nosana-ci/nosana-programs)                                                                              |
 | Build Status    | [Anchor Verified](https://www.apr.dev/program/nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM)                                          |
 | Accounts        | [`4`](#accounts)                                                                                                                    |
-| Instructions    | [`18`](#instructions)                                                                                                               |
+| Instructions    | [`19`](#instructions)                                                                                                               |
 | Types           | [`3`](#types)                                                                                                                       |
 | Errors          | [`19`](#errors)                                                                                                                     |
 | Domain          | `nosana-jobs.sol`                                                                                                                   |
@@ -16,7 +16,7 @@
 
 ## Instructions
 
-A number of 18 instruction are defined in the Nosana Jobs program.
+A number of 19 instruction are defined in the Nosana Jobs program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -245,6 +245,80 @@ let tx = await program.methods
     tokenProgram,      // 𐄂 writable, 𐄂 signer
   })
   .signers([authorityKey])
+  .rpc();
+```
+
+### Assign
+
+Create a [JobAccount](#job-account) and optional [RunAccount](#run-account) with node assigned.
+
+#### Account Info
+
+The following 13 account addresses should be provided when invoking this instruction.
+
+| Name                   | Type                                                                                    | Description                                                                                       |
+|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [JobAccount](#job-account) address.                                                           |
+| `market`               | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [MarketAccount](#market-account) address.                                                     |
+| `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [RunAccount](#run-account) address.                                                           |
+| `node`                 | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The node that runs this job.                                                                      |
+| `user`                 | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The user token account that will debit/credit the tokens.                                         |
+| `vault`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [VaultAccount](#vault-account) address.                                                       |
+| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The paying identy for the rent.                                                                   |
+| `rewardsReflection`    | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [ReflectionAccount](/programs/rewards#reflection-account) address.   |
+| `rewardsVault`         | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The Nosana Rewards Program's [VaultAccount](/programs/rewards#vault-account) address.             |
+| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
+| `rewardsProgram`       | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [Nosana Rewards](/programs/rewards) Program address.                                          |
+| `tokenProgram`         | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official SPL Token Program address. Responsible for token CPIs.                               |
+| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
+
+#### Arguments
+
+The following 2 arguments should also be provided when invoking this instruction.
+
+| Name                   | Type              | Size    | Offset  | Description                                               |
+|------------------------|-------------------|---------|---------|-----------------------------------------------------------|
+| `ipfsJob`              | `["u8",32]`       | `32`    | `0`     | The byte array representing the IPFS hash to the job.     |
+| `timeout`              | `i64`             | `16`    | `32`    | The timeout time in seconds for a job.                    |
+
+
+#### Solana Dispatch ID
+
+The Solana dispatch ID for the Assign Instruction
+is **`49427dcb51294087`**,
+which can also be expressed as an 8 byte discriminator:
+
+```json
+[73,66,125,203,81,41,64,135]
+```
+
+#### Example with Anchor
+
+To invoke the Assign Instruction
+with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
+
+```typescript
+let tx = await program.methods
+  .assign(
+    ipfsJob,           // type: ["u8",32]
+    timeout,           // type: i64
+  )
+  .accounts({
+    job,               // ✓ writable, ✓ signer
+    market,            // ✓ writable, 𐄂 signer
+    run,               // ✓ writable, ✓ signer
+    node,              // 𐄂 writable, 𐄂 signer
+    user,              // ✓ writable, 𐄂 signer
+    vault,             // ✓ writable, 𐄂 signer
+    payer,             // ✓ writable, ✓ signer
+    rewardsReflection, // ✓ writable, 𐄂 signer
+    rewardsVault,      // ✓ writable, 𐄂 signer
+    authority,         // 𐄂 writable, ✓ signer
+    rewardsProgram,    // 𐄂 writable, 𐄂 signer
+    tokenProgram,      // 𐄂 writable, 𐄂 signer
+    systemProgram,     // 𐄂 writable, 𐄂 signer
+  })
+  .signers([jobKey, runKey, payerKey, authorityKey])
   .rpc();
 ```
 
