@@ -9,7 +9,7 @@ pub struct Assign<'info> {
     #[account(
         mut,
         has_one = vault @ NosanaError::InvalidVault,
-        constraint = market.queue_type == QueueType::Node as u8 @NosanaJobsError::MarketInWrongState
+        constraint = market.queue_type == QueueType::Node as u8 @ NosanaJobsError::MarketInWrongState
     )]
     pub market: Box<Account<'info, MarketAccount>>,
     /// CHECK: the run account is created optionally
@@ -17,7 +17,7 @@ pub struct Assign<'info> {
     mut,
         signer @ NosanaError::MissingSignature,
         owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
-        constraint = run.lamports() == 0 @NosanaError::LamportsNonNull
+        constraint = run.lamports() == 0 @ NosanaError::LamportsNonNull
     )]
     pub run: AccountInfo<'info>,
     /// CHECK: this is the node to assign the job to
