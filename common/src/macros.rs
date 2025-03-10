@@ -19,7 +19,7 @@ macro_rules! security_txt {
 #[macro_export]
 macro_rules! transfer_tokens_to_vault {
     ($accounts: expr, $amount: expr) => {
-        cpi::transfer_tokens(
+        nosana_common::cpi::transfer_tokens(
             $accounts.token_program.to_account_info(),
             $accounts.user.to_account_info(),
             $accounts.vault.to_account_info(),
@@ -33,7 +33,7 @@ macro_rules! transfer_tokens_to_vault {
 #[macro_export]
 macro_rules! transfer_tokens_from_vault {
     ($accounts: expr, $to: ident, $seeds: expr, $amount: expr) => {
-        cpi::transfer_tokens(
+        nosana_common::cpi::transfer_tokens(
             $accounts.token_program.to_account_info(),
             $accounts.vault.to_account_info(),
             $accounts.$to.to_account_info(),
@@ -47,7 +47,7 @@ macro_rules! transfer_tokens_from_vault {
 #[macro_export]
 macro_rules! close_vault {
     ($accounts: expr, $seeds: expr) => {
-        cpi::close_token_account(
+        nosana_common::cpi::close_token_account(
             $accounts.token_program.to_account_info(),
             $accounts.vault.to_account_info(),
             $accounts.authority.to_account_info(),
