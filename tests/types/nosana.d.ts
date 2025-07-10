@@ -85,6 +85,7 @@ type NosanaAccounts = {
   // main user
   authority: PublicKey;
   payer: PublicKey;
+  payerRun: PublicKey;
   project: PublicKey;
 
   // token
