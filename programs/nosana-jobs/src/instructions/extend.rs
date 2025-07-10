@@ -27,12 +27,11 @@ pub struct Extend<'info> {
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     #[account(mut)]
-    pub payer: Signer<'info>,
-    #[account(mut)]
     pub rewards_reflection: Account<'info, ReflectionAccount>,
     #[account(mut)]
     pub rewards_vault: Account<'info, TokenAccount>,
     pub authority: Signer<'info>,
+    pub payer: Signer<'info>,
     pub rewards_program: Program<'info, NosanaRewards>,
     pub token_program: Program<'info, Token>,
 }
