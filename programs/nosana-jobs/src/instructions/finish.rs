@@ -9,7 +9,7 @@ pub struct Finish<'info> {
     #[account(
         mut,
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
-        has_one = payer @ NosanaJobsError::InvalidPayer,
+        has_one = payer @ NosanaError::InvalidPayer,
     )]
     pub job: Box<Account<'info, JobAccount>>,
     #[account(
