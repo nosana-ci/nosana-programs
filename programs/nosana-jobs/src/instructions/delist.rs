@@ -1,5 +1,8 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::{
+    associated_token::get_associated_token_address,
+    token::{Token, TokenAccount},
+};
 
 #[derive(Accounts)]
 pub struct Delist<'info> {
@@ -20,7 +23,9 @@ pub struct Delist<'info> {
     pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
+        constraint = job.price == 0 ||
+            deposit.key() == get_associated_token_address(payer.key, &id::NOS_TOKEN)
+            @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the job account

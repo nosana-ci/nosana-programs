@@ -24,7 +24,9 @@ pub struct End<'info> {
     pub run: Account<'info, RunAccount>,
     #[account(
         mut,
-        constraint = job.price == 0 || deposit.mint == id::NOS_TOKEN @ NosanaError::InvalidATA
+        constraint = job.price == 0 ||
+            deposit.key() == get_associated_token_address(payer.key, &id::NOS_TOKEN)
+            @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
     #[account(

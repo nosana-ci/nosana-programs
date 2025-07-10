@@ -31,6 +31,20 @@ macro_rules! transfer_tokens_to_vault {
 }
 
 #[macro_export]
+macro_rules! transfer_tokens_to_vault_with_signer {
+    ($accounts: expr, $signer: ident, $amount: expr) => {
+        cpi::transfer_tokens(
+            $accounts.token_program.to_account_info(),
+            $accounts.user.to_account_info(),
+            $accounts.vault.to_account_info(),
+            $accounts.$signer.to_account_info(),
+            &[],
+            $amount,
+        )
+    };
+}
+
+#[macro_export]
 macro_rules! transfer_tokens_from_vault {
     ($accounts: expr, $to: ident, $seeds: expr, $amount: expr) => {
         cpi::transfer_tokens(

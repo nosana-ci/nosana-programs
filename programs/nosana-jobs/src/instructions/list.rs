@@ -1,5 +1,8 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::{
+    associated_token::get_associated_token_address,
+    token::{Token, TokenAccount},
+};
 use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, ReflectionAccount};
 
 #[derive(Accounts)]
@@ -16,7 +19,12 @@ pub struct List<'info> {
         constraint = run.lamports() == 0 @ NosanaError::LamportsNonNull
     )]
     pub run: AccountInfo<'info>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = market.job_price == 0 ||
+            user.key() == get_associated_token_address(payer.key, &id::NOS_TOKEN)
+            @ NosanaError::InvalidATA
+    )]
     pub user: Account<'info, TokenAccount>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
@@ -62,7 +70,7 @@ impl<'info> List<'info> {
 
         // deposit job payment and transfer network fee
         let (deposit, fee) = self.job.get_deposit_and_fee(timeout);
-        transfer_tokens_to_vault!(self, deposit)?;
-        transfer_fee!(self, user, authority, &[], fee)
+        transfer_tokens_to_vault_with_signer!(self, payer, deposit)?;
+        transfer_fee!(self, user, payer, &[], fee)
     }
 }
