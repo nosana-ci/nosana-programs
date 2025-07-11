@@ -99,6 +99,7 @@ describe('nosana programs', async function () {
     this.accounts.authority = this.publicKey;
     this.accounts.payer = this.publicKey;
     this.accounts.payerRun = this.publicKey;
+    this.accounts.payerJob = this.publicKey;
     this.accounts.project = this.publicKey;
     this.accounts.mint = this.mint;
     this.accounts.user = await getAssociatedTokenAddress(this.mint, this.publicKey);

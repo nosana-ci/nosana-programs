@@ -1026,29 +1026,7 @@ export default function suite() {
     });
   });
 
-  describe('update()', async function () {
-    it('can update a market', async function () {
-      this.market.jobPrice = 100_000 * this.constants.decimals;
-      this.market.nodeStakeMinimum = 1_000_000 * this.constants.decimals;
-      this.market.jobType = this.constants.jobType.gpu;
-      this.market.nodeAccessKey = this.accounts.systemProgram;
-      this.market.jobTimeout = 2 * this.market.jobTimeout;
 
-      await this.jobsProgram.methods
-        .update(
-          new BN(this.market.jobExpiration),
-          new BN(this.market.jobPrice),
-          this.market.jobType,
-          new BN(this.market.nodeStakeMinimum),
-          new BN(this.market.jobTimeout),
-        )
-        .accounts({
-          ...this.accounts,
-          accessKey: this.market.nodeAccessKey,
-        })
-        .rpc();
-    });
-  });
 
   describe('recover()', async function () {
     it('can not recover the funds from another project', async function () {
@@ -1073,6 +1051,197 @@ export default function suite() {
     });
   });
 
+  describe('different payer scenarios', async function () {
+    describe('setup for different payer tests', async function () {
+      it('setup user2 for different payer tests', async function () {
+        // Initialize balances for user2 (our different payer)
+        this.balances.user2 = await getTokenBalance(this.provider, this.users.user2.ata);
+      });
+    });
+
+    describe('list() with different payer', async function () {
+      it('can list a job where user2 pays but authority is the project owner', async function () {
+        const jobKey = getNewJobKey(this);
+        const runKey = getRunKey(this);
+
+        // user2 is the payer, but authority remains the project owner
+        await this.jobsProgram.methods
+          .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+          .accounts({
+            ...this.accounts,
+            payer: this.users.user2.publicKey,
+            user: this.users.user2.ata,
+            authority: this.accounts.authority, // project owner remains the same
+          })
+          .signers([jobKey, runKey, this.users.user2.user])
+          .rpc();
+
+        // update balances - user2 should pay, not the original user
+        const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+        this.balances.user2 -= deposit;
+        this.balances.user2 -= deposit / this.constants.feePercentage;
+        this.balances.vaultJob += deposit;
+
+        // verify the original user's balance is unchanged
+        expect(await getTokenBalance(this.provider, this.accounts.user)).to.equal(this.balances.user);
+
+        // verify user2's balance has changed
+        expect(await getTokenBalance(this.provider, this.users.user2.ata)).to.equal(this.balances.user2);
+
+        // update market
+        this.market.queueType = this.constants.queueType.job;
+        this.market.queueLength += 1;
+      });
+
+      it('can verify job is owned by the correct authority, not the payer', async function () {
+        const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+
+        // Job should be owned by the authority, not the payer
+        expect(job.project.toString()).to.equal(this.accounts.authority.toString());
+        expect(job.project.toString()).to.not.equal(this.users.user2.publicKey.toString());
+
+        // But the payer should be recorded as user2
+        expect(job.payer.toString()).to.equal(this.users.user2.publicKey.toString());
+      });
+
+      it('can only delist job as the authority, not the payer', async function () {
+        let msg = '';
+
+        // user2 (payer) should not be able to delist
+        await this.jobsProgram.methods
+          .delist()
+          .accounts({
+            ...this.accounts,
+            payer: this.users.user2.publicKey,
+            deposit: this.users.user2.ata,
+            authority: this.users.user2.publicKey,
+          })
+          .signers([this.users.user2.user])
+          .rpc()
+          .catch((err) => (msg = err.error.errorMessage));
+
+        expect(msg).to.equal(this.constants.errors.Unauthorized);
+
+        // authority should be able to delist
+        await this.jobsProgram.methods
+          .delist()
+          .accounts({
+            ...this.accounts,
+            payer: this.users.user2.publicKey,
+            deposit: this.users.user2.ata
+          })
+          .rpc();
+
+        // verify user2 gets refunded (as the payer)
+        const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+        this.balances.user2 += deposit;
+        this.balances.vaultJob -= deposit;
+
+        expect(await getTokenBalance(this.provider, this.users.user2.ata)).to.equal(this.balances.user2);
+
+        // update market
+        this.market.queueType = this.constants.queueType.unknown;
+        this.market.queueLength -= 1;
+      });
+    });
+
+    describe('extend() with different payer', async function () {
+      it('can list a job with user2 as payer', async function () {
+        const jobKey = getNewJobKey(this);
+        const runKey = getRunKey(this);
+
+        await this.jobsProgram.methods
+          .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+          .accounts({
+            ...this.accounts,
+            payer: this.users.user2.publicKey,
+            user: this.users.user2.ata,
+            authority: this.accounts.authority,
+          })
+          .signers([jobKey, runKey, this.users.user2.user])
+          .rpc();
+
+        // update balances
+        const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+        this.balances.user2 -= deposit;
+        this.balances.user2 -= deposit / this.constants.feePercentage;
+        this.balances.vaultJob += deposit;
+
+        // update market
+        this.market.queueType = this.constants.queueType.job;
+        this.market.queueLength += 1;
+      });
+
+      it('can extend job timeout and charge the original payer', async function () {
+        await this.jobsProgram.methods
+          .extend(new BN(this.constants.jobTimeout + this.constants.jobExtendTimeout))
+          .accounts({
+            ...this.accounts,
+            payer: this.users.user2.publicKey,
+            user: this.users.user2.ata,
+          })
+          .signers([this.users.user2.user])
+          .rpc();
+
+        // update balances - user2 should pay for extension
+        const topup = this.constants.jobPrice * this.constants.jobExtendTimeout;
+        this.balances.user2 -= topup;
+        this.balances.user2 -= topup / this.constants.feePercentage;
+        this.balances.vaultJob += topup;
+
+        expect(await getTokenBalance(this.provider, this.users.user2.ata)).to.equal(this.balances.user2);
+      });
+
+      it('can work on extended job and finish it', async function () {
+        const workKey = getRunKey(this);
+        await this.jobsProgram.methods.work().accounts(this.accounts).signers([workKey]).rpc();
+
+        // update market
+        this.market.queueLength -= 1;
+        this.market.queueType = this.constants.queueType.unknown;
+        // make sure we take entire job timeout
+        await sleep(this.constants.jobTimeout + this.constants.jobExtendTimeout);
+        // finish the job
+        await this.jobsProgram.methods.finish(this.constants.ipfsData)
+          .accounts(
+            {
+              ...this.accounts,
+              payerJob: this.users.user2.publicKey,
+              deposit: this.users.user2.ata
+            })
+          .rpc();
+
+        const deposit = this.constants.jobPrice * (this.constants.jobTimeout + this.constants.jobExtendTimeout);
+
+        this.balances.user += deposit;
+        this.balances.vaultJob -= deposit;
+      });
+    });
+  });
+
+  describe('update()', async function () {
+    it('can update a market', async function () {
+      this.market.jobPrice = 100_000 * this.constants.decimals;
+      this.market.nodeStakeMinimum = 1_000_000 * this.constants.decimals;
+      this.market.jobType = this.constants.jobType.gpu;
+      this.market.nodeAccessKey = this.accounts.systemProgram;
+      this.market.jobTimeout = 2 * this.market.jobTimeout;
+
+      await this.jobsProgram.methods
+        .update(
+          new BN(this.market.jobExpiration),
+          new BN(this.market.jobPrice),
+          this.market.jobType,
+          new BN(this.market.nodeStakeMinimum),
+          new BN(this.market.jobTimeout),
+        )
+        .accounts({
+          ...this.accounts,
+          accessKey: this.market.nodeAccessKey,
+        })
+        .rpc();
+    });
+  });
   describe('close()', async function () {
     /*
     it('can not close a market when there are tokens left', async function () {
