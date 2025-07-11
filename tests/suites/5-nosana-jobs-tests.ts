@@ -1026,8 +1026,6 @@ export default function suite() {
     });
   });
 
-
-
   describe('recover()', async function () {
     it('can not recover the funds from another project', async function () {
       let msg = '';
@@ -1128,7 +1126,7 @@ export default function suite() {
           .accounts({
             ...this.accounts,
             payer: this.users.user2.publicKey,
-            deposit: this.users.user2.ata
+            deposit: this.users.user2.ata,
           })
           .rpc();
 
@@ -1202,13 +1200,13 @@ export default function suite() {
         // make sure we take entire job timeout
         await sleep(this.constants.jobTimeout + this.constants.jobExtendTimeout);
         // finish the job
-        await this.jobsProgram.methods.finish(this.constants.ipfsData)
-          .accounts(
-            {
-              ...this.accounts,
-              payerJob: this.users.user2.publicKey,
-              deposit: this.users.user2.ata
-            })
+        await this.jobsProgram.methods
+          .finish(this.constants.ipfsData)
+          .accounts({
+            ...this.accounts,
+            payerJob: this.users.user2.publicKey,
+            deposit: this.users.user2.ata,
+          })
           .rpc();
 
         const deposit = this.constants.jobPrice * (this.constants.jobTimeout + this.constants.jobExtendTimeout);
