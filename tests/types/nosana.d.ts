@@ -39,6 +39,7 @@ type NosanaVaults = {
 
 type NosanaBalances = {
   user: number;
+  user2: number;
   beneficiary: number;
   vaultJob: number;
   vaultStaking: number;

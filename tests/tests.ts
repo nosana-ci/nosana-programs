@@ -61,7 +61,7 @@ describe('nosana programs', async function () {
     this.total = { xnos: new BN(0), reflection: new BN(0), rate: constants.initialRate };
     this.users = { user1: null, user2: null, user3: null, user4: null, otherUsers: null };
     this.nodes = { node1: null, node2: null, otherNodes: null };
-    this.balances = { user: 0, beneficiary: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
+    this.balances = { user: 0, user2: 0, beneficiary: 0, vaultJob: 0, vaultStaking: 0, vaultRewards: 0, vaultPool: 0 };
 
     this.exists = {} as NosanaExists;
     this.exists.stake = false;
