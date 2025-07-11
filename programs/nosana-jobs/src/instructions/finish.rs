@@ -9,7 +9,7 @@ pub struct Finish<'info> {
     #[account(
         mut,
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
-        has_one = payer @ NosanaError::InvalidPayer,
+        constraint = job.payer == payer_job.key() @ NosanaError::InvalidPayer,
     )]
     pub job: Box<Account<'info, JobAccount>>,
     #[account(
@@ -27,7 +27,7 @@ pub struct Finish<'info> {
     #[account(
         mut,
         constraint = job.price == 0 ||
-            deposit.key() == get_associated_token_address(payer.key, &id::NOS_TOKEN)
+            deposit.key() == get_associated_token_address(payer_job.key, &id::NOS_TOKEN)
             @ NosanaError::InvalidATA
     )]
     pub deposit: Account<'info, TokenAccount>,
@@ -41,7 +41,7 @@ pub struct Finish<'info> {
     pub payer_run: AccountInfo<'info>,
     /// CHECK: this account is verified as the original payer for the job account
     #[account(mut)]
-    pub payer: AccountInfo<'info>,
+    pub payer_job: AccountInfo<'info>,
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
