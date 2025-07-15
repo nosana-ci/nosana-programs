@@ -39,6 +39,7 @@ type NosanaVaults = {
 
 type NosanaBalances = {
   user: number;
+  user2: number;
   beneficiary: number;
   vaultJob: number;
   vaultStaking: number;
@@ -85,6 +86,8 @@ type NosanaAccounts = {
   // main user
   authority: PublicKey;
   payer: PublicKey;
+  payerRun: PublicKey;
+  payerJob: PublicKey;
   project: PublicKey;
 
   // token
