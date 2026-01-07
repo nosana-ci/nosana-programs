@@ -135,7 +135,7 @@ const constants = {
     PoolWrongBeneficiary: 'This pool does not match the beneficiary.',
 
     // anchor errors
-    Solana8ByteConstraint: '8 byte discriminator did not match what was expected',
+    Solana8ByteConstraint: 'Account discriminator did not match what was expected',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
     SolanaTokenOwnerConstraint: 'A token owner constraint was violated',
   },
