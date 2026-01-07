@@ -1,5 +1,8 @@
 use crate::id;
-use anchor_lang::{__private::CLOSED_ACCOUNT_DISCRIMINATOR, prelude::*};
+use anchor_lang::prelude::*;
+
+/// Closed account discriminator (all 0xFF bytes)
+const CLOSED_ACCOUNT_DISCRIMINATOR: [u8; 8] = [0xff; 8];
 
 /***
  * Utilities

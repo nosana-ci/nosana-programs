@@ -6,7 +6,7 @@ pub struct Register<'info> {
         init,
         payer = payer,
         space = NodeAccount::SIZE,
-        seeds = [ constants::PREFIX_NODE.as_ref(), authority.key().as_ref() ],
+        seeds = [ constants::PREFIX_NODE.as_bytes(), authority.key().as_ref() ],
         bump,
     )]
     pub node: Account<'info, NodeAccount>,

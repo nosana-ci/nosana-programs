@@ -24,8 +24,7 @@ pub mod nosana_staking {
     /// Create a [StakeAccount](#stake-account) and [VaultAccount](#vault-account).
     /// Stake `amount` of [NOS](/tokens/token) tokens for `duration` fo seconds.
     pub fn stake(ctx: Context<Stake>, amount: u64, duration: u128) -> Result<()> {
-        ctx.accounts
-            .handler(amount, duration, *ctx.bumps.get("vault").unwrap())
+        ctx.accounts.handler(amount, duration, ctx.bumps.vault)
     }
 
     /// Start the unstake duration.

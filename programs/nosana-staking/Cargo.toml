@@ -13,10 +13,32 @@ crate-type = ["cdylib", "lib"]
 name = "nosana_staking"
 
 [features]
+default = []
 no-entrypoint = []
 cpi = ["no-entrypoint"]
+test-sbf = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "light-sdk/idl-build"]
 
 [dependencies]
-anchor-lang = "0.28.0"
-anchor-spl = "0.28.0"
+anchor-lang = "0.31.1"
+anchor-spl = "0.31.1"
+light-sdk = { version = "0.17.1", features = ["anchor", "v2"] }
+light-sdk-types = { version = "0.17.1", features = ["v2"] }
+light-hasher = { version = "5.0.0", features = ["solana"] }
 nosana-common = { path = "../../common" }
+
+[dev-dependencies]
+light-program-test = { version = "0.17.1", features = ["v2"] }
+light-client = { version = "0.17.2", features = ["v2"] }
+tokio = "1.43"
+serial_test = "3.2"
+
+[target.'cfg(not(target_os = "solana"))'.dependencies]
+solana-sdk = "2.2"
+
+[lints.rust.unexpected_cfgs]
+level = "allow"
+check-cfg = [
+    'cfg(target_os, values("solana"))',
+    'cfg(feature, values("frozen-abi", "no-entrypoint"))',
+]

@@ -10,7 +10,7 @@ pub struct UpdateSettings<'info> {
     #[account(
         mut,
         has_one = authority @ NosanaError::Unauthorized,
-        seeds = [ constants::PREFIX_SETTINGS.as_ref() ],
+        seeds = [ constants::PREFIX_SETTINGS.as_bytes() ],
         bump
     )]
     pub settings: Account<'info, SettingsAccount>,

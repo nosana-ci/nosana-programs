@@ -11,7 +11,7 @@ pub struct Slash<'info> {
     pub token_account: Account<'info, TokenAccount>,
     #[account(
         has_one = authority @ NosanaError::Unauthorized,
-        seeds = [ constants::PREFIX_SETTINGS.as_ref() ],
+        seeds = [ constants::PREFIX_SETTINGS.as_bytes() ],
         bump,
     )]
     pub settings: Account<'info, SettingsAccount>,

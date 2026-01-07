@@ -17,12 +17,12 @@ pub mod nosana_rewards {
 
     /// Initialize the [ReflectionAccount](#reflection-account) and [VaultAccount](#vault-account).
     pub fn init(ctx: Context<Init>) -> Result<()> {
-        ctx.accounts.handler(*ctx.bumps.get("vault").unwrap())
+        ctx.accounts.handler(ctx.bumps.vault)
     }
 
     /// Initialize a [RewardsAccount](#rewards-account).
     pub fn enter(ctx: Context<Enter>) -> Result<()> {
-        ctx.accounts.handler(*ctx.bumps.get("reward").unwrap())
+        ctx.accounts.handler(ctx.bumps.reward)
     }
 
     /// Send [NOS](/tokens/token) to the [VaultAccount](#vault-account).

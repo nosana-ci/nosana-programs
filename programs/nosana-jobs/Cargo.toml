@@ -15,11 +15,14 @@ name = "nosana_jobs"
 [features]
 no-entrypoint = []
 cpi = ["no-entrypoint"]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 [dependencies]
-anchor-spl = { version = "0.28.0" }
-anchor-lang = { version = "0.28.0" }
+anchor-spl = { version = "0.31.1" }
+anchor-lang = { version = "0.31.1" }
 mpl-token-metadata = "5.1.0"
 nosana-staking = { path = "../nosana-staking", features = ["cpi"] }
 nosana-rewards = { path = "../nosana-rewards", features = ["cpi"] }
 nosana-common = { path = "../../common" }
+
+# light-sdk will be added when implementing compressed stake reading

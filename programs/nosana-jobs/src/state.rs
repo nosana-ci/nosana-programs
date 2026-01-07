@@ -262,16 +262,6 @@ pub struct RunAccount {
 impl RunAccount {
     pub const SIZE: usize = 8 + size_of::<RunAccount>();
 
-    fn from<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
-        Account::try_from_unchecked(info).unwrap()
-    }
-
-    fn serialize(&self, info: AccountInfo) -> Result<()> {
-        let dst: &mut [u8] = &mut info.try_borrow_mut_data().unwrap();
-        let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
-        RunAccount::try_serialize(self, &mut writer)
-    }
-
     pub fn create(&mut self, job: Pubkey, node: Pubkey, payer: Pubkey, time: i64) -> Result<()> {
         self.job = job;
         self.node = node;
@@ -295,11 +285,18 @@ impl RunAccount {
             &id::JOBS_PROGRAM,
         )?;
 
-        // deserialize and modify run account
-        let mut run: Account<RunAccount> = RunAccount::from(&run_account);
-        run.create(job, node, payer.key(), Clock::get()?.unix_timestamp)?;
+        // Create and populate run account data
+        let run = RunAccount {
+            job,
+            node,
+            payer: payer.key(),
+            state: 0,
+            time: Clock::get()?.unix_timestamp,
+        };
 
-        // write
-        run.serialize(run_account)
+        // Write directly to account data
+        let dst = &mut run_account.try_borrow_mut_data()?;
+        let mut writer = BpfWriter::new(&mut dst[..]);
+        RunAccount::try_serialize(&run, &mut writer)
     }
 }

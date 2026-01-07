@@ -37,7 +37,7 @@ pub mod nosana_jobs {
             job_timeout,
             job_type,
             node_xnos_minimum,
-            *ctx.bumps.get("vault").unwrap(),
+            ctx.bumps.vault,
         )
     }
 

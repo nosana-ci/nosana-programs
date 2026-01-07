@@ -31,7 +31,7 @@ pub mod nosana_pools {
             start_time,
             claim_type,
             closeable,
-            *ctx.bumps.get("vault").unwrap(),
+            ctx.bumps.vault,
         )
     }
 

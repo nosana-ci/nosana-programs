@@ -14,7 +14,7 @@ pub struct Enter<'info> {
         init,
         payer = authority,
         space = RewardAccount::SIZE,
-        seeds = [ constants::PREFIX_REWARDS.as_ref(), authority.key().as_ref() ],
+        seeds = [ constants::PREFIX_REWARDS.as_bytes(), authority.key().as_ref() ],
         bump,
     )]
     pub reward: Account<'info, RewardAccount>,

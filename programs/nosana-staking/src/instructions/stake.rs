@@ -12,7 +12,7 @@ pub struct Stake<'info> {
         payer = authority,
         token::mint = mint,
         token::authority = vault,
-        seeds = [ constants::PREFIX_VAULT.as_ref(), mint.key().as_ref(), authority.key().as_ref() ],
+        seeds = [ constants::PREFIX_VAULT.as_bytes(), mint.key().as_ref(), authority.key().as_ref() ],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
@@ -20,7 +20,7 @@ pub struct Stake<'info> {
         init,
         payer = authority,
         space = StakeAccount::SIZE,
-        seeds = [ constants::PREFIX_STAKE.as_ref(), mint.key().as_ref(), authority.key().as_ref() ],
+        seeds = [ constants::PREFIX_STAKE.as_bytes(), mint.key().as_ref(), authority.key().as_ref() ],
         bump,
     )]
     pub stake: Account<'info, StakeAccount>,

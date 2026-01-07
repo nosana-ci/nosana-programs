@@ -9,7 +9,7 @@ pub struct Init<'info> {
         init,
         payer = authority,
         space = ReflectionAccount::SIZE,
-        seeds = [ constants::PREFIX_REFLECTION.as_ref() ],
+        seeds = [ constants::PREFIX_REFLECTION.as_bytes() ],
         bump
     )]
     pub reflection: Account<'info, ReflectionAccount>,
