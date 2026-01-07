@@ -15,12 +15,11 @@ name = "nosana_rewards"
 [features]
 no-entrypoint = []
 cpi = ["no-entrypoint"]
-idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "light-sdk/idl-build"]
 
 [dependencies]
 anchor-lang = "0.31.1"
 anchor-spl = "0.31.1"
 nosana-staking = { path = "../nosana-staking", features = ["cpi"] }
 nosana-common = { path = "../../common" }
-
-# light-sdk will be added when implementing compressed stake reading
+light-sdk = { version = "0.17.1", features = ["anchor", "v2"] }

@@ -15,6 +15,7 @@ name = "nosana_staking"
 [features]
 default = []
 no-entrypoint = []
+no-idl = []
 cpi = ["no-entrypoint"]
 test-sbf = []
 idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "light-sdk/idl-build"]
@@ -23,7 +24,7 @@ idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "light-sdk/idl-bui
 anchor-lang = "0.31.1"
 anchor-spl = "0.31.1"
 light-sdk = { version = "0.17.1", features = ["anchor", "v2"] }
-light-sdk-types = { version = "0.17.1", features = ["v2"] }
+light-sdk-types = { version = "0.17.1", features = ["anchor", "v2"] }
 light-hasher = { version = "5.0.0", features = ["solana"] }
 nosana-common = { path = "../../common" }
 
@@ -32,9 +33,15 @@ light-program-test = { version = "0.17.1", features = ["v2"] }
 light-client = { version = "0.17.2", features = ["v2"] }
 tokio = "1.43"
 serial_test = "3.2"
+spl-token = "7.0"
+spl-associated-token-account = "6.0"
+anchor-spl = { version = "0.31.1", features = ["idl-build"] }
 
-[target.'cfg(not(target_os = "solana"))'.dependencies]
+[target.'cfg(not(target_os = "solana"))'.dev-dependencies]
 solana-sdk = "2.2"
+solana-keypair = "2.2"
+solana-pubkey = { version = "2.2", features = ["curve25519", "sha2"] }
+solana-signer = "2.2"
 
 [lints.rust.unexpected_cfgs]
 level = "allow"

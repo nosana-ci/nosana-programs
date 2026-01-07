@@ -1,6 +1,11 @@
 use crate::*;
 use anchor_spl::token::TokenAccount;
-use nosana_staking::{NosanaStakingError, StakeAccount};
+use light_sdk::{
+    account::LightAccount,
+    cpi::{v2::{CpiAccounts, LightSystemProgramCpi}, InvokeLightSystemProgram, LightCpiInstruction},
+    instruction::{account_meta::CompressedAccountMetaReadOnly, ValidityProof},
+};
+use nosana_staking::CompressedStakeAccount;
 
 #[derive(Accounts)]
 pub struct Claim<'info> {
@@ -13,12 +18,6 @@ pub struct Claim<'info> {
     #[account(init, payer = payer, space = RunAccount::SIZE)]
     pub run: Box<Account<'info, RunAccount>>,
     pub market: Account<'info, MarketAccount>,
-    #[account(
-        address = pda::nosana_staking(authority.key) @ NosanaStakingError::InvalidStakeAccount,
-        has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
-    )]
-    pub stake: Account<'info, StakeAccount>,
     #[account(
         constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.owner == authority.key()
             @ NosanaJobsError::NodeNftWrongOwner,
@@ -39,11 +38,48 @@ pub struct Claim<'info> {
 }
 
 impl<'info> Claim<'info> {
-    pub fn handler(&mut self) -> Result<()> {
-        self.run.create(
-            self.job.key(),
-            self.authority.key(),
-            self.payer.key(),
+    pub fn handler(
+        ctx: Context<'_, '_, '_, 'info, Claim<'info>>,
+        proof: ValidityProof,
+        stake_account_meta: CompressedAccountMetaReadOnly,
+        stake_data: CompressedStakeAccount,
+    ) -> Result<()> {
+        // Verify stake authority matches
+        require!(
+            stake_data.authority == ctx.accounts.authority.key(),
+            NosanaError::Unauthorized
+        );
+
+        // Verify stake xnos meets market minimum
+        require!(
+            stake_data.xnos >= ctx.accounts.market.node_xnos_minimum,
+            NosanaJobsError::NodeNotEnoughStake
+        );
+
+        // Create read-only Light Account for proof verification
+        let light_cpi_accounts = CpiAccounts::new(
+            ctx.accounts.authority.as_ref(),
+            ctx.remaining_accounts,
+            crate::LIGHT_CPI_SIGNER,
+        );
+
+        let read_only_stake = LightAccount::<CompressedStakeAccount>::new_read_only(
+            &nosana_staking::ID,
+            &stake_account_meta,
+            stake_data,
+            light_cpi_accounts.tree_pubkeys().unwrap().as_slice(),
+        )?;
+
+        // Verify proof via Light System Program
+        LightSystemProgramCpi::new_cpi(crate::LIGHT_CPI_SIGNER, proof)
+            .with_light_account(read_only_stake)?
+            .invoke(light_cpi_accounts)?;
+
+        // Create the run account
+        ctx.accounts.run.create(
+            ctx.accounts.job.key(),
+            ctx.accounts.authority.key(),
+            ctx.accounts.payer.key(),
             Clock::get()?.unix_timestamp,
         )
     }

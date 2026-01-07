@@ -3179,6 +3179,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "light-sdk",
  "mpl-token-metadata",
  "nosana-common",
  "nosana-rewards",
@@ -3209,6 +3210,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "light-sdk",
  "nosana-common",
  "nosana-staking",
 ]
@@ -3226,7 +3228,12 @@ dependencies = [
  "light-sdk-types",
  "nosana-common",
  "serial_test",
+ "solana-keypair",
+ "solana-pubkey",
  "solana-sdk",
+ "solana-signer",
+ "spl-associated-token-account 6.0.0",
+ "spl-token 7.0.0",
  "tokio",
 ]
 

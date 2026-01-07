@@ -8,11 +8,17 @@ mod types;
 use anchor_lang::prelude::*;
 use errors::*;
 use instructions::*;
+use light_sdk::{cpi::CpiSigner, derive_light_cpi_signer};
 use nosana_common::*;
 use state::*;
 use types::*;
 
 declare_id!(id::JOBS_PROGRAM);
+
+/// CPI signer for Light Protocol compressed account read-only verification.
+/// Derived from the jobs program ID.
+pub const LIGHT_CPI_SIGNER: CpiSigner =
+    derive_light_cpi_signer!("nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM");
 
 #[program]
 pub mod nosana_jobs {
@@ -107,9 +113,15 @@ pub mod nosana_jobs {
      Node Instructions
     */
 
-    /// Enters the [MarketAccount](#market-account) queue, or create  a [RunAccount](#run-account).
-    pub fn work(ctx: Context<Work>) -> Result<()> {
-        ctx.accounts.handler()
+    /// Enters the [MarketAccount](#market-account) queue, or create a [RunAccount](#run-account).
+    /// Requires compressed stake account proof for node verification.
+    pub fn work<'info>(
+        ctx: Context<'_, '_, '_, 'info, Work<'info>>,
+        proof: light_sdk::instruction::ValidityProof,
+        stake_account_meta: light_sdk::instruction::account_meta::CompressedAccountMetaReadOnly,
+        stake_data: nosana_staking::CompressedStakeAccount,
+    ) -> Result<()> {
+        Work::handler(ctx, proof, stake_account_meta, stake_data)
     }
 
     /// Exit the node queue from [MarketAccount](#market-account).
@@ -118,8 +130,14 @@ pub mod nosana_jobs {
     }
 
     /// Claim a job that is [stopped](#stop).
-    pub fn claim(ctx: Context<Claim>) -> Result<()> {
-        ctx.accounts.handler()
+    /// Requires compressed stake account proof for node verification.
+    pub fn claim<'info>(
+        ctx: Context<'_, '_, '_, 'info, Claim<'info>>,
+        proof: light_sdk::instruction::ValidityProof,
+        stake_account_meta: light_sdk::instruction::account_meta::CompressedAccountMetaReadOnly,
+        stake_data: nosana_staking::CompressedStakeAccount,
+    ) -> Result<()> {
+        Claim::handler(ctx, proof, stake_account_meta, stake_data)
     }
 
     /// Complete a job that has been [stopped](#stop).

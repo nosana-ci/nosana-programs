@@ -1,6 +1,11 @@
 use crate::*;
 use anchor_spl::token::TokenAccount;
-use nosana_staking::{NosanaStakingError, StakeAccount};
+use light_sdk::{
+    account::LightAccount,
+    cpi::{v2::{CpiAccounts, LightSystemProgramCpi}, InvokeLightSystemProgram, LightCpiInstruction},
+    instruction::{account_meta::CompressedAccountMetaReadOnly, ValidityProof},
+};
+use nosana_staking::CompressedStakeAccount;
 
 #[derive(Accounts)]
 pub struct Work<'info> {
@@ -21,12 +26,6 @@ pub struct Work<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
-        address = pda::nosana_staking(authority.key) @ NosanaStakingError::InvalidStakeAccount,
-        has_one = authority @ NosanaError::Unauthorized,
-        constraint = stake.xnos >= market.node_xnos_minimum @ NosanaJobsError::NodeNotEnoughStake,
-    )]
-    pub stake: Account<'info, StakeAccount>,
-    #[account(
         constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.owner == authority.key()
             @ NosanaJobsError::NodeNftWrongOwner,
         constraint = market.node_access_key == id::SYSTEM_PROGRAM || nft.amount >= 1
@@ -44,17 +43,54 @@ pub struct Work<'info> {
 }
 
 impl<'info> Work<'info> {
-    pub fn handler(&mut self) -> Result<()> {
-        match QueueType::from(self.market.queue_type) {
+    pub fn handler(
+        ctx: Context<'_, '_, '_, 'info, Work<'info>>,
+        proof: ValidityProof,
+        stake_account_meta: CompressedAccountMetaReadOnly,
+        stake_data: CompressedStakeAccount,
+    ) -> Result<()> {
+        // Verify stake authority matches
+        require!(
+            stake_data.authority == ctx.accounts.authority.key(),
+            NosanaError::Unauthorized
+        );
+
+        // Verify stake xnos meets market minimum
+        require!(
+            stake_data.xnos >= ctx.accounts.market.node_xnos_minimum,
+            NosanaJobsError::NodeNotEnoughStake
+        );
+
+        // Create read-only Light Account for proof verification
+        let light_cpi_accounts = CpiAccounts::new(
+            ctx.accounts.authority.as_ref(),
+            ctx.remaining_accounts,
+            crate::LIGHT_CPI_SIGNER,
+        );
+
+        let read_only_stake = LightAccount::<CompressedStakeAccount>::new_read_only(
+            &nosana_staking::ID,
+            &stake_account_meta,
+            stake_data,
+            light_cpi_accounts.tree_pubkeys().unwrap().as_slice(),
+        )?;
+
+        // Verify proof via Light System Program
+        LightSystemProgramCpi::new_cpi(crate::LIGHT_CPI_SIGNER, proof)
+            .with_light_account(read_only_stake)?
+            .invoke(light_cpi_accounts)?;
+
+        // Process work based on queue type
+        match QueueType::from(ctx.accounts.market.queue_type) {
             QueueType::Node | QueueType::Empty => {
-                self.market.add_to_queue(self.authority.key(), false)
+                ctx.accounts.market.add_to_queue(ctx.accounts.authority.key(), false)
             }
             QueueType::Job => RunAccount::initialize(
-                self.payer.to_account_info(),
-                self.run.to_account_info(),
-                self.system_program.to_account_info(),
-                self.market.pop_from_queue(),
-                self.authority.key(),
+                ctx.accounts.payer.to_account_info(),
+                ctx.accounts.run.to_account_info(),
+                ctx.accounts.system_program.to_account_info(),
+                ctx.accounts.market.pop_from_queue(),
+                ctx.accounts.authority.key(),
             ),
         }
     }
