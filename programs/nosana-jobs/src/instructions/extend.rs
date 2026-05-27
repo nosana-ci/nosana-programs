@@ -54,6 +54,9 @@ impl<'info> Extend<'info> {
         // deposit job payment and transfer network fee
         let (deposit, fee) = self.job.get_deposit_and_fee(duration);
         transfer_tokens_to_vault_with_signer!(self, payer, deposit)?;
+        if fee == 0 {
+            return Ok(());
+        }
         transfer_fee!(self, user, payer, &[], fee)
     }
 }

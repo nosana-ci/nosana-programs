@@ -27,7 +27,9 @@ pub struct MarketAccount {
 
 impl MarketAccount {
     pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Pubkey; 314]>();
-    pub const JOB_FEE_FRACTION: u64 = 10;
+    /// Divisor applied to the deposit to compute the network fee.
+    /// A value of `0` disables the fee entirely.
+    pub const JOB_FEE_FRACTION: u64 = 0;
 
     #[allow(clippy::too_many_arguments)]
     pub fn init(
@@ -75,6 +77,9 @@ impl MarketAccount {
     }
 
     pub fn get_job_fee(&self, timeout: i64) -> u64 {
+        if MarketAccount::JOB_FEE_FRACTION == 0 {
+            return 0;
+        }
         (self.job_price * u64::try_from(timeout).unwrap()) / MarketAccount::JOB_FEE_FRACTION
     }
 
@@ -232,12 +237,20 @@ impl JobAccount {
     }
 
     pub fn get_job_fee(&self, timeout: i64) -> u64 {
+        if MarketAccount::JOB_FEE_FRACTION == 0 {
+            return 0;
+        }
         self.get_deposit(timeout) / MarketAccount::JOB_FEE_FRACTION
     }
 
     pub fn get_deposit_and_fee(&self, timeout: i64) -> (u64, u64) {
         let deposit = self.get_deposit(timeout);
-        (deposit, deposit / MarketAccount::JOB_FEE_FRACTION)
+        let fee = if MarketAccount::JOB_FEE_FRACTION == 0 {
+            0
+        } else {
+            deposit / MarketAccount::JOB_FEE_FRACTION
+        };
+        (deposit, fee)
     }
 
     pub fn get_reimbursement(&self) -> u64 {

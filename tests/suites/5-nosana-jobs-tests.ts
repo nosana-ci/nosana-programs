@@ -132,7 +132,7 @@ export default function suite() {
       // update balances
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
       this.balances.vaultJob += deposit;
 
       // update market;
@@ -180,7 +180,7 @@ export default function suite() {
       // update balances
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -258,7 +258,7 @@ export default function suite() {
       // update balances
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
       this.balances.vaultJob += deposit;
 
       this.market.queueLength = 1;
@@ -320,7 +320,7 @@ export default function suite() {
       // update balances
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -449,7 +449,7 @@ export default function suite() {
       // update balances
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -473,7 +473,7 @@ export default function suite() {
       // update balances
       const topup = this.constants.jobPrice * this.constants.jobExtendTimeout;
       this.balances.user -= topup;
-      this.balances.user -= topup / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? topup / this.constants.feePercentage : 0;
       this.balances.vaultJob += topup;
     });
     it('cannot extend with a smaller timeout', async function () {
@@ -588,7 +588,7 @@ export default function suite() {
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
       this.balances.vaultJob += deposit;
     });
 
@@ -767,7 +767,7 @@ export default function suite() {
 
       const deposit = this.constants.jobPrice * this.constants.jobTimeout;
       this.balances.user -= deposit;
-      this.balances.user -= deposit / this.constants.feePercentage;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
       this.balances.vaultJob += deposit;
 
       // update market
@@ -1077,7 +1077,7 @@ export default function suite() {
         // update balances - user2 should pay, not the original user
         const deposit = this.constants.jobPrice * this.constants.jobTimeout;
         this.balances.user2 -= deposit;
-        this.balances.user2 -= deposit / this.constants.feePercentage;
+        this.balances.user2 -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
         this.balances.vaultJob += deposit;
 
         // verify the original user's balance is unchanged
@@ -1162,7 +1162,7 @@ export default function suite() {
         // update balances
         const deposit = this.constants.jobPrice * this.constants.jobTimeout;
         this.balances.user2 -= deposit;
-        this.balances.user2 -= deposit / this.constants.feePercentage;
+        this.balances.user2 -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
         this.balances.vaultJob += deposit;
 
         // update market
@@ -1184,7 +1184,7 @@ export default function suite() {
         // update balances - user2 should pay for extension
         const topup = this.constants.jobPrice * this.constants.jobExtendTimeout;
         this.balances.user2 -= topup;
-        this.balances.user2 -= topup / this.constants.feePercentage;
+        this.balances.user2 -= this.constants.feePercentage ? topup / this.constants.feePercentage : 0;
         this.balances.vaultJob += topup;
 
         expect(await getTokenBalance(this.provider, this.users.user2.ata)).to.equal(this.balances.user2);

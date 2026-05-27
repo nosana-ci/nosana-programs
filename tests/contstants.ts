@@ -15,7 +15,9 @@ const constants = {
   mintSupply: 1e7 * decimals,
   userSupply: 1e5 * decimals,
   jobPrice: decimals,
-  feePercentage: 10,
+  // Divisor used to compute the job network fee.
+  // A value of `0` disables the fee (matches `MarketAccount::JOB_FEE_FRACTION` on-chain).
+  feePercentage: 0,
   stakeAmount: 1e4 * decimals,
   stakeMinimum: 0,
   slashAmount: 1e3 * decimals,
