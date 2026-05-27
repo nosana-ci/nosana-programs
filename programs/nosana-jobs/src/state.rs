@@ -77,10 +77,9 @@ impl MarketAccount {
     }
 
     pub fn get_job_fee(&self, timeout: i64) -> u64 {
-        if MarketAccount::JOB_FEE_FRACTION == 0 {
-            return 0;
-        }
-        (self.job_price * u64::try_from(timeout).unwrap()) / MarketAccount::JOB_FEE_FRACTION
+        (self.job_price * u64::try_from(timeout).unwrap())
+            .checked_div(MarketAccount::JOB_FEE_FRACTION)
+            .unwrap_or(0)
     }
 
     pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) -> Result<()> {
@@ -237,19 +236,16 @@ impl JobAccount {
     }
 
     pub fn get_job_fee(&self, timeout: i64) -> u64 {
-        if MarketAccount::JOB_FEE_FRACTION == 0 {
-            return 0;
-        }
-        self.get_deposit(timeout) / MarketAccount::JOB_FEE_FRACTION
+        self.get_deposit(timeout)
+            .checked_div(MarketAccount::JOB_FEE_FRACTION)
+            .unwrap_or(0)
     }
 
     pub fn get_deposit_and_fee(&self, timeout: i64) -> (u64, u64) {
         let deposit = self.get_deposit(timeout);
-        let fee = if MarketAccount::JOB_FEE_FRACTION == 0 {
-            0
-        } else {
-            deposit / MarketAccount::JOB_FEE_FRACTION
-        };
+        let fee = deposit
+            .checked_div(MarketAccount::JOB_FEE_FRACTION)
+            .unwrap_or(0);
         (deposit, fee)
     }
 
