@@ -1,8 +1,4 @@
-<h1 align="center">
-  <br>
-   <img width="400" src="https://nosana.io/img/Nosana_Logo_vertical_color_black.svg" />
-  <br>
-</h1>
+![logo](https://github.com/nosana-ci/.github/raw/refs/heads/main/profile/img/Nosana_Logo_horizontal_color_white.svg#gh-dark-mode-only)
 
 # Nosana Program Library
 
@@ -38,6 +34,15 @@ The external audits of the following Nosana programs are published in this repos
 See [CONTRIBUTING](https://github.com/nosana-ci/nosana-programs/blob/main/CONTRIBUTING.md) guidelines.
 
 Significant contributions to the source code may be compensated with a grant from the [Nosana Foundation](https://nosana.foundation/).
+
+## Development
+
+Dependencies to set up your local Solana development environment.
+Install Rust, the Solana CLI, and Anchor Framework with below version:
+
+- `rustc`: `1.67.1`
+- `solana-cli`: `1.14.16`
+- `anchor-cli`: `0.28.0`
 
 ## License
 

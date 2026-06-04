@@ -10,6 +10,9 @@ members = [
     "programs/nosana-nodes",
 ]
 
+[toolchain]
+solana_version = "1.14.16"
+
 [features]
 seeds = false
 skip-lint = false
