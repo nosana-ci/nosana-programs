@@ -1,8 +1,7 @@
 use crate::{JobState, JobType, NosanaJobsError, QueueType};
 use anchor_lang::prelude::*;
 use mpl_token_metadata::accounts::Metadata;
-use mpl_token_metadata::types::Collection;
-use nosana_common::{cpi, id, pda, writer::BpfWriter};
+use nosana_common::{id, pda, utils::create_account, writer::BpfWriter};
 use std::{cmp::min, mem::size_of};
 
 /***
@@ -143,12 +142,23 @@ impl MarketAccount {
         mint: &Pubkey,
         node_access_key: Pubkey,
     ) -> bool {
-        node_access_key == id::SYSTEM_PROGRAM || {
-            let metadata: Metadata = Metadata::try_from(metadata_info).unwrap();
-            let collection: Collection = metadata.collection.unwrap();
-            metadata_info.key() == pda::metaplex_metadata(mint)
-                && collection.verified
-                && collection.key == node_access_key
+        if node_access_key == id::SYSTEM_PROGRAM {
+            return true;
+        }
+
+        if metadata_info.key() == pda::metaplex_metadata(mint) {
+            match Metadata::safe_deserialize(&metadata_info.data.borrow()) {
+                Ok(metadata) => {
+                    if let Some(collection) = metadata.collection {
+                        collection.verified && collection.key.as_ref() == node_access_key.as_ref()
+                    } else {
+                        false
+                    }
+                }
+                Err(_) => false,
+            }
+        } else {
+            false
         }
     }
 
@@ -271,16 +281,6 @@ pub struct RunAccount {
 impl RunAccount {
     pub const SIZE: usize = 8 + size_of::<RunAccount>();
 
-    fn from<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
-        Account::try_from_unchecked(info).unwrap()
-    }
-
-    fn serialize(&self, info: AccountInfo) -> Result<()> {
-        let dst: &mut [u8] = &mut info.try_borrow_mut_data().unwrap();
-        let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
-        RunAccount::try_serialize(self, &mut writer)
-    }
-
     pub fn create(&mut self, job: Pubkey, node: Pubkey, payer: Pubkey, time: i64) -> Result<()> {
         self.job = job;
         self.node = node;
@@ -292,23 +292,35 @@ impl RunAccount {
     pub fn initialize<'info>(
         payer: AccountInfo<'info>,
         run_account: AccountInfo<'info>,
-        system_program: AccountInfo<'info>,
+        system_program: Pubkey,
         job: Pubkey,
         node: Pubkey,
     ) -> Result<()> {
-        cpi::create_account(
+        create_account(
             system_program,
-            payer.to_account_info(),
-            run_account.to_account_info(),
+            payer.clone(),
+            run_account.clone(),
             RunAccount::SIZE,
             &id::JOBS_PROGRAM,
         )?;
 
-        // deserialize and modify run account
-        let mut run: Account<RunAccount> = RunAccount::from(&run_account);
+        // a freshly created account has an all-zero discriminator, so skip the check
+        let mut run: RunAccount = {
+            let data = run_account.try_borrow_data()?;
+            let byte_data: &[u8] = &data;
+            let mut byte_slice = byte_data;
+            RunAccount::try_deserialize_unchecked(&mut byte_slice)?
+        };
+
         run.create(job, node, payer.key(), Clock::get()?.unix_timestamp)?;
 
-        // write
-        run.serialize(run_account)
+        // serialize back
+        {
+            let mut dst = run_account.try_borrow_mut_data()?;
+            let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(&mut dst);
+            RunAccount::try_serialize(&run, &mut writer)?;
+        }
+
+        Ok(())
     }
 }

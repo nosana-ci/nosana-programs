@@ -30,7 +30,7 @@ pub struct Delist<'info> {
     pub deposit: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the job account
     #[account(mut)]
-    pub payer: AccountInfo<'info>,
+    pub payer: UncheckedAccount<'info>,
     #[account(mut)]
     pub vault: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,

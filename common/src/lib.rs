@@ -1,5 +1,4 @@
 pub mod constants;
-pub mod cpi;
 pub mod id;
 pub mod macros;
 pub mod pda;

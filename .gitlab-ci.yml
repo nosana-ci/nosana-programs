@@ -2,11 +2,7 @@ include:
   - project: nosana-ci/tools/cicd/gitlab-ci
     file: anchor.yml
 
-#image: backpackapp/build:v0.28.0
-image: projectserum/build:v0.27.0
-
-variables:
-  PREPARE_SCRIPT: scripts/prepare.sh
+image: solanafoundation/anchor:v1.0.2
 
 .parallel:
   parallel:
@@ -45,7 +41,7 @@ scenario:
       - TEST_SCENARIO: [ all, claim-transfer, jobs, pools, rewards, staking, nodes ]
   script:
     - npm ci
-    - anchor test --skip-build
+    - anchor test --skip-build --validator legacy
   rules:
     - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   cache:

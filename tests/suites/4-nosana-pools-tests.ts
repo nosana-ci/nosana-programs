@@ -1,9 +1,9 @@
-import * as anchor from '@coral-xyz/anchor';
-import { BN } from '@coral-xyz/anchor';
+import * as anchor from '@anchor-lang/core';
+import { BN } from '@anchor-lang/core';
 import { expect } from 'chai';
 import { getTokenBalance, pda, sleep, now } from '../utils';
 import { afterEach, Context } from 'mocha';
-import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 import { transfer } from '@solana/spl-token';
 
 /**

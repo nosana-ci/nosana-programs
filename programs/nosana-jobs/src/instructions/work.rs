@@ -11,7 +11,7 @@ pub struct Work<'info> {
         owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
         constraint = run.lamports() == 0 @ NosanaError::LamportsNonNull
     )]
-    pub run: AccountInfo<'info>,
+    pub run: UncheckedAccount<'info>,
     #[account(
         mut,
         constraint = MarketAccount::node_constraint(authority.key, &market.queue, market.queue_type)
@@ -38,7 +38,7 @@ pub struct Work<'info> {
         constraint = MarketAccount::metadata_constraint(&metadata, &nft.mint, market.node_access_key)
             @ NosanaJobsError::NodeKeyInvalidCollection,
     )]
-    pub metadata: AccountInfo<'info>,
+    pub metadata: UncheckedAccount<'info>,
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
@@ -52,7 +52,7 @@ impl<'info> Work<'info> {
             QueueType::Job => RunAccount::initialize(
                 self.payer.to_account_info(),
                 self.run.to_account_info(),
-                self.system_program.to_account_info(),
+                self.system_program.key(),
                 self.market.pop_from_queue(),
                 self.authority.key(),
             ),

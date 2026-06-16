@@ -1,23 +1,29 @@
 [package]
 name = "nosana-common"
 version = "0.1.0"
-description = "Nosana Common for decentralized CI/CD and computation."
+description = "Nosana Common for decentralized computation."
 edition = "2021"
-homepage = "https://nosana.io/"
+homepage = "https://nosana.com/"
 authors = ["nosana"]
 license = "MIT"
-keywords = ["solana", "nosana", "cicd", "common", "anchor"]
+keywords = ["solana", "nosana", "compute", "common", "anchor"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
 name = "nosana_common"
 
 [features]
-#default = ["mainnet"]
+devnet = []
 mainnet = []
 no-entrypoint = []
 cpi = ["no-entrypoint"]
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
 
 [dependencies]
-anchor-lang = "0.28.0"
-anchor-spl = "0.28.0"
+anchor-lang = "1.0.2"
+anchor-spl = "1.0.2"

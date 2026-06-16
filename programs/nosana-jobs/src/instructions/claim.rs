@@ -31,7 +31,7 @@ pub struct Claim<'info> {
         constraint = MarketAccount::metadata_constraint(&metadata, &nft.mint, market.node_access_key)
             @ NosanaJobsError::NodeKeyInvalidCollection,
     )]
-    pub metadata: AccountInfo<'info>,
+    pub metadata: UncheckedAccount<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
     pub authority: Signer<'info>,

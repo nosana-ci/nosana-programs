@@ -2,8 +2,8 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { parse } from 'csv-parse';
 import { PublicKey } from '@solana/web3.js';
-import { Program, AnchorProvider, setProvider, Idl } from '@coral-xyz/anchor';
-import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+import { Program, AnchorProvider, setProvider, Idl } from '@anchor-lang/core';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 import { pda } from '../tests/utils';
 // @ts-ignore
 import { NosanaRewards } from '../target/types/nosana_rewards';

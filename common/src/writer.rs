@@ -28,9 +28,18 @@ impl Write for BpfWriter<&mut [u8]> {
             self.inner.len().saturating_sub(self.pos as usize),
             buf.len(),
         );
-        sol_memcpy(&mut self.inner[(self.pos as usize)..], buf, amt);
+
+        // SAFETY: `amt` is bounded by `min(remaining_dst, src_len)`, so the
+        // copy cannot exceed either buffer's bounds.
+        unsafe {
+            sol_memcpy(&mut self.inner[(self.pos as usize)..], buf, amt);
+        }
         self.pos += amt as u64;
         Ok(amt)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
     }
 
     fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
@@ -42,9 +51,5 @@ impl Write for BpfWriter<&mut [u8]> {
                 "failed to write whole buffer",
             ))
         }
-    }
-
-    fn flush(&mut self) -> io::Result<()> {
-        Ok(())
     }
 }

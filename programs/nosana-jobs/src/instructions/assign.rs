@@ -18,7 +18,7 @@ pub struct Assign<'info> {
     #[account(init, payer = payer, space = RunAccount::SIZE)]
     pub run: Account<'info, RunAccount>,
     /// CHECK: this is the node to assign the job to
-    pub node: AccountInfo<'info>,
+    pub node: UncheckedAccount<'info>,
     #[account(
         mut,
         constraint = market.job_price == 0 ||

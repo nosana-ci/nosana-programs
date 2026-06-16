@@ -1,4 +1,4 @@
-import * as anchor from '@coral-xyz/anchor';
+import * as anchor from '@anchor-lang/core';
 import { expect } from 'chai';
 import { calculateXnos, getTokenBalance } from '../utils';
 

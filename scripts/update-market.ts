@@ -1,7 +1,7 @@
-import { AnchorProvider, Program, setProvider, BN, Idl } from '@coral-xyz/anchor';
+// @ts-ignore
+import { AnchorProvider, Program, setProvider, BN, Idl } from '@anchor-lang/core';
 import { PublicKey } from '@solana/web3.js';
 // @ts-ignore
-import { NosanaJobs } from '../target/types/nosana_jobs';
 import MarketConfig = require('../tests/data/market.json');
 
 async function main() {
@@ -15,7 +15,8 @@ async function main() {
 
   // program
   const idl = (await Program.fetchIdl(programId.toString())) as Idl;
-  const program = new Program(idl, programId) as unknown as Program<NosanaJobs>;
+  // @ts-ignore
+  const program = new Program(idl, programId);
 
   // open pool
   const tx = await program.methods

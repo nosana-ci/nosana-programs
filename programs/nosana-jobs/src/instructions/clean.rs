@@ -14,7 +14,7 @@ pub struct Clean<'info> {
     pub market: Account<'info, MarketAccount>,
     /// CHECK: this account is verified as the original payer for the job
     #[account(mut)]
-    pub payer: AccountInfo<'info>,
+    pub payer: UncheckedAccount<'info>,
 }
 
 impl<'info> Clean<'info> {

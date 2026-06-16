@@ -1,4 +1,4 @@
-import { AnchorProvider, Wallet } from '@coral-xyz/anchor';
+import { AnchorProvider, Wallet } from '@anchor-lang/core';
 import { Connection, PublicKey, Signer } from '@solana/web3.js';
 import { CreateNftInput, Metaplex } from '@metaplex-foundation/js';
 

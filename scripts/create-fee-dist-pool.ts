@@ -1,11 +1,10 @@
-import { AnchorProvider, Program, setProvider, web3, BN, Idl } from '@coral-xyz/anchor';
-import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+// @ts-ignore
+import { AnchorProvider, Program, setProvider, web3, BN, Idl } from '@anchor-lang/core';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { pda } from '../tests/utils';
 import poolConfig = require('../tests/data/pool.json');
-// @ts-ignore
-import { NosanaPools } from '../target/types/nosana_pools';
 
 async function main() {
   // anchor
@@ -22,7 +21,8 @@ async function main() {
 
   // program
   const idl = (await Program.fetchIdl(poolsId.toString())) as Idl;
-  const program = new Program(idl, poolsId) as unknown as Program<NosanaPools>;
+  // @ts-ignore
+  const program = new Program(idl, poolsId);
 
   // PDAs
   const accounts = {

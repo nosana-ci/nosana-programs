@@ -10,7 +10,7 @@ pub struct Open<'info> {
         payer = authority,
         token::mint = mint,
         token::authority = vault,
-        seeds = [ constants::PREFIX_VAULT.as_ref(), pool.key().as_ref() ],
+        seeds = [ constants::PREFIX_VAULT, pool.key().as_ref() ],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,

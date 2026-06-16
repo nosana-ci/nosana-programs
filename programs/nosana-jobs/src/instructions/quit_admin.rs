@@ -6,7 +6,7 @@ pub struct QuitAdmin<'info> {
     pub run: Account<'info, RunAccount>,
     /// CHECK: this account is verified as the original payer for the run account
     #[account(mut)]
-    pub payer: AccountInfo<'info>,
+    pub payer: UncheckedAccount<'info>,
     #[account(address = id::MARKET_ADMIN @ NosanaError::Unauthorized)]
     pub authority: Signer<'info>,
 }

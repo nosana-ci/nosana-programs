@@ -19,7 +19,7 @@ pub struct Open<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     /// CHECK: Only the account address is needed for an access key
-    pub access_key: AccountInfo<'info>,
+    pub access_key: UncheckedAccount<'info>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,

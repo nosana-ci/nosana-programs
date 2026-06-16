@@ -10,7 +10,7 @@ pub struct Stop<'info> {
     )]
     pub market: Account<'info, MarketAccount>,
     /// CHECK: this is the node to be removed from the queue
-    pub node: AccountInfo<'info>,
+    pub node: UncheckedAccount<'info>,
     pub authority: Signer<'info>,
 }
 
