@@ -1,24 +1,29 @@
 [package]
 name = "nosana-nodes"
 version = "0.1.0"
-description = "Nosana Pools."
+description = "Nosana Nodes."
 edition = "2021"
-homepage = "https://nosana.io/"
+homepage = "https://nosana.com/"
 authors = ["nosana"]
 license = "MIT"
-keywords = ["solana", "nosana", "cicd", "nodes", "anchor"]
+keywords = ["solana", "nosana", "gpu", "nodes", "anchor"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
 name = "nosana_nodes"
 
 [features]
+devnet = ["nosana-common/devnet"]
+mainnet = ["nosana-common/mainnet"]
 no-entrypoint = []
+cpi = ["no-entrypoint", "nosana-common/cpi"]
+idl-build = ["anchor-lang/idl-build", "nosana-common/idl-build"]
 no-idl = []
 no-log-ix-name = []
-cpi = ["no-entrypoint"]
-default = []
+anchor-debug = ["nosana-common/anchor-debug"]
+custom-heap = ["nosana-common/custom-heap"]
+custom-panic = ["nosana-common/custom-panic"]
 
 [dependencies]
-anchor-lang = "0.28.0"
+anchor-lang = "1.0.2"
 nosana-common = { path = "../../common" }

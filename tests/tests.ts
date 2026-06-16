@@ -1,13 +1,13 @@
 // external imports
 import { before } from 'mocha';
-import * as anchor from '@coral-xyz/anchor';
+import * as anchor from '@anchor-lang/core';
 import { CreateNftInput, Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
 import { PublicKey } from '@solana/web3.js';
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '@anchor-lang/core';
 import { constants } from './contstants';
 import { getDummyKey, pda } from './utils';
-import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 
 // local test suites
 import initTests from './suites/1-initialization-tests';

@@ -24,6 +24,7 @@ pub struct End<'info> {
     pub run: Account<'info, RunAccount>,
     #[account(
         mut,
+        dup,
         constraint = job.price == 0 ||
             deposit.key() == get_associated_token_address(&job.payer, &id::NOS_TOKEN)
             @ NosanaError::InvalidATA
@@ -40,7 +41,7 @@ pub struct End<'info> {
     pub vault: Account<'info, TokenAccount>,
     /// CHECK: this account is verified as the original payer for the run account
     #[account(mut)]
-    pub payer: AccountInfo<'info>,
+    pub payer: UncheckedAccount<'info>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub token_program: Program<'info, Token>,

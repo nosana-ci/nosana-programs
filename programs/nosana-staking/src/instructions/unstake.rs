@@ -13,7 +13,7 @@ pub struct Unstake<'info> {
         address = pda::nosana_rewards(authority.key) @ NosanaError::InvalidAccount,
         constraint = utils::account_is_closed(&reward) @ NosanaStakingError::HasReward,
     )]
-    pub reward: AccountInfo<'info>,
+    pub reward: UncheckedAccount<'info>,
     pub authority: Signer<'info>,
 }
 

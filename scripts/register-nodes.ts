@@ -1,9 +1,8 @@
-import { AnchorProvider, Program, setProvider, web3, Idl } from '@coral-xyz/anchor';
-import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+// @ts-ignore
+import { AnchorProvider, Program, setProvider, web3, Idl } from '@anchor-lang/core';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { pda } from '../tests/utils';
-// @ts-ignore
-import { NosanaNodes } from '../target/types/nosana_nodes';
 
 async function main() {
   // anchor
@@ -15,7 +14,8 @@ async function main() {
 
   // program
   const idl = (await Program.fetchIdl(nodesId.toString())) as Idl;
-  const program = new Program(idl, nodesId) as unknown as Program<NosanaNodes>;
+  // @ts-ignore
+  const program = new Program(idl, nodesId);
 
   const nodePda = await pda([utf8.encode('node'), provider.wallet.publicKey.toBuffer()], nodesId);
 

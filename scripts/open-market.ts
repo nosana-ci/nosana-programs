@@ -1,4 +1,4 @@
-import { web3, BN } from '@coral-xyz/anchor';
+import { web3, BN } from '@anchor-lang/core';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { pda, setupAnchorAndPrograms, solanaExplorer } from '../tests/utils';

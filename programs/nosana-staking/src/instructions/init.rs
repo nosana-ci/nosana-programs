@@ -6,7 +6,7 @@ pub struct Init<'info> {
         init,
         payer = authority,
         space = SettingsAccount::SIZE,
-        seeds = [ constants::PREFIX_SETTINGS.as_ref() ],
+        seeds = [ constants::PREFIX_SETTINGS ],
         bump,
     )]
     pub settings: Account<'info, SettingsAccount>,

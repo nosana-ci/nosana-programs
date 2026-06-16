@@ -18,7 +18,7 @@ pub struct List<'info> {
         owner = id::SYSTEM_PROGRAM @ NosanaError::InvalidOwner,
         constraint = run.lamports() == 0 @ NosanaError::LamportsNonNull
     )]
-    pub run: AccountInfo<'info>,
+    pub run: UncheckedAccount<'info>,
     #[account(
         mut,
         constraint = market.job_price == 0 ||
@@ -58,7 +58,7 @@ impl<'info> List<'info> {
             QueueType::Node => RunAccount::initialize(
                 self.payer.to_account_info(),
                 self.run.to_account_info(),
-                self.system_program.to_account_info(),
+                self.system_program.key(),
                 self.job.key(),
                 self.market.pop_from_queue(),
             ),

@@ -1,7 +1,7 @@
-import * as anchor from '@coral-xyz/anchor';
+import * as anchor from '@anchor-lang/core';
 import { expect } from 'chai';
 import { buf2hex, getTimestamp, getTokenBalance, pda, sleep } from '../utils';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '@anchor-lang/core';
 import { Context, describe } from 'mocha';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
 
@@ -750,7 +750,7 @@ export default function suite() {
       const expired = job.timeEnd.toNumber() + market.jobExpiration.toNumber() + 5;
 
       // wait and clean
-      await sleep(Math.abs(now - expired));
+      await sleep(Math.abs(now - expired) + 10);
       await this.jobsProgram.methods.clean().accounts(this.accounts).rpc();
     });
   });

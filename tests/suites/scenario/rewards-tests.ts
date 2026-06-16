@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '@anchor-lang/core';
 import { expect } from 'chai';
 import * as _ from 'lodash';
 import { getTokenBalance, mapUsers, mintNosTo, setupSolanaUser } from '../../utils';

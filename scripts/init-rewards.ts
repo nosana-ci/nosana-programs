@@ -1,5 +1,5 @@
-import { AnchorProvider, Idl, Program, setProvider, web3 } from '@coral-xyz/anchor';
-import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+import { AnchorProvider, Idl, Program, setProvider, web3 } from '@anchor-lang/core';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { pda } from '../tests/utils';
 // @ts-ignore

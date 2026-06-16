@@ -1,8 +1,11 @@
-anchor_version = "0.28.0"
+anchor_version = "1.0.2"
+
+[toolchain]
+solana_version = "3.1.10"
+package_manager = "npm"
 
 [workspace]
 members = [
-#    "common",
     "programs/nosana-jobs",
     "programs/nosana-pools",
     "programs/nosana-rewards",
@@ -10,19 +13,14 @@ members = [
     "programs/nosana-nodes",
 ]
 
-[toolchain]
-solana_version = "1.14.16"
-
 [features]
+resolution = true
 seeds = false
 skip-lint = false
 
 [provider]
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
-
-[registry]
-url = "https://api.apr.dev"
 
 [scripts]
 test = "npm run test"

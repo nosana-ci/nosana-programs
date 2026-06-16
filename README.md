@@ -37,12 +37,8 @@ Significant contributions to the source code may be compensated with a grant fro
 
 ## Development
 
-Dependencies to set up your local Solana development environment.
-Install Rust, the Solana CLI, and Anchor Framework with below version:
+See [docs/development.md](./docs/development.md) for a complete guide to setting up your development environment and working with this codebase.
 
-- `rustc`: `1.67.1`
-- `solana-cli`: `1.14.16`
-- `anchor-cli`: `0.28.0`
 
 ## License
 

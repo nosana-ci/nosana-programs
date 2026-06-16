@@ -26,13 +26,8 @@ pub mod nosana_pools {
         claim_type: u8,
         closeable: bool,
     ) -> Result<()> {
-        ctx.accounts.handler(
-            emission,
-            start_time,
-            claim_type,
-            closeable,
-            *ctx.bumps.get("vault").unwrap(),
-        )
+        ctx.accounts
+            .handler(emission, start_time, claim_type, closeable, ctx.bumps.vault)
     }
 
     /// Add fees from a [PoolAccount](#pool-account) with claim type [`1`](#claim-type)

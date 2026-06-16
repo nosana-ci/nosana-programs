@@ -3,21 +3,29 @@ name = "nosana-rewards"
 version = "0.1.0"
 description = "Reflection rewards for Nosana"
 edition = "2021"
-homepage = "https://nosana.io/"
+homepage = "https://nosana.com/"
 authors = ["nosana"]
 license = "MIT"
-keywords = ["solana", "nosana", "cicd", "rewards", "anchor"]
+keywords = ["solana", "nosana", "gpu", "rewards", "anchor"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
 name = "nosana_rewards"
 
 [features]
+devnet = ["nosana-common/devnet"]
+mainnet = ["nosana-common/mainnet"]
 no-entrypoint = []
-cpi = ["no-entrypoint"]
+cpi = ["no-entrypoint", "nosana-common/cpi"]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "nosana-common/idl-build"]
+no-idl = []
+no-log-ix-name = []
+anchor-debug = ["nosana-common/anchor-debug"]
+custom-heap = ["nosana-common/custom-heap"]
+custom-panic = ["nosana-common/custom-panic"]
 
 [dependencies]
-anchor-lang = "0.28.0"
-anchor-spl = "0.28.0"
+anchor-lang = "1.0.2"
+anchor-spl = "1.0.2"
 nosana-staking = { path = "../nosana-staking", features = ["cpi"] }
 nosana-common = { path = "../../common" }

@@ -6,7 +6,7 @@ pub struct CleanAdmin<'info> {
     pub job: Account<'info, JobAccount>,
     /// CHECK: this account is verified as the original payer for the job
     #[account(mut)]
-    pub payer: AccountInfo<'info>,
+    pub payer: UncheckedAccount<'info>,
     #[account(address = id::MARKET_ADMIN @ NosanaError::Unauthorized)]
     pub authority: Signer<'info>,
 }

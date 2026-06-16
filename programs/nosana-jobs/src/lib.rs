@@ -37,7 +37,7 @@ pub mod nosana_jobs {
             job_timeout,
             job_type,
             node_xnos_minimum,
-            *ctx.bumps.get("vault").unwrap(),
+            ctx.bumps.vault,
         )
     }
 
@@ -83,7 +83,7 @@ pub mod nosana_jobs {
         ctx.accounts.handler(ipfs_job, timeout)
     }
 
-    /// Remove a [JobAccount](#job-account) from market job queue.
+    /// Remove a [JobAccount](#job-account) from the market job queue.
     pub fn delist(ctx: Context<Delist>) -> Result<()> {
         ctx.accounts.handler()
     }
@@ -107,7 +107,7 @@ pub mod nosana_jobs {
      Node Instructions
     */
 
-    /// Enters the [MarketAccount](#market-account) queue, or create  a [RunAccount](#run-account).
+    /// Enters the [MarketAccount](#market-account) queue, or create a [RunAccount](#run-account).
     pub fn work(ctx: Context<Work>) -> Result<()> {
         ctx.accounts.handler()
     }
@@ -127,7 +127,7 @@ pub mod nosana_jobs {
         ctx.accounts.handler(ipfs_result)
     }
 
-    /// Post the result for a  [JobAccount](#job-account) to finish it and get paid.
+    /// Post the result for a [JobAccount](#job-account) to finish it and get paid.
     pub fn finish(ctx: Context<Finish>, ipfs_result: [u8; 32]) -> Result<()> {
         ctx.accounts.handler(ipfs_result)
     }

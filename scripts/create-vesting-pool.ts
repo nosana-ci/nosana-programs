@@ -1,5 +1,6 @@
-import { web3, BN } from '@coral-xyz/anchor';
-import { utf8 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+// @ts-ignore
+import { web3, BN } from '@anchor-lang/core';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import {
   getAssociatedTokenAddress,
@@ -44,7 +45,6 @@ async function main() {
           beneficiary: beneficiaryAta,
           mint,
           pool: throwAwayKeypair.publicKey,
-          rent: web3.SYSVAR_RENT_PUBKEY,
           systemProgram: web3.SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
           vault,
