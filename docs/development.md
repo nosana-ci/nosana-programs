@@ -57,7 +57,7 @@ To create a verifiable build (deterministic compilation for on-chain verificatio
 anchor build --verifiable
 
 # for mainnet
-anchor build --verifiable -- --features "mainnet" 
+anchor build --verifiable -- --features "mainnet"
 ```
 
 This will:
@@ -73,7 +73,7 @@ Anchor provides a test environment:
 # Run all tests
 anchor test --validator legacy --skip-build
 
-# Run specific test 
+# Run specific test
 TEST_SCENARIO=jobs anchor test --validator legacy --skip-build
 ```
 
@@ -86,4 +86,3 @@ anchor clean
 # or
 rm -rf ./target
 ```
-
