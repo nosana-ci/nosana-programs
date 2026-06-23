@@ -29,3 +29,6 @@ anchor-lang = "1.0.2"
 anchor-spl = "1.0.2"
 nosana-common = { path = "../../common" }
 nosana-rewards = { path = "../nosana-rewards", features = ["cpi"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "allow", check-cfg = ['cfg(solana)'] }

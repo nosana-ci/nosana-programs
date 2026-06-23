@@ -27,3 +27,6 @@ custom-panic = ["nosana-common/custom-panic"]
 [dependencies]
 anchor-lang = "1.0.2"
 nosana-common = { path = "../../common" }
+
+[lints.rust]
+unexpected_cfgs = { level = "allow", check-cfg = ['cfg(solana)'] }
