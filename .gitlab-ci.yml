@@ -2,7 +2,6 @@ include:
   - project: nosana-ci/tools/cicd/gitlab-ci
     file: anchor.yml
 
-image: solanafoundation/anchor:v1.0.2
 variables:
   SQUADS_PUBKEY: GXs53JMXbgdMDhtmjE9iNgSmC1gu8f3adZhXuCEq1Bx9
   MSIG_ACCOUNT: ktKWwDt5J8NFMi5jQNRRBDKAhimU5tnrGCcXuYJmxqE
