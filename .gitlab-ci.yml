@@ -3,6 +3,8 @@ include:
     file: anchor.yml
 
 image: solanafoundation/anchor:v1.0.2
+variables:
+  SQUADS_PUBKEY: GXs53JMXbgdMDhtmjE9iNgSmC1gu8f3adZhXuCEq1Bx9
 
 .parallel:
   parallel:
