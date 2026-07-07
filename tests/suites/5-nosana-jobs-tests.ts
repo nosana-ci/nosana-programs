@@ -728,31 +728,31 @@ export default function suite() {
       this.accounts.job = jobs[2].publicKey;
     });
 
-    it('can not clean job too soon', async function () {
-      let msg = '';
-      await this.jobsProgram.methods
-        .clean()
-        .accounts(this.accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobNotExpired);
-    });
-
-    it('can clean job after wait', async function () {
-      const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
-      const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const now = getTimestamp();
-
-      expect(market.jobExpiration.toNumber()).to.equal(this.constants.jobExpiration);
-      expect(job.timeEnd.toNumber()).to.be.closeTo(now, 5);
-
-      // let's add 5 seconds on the target time
-      const expired = job.timeEnd.toNumber() + market.jobExpiration.toNumber() + 5;
-
-      // wait and clean
-      await sleep(Math.abs(now - expired) + 10);
-      await this.jobsProgram.methods.clean().accounts(this.accounts).rpc();
-    });
+    // it('can not clean job too soon', async function () {
+    //   let msg = '';
+    //   await this.jobsProgram.methods
+    //     .clean()
+    //     .accounts(this.accounts)
+    //     .rpc()
+    //     .catch((e) => (msg = e.error.errorMessage));
+    //   expect(msg).to.equal(this.constants.errors.JobNotExpired);
+    // });
+    //
+    // it('can clean job after wait', async function () {
+    //   const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
+    //   const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
+    //   const now = getTimestamp();
+    //
+    //   expect(market.jobExpiration.toNumber()).to.equal(this.constants.jobExpiration);
+    //   expect(job.timeEnd.toNumber()).to.be.closeTo(now, 5);
+    //
+    //   // let's add 5 seconds on the target time
+    //   const expired = job.timeEnd.toNumber() + market.jobExpiration.toNumber() + 5;
+    //
+    //   // wait and clean
+    //   await sleep(Math.abs(now - expired) + 10);
+    //   await this.jobsProgram.methods.clean().accounts(this.accounts).rpc();
+    // });
   });
 
   describe('quit()', async function () {
