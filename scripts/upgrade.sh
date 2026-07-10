@@ -94,7 +94,7 @@ if [[ "${CLUSTER}" == mainnet ]]; then
   program_metadata create-buffer --rpc "${RPC_URL}" "target/idl/${PROGRAM_NAME}.json" | tee idl.output
   BUFFER_IDL=$(grep -oP 'buffer:\s+\K\w+' idl.output)
   log_std "IDL buffer: ${GREEN}${BUFFER_IDL}${WHITE}."
-  program_metadata set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc "${RPC_URL}"
+#  program_metadata set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc "${RPC_URL}"
   program_metadata write idl "${PROGRAM_ID}" \
     --buffer "${BUFFER_IDL}" \
     --export "${SQUADS_PUBKEY}" \
