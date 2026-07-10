@@ -2,7 +2,7 @@
 anchor_version = "1.0.2"
 solana_version = "3.1.10"
 package_manager = "npm"
-node_version = "18.16.0"
+node_version = "20.18.0"
 
 [workspace]
 members = [

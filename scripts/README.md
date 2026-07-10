@@ -50,6 +50,31 @@ npm run script:draw-mint-pass-lottery $WAIT_FOR_BLOCK_TIME $TOTAL_DRAWS
 drawing, and will be used for seeding the PRNG.
 - The `$TOTAL_DRAWS`: How many mint passes will be distributed
 
+### Combine Transactions
+
+Combine multiple base58-encoded transactions into a single unsigned transaction
+(for signing/executing through the Squads multisig). From each file it takes the
+last non-empty line and concatenates all of its instructions, in file order.
+
+```shell
+npm run script:combine-txs -- <file1> <file2> [...] [options]
+```
+
+Options:
+
+- `--upgrade <programId> <bufferAddress>` — prepend a BPF Upgradeable Loader
+  `upgrade` instruction as the **first** instruction, so the program upgrade
+  rides along in the same Squads transaction instead of being a separate step
+  in the Squads UI (no CLI exports this instruction, so it is built by hand).
+- `--spill-account <pubkey>` (alias `--close-buffer`) — recipient of the
+  reclaimed rent lamports (default: `SQUADS_PUBKEY`).
+- `--authority <pubkey>` — upgrade authority / required signer
+  (default: `SQUADS_PUBKEY`).
+- `-o, --output <file>` — output file (default: `combined.tx`).
+
+The transactions must share one fee-payer, use no address lookup tables, and the
+merged transaction must fit within 1232 bytes.
+
 ### Generate docs
 
 To compile standard Nosana Documentation from the rust code
