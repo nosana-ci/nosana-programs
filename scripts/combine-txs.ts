@@ -98,10 +98,7 @@ function lastNonEmpty(p: string): string {
 }
 
 // --- reconstruct full instructions from a serialized tx (legacy or v0, no ALTs) ---
-function extractInstructions(
-  b58: string,
-  label: string,
-): { feePayer: PublicKey; ixs: TransactionInstruction[] } {
+function extractInstructions(b58: string, label: string): { feePayer: PublicKey; ixs: TransactionInstruction[] } {
   const tx = VersionedTransaction.deserialize(bs58.decode(b58));
   const msg = tx.message;
   if (msg.addressTableLookups && msg.addressTableLookups.length) {
@@ -112,9 +109,7 @@ function extractInstructions(
   const n = keys.length;
   const isSigner = (i: number) => i < h.numRequiredSignatures;
   const isWritable = (i: number) =>
-    isSigner(i)
-      ? i < h.numRequiredSignatures - h.numReadonlySignedAccounts
-      : i < n - h.numReadonlyUnsignedAccounts;
+    isSigner(i) ? i < h.numRequiredSignatures - h.numReadonlySignedAccounts : i < n - h.numReadonlyUnsignedAccounts;
   const feePayer = keys[0];
   const ixs = msg.compiledInstructions.map(
     (ix) =>
@@ -138,10 +133,7 @@ function upgradeInstruction(
   spill: PublicKey,
   upgradeAuthority: PublicKey,
 ): TransactionInstruction {
-  const [programData] = PublicKey.findProgramAddressSync(
-    [programId.toBuffer()],
-    BPF_LOADER_UPGRADEABLE,
-  );
+  const [programData] = PublicKey.findProgramAddressSync([programId.toBuffer()], BPF_LOADER_UPGRADEABLE);
   return new TransactionInstruction({
     programId: BPF_LOADER_UPGRADEABLE,
     keys: [
