@@ -2,7 +2,7 @@ include:
   - project: nosana-ci/tools/cicd/gitlab-ci
     file: templates/semver.yml
 
-image: "registry.gitlab.com/nosana-ci/tools/containers/anchor:v1.0.15"
+image: "registry.gitlab.com/nosana-ci/tools/containers/anchor:v1.0.16"
 
 variables:
   SQUADS_PUBKEY: GXs53JMXbgdMDhtmjE9iNgSmC1gu8f3adZhXuCEq1Bx9
