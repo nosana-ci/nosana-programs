@@ -1,28 +1,24 @@
 include:
   - project: nosana-ci/tools/cicd/gitlab-ci
-    file: anchor.yml
+    file: templates/semver.yml
+
+image: "registry.gitlab.com/nosana-ci/tools/containers/anchor:v1.0.12"
 
 variables:
   SQUADS_PUBKEY: GXs53JMXbgdMDhtmjE9iNgSmC1gu8f3adZhXuCEq1Bx9
   MSIG_ACCOUNT: ktKWwDt5J8NFMi5jQNRRBDKAhimU5tnrGCcXuYJmxqE
 
-.parallel:
-  parallel:
-    matrix:
-      - PROGRAM_NAME: nosana_staking
-        PROGRAM_ID: nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE
-      - PROGRAM_NAME: nosana_rewards
-        PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
-      - PROGRAM_NAME: nosana_pools
-        PROGRAM_ID: nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD
-      - PROGRAM_NAME: nosana_nodes
-        PROGRAM_ID: nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD
-      - PROGRAM_NAME: nosana_jobs
-        PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
-        SKIP_DEV: "yes"
-      - PROGRAM_NAME: nosana_jobs
-        PROGRAM_ID: nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR
-        SKIP_MAIN: "yes"
+.wallet:
+  before_script:
+    - echo $SOLANA_WALLET > ~/.config/solana/id.json
+  after_script:
+    - rm ~/.config/solana/id.json
+
+rust-fmt:
+  stage: .pre
+  script: cargo fmt --check --all
+  rules:
+    - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 npm:
   stage: .pre
@@ -34,6 +30,41 @@ npm:
     - npm run $SCRIPT
   rules:
     - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:
+  extends: .wallet
+  stage: build
+  rules:
+    - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        CLUSTER: devnet
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
+      variables:
+        CLUSTER: mainnet
+  script: anchor build -- --features "$CLUSTER"
+  artifacts:
+    paths:
+      - target/deploy/*.so
+      - target/idl/*.json
+  cache:
+    key: target-build-$CLUSTER
+    paths:
+      - target/
+
+test:
+  extends: .wallet
+  stage: test
+  script:
+    - npm ci
+    - anchor test --skip-build --validator legacy # replace with surfpool later..
+    - cargo check --release
+#    - cargo clippy --release
+  rules:
+    - if: $CI_MERGE_REQUEST_ID || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  cache:
+    key: target-devnet
+    paths:
+      - target/
 
 scenario:
   extends: .wallet
@@ -50,3 +81,46 @@ scenario:
     key: target-build-devnet
     paths:
       - target/
+
+upgrade:
+  extends: .wallet
+  stage: deploy
+  parallel:
+    matrix:
+      - PROGRAM_NAME: nosana_staking
+        PROGRAM_ID: nosScmHY2uR24Zh751PmGj9ww9QRNHewh9H59AfrTJE
+      - PROGRAM_NAME: nosana_rewards
+        PROGRAM_ID: nosRB8DUV67oLNrL45bo2pFLrmsWPiewe2Lk2DRNYCp
+      - PROGRAM_NAME: nosana_pools
+        PROGRAM_ID: nosPdZrfDzND1LAR28FLMDEATUPK53K8xbRBXAirevD
+      - PROGRAM_NAME: nosana_nodes
+        PROGRAM_ID: nosNeZR64wiEhQc5j251bsP4WqDabT6hmz4PHyoHLGD
+      - PROGRAM_NAME: nosana_jobs
+        PROGRAM_ID: nosJhNRqr2bc9g1nfGDcXXTXvYUmxD4cVwy2pMWhrYM
+        SKIP_DEV: "yes"
+      - PROGRAM_NAME: nosana_jobs
+        PROGRAM_ID: nosJTmGQxvwXy23vng5UjkTbfv91Bzf9jEuro78dAGR
+        SKIP_MAIN: "yes"
+  variables:
+    RPC_BASE: https://rpc.ironforge.network
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        CLUSTER: devnet
+      when: manual
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG != "latest"
+      variables:
+        CLUSTER: mainnet
+      when: manual
+  script:
+    - ./scripts/upgrade.sh
+
+release:
+  extends: .release
+  stage: .post
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+gitlab-release:
+  extends: .gitlab-release
+  stage: .post
