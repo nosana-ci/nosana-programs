@@ -17,6 +17,10 @@ RESET="\n\033[0m"
 log_std() { echo -e "${CYAN}==> ${WHITE}${1}${RESET}"; }
 log_err() { echo -e "${RED}==> ${WHITE}${1}${RESET}"; }
 
+# tools
+PROGRAM_METADATA_VERSION="0.7.0"
+program_metadata() { npx "@solana-program/program-metadata@${PROGRAM_METADATA_VERSION}" "$@"; }
+
 # early check out
 REQUIRED_VARS=(CLUSTER RPC_BASE IRONFORGE_API_KEY PROGRAM_NAME PROGRAM_ID)
 if [[ "${CLUSTER:-}" == mainnet ]]; then
@@ -87,11 +91,11 @@ if [[ "${CLUSTER}" == mainnet ]]; then
     --memo "${CI_COMMIT_TAG}"
 
   log_std "Writing IDL buffer for ${GREEN}${PROGRAM_ID}${WHITE} in ${CLUSTER} with target/idl/${PROGRAM_NAME}.json."
-  npx @solana-program/program-metadata@latest create-buffer --rpc "${RPC_URL}" "target/idl/${PROGRAM_NAME}.json" | tee idl.output
+  program_metadata create-buffer --rpc "${RPC_URL}" "target/idl/${PROGRAM_NAME}.json" | tee idl.output
   BUFFER_IDL=$(grep -oP 'buffer:\s+\K\w+' idl.output)
   log_std "IDL buffer: ${GREEN}${BUFFER_IDL}${WHITE}."
-  npx @solana-program/program-metadata@latest set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc "${RPC_URL}"
-  npx @solana-program/program-metadata@latest write idl "${PROGRAM_ID}" \
+  program_metadata set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc "${RPC_URL}"
+  program_metadata write idl "${PROGRAM_ID}" \
     --buffer "${BUFFER_IDL}" \
     --export "${SQUADS_PUBKEY}" \
     --export-encoding base58 \
