@@ -20,7 +20,7 @@ log_err() { echo -e "${RED}==> ${WHITE}${1}${RESET}"; }
 # early check out
 REQUIRED_VARS=(CLUSTER RPC_BASE IRONFORGE_API_KEY PROGRAM_NAME PROGRAM_ID)
 if [[ "${CLUSTER:-}" == mainnet ]]; then
-  REQUIRED_VARS+=(SQUADS_PUBKEY MSIG_ACCOUNT ANCHOR_VERSION CI_COMMIT_TAG)
+  REQUIRED_VARS+=(SQUADS_PUBKEY MSIG_ACCOUNT BASE_IMAGE CI_COMMIT_TAG)
 fi
 
 MISSING=0
@@ -65,7 +65,7 @@ if [[ "${CLUSTER}" == mainnet ]]; then
   log_std "Exporting verifiable build transaction for ${GREEN}${PROGRAM_ID}${WHITE}."
   solana-verify export-pda-tx https://github.com/nosana-ci/nosana-programs.git \
     --url "${RPC_URL}" \
-    --base-image "solanafoundation/anchor:${ANCHOR_VERSION}" \
+    --base-image "${BASE_IMAGE}" \
     --program-id "${PROGRAM_ID}" \
     --commit-hash "${CI_COMMIT_TAG}" \
     --library-name "${PROGRAM_NAME}" \
