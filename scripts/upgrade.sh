@@ -20,7 +20,7 @@ log_err() { echo -e "${RED}==> ${WHITE}${1}${RESET}"; }
 # early check out
 REQUIRED_VARS=(CLUSTER RPC_BASE IRONFORGE_API_KEY PROGRAM_NAME PROGRAM_ID)
 if [[ "${CLUSTER:-}" == mainnet ]]; then
-  REQUIRED_VARS+=(SQUADS_PUBKEY MSIG_ACCOUNT BASE_IMAGE CI_COMMIT_TAG PROGRAM_METADATA_VERSION)
+  REQUIRED_VARS+=(SQUADS_PUBKEY MSIG_ACCOUNT BASE_IMAGE CI_COMMIT_TAG)
 fi
 
 MISSING=0
@@ -31,9 +31,6 @@ for var in "${REQUIRED_VARS[@]}"; do
   fi
 done
 [[ "${MISSING}" -eq 0 ]] || exit 1
-
-# tools
-program_metadata() { npx "@solana-program/program-metadata@${PROGRAM_METADATA_VERSION}" "$@"; }
 
 if [[ "${CLUSTER}" != devnet && "${CLUSTER}" != mainnet ]]; then
   log_err "Variable ${GREEN}CLUSTER${WHITE} must be 'devnet' or 'mainnet', got '${CLUSTER}'."
@@ -63,6 +60,7 @@ if [[ "${CLUSTER}" == mainnet ]]; then
   log_std "Writing buffer in ${GREEN}${CLUSTER}${WHITE} with target/deploy/${PROGRAM_NAME}.so."
   solana program write-buffer -u "${RPC_URL}" --output json "target/deploy/${PROGRAM_NAME}.so" | tee buffer.json
   BUFFER_PROGRAM=$(jq -r .buffer buffer.json)
+  log_std "Program buffer: ${GREEN}${BUFFER_IDL}${WHITE}."
   solana program set-buffer-authority -u "${RPC_URL}" "${BUFFER_PROGRAM}" --new-buffer-authority "${SQUADS_PUBKEY}"
 
   log_std "Exporting verifiable build transaction for ${GREEN}${PROGRAM_ID}${WHITE}."
@@ -90,10 +88,10 @@ if [[ "${CLUSTER}" == mainnet ]]; then
     --memo "${CI_COMMIT_TAG}"
 
   log_std "Writing IDL buffer for ${GREEN}${PROGRAM_ID}${WHITE} in ${CLUSTER} with target/idl/${PROGRAM_NAME}.json."
-  program_metadata create-buffer --rpc https://api.mainnet-beta.solana.com "target/idl/${PROGRAM_NAME}.json" | tee idl.output
+  NO_COLOR=1 program_metadata create-buffer --rpc "${RPC_URL}" "target/idl/${PROGRAM_NAME}.json" | tee idl.output
   BUFFER_IDL=$(grep -oP 'buffer:\s+\K\w+' idl.output)
   log_std "IDL buffer: ${GREEN}${BUFFER_IDL}${WHITE}."
-  program_metadata set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc https://api.mainnet-beta.solana.com
+  program_metadata set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc "${RPC_URL}"
   program_metadata write idl "${PROGRAM_ID}" \
     --buffer "${BUFFER_IDL}" \
     --export "${SQUADS_PUBKEY}" \
