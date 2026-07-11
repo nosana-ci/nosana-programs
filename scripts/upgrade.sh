@@ -94,9 +94,10 @@ if [[ "${CLUSTER}" == mainnet ]]; then
   program-metadata set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc "${RPC_URL}"
   program-metadata write idl "${PROGRAM_ID}" \
     --buffer "${BUFFER_IDL}" \
+    --close-buffer "${SPILL_ADDRESS}" \
+    --rpc "${RPC_URL}" \
     --export "${SQUADS_PUBKEY}" \
-    --export-encoding base58 \
-    --close-buffer "${SPILL_ADDRESS}" | tee idl.tx
+    --export-encoding base58 | tee idl.tx
 
   log_std "Combining transactions into all.tx."
   npm run script:combine-txs -- idl.tx verify.tx --upgrade "${PROGRAM_ID}" "${BUFFER_PROGRAM}" --spill-account "${SPILL_ADDRESS}" -o all.tx
