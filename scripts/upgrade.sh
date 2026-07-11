@@ -60,7 +60,7 @@ if [[ "${CLUSTER}" == mainnet ]]; then
   log_std "Writing buffer in ${GREEN}${CLUSTER}${WHITE} with target/deploy/${PROGRAM_NAME}.so."
   solana program write-buffer -u "${RPC_URL}" --output json "target/deploy/${PROGRAM_NAME}.so" | tee buffer.json
   BUFFER_PROGRAM=$(jq -r .buffer buffer.json)
-  log_std "Program buffer: ${GREEN}${BUFFER_IDL}${WHITE}."
+  log_std "Program buffer: ${GREEN}${BUFFER_PROGRAM}${WHITE}."
   solana program set-buffer-authority -u "${RPC_URL}" "${BUFFER_PROGRAM}" --new-buffer-authority "${SQUADS_PUBKEY}"
 
   log_std "Exporting verifiable build transaction for ${GREEN}${PROGRAM_ID}${WHITE}."
