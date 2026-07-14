@@ -57,6 +57,9 @@ if [[ "${CLUSTER}" == mainnet ]]; then
 
   SPILL_ADDRESS=$(solana address)
 
+  log_std "Installing node dependencies."
+  npm ci
+
   log_std "Writing buffer in ${GREEN}${CLUSTER}${WHITE} with target/deploy/${PROGRAM_NAME}.so."
   solana program write-buffer -u "${RPC_URL}" --output json "target/deploy/${PROGRAM_NAME}.so" | tee buffer.json
   BUFFER_PROGRAM=$(jq -r .buffer buffer.json)
