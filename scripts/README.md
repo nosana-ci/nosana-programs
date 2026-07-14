@@ -50,6 +50,37 @@ npm run script:draw-mint-pass-lottery $WAIT_FOR_BLOCK_TIME $TOTAL_DRAWS
 drawing, and will be used for seeding the PRNG.
 - The `$TOTAL_DRAWS`: How many mint passes will be distributed
 
+### Close Buffers
+
+Export unsigned base58 transaction(s) that close BPF Upgradeable Loader buffer
+accounts (leftovers from aborted/superseded deploys), reclaiming their rent
+lamports. Since our buffers' authority is the Squads vault, the transactions
+must be imported in Squads under developers/txBuilder/ImportAsBase58 and
+executed through the multisig.
+
+```shell
+npm run script:close-buffers -- [buffer ...] [options]
+```
+
+With no positional arguments it fetches all buffer accounts whose authority is
+`--authority` from the RPC — the same list as:
+
+```shell
+solana program show --buffers --buffer-authority <SQUADS_PUBKEY> -um
+```
+
+Options:
+
+- `--authority <pubkey>` — buffer authority / required signer
+  (default: `SQUADS_PUBKEY`).
+- `--recipient <pubkey>` — recipient of the reclaimed rent (default: the
+  authority, i.e. the Squads vault).
+- `--rpc <url>` — RPC endpoint (default: `$RPC_URL`, `$ANCHOR_PROVIDER_URL`,
+  or the public mainnet-beta endpoint).
+- `-o, --output <file>` — output file (default: `close-buffers.tx`); when the
+  closes do not fit in one 1232-byte transaction, numbered variants are
+  written (`close-buffers-1.tx`, ...).
+
 ### Combine Transactions
 
 Combine multiple base58-encoded transactions into a single unsigned transaction

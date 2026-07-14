@@ -6,3 +6,4 @@ target
 node_modules
 docker-target/
 stakers.csv
+*.tx
