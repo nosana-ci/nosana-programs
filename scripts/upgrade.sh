@@ -91,7 +91,7 @@ if [[ "${CLUSTER}" == mainnet ]]; then
     --memo "${CI_COMMIT_TAG}"
 
   log_std "Writing IDL buffer for ${GREEN}${PROGRAM_ID}${WHITE} in ${CLUSTER} with target/idl/${PROGRAM_NAME}.json."
-  NO_COLOR=1 program-metadata create-buffer --rpc "${RPC_URL}" "target/idl/${PROGRAM_NAME}.json" | tee idl.output
+  NO_COLOR=1 program-metadata create-buffer --rpc "${RPC_URL}" idl.json | tee idl.output
   BUFFER_IDL=$(grep -oP 'buffer:\s+\K\w+' idl.output)
   log_std "IDL buffer: ${GREEN}${BUFFER_IDL}${WHITE}."
   program-metadata set-buffer-authority "${BUFFER_IDL}" --new-authority "${SQUADS_PUBKEY}" --rpc "${RPC_URL}"
