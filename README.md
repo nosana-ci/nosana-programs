@@ -39,6 +39,10 @@ Significant contributions to the source code may be compensated with a grant fro
 
 See [docs/development.md](./docs/development.md) for a complete guide to setting up your development environment and working with this codebase.
 
+## Deployment
+
+See [docs/deployment.md](./docs/deployment.md) for how the programs are deployed and upgraded: what each CI job does, and how mainnet upgrades are prepared by CI and executed through the Squads multisig.
+
 
 ## License
 
