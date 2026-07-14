@@ -1,6 +1,6 @@
 import * as anchor from '@anchor-lang/core';
 import { expect } from 'chai';
-import { buf2hex, getTimestamp, getTokenBalance, pda, sleep } from '../utils';
+import { buf2hex, getSolanaTimestamp, getTokenBalance, pda, waitForSolanaTimestamp } from '../utils';
 import { BN } from '@anchor-lang/core';
 import { Context, describe } from 'mocha';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
@@ -720,12 +720,16 @@ export default function suite() {
 
       expect(jobs.length).to.equal(4);
 
-      const job = jobs[0];
+      // all() returns accounts in no particular order, pick the most recently
+      // finished job so it can not have expired yet
+      const job = jobs.reduce((newest, j) =>
+        j.account.timeEnd.toNumber() > newest.account.timeEnd.toNumber() ? j : newest,
+      );
 
       expect(job.account.node.toString()).to.equal(this.accounts.authority.toString());
       expect(job.account.state).to.equal(this.constants.jobState.done);
 
-      this.accounts.job = jobs[2].publicKey;
+      this.accounts.job = job.publicKey;
     });
 
     it('can not clean job too soon', async function () {
@@ -741,16 +745,13 @@ export default function suite() {
     it('can clean job after wait', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       const market = await this.jobsProgram.account.marketAccount.fetch(this.accounts.market);
-      const now = getTimestamp();
 
       expect(market.jobExpiration.toNumber()).to.equal(this.constants.jobExpiration);
-      expect(job.timeEnd.toNumber()).to.be.closeTo(now, 5);
+      expect(job.timeEnd.toNumber()).to.be.closeTo(await getSolanaTimestamp(this.connection), 5);
 
-      // let's add 5 seconds on the target time
-      const expired = job.timeEnd.toNumber() + market.jobExpiration.toNumber() + 5;
-
-      // wait and clean
-      await sleep(Math.abs(now - expired) + 10);
+      // the program checks expiration against the on-chain clock, which drifts
+      // from wall time on a test validator, so wait for the chain to pass it
+      await waitForSolanaTimestamp(this.connection, job.timeEnd.toNumber() + market.jobExpiration.toNumber());
       await this.jobsProgram.methods.clean().accounts(this.accounts).rpc();
     });
   });
@@ -1197,8 +1198,13 @@ export default function suite() {
         // update market
         this.market.queueLength -= 1;
         this.market.queueType = this.constants.queueType.unknown;
-        // make sure we take entire job timeout
-        await sleep(this.constants.jobTimeout + this.constants.jobExtendTimeout);
+        // make sure we take the entire job timeout, according to the on-chain
+        // clock that the reimbursement is calculated with
+        const run = await this.jobsProgram.account.runAccount.fetch(this.accounts.run);
+        await waitForSolanaTimestamp(
+          this.connection,
+          run.time.toNumber() + this.constants.jobTimeout + this.constants.jobExtendTimeout,
+        );
         // finish the job
         await this.jobsProgram.methods
           .finish(this.constants.ipfsData)

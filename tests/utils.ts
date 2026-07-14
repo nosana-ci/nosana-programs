@@ -127,6 +127,27 @@ const sleep = (seconds: number) => new Promise((res) => setTimeout(res, seconds 
 const getTimestamp = () => Math.floor(Date.now() / 1e3);
 
 /**
+ * The unix timestamp of the on-chain clock, which the programs compare against.
+ * On a test validator this drifts from wall time, so time-based tests must use
+ * this instead of Date.now()
+ * @param connection
+ */
+const getSolanaTimestamp = async (connection: Connection): Promise<number> => {
+  const time = await connection.getBlockTime(await connection.getSlot());
+  expect(time, 'solana block time').to.not.be.null;
+  return time;
+};
+
+/**
+ * Sleep until the on-chain clock has passed the given unix timestamp
+ * @param connection
+ * @param timestamp
+ */
+const waitForSolanaTimestamp = async (connection: Connection, timestamp: number) => {
+  while ((await getSolanaTimestamp(connection)) <= timestamp) await sleep(1);
+};
+
+/**
  *
  */
 const now = function () {
@@ -276,8 +297,10 @@ export {
   buf2hex,
   calculateXnos,
   getDummyKey,
+  getSolanaTimestamp,
   getTimestamp,
   getTokenBalance,
+  waitForSolanaTimestamp,
   getUsers,
   createNosMint,
   now,

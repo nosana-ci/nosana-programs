@@ -1,6 +1,6 @@
 import * as anchor from '@anchor-lang/core';
 import { expect } from 'chai';
-import { calculateXnos, getTokenBalance, sleep } from '../utils';
+import { calculateXnos, getSolanaTimestamp, getTokenBalance, waitForSolanaTimestamp } from '../utils';
 import { beforeEach } from 'mocha';
 
 export default function suite() {
@@ -217,7 +217,7 @@ export default function suite() {
     it('can unstake', async function () {
       await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
       const data = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
-      expect(Date.now() / 1e3).to.be.closeTo(data.timeUnstake.toNumber(), 3);
+      expect(await getSolanaTimestamp(this.connection)).to.be.closeTo(data.timeUnstake.toNumber(), 3);
 
       // check stake
       const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
@@ -322,7 +322,14 @@ export default function suite() {
       const expectedWithdraw = Math.floor(emission * seconds);
 
       await this.stakingProgram.methods.unstake().accounts(this.accounts).rpc();
-      await sleep(seconds);
+
+      // the emission is based on the on-chain clock, which drifts from wall
+      // time on a test validator, so wait for `seconds` on-chain seconds
+      const timeUnstake = (
+        await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)
+      ).timeUnstake.toNumber();
+      await waitForSolanaTimestamp(this.connection, timeUnstake + seconds - 1);
+
       await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
 
       const balanceAfter = await getTokenBalance(this.provider, this.accounts.user);
@@ -343,11 +350,17 @@ export default function suite() {
     it('can withdraw a second time', async function () {
       const seconds = 10; // increase this number get a higher test reliability
       const duration = this.constants.stakeDurationMin * 2 + 7;
-      const amount = (await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake)).amount.toNumber();
+      const stake = await this.stakingProgram.account.stakeAccount.fetch(this.accounts.stake);
+      const amount = stake.amount.toNumber();
       const emission = amount / duration;
       const expectedWithdraw = Math.floor(emission * seconds);
 
-      await sleep(seconds);
+      // derive the on-chain time of the previous withdraw from the amount it
+      // withdrew, and wait for `seconds` on-chain seconds after that
+      const withdrawnSoFar = amount - this.vaultBalanceBefore;
+      const previousWithdrawTime = stake.timeUnstake.toNumber() + Math.round(withdrawnSoFar / emission);
+      await waitForSolanaTimestamp(this.connection, previousWithdrawTime + seconds - 1);
+
       await this.stakingProgram.methods.withdraw().accounts(this.accounts).rpc();
 
       const balanceAfter = await getTokenBalance(this.provider, this.accounts.user);
