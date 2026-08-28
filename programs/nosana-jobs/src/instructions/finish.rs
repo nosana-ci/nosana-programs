@@ -10,6 +10,7 @@ pub struct Finish<'info> {
         mut,
         has_one = market @ NosanaJobsError::InvalidMarketAccount,
         constraint = job.payer == payer_job.key() @ NosanaError::InvalidPayer,
+        constraint = job.state == JobState::Queued as u8 @ NosanaJobsError::JobInWrongState,
     )]
     pub job: Box<Account<'info, JobAccount>>,
     #[account(
