@@ -702,18 +702,6 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.JobInWrongState);
     });
 
-    it('can not claim job that is running', async function () {
-      let msg = '';
-      const runKey = getRunKey(this);
-      await this.jobsProgram.methods
-        .claim()
-        .accounts(this.accounts)
-        .signers([runKey])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.JobInWrongState);
-    });
-
     it('can find a finished job in the market', async function () {
       // find offsets here: https://docs.nosana.io/programs/jobs.html#accounts
       const jobs = await this.jobsProgram.account.jobAccount.all([{ memcmp: { offset: 208, bytes: '3' } }]);
@@ -806,115 +794,6 @@ export default function suite() {
     it('can find a quited job', async function () {
       const job = await this.jobsProgram.account.jobAccount.fetch(this.accounts.job);
       expect(job.state).to.equal(this.constants.jobState.stopped);
-    });
-  });
-
-  describe('claim()', async function () {
-    it('can not claim a stopped job with wrong metadata', async function () {
-      let msg = '';
-      const user = this.users.node1;
-      const runKey = getRunKey(this);
-      await this.jobsProgram.methods
-        .claim()
-        .accounts({
-          ...this.accounts,
-          authority: user.publicKey,
-          nft: user.ataNft,
-          stake: user.stake,
-        })
-        .signers([runKey, user.user])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.NodeKeyInvalidCollection);
-    });
-
-    it('can not claim a stopped job with another stake', async function () {
-      let msg = '';
-      const user = this.users.node1;
-      const runKey = getRunKey(this);
-      await this.jobsProgram.methods
-        .claim()
-        .accounts({
-          ...this.accounts,
-          authority: user.publicKey,
-          metadata: user.metadata,
-          nft: user.ataNft,
-        })
-        .signers([runKey, user.user])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.Unauthorized);
-    });
-
-    it('can not claim a stopped job with wrong nft', async function () {
-      let msg = '';
-      const user = this.users.node1;
-      const runKey = getRunKey(this);
-      await this.jobsProgram.methods
-        .claim()
-        .accounts({
-          ...this.accounts,
-          authority: user.publicKey,
-          metadata: user.metadata,
-          stake: user.stake,
-        })
-        .signers([runKey, user.user])
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.NodeNftWrongOwner);
-    });
-
-    it('can claim a stopped job with another node', async function () {
-      const user = this.users.node1;
-      const runKey = getRunKey(this);
-      await this.jobsProgram.methods
-        .claim()
-        .accounts({
-          ...this.accounts,
-          authority: user.publicKey,
-          nft: user.ataNft,
-          metadata: user.metadata,
-          stake: user.stake,
-        })
-        .signers([runKey, user.user])
-        .rpc();
-    });
-
-    it('can find a re-claimed job', async function () {
-      const user = this.users.node1;
-      const runs = await this.jobsProgram.account.runAccount.all([
-        { memcmp: { offset: 8 + 32, bytes: user.publicKey.toBase58() } },
-      ]);
-      expect(runs.length).to.equal(1, 'number of runs');
-
-      const job = await this.jobsProgram.account.jobAccount.fetch(runs[0].account.job);
-      expect(job.state).to.equal(this.constants.jobState.stopped);
-      expect(job.node.toString()).to.equal(this.accounts.systemProgram.toString());
-
-      this.accounts.run = runs[0].publicKey;
-      this.accounts.job = runs[0].account.job;
-    });
-
-    it('can not quit job for another node', async function () {
-      let msg = '';
-      await this.jobsProgram.methods
-        .quit()
-        .accounts(this.accounts)
-        .rpc()
-        .catch((e) => (msg = e.error.errorMessage));
-      expect(msg).to.equal(this.constants.errors.Unauthorized);
-    });
-
-    it('can quit a job again', async function () {
-      const user = this.users.node1;
-      await this.jobsProgram.methods
-        .quit()
-        .accounts({
-          ...this.accounts,
-          authority: user.publicKey,
-        })
-        .signers([user.user])
-        .rpc();
     });
   });
 

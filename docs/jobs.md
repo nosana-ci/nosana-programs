@@ -16,7 +16,7 @@
 
 ## Instructions
 
-A number of 19 instruction are defined in the Nosana Jobs program.
+A number of 18 instruction are defined in the Nosana Jobs program.
 
 To load the program with [Anchor](https://coral-xyz.github.io/anchor/ts/index.html).
 
@@ -703,60 +703,6 @@ let tx = await program.methods
     authority,         // 𐄂 writable, ✓ signer
   })
   .signers([authorityKey])
-  .rpc();
-```
-
-### Claim
-
-Claim a job that is [stopped](#stop).
-
-#### Account Info
-
-The following 9 account addresses should be provided when invoking this instruction.
-
-| Name                   | Type                                                                                    | Description                                                                                       |
-|------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `job`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="lightgrey" />     | The [JobAccount](#job-account) address.                                                           |
-| `run`                  | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The [RunAccount](#run-account) address.                                                           |
-| `market`               | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [MarketAccount](#market-account) address.                                                     |
-| `stake`                | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The [StakeAccount](/programs/staking#stake-account) address.                                      |
-| `nft`                  | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Token Account address that holds the NFT.                                                     |
-| `metadata`             | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The Metaplex Metadata address, that belongs to the NFT.                                           |
-| `payer`                | <FontIcon icon="pencil" color="#3EAF7C" /><FontIcon icon="key" color="#3EAF7C" />       | The paying identy for the rent.                                                                   |
-| `authority`            | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="#3EAF7C" />     | The signing authority of the program invocation.                                                  |
-| `systemProgram`        | <FontIcon icon="pencil" color="lightgrey" /><FontIcon icon="key" color="lightgrey" />   | The official Solana system program address. Responsible for system CPIs.                          |
-
-
-#### Solana Dispatch ID
-
-The Solana dispatch ID for the Claim Instruction
-is **`3ec6d6c1d59f6cd2`**,
-which can also be expressed as an 8 byte discriminator:
-
-```json
-[62,198,214,193,213,159,108,210]
-```
-
-#### Example with Anchor
-
-To invoke the Claim Instruction
-with [Anchor TS](https://coral-xyz.github.io/anchor/ts/index.html).
-
-```typescript
-let tx = await program.methods
-  .claim()
-  .accounts({
-    job,               // ✓ writable, 𐄂 signer
-    run,               // ✓ writable, ✓ signer
-    market,            // 𐄂 writable, 𐄂 signer
-    stake,             // 𐄂 writable, 𐄂 signer
-    nft,               // 𐄂 writable, 𐄂 signer
-    metadata,          // 𐄂 writable, 𐄂 signer
-    payer,             // ✓ writable, ✓ signer
-    authority,         // 𐄂 writable, ✓ signer
-    systemProgram,     // 𐄂 writable, 𐄂 signer
-  })
-  .signers([runKey, payerKey, authorityKey])
   .rpc();
 ```
 

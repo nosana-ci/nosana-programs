@@ -117,11 +117,6 @@ pub mod nosana_jobs {
         ctx.accounts.handler()
     }
 
-    /// Claim a job that is [stopped](#stop).
-    pub fn claim(ctx: Context<Claim>) -> Result<()> {
-        ctx.accounts.handler()
-    }
-
     /// Complete a job that has been [stopped](#stop).
     pub fn complete(ctx: Context<Complete>, ipfs_result: [u8; 32]) -> Result<()> {
         ctx.accounts.handler(ipfs_result)
