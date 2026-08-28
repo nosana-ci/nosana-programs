@@ -44,7 +44,7 @@ for file in "target/deploy/${PROGRAM_NAME}.so" "target/idl/${PROGRAM_NAME}.json"
   fi
 done
 
-export RPC_URL="${RPC_BASE}/${CLUSTER}?apiKey=${IRONFORGE_API_KEY}"
+export RPC_URL="${RPC_URL:-${RPC_BASE}/${CLUSTER}?apiKey=${IRONFORGE_API_KEY}}"
 
 log_std "Patching IDL address to ${GREEN}${PROGRAM_ID}${WHITE}."
 jq --arg address "${PROGRAM_ID}" '.address |= $address' "target/idl/${PROGRAM_NAME}.json" | tee idl.json
