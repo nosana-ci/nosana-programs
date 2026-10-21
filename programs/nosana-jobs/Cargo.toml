@@ -25,7 +25,7 @@ custom-heap = ["nosana-common/custom-heap"]
 custom-panic = ["nosana-common/custom-panic"]
 
 [dependencies]
-anchor-lang = { version = "1.0.2", features = ["init-if-needed", "allow-missing-optionals"] }
+anchor-lang = { version = "1.0.2", features = ["init-if-needed"] }
 anchor-spl = "1.0.2"
 mpl-token-metadata = "5.1.1"
 nosana-staking = { path = "../nosana-staking", features = ["cpi"] }

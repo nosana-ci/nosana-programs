@@ -145,6 +145,7 @@ const constants = {
     // anchor errors
     Solana8ByteConstraint: 'Account discriminator did not match what was expected',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
+    SolanaAccountNotEnoughKeys: 'Not enough account keys given to the instruction',
     SolanaTokenOwnerConstraint: 'A token owner constraint was violated',
   },
 };

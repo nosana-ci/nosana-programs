@@ -1108,7 +1108,7 @@ export default function suite() {
   });
 
   describe('project access key', async function () {
-    it('can list a job as a client built before market settings existed', async function () {
+    it('can not list a job as a client built before market settings existed', async function () {
       const jobKey = getNewJobKey(this);
       const runKey = getRunKey(this);
       const instruction = await this.jobsProgram.methods
@@ -1117,30 +1117,12 @@ export default function suite() {
         .instruction();
       // such a client does not pass the trailing market settings and project access key accounts
       instruction.keys = instruction.keys.slice(0, -3);
-      await this.provider.sendAndConfirm(new anchor.web3.Transaction().add(instruction), [jobKey, runKey]);
 
-      // update balances
-      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
-      this.balances.user -= deposit;
-      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
-      this.balances.vaultJob += deposit;
-
-      // update market
-      this.market.queueType = this.constants.queueType.job;
-      this.market.queueLength += 1;
-    });
-
-    it('can delist the job again', async function () {
-      await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
-
-      // update balances
-      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
-      this.balances.user += deposit;
-      this.balances.vaultJob -= deposit;
-
-      // update market
-      this.market.queueType = this.constants.queueType.unknown;
-      this.market.queueLength -= 1;
+      let msg = '';
+      await this.provider
+        .sendAndConfirm(new anchor.web3.Transaction().add(instruction), [jobKey, runKey])
+        .catch((e) => (msg = [e.message, ...(e.logs ?? [])].join('\n')));
+      expect(msg).to.contain(this.constants.errors.SolanaAccountNotEnoughKeys);
     });
 
     it('can not update the market settings with a different authority', async function () {
