@@ -38,6 +38,37 @@ pub struct Assign<'info> {
     pub rewards_program: Program<'info, NosanaRewards>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
+    /// CHECK: the address is pinned by the seeds, an uninitialized PDA means the market is open to all projects.
+    /// Clients built before market settings existed do not pass it, they are treated as posting to an open market.
+    #[account(
+        seeds = [ constants::PREFIX_SETTINGS, market.key().as_ref() ],
+        bump,
+        constraint = MarketSettingsAccount::is_open(market_settings)
+            || (project_nft.is_some() && project_metadata.is_some())
+            @ NosanaJobsError::AccessKeyMissing,
+    )]
+    pub market_settings: Option<UncheckedAccount<'info>>,
+    /// Only required when the market settings have a project access key
+    #[account(
+        constraint = market_settings.as_ref().is_none_or(|settings| MarketSettingsAccount::is_open(settings))
+            || project_nft.owner == authority.key()
+            @ NosanaJobsError::AccessNftWrongOwner,
+        constraint = market_settings.as_ref().is_none_or(|settings| MarketSettingsAccount::is_open(settings))
+            || project_nft.amount >= 1
+            @ NosanaJobsError::AccessNftInvalidAmount
+    )]
+    pub project_nft: Option<Account<'info, TokenAccount>>,
+    /// CHECK: Metaplex metadata is verified against the NFT and the project access key
+    #[account(
+        constraint = market_settings.as_ref().is_none_or(|settings| MarketSettingsAccount::is_open(settings)
+            || project_nft.as_ref().is_some_and(|nft| MarketAccount::metadata_constraint(
+                project_metadata,
+                &nft.mint,
+                MarketSettingsAccount::project_access_key(settings),
+            )))
+            @ NosanaJobsError::AccessKeyInvalidCollection,
+    )]
+    pub project_metadata: Option<UncheckedAccount<'info>>,
 }
 
 impl<'info> Assign<'info> {

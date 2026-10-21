@@ -129,6 +129,12 @@ const constants = {
     NodeNftInvalidAmount: 'Access NFT amount cannot be 0.',
     NodeKeyInvalidCollection: 'This access key does not belong to a verified collection.',
 
+    // project access key errors
+    AccessKeyMissing: 'This market requires an access key NFT.',
+    AccessNftWrongOwner: 'This access key NFT is not owned by the signer.',
+    AccessNftInvalidAmount: 'Access key NFT amount cannot be 0.',
+    AccessKeyInvalidCollection: 'This access key NFT does not belong to the verified collection.',
+
     // pool errors
     PoolNotStarted: 'This pool has not started yet.',
     PoolUnderfunded: 'This pool does not have enough funds.',

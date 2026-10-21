@@ -178,6 +178,41 @@ impl MarketAccount {
     }
 }
 
+/// The `MarketSettingsAccount` struct holds optional settings of a `MarketAccount`.
+/// It lives at a PDA derived from the market, a market without one is open to all projects.
+#[account]
+pub struct MarketSettingsAccount {
+    pub project_access_key: Pubkey,
+}
+
+impl MarketSettingsAccount {
+    pub const SIZE: usize = 8 + size_of::<MarketSettingsAccount>();
+
+    pub fn set(&mut self, project_access_key: Pubkey) -> Result<()> {
+        self.project_access_key = project_access_key;
+        Ok(())
+    }
+
+    /***
+      Reads the project access key from the settings PDA of a market:
+       - if the PDA is not initialized, the market is open to all projects
+       - else the stored project access key applies
+    */
+    pub fn project_access_key(settings: &AccountInfo) -> Pubkey {
+        if *settings.owner != id::JOBS_PROGRAM {
+            return id::SYSTEM_PROGRAM;
+        }
+        let data = settings.data.borrow();
+        MarketSettingsAccount::try_deserialize(&mut &data[..])
+            .expect("market settings owned by the program must deserialize")
+            .project_access_key
+    }
+
+    pub fn is_open(settings: &AccountInfo) -> bool {
+        MarketSettingsAccount::project_access_key(settings) == id::SYSTEM_PROGRAM
+    }
+}
+
 /// The `JobAccount` struct holds all the information about any individual jobs.
 #[account]
 pub struct JobAccount {

@@ -69,6 +69,16 @@ pub mod nosana_jobs {
         ctx.accounts.handler()
     }
 
+    /// Create or update the [MarketSettingsAccount](#market-settings-account) of a market.
+    pub fn set_settings(ctx: Context<SetSettings>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
+    /// Close the [MarketSettingsAccount](#market-settings-account) of a market.
+    pub fn close_settings(ctx: Context<CloseSettings>) -> Result<()> {
+        ctx.accounts.handler()
+    }
+
     /***
      Project Instructions
     */
