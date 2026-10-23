@@ -1,7 +1,7 @@
 import * as anchor from '@anchor-lang/core';
 import { BN } from '@anchor-lang/core';
 import { expect } from 'chai';
-import { getTokenBalance, pda, sleep, now } from '../utils';
+import { getSolanaTimestamp, getTokenBalance, pda, sleep, now } from '../utils';
 import { afterEach, Context } from 'mocha';
 import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 import { transfer } from '@solana/spl-token';
@@ -60,8 +60,8 @@ export default function suite() {
       this.accounts.vault = this.vaults.pools;
       this.exists.pool = true;
 
-      // start pool 3 second ago
-      const startTime = now() - 3;
+      // start pool 3 seconds ago on the on-chain clock (wall time can run ahead of the validator)
+      const startTime = (await getSolanaTimestamp(this.connection)) - 3;
 
       // open pool
       await this.poolsProgram.methods
