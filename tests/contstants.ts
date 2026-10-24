@@ -48,8 +48,11 @@ const constants = {
     medium: 2,
     large: 3,
     gpu: 4,
-    unknown: 255,
+    unknown: 127,
   },
+
+  // high bit of a market's jobType, set while the market settings restrict it to projects holding the access key
+  marketRestricted: 128,
 
   queueType: {
     job: 0,
@@ -145,7 +148,6 @@ const constants = {
     // anchor errors
     Solana8ByteConstraint: 'Account discriminator did not match what was expected',
     SolanaAccountNotInitialized: 'The program expected this account to be already initialized',
-    SolanaAccountNotEnoughKeys: 'Not enough account keys given to the instruction',
     SolanaTokenOwnerConstraint: 'A token owner constraint was violated',
   },
 };

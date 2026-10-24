@@ -1108,7 +1108,7 @@ export default function suite() {
   });
 
   describe('project access key', async function () {
-    it('can not list a job as a client built before market settings existed', async function () {
+    it('can list a job on an open market as a client built before market settings existed', async function () {
       const jobKey = getNewJobKey(this);
       const runKey = getRunKey(this);
       const instruction = await this.jobsProgram.methods
@@ -1117,12 +1117,30 @@ export default function suite() {
         .instruction();
       // such a client does not pass the trailing market settings and project access key accounts
       instruction.keys = instruction.keys.slice(0, -3);
+      await this.provider.sendAndConfirm(new anchor.web3.Transaction().add(instruction), [jobKey, runKey]);
 
-      let msg = '';
-      await this.provider
-        .sendAndConfirm(new anchor.web3.Transaction().add(instruction), [jobKey, runKey])
-        .catch((e) => (msg = [e.message, ...(e.logs ?? [])].join('\n')));
-      expect(msg).to.contain(this.constants.errors.SolanaAccountNotEnoughKeys);
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
+      this.balances.vaultJob += deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
+    });
+
+    it('can delist the job again', async function () {
+      await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
     });
 
     it('can not update the market settings with a different authority', async function () {
@@ -1148,6 +1166,38 @@ export default function suite() {
 
       const settings = await this.jobsProgram.account.marketSettingsAccount.fetch(this.accounts.marketSettings);
       expect(settings.projectAccessKey.toString()).to.equal(this.nftConfig.collection.toString());
+
+      // the market itself is flagged as restricted
+      this.market.jobType |= this.constants.marketRestricted;
+    });
+
+    it('keeps the market restricted when it is updated', async function () {
+      await this.jobsProgram.methods
+        .update(
+          new BN(this.market.jobExpiration),
+          new BN(this.market.jobPrice),
+          this.market.jobType & ~this.constants.marketRestricted,
+          new BN(this.market.nodeStakeMinimum),
+          new BN(this.market.jobTimeout),
+        )
+        .accounts({ ...this.accounts, accessKey: this.market.nodeAccessKey })
+        .rpc();
+    });
+
+    it('can not list a job on a restricted market as a client built before market settings existed', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      const instruction = await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .instruction();
+      instruction.keys = instruction.keys.slice(0, -3);
+
+      let msg = '';
+      await this.provider
+        .sendAndConfirm(new anchor.web3.Transaction().add(instruction), [jobKey, runKey])
+        .catch((e) => (msg = [e.message, ...(e.logs ?? [])].join('\n')));
+      expect(msg).to.contain(this.constants.errors.AccessKeyMissing);
     });
 
     it('can not list a job without a project access key', async function () {
@@ -1287,6 +1337,9 @@ export default function suite() {
 
       const settings = await this.jobsProgram.account.marketSettingsAccount.fetchNullable(this.accounts.marketSettings);
       expect(settings).to.equal(null);
+
+      // the market is open again
+      this.market.jobType &= ~this.constants.marketRestricted;
     });
 
     it('can list a job without a project access key again', async function () {

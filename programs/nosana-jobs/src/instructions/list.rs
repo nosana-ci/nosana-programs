@@ -9,7 +9,13 @@ use nosana_rewards::{cpi::accounts::AddFee, program::NosanaRewards, ReflectionAc
 pub struct List<'info> {
     #[account(init, payer = payer, space = JobAccount::SIZE)]
     pub job: Box<Account<'info, JobAccount>>, // use Box because the account limit is exceeded
-    #[account(mut, has_one = vault @ NosanaError::InvalidVault)]
+    #[account(
+        mut,
+        has_one = vault @ NosanaError::InvalidVault,
+        constraint = !market.is_restricted()
+            || (market_settings.is_some() && project_nft.is_some() && project_metadata.is_some())
+            @ NosanaJobsError::AccessKeyMissing,
+    )]
     pub market: Box<Account<'info, MarketAccount>>,
     /// CHECK: the run account is created optionally
     #[account(
@@ -38,30 +44,29 @@ pub struct List<'info> {
     pub rewards_program: Program<'info, NosanaRewards>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
-    /// CHECK: the address is pinned by the seeds, an uninitialized PDA means the market is open to all projects
+    /// CHECK: the address is pinned by the seeds, only read when the market is restricted
     #[account(
         seeds = [ constants::PREFIX_SETTINGS, market.key().as_ref() ],
         bump,
-        constraint = MarketSettingsAccount::is_open(&market_settings)
-            || (project_nft.is_some() && project_metadata.is_some())
+        constraint = !market.is_restricted() || !MarketSettingsAccount::is_open(market_settings)
             @ NosanaJobsError::AccessKeyMissing,
     )]
-    pub market_settings: UncheckedAccount<'info>,
-    /// Only required when the market settings have a project access key
+    pub market_settings: Option<UncheckedAccount<'info>>,
+    /// Only required when the market is restricted
     #[account(
-        constraint = MarketSettingsAccount::is_open(&market_settings) || project_nft.owner == authority.key()
+        constraint = !market.is_restricted() || project_nft.owner == authority.key()
             @ NosanaJobsError::AccessNftWrongOwner,
-        constraint = MarketSettingsAccount::is_open(&market_settings) || project_nft.amount >= 1
+        constraint = !market.is_restricted() || project_nft.amount >= 1
             @ NosanaJobsError::AccessNftInvalidAmount
     )]
     pub project_nft: Option<Account<'info, TokenAccount>>,
     /// CHECK: Metaplex metadata is verified against the NFT and the project access key
     #[account(
-        constraint = MarketSettingsAccount::is_open(&market_settings) || project_nft.as_ref().is_some_and(|nft|
+        constraint = !market.is_restricted() || project_nft.as_ref().zip(market_settings.as_ref()).is_some_and(|(nft, settings)|
             MarketAccount::metadata_constraint(
                 project_metadata,
                 &nft.mint,
-                MarketSettingsAccount::project_access_key(&market_settings),
+                MarketSettingsAccount::project_access_key(settings),
             ))
             @ NosanaJobsError::AccessKeyInvalidCollection,
     )]

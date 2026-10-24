@@ -29,6 +29,7 @@ pub enum JobState {
 }
 
 /// The `JobType` describes the type of any job.
+/// It lives in the low bits of `MarketAccount::job_type`, the high bit is the restricted flag.
 #[repr(u8)]
 pub enum JobType {
     Default = 0,
@@ -36,12 +37,12 @@ pub enum JobType {
     Medium = 2,
     Large = 3,
     Gpu = 4,
-    Unknown = 255,
+    Unknown = 127,
 }
 
 impl From<u8> for JobType {
     fn from(job_type: u8) -> Self {
-        match job_type {
+        match job_type & !crate::MarketAccount::RESTRICTED {
             0 => JobType::Default,
             1 => JobType::Small,
             2 => JobType::Medium,

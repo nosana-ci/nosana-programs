@@ -2,7 +2,7 @@ use crate::*;
 
 #[derive(Accounts)]
 pub struct CloseSettings<'info> {
-    #[account(has_one = authority @ NosanaError::Unauthorized)]
+    #[account(mut, has_one = authority @ NosanaError::Unauthorized)]
     pub market: Account<'info, MarketAccount>,
     #[account(
         mut,
@@ -16,7 +16,8 @@ pub struct CloseSettings<'info> {
 }
 
 impl<'info> CloseSettings<'info> {
-    pub fn handler(&self) -> Result<()> {
+    pub fn handler(&mut self) -> Result<()> {
+        self.market.restrict(false);
         Ok(())
     }
 }
