@@ -59,12 +59,14 @@ pub mod nosana_jobs {
         )
     }
 
-    /// Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
+    /// Close a [MarketAccount](#market-account), the associated [VaultAccount](#vault-account)
+    /// and the [MarketSettingsAccount](#market-settings-account) when the market has one.
     pub fn close(ctx: Context<Close>) -> Result<()> {
         ctx.accounts.handler()
     }
 
-    /// Close a [MarketAccount](#market-account) and the associated [VaultAccount](#vault-account).
+    /// Close a [MarketAccount](#market-account), the associated [VaultAccount](#vault-account)
+    /// and the [MarketSettingsAccount](#market-settings-account) when the market has one.
     pub fn close_admin(ctx: Context<CloseAdmin>) -> Result<()> {
         ctx.accounts.handler()
     }

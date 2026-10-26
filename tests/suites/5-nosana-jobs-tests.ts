@@ -1467,9 +1467,31 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
-    it('can close the market', async function () {
+    it('can restrict the market again before closing it', async function () {
+      await this.jobsProgram.methods
+        .setSettings()
+        .accounts({ ...this.accounts, projectAccessKey: this.nftConfig.collection })
+        .rpc();
+      this.market.jobType |= this.constants.marketRestricted;
+    });
+
+    it('can not close a restricted market without its settings', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .close()
+        .accounts({ ...this.accounts, marketSettings: null })
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.MarketSettingsMissing);
+    });
+
+    it('can close the market and its settings', async function () {
       await this.jobsProgram.methods.close().accounts(this.accounts).rpc();
       this.exists.market = false;
+      this.market.jobType &= ~this.constants.marketRestricted;
+
+      const settings = await this.jobsProgram.account.marketSettingsAccount.fetchNullable(this.accounts.marketSettings);
+      expect(settings).to.equal(null);
     });
   });
 
@@ -1503,6 +1525,14 @@ export default function suite() {
         .rpc();
     });
 
+    it('can restrict the market', async function () {
+      await this.jobsProgram.methods
+        .setSettings()
+        .accounts({ ...this.accounts, projectAccessKey: this.nftConfig.collection })
+        .rpc();
+      this.market.jobType |= this.constants.marketRestricted;
+    });
+
     it('can not close market without the admin key', async function () {
       let msg = '';
       const user = this.users.node1;
@@ -1518,9 +1548,12 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
-    it('can close the market as admin', async function () {
+    it('can close the market and its settings as admin', async function () {
       await this.jobsProgram.methods.closeAdmin().accounts(this.accounts).rpc();
       this.exists.market = false;
+
+      const settings = await this.jobsProgram.account.marketSettingsAccount.fetchNullable(this.accounts.marketSettings);
+      expect(settings).to.equal(null);
     });
   });
 }

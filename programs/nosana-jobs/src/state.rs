@@ -226,6 +226,22 @@ impl MarketSettingsAccount {
     pub fn is_open(settings: &AccountInfo) -> bool {
         MarketSettingsAccount::project_access_key(settings) == id::SYSTEM_PROGRAM
     }
+
+    /// Close the settings PDA when it is initialized, the rent goes to the destination
+    pub fn close<'info>(
+        settings: &AccountInfo<'info>,
+        destination: &AccountInfo<'info>,
+    ) -> Result<()> {
+        if *settings.owner != id::JOBS_PROGRAM {
+            return Ok(());
+        }
+        let rent = settings.lamports();
+        **destination.try_borrow_mut_lamports()? =
+            destination.lamports().checked_add(rent).unwrap();
+        **settings.try_borrow_mut_lamports()? = 0;
+        settings.assign(&id::SYSTEM_PROGRAM);
+        settings.resize(0).map_err(Into::into)
+    }
 }
 
 /// The `JobAccount` struct holds all the information about any individual jobs.

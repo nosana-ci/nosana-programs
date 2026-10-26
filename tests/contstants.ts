@@ -120,6 +120,7 @@ const constants = {
     // market errors
     MarketInWrongState: 'This market does not have the right status.',
     NotInMarketQueue: 'Account cannot be find account in market queue.',
+    MarketSettingsMissing: 'This market has settings that must be closed with it.',
 
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
