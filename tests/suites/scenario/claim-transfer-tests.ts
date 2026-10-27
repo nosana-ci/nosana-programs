@@ -1,5 +1,5 @@
 import { BN } from '@anchor-lang/core';
-import { getTokenBalance, now, pda } from '../../utils';
+import { getSolanaTimestamp, getTokenBalance, pda } from '../../utils';
 import { expect } from 'chai';
 import * as anchor from '@anchor-lang/core';
 import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
@@ -57,8 +57,8 @@ export default function suite() {
       this.balances.beneficiary = await getTokenBalance(this.provider, this.accounts.beneficiary);
       this.poolClosed = false;
 
-      // start pool 3 second ago
-      const startTime = now() - 3;
+      // start pool 3 seconds ago on the on-chain clock (wall time can run ahead of the validator)
+      const startTime = (await getSolanaTimestamp(this.connection)) - 3;
 
       // open pool
       await this.poolsProgram.methods

@@ -116,6 +116,12 @@ const descriptions = (name) => {
       return 'The [SettingsAccount](#settings-account) address.';
     case 'market':
       return 'The [MarketAccount](#market-account) address.';
+    case 'marketSettings':
+      return 'The [MarketSettingsAccount](#market-settings-account) address.';
+    case 'projectNft':
+      return 'The Token Account address that holds the project access key NFT.';
+    case 'projectMetadata':
+      return 'The Metaplex Metadata address, that belongs to the project access key NFT.';
     case 'job':
       return 'The [JobAccount](#job-account) address.';
     case 'run':
@@ -136,6 +142,8 @@ const descriptions = (name) => {
       return 'The [ReflectionAccount](#reflection-account) address.';
     case 'accessKey':
       return 'The Node Access Key address.';
+    case 'projectAccessKey':
+      return 'The NFT collection address of an NFT that a project holds, in order to post jobs to this market.';
 
     // stake arguments
     case 'amount':

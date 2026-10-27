@@ -48,8 +48,11 @@ const constants = {
     medium: 2,
     large: 3,
     gpu: 4,
-    unknown: 255,
+    unknown: 127,
   },
+
+  // high bit of a market's jobType, set while the market settings restrict it to projects holding the access key
+  marketRestricted: 128,
 
   queueType: {
     job: 0,
@@ -117,6 +120,7 @@ const constants = {
     // market errors
     MarketInWrongState: 'This market does not have the right status.',
     NotInMarketQueue: 'Account cannot be find account in market queue.',
+    MarketSettingsMissing: 'This market has settings that must be closed with it.',
 
     // node errors
     NodeNoStake: 'This node does not have an active stake.',
@@ -128,6 +132,12 @@ const constants = {
     NodeNftWrongOwner: 'This NFT is not owned by this node.',
     NodeNftInvalidAmount: 'Access NFT amount cannot be 0.',
     NodeKeyInvalidCollection: 'This access key does not belong to a verified collection.',
+
+    // project access key errors
+    AccessKeyMissing: 'This market requires an access key NFT.',
+    AccessNftWrongOwner: 'This access key NFT is not owned by the signer.',
+    AccessNftInvalidAmount: 'Access key NFT amount cannot be 0.',
+    AccessKeyInvalidCollection: 'This access key NFT does not belong to the verified collection.',
 
     // pool errors
     PoolNotStarted: 'This pool has not started yet.',

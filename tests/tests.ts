@@ -116,6 +116,10 @@ describe('nosana programs', async function () {
       [utf8.encode('stake'), this.mint.toBuffer(), this.publicKey.toBuffer()],
       this.stakingProgram.programId,
     );
+
+    // optional accounts must be passed as null when absent, anchor then passes the program id
+    this.accounts.projectNft = null;
+    this.accounts.projectMetadata = null;
   });
 
   switch (process.env.TEST_SCENARIO) {

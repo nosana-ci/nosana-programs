@@ -13,6 +13,8 @@ pub enum NosanaJobsError {
     MarketInWrongState,
     #[msg("Account cannot be find account in market queue.")]
     NotInMarketQueue,
+    #[msg("This market has settings that must be closed with it.")]
+    MarketSettingsMissing,
 
     // job errors
     #[msg("This job account is not valid.")]
@@ -49,4 +51,14 @@ pub enum NosanaJobsError {
     NodeNftInvalidAmount,
     #[msg("This access key does not belong to a verified collection.")]
     NodeKeyInvalidCollection,
+
+    // project access key errors
+    #[msg("This market requires an access key NFT.")]
+    AccessKeyMissing,
+    #[msg("This access key NFT is not owned by the signer.")]
+    AccessNftWrongOwner,
+    #[msg("Access key NFT amount cannot be 0.")]
+    AccessNftInvalidAmount,
+    #[msg("This access key NFT does not belong to the verified collection.")]
+    AccessKeyInvalidCollection,
 }

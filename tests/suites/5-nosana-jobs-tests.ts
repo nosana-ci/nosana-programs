@@ -4,6 +4,7 @@ import { buf2hex, getSolanaTimestamp, getTokenBalance, pda, waitForSolanaTimesta
 import { BN } from '@anchor-lang/core';
 import { Context, describe } from 'mocha';
 import { createAssociatedTokenAccount, getAssociatedTokenAddress, transfer } from '@solana/spl-token';
+import { utf8 } from '@anchor-lang/core/dist/cjs/utils/bytes';
 
 /**
  * Helper to set the job accounts and seeds
@@ -51,6 +52,10 @@ export default function suite() {
       this.market.address = this.accounts.market;
       this.accounts.vault = await pda(
         [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
+        this.jobsProgram.programId,
+      );
+      this.accounts.marketSettings = await pda(
+        [utf8.encode('settings'), this.accounts.market.toBuffer()],
         this.jobsProgram.programId,
       );
       this.vaults.jobs = this.accounts.vault;
@@ -1102,6 +1107,275 @@ export default function suite() {
     });
   });
 
+  describe('project access key', async function () {
+    it('can list a job on an open market as a client built before market settings existed', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      const instruction = await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .instruction();
+      // such a client does not pass the trailing market settings and project access key accounts
+      instruction.keys = instruction.keys.slice(0, -3);
+      await this.provider.sendAndConfirm(new anchor.web3.Transaction().add(instruction), [jobKey, runKey]);
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
+      this.balances.vaultJob += deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
+    });
+
+    it('can delist the job again', async function () {
+      await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
+    });
+
+    it('can not update the market settings with a different authority', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .setSettings()
+        .accounts({
+          ...this.accounts,
+          projectAccessKey: this.nftConfig.collection,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([this.users.node1.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can restrict a market to projects holding an access key', async function () {
+      await this.jobsProgram.methods
+        .setSettings()
+        .accounts({ ...this.accounts, projectAccessKey: this.nftConfig.collection })
+        .rpc();
+
+      const settings = await this.jobsProgram.account.marketSettingsAccount.fetch(this.accounts.marketSettings);
+      expect(settings.projectAccessKey.toString()).to.equal(this.nftConfig.collection.toString());
+
+      // the market itself is flagged as restricted
+      this.market.jobType |= this.constants.marketRestricted;
+    });
+
+    it('keeps the market restricted when it is updated', async function () {
+      await this.jobsProgram.methods
+        .update(
+          new BN(this.market.jobExpiration),
+          new BN(this.market.jobPrice),
+          this.market.jobType & ~this.constants.marketRestricted,
+          new BN(this.market.nodeStakeMinimum),
+          new BN(this.market.jobTimeout),
+        )
+        .accounts({ ...this.accounts, accessKey: this.market.nodeAccessKey })
+        .rpc();
+    });
+
+    it('can not list a job on a restricted market as a client built before market settings existed', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      const instruction = await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .instruction();
+      instruction.keys = instruction.keys.slice(0, -3);
+
+      let msg = '';
+      await this.provider
+        .sendAndConfirm(new anchor.web3.Transaction().add(instruction), [jobKey, runKey])
+        .catch((e) => (msg = [e.message, ...(e.logs ?? [])].join('\n')));
+      expect(msg).to.contain(this.constants.errors.AccessKeyMissing);
+    });
+
+    it('can not list a job without a project access key', async function () {
+      let msg = '';
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.AccessKeyMissing);
+    });
+
+    it('can not list a job with an access key owned by someone else', async function () {
+      let msg = '';
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts({
+          ...this.accounts,
+          projectNft: this.users.node1.ataNft,
+          projectMetadata: this.users.node1.metadata,
+        })
+        .signers([jobKey, runKey])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.AccessNftWrongOwner);
+    });
+
+    it('can not list a job with metadata that does not belong to the access key', async function () {
+      let msg = '';
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts({
+          ...this.accounts,
+          projectNft: this.accounts.nft,
+          projectMetadata: this.users.node1.metadata,
+        })
+        .signers([jobKey, runKey])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.AccessKeyInvalidCollection);
+    });
+
+    it('can not assign a job without a project access key', async function () {
+      // node1 enters the queue, so there is a node to assign to
+      const workKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .work()
+        .accounts({
+          ...this.accounts,
+          stake: this.users.node1.stake,
+          nft: this.users.node1.ataNft,
+          metadata: this.users.node1.metadata,
+          authority: this.users.node1.publicKey,
+        })
+        .signers([workKey, this.users.node1.user])
+        .rpc();
+      this.market.queueLength += 1;
+      this.market.queueType = this.constants.queueType.node;
+
+      let msg = '';
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .assign(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts({ ...this.accounts, node: this.users.node1.publicKey })
+        .signers([jobKey, runKey])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.AccessKeyMissing);
+
+      // remove node1 from the queue again
+      await this.jobsProgram.methods
+        .stop()
+        .accounts({ ...this.accounts, node: this.users.node1.publicKey })
+        .rpc();
+      this.market.queueLength -= 1;
+      this.market.queueType = this.constants.queueType.unknown;
+    });
+
+    it('can list a job with a project access key', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts({
+          ...this.accounts,
+          projectNft: this.accounts.nft,
+          projectMetadata: this.accounts.metadata,
+        })
+        .signers([jobKey, runKey])
+        .rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
+      this.balances.vaultJob += deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
+    });
+
+    it('can delist the job again', async function () {
+      await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
+    });
+
+    it('can not close the market settings with a different authority', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .closeSettings()
+        .accounts({ ...this.accounts, authority: this.users.node1.publicKey })
+        .signers([this.users.node1.user])
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.Unauthorized);
+    });
+
+    it('can open the market for all projects again by closing the settings', async function () {
+      await this.jobsProgram.methods.closeSettings().accounts(this.accounts).rpc();
+
+      const settings = await this.jobsProgram.account.marketSettingsAccount.fetchNullable(this.accounts.marketSettings);
+      expect(settings).to.equal(null);
+
+      // the market is open again
+      this.market.jobType &= ~this.constants.marketRestricted;
+    });
+
+    it('can list a job without a project access key again', async function () {
+      const jobKey = getNewJobKey(this);
+      const runKey = getRunKey(this);
+      await this.jobsProgram.methods
+        .list(this.constants.ipfsData, new BN(this.constants.jobTimeout))
+        .accounts(this.accounts)
+        .signers([jobKey, runKey])
+        .rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user -= deposit;
+      this.balances.user -= this.constants.feePercentage ? deposit / this.constants.feePercentage : 0;
+      this.balances.vaultJob += deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.job;
+      this.market.queueLength += 1;
+    });
+
+    it('can delist the job again', async function () {
+      await this.jobsProgram.methods.delist().accounts(this.accounts).rpc();
+
+      // update balances
+      const deposit = this.constants.jobPrice * this.constants.jobTimeout;
+      this.balances.user += deposit;
+      this.balances.vaultJob -= deposit;
+
+      // update market
+      this.market.queueType = this.constants.queueType.unknown;
+      this.market.queueLength -= 1;
+    });
+  });
+
   describe('update()', async function () {
     it('can update a market', async function () {
       this.market.jobPrice = 100_000 * this.constants.decimals;
@@ -1193,9 +1467,31 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
-    it('can close the market', async function () {
+    it('can restrict the market again before closing it', async function () {
+      await this.jobsProgram.methods
+        .setSettings()
+        .accounts({ ...this.accounts, projectAccessKey: this.nftConfig.collection })
+        .rpc();
+      this.market.jobType |= this.constants.marketRestricted;
+    });
+
+    it('can not close a restricted market without its settings', async function () {
+      let msg = '';
+      await this.jobsProgram.methods
+        .close()
+        .accounts({ ...this.accounts, marketSettings: null })
+        .rpc()
+        .catch((e) => (msg = e.error.errorMessage));
+      expect(msg).to.equal(this.constants.errors.MarketSettingsMissing);
+    });
+
+    it('can close the market and its settings', async function () {
       await this.jobsProgram.methods.close().accounts(this.accounts).rpc();
       this.exists.market = false;
+      this.market.jobType &= ~this.constants.marketRestricted;
+
+      const settings = await this.jobsProgram.account.marketSettingsAccount.fetchNullable(this.accounts.marketSettings);
+      expect(settings).to.equal(null);
     });
   });
 
@@ -1206,6 +1502,10 @@ export default function suite() {
       this.market.address = this.accounts.market;
       this.accounts.vault = await pda(
         [this.accounts.market.toBuffer(), this.accounts.mint.toBuffer()],
+        this.jobsProgram.programId,
+      );
+      this.accounts.marketSettings = await pda(
+        [utf8.encode('settings'), this.accounts.market.toBuffer()],
         this.jobsProgram.programId,
       );
       this.vaults.jobs = this.accounts.vault;
@@ -1225,6 +1525,14 @@ export default function suite() {
         .rpc();
     });
 
+    it('can restrict the market', async function () {
+      await this.jobsProgram.methods
+        .setSettings()
+        .accounts({ ...this.accounts, projectAccessKey: this.nftConfig.collection })
+        .rpc();
+      this.market.jobType |= this.constants.marketRestricted;
+    });
+
     it('can not close market without the admin key', async function () {
       let msg = '';
       const user = this.users.node1;
@@ -1240,9 +1548,12 @@ export default function suite() {
       expect(msg).to.equal(this.constants.errors.Unauthorized);
     });
 
-    it('can close the market as admin', async function () {
+    it('can close the market and its settings as admin', async function () {
       await this.jobsProgram.methods.closeAdmin().accounts(this.accounts).rpc();
       this.exists.market = false;
+
+      const settings = await this.jobsProgram.account.marketSettingsAccount.fetchNullable(this.accounts.marketSettings);
+      expect(settings).to.equal(null);
     });
   });
 }

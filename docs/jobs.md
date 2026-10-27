@@ -1109,6 +1109,8 @@ A number of 3 variants are defined in this `enum`:
 
 
 The `JobType` describes the type of any job.
+It lives in the low bits of a market's `jobType`, the high bit (`128`) flags a market as restricted to
+projects holding its access key and is set and cleared together with the market settings.
 
 A number of 6 variants are defined in this `enum`:
 | Name                                  | Number                                |
@@ -1118,7 +1120,7 @@ A number of 6 variants are defined in this `enum`:
 | `Medium`                              | `2`                                   |
 | `Large`                               | `3`                                   |
 | `Gpu`                                 | `4`                                   |
-| `Unknown`                             | `255`                                 |
+| `Unknown`                             | `127`                                 |
 
 ## Errors
 

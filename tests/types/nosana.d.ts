@@ -118,6 +118,9 @@ type NosanaAccounts = {
   job: PublicKey;
   run: PublicKey;
   market: PublicKey;
+  marketSettings: PublicKey;
+  projectNft: PublicKey | null;
+  projectMetadata: PublicKey | null;
   nft: PublicKey;
   nftMint: PublicKey;
   metadata: PublicKey;

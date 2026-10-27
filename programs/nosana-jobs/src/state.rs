@@ -26,6 +26,9 @@ pub struct MarketAccount {
 
 impl MarketAccount {
     pub const SIZE: usize = 8 + size_of::<MarketAccount>() + size_of::<[Pubkey; 314]>();
+    /// Flag in `job_type` marking a market as restricted to projects holding its access key.
+    /// It is set and cleared together with the `MarketSettingsAccount`, the low bits keep the `JobType`.
+    pub const RESTRICTED: u8 = 0x80;
     /// Divisor applied to the deposit to compute the network fee.
     /// A value of `0` disables the fee entirely.
     pub const JOB_FEE_FRACTION: u64 = 0;
@@ -68,11 +71,23 @@ impl MarketAccount {
     ) -> Result<()> {
         self.job_expiration = job_expiration;
         self.job_price = job_price;
-        self.job_type = job_type;
+        self.job_type = (self.job_type & MarketAccount::RESTRICTED) | JobType::from(job_type) as u8;
         self.node_access_key = node_access_key;
         self.node_xnos_minimum = node_stake_minimum;
         self.job_timeout = job_timeout;
         Ok(())
+    }
+
+    pub fn is_restricted(&self) -> bool {
+        self.job_type & MarketAccount::RESTRICTED != 0
+    }
+
+    pub fn restrict(&mut self, restricted: bool) {
+        if restricted {
+            self.job_type |= MarketAccount::RESTRICTED;
+        } else {
+            self.job_type &= !MarketAccount::RESTRICTED;
+        }
     }
 
     pub fn get_job_fee(&self, timeout: i64) -> u64 {
@@ -82,7 +97,7 @@ impl MarketAccount {
     }
 
     pub fn add_to_queue(&mut self, order: Pubkey, is_job: bool) -> Result<()> {
-        if self.job_type == JobType::Unknown as u8 {
+        if matches!(JobType::from(self.job_type), JobType::Unknown) {
             return Ok(());
         }
         if self.queue_type == QueueType::Empty as u8 {
@@ -175,6 +190,57 @@ impl MarketAccount {
         } else {
             true
         }
+    }
+}
+
+/// The `MarketSettingsAccount` struct holds optional settings of a `MarketAccount`.
+/// It lives at a PDA derived from the market, a market without one is open to all projects.
+#[account]
+pub struct MarketSettingsAccount {
+    pub project_access_key: Pubkey,
+}
+
+impl MarketSettingsAccount {
+    pub const SIZE: usize = 8 + size_of::<MarketSettingsAccount>();
+
+    pub fn set(&mut self, project_access_key: Pubkey) -> Result<()> {
+        self.project_access_key = project_access_key;
+        Ok(())
+    }
+
+    /***
+      Reads the project access key from the settings PDA of a market:
+       - if the PDA is not initialized, the market is open to all projects
+       - else the stored project access key applies
+    */
+    pub fn project_access_key(settings: &AccountInfo) -> Pubkey {
+        if *settings.owner != id::JOBS_PROGRAM {
+            return id::SYSTEM_PROGRAM;
+        }
+        let data = settings.data.borrow();
+        MarketSettingsAccount::try_deserialize(&mut &data[..])
+            .expect("market settings owned by the program must deserialize")
+            .project_access_key
+    }
+
+    pub fn is_open(settings: &AccountInfo) -> bool {
+        MarketSettingsAccount::project_access_key(settings) == id::SYSTEM_PROGRAM
+    }
+
+    /// Close the settings PDA when it is initialized, the rent goes to the destination
+    pub fn close<'info>(
+        settings: &AccountInfo<'info>,
+        destination: &AccountInfo<'info>,
+    ) -> Result<()> {
+        if *settings.owner != id::JOBS_PROGRAM {
+            return Ok(());
+        }
+        let rent = settings.lamports();
+        **destination.try_borrow_mut_lamports()? =
+            destination.lamports().checked_add(rent).unwrap();
+        **settings.try_borrow_mut_lamports()? = 0;
+        settings.assign(&id::SYSTEM_PROGRAM);
+        settings.resize(0).map_err(Into::into)
     }
 }
 
